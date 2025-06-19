@@ -36,6 +36,7 @@ jobs:
 
       - name: Dry-run sync for PR
         if: github.event_name == 'pull_request' && github.event.action != 'closed'
+        id: dry_run
         env:
           MATRIX_URL: https://matrix.boxel.ai
           MATRIX_USERNAME: ${{ secrets.MATRIX_USERNAME }}
@@ -45,12 +46,22 @@ jobs:
           echo "📁 Target workspace: https://app.boxel.ai/iantest4/skills"
           echo "🔗 PR: ${{ github.event.pull_request.html_url }}"
           echo ""
-          workspace-push . https://app.boxel.ai/iantest4/skills --dry-run
+
+          # Capture the output
+          OUTPUT=$(workspace-push . https://app.boxel.ai/iantest4/skills --dry-run 2>&1)
+          echo "$OUTPUT"
+
+          # Save output for later use
+          echo "SYNC_OUTPUT<<EOF" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
           echo ""
           echo "✅ Dry-run completed - no changes were made to the workspace"
 
       - name: Sync to workspace (main branch or merged PR)
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true))
+        id: sync
         env:
           MATRIX_URL: https://matrix.boxel.ai
           MATRIX_USERNAME: ${{ secrets.MATRIX_USERNAME }}
@@ -61,42 +72,78 @@ jobs:
           echo "🔗 Commit: ${{ github.sha }}"
           echo ""
 
-          workspace-push . https://app.boxel.ai/iantest4/skills
+          # Capture the output
+          OUTPUT=$(workspace-push . https://app.boxel.ai/iantest4/skills 2>&1)
+          echo "$OUTPUT"
+
+          # Save output for later use
+          echo "SYNC_OUTPUT<<EOF" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
           echo ""
           echo "✅ Workspace sync completed successfully!"
 
       - name: Report sync status
         if: success() && (github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)))
-        run: |
-          echo "## 🎉 Workspace Sync Successful" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Successfully synced changes to workspace" >> $GITHUB_STEP_SUMMARY
-          echo "📁 **Workspace:** https://app.boxel.ai/iantest4/skills" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **Commit:** [\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
-          echo "⏰ **Synced at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const syncOutput = `${{ steps.sync.outputs.SYNC_OUTPUT }}`;
+            const body = `## 🎉 Workspace Sync Successful\n\n✅ Successfully synced changes to workspace\n📁 **Workspace:** https://app.boxel.ai/iantest4/skills\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⏰ **Synced at:** ${new Date().toISOString().replace('T', ' ').substring(0, 19)} UTC\n\n### Sync Details\n\`\`\`\n${syncOutput}\n\`\`\``;
+
+            if (context.eventName === 'pull_request') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: body
+              });
+            } else {
+              await github.rest.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: context.sha,
+                body: body
+              });
+            }
 
       - name: Report dry-run status
         if: success() && github.event_name == 'pull_request' && github.event.action != 'closed'
-        run: |
-          echo "## 🔍 Workspace Sync Dry-Run Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Dry-run completed successfully - no changes were made" >> $GITHUB_STEP_SUMMARY
-          echo "📁 **Target workspace:** https://app.boxel.ai/iantest4/skills" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **PR:** #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
-          echo "ℹ️ Changes will be synced when this PR is merged to main" >> $GITHUB_STEP_SUMMARY
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const syncOutput = `${{ steps.dry_run.outputs.SYNC_OUTPUT }}`;
+            const body = `## 🔍 Workspace Sync Dry-Run Complete\n\n✅ Dry-run completed successfully - no changes were made\n📁 **Target workspace:** https://app.boxel.ai/iantest4/skills\n🔗 **PR:** #${{ github.event.number }}\nℹ️ Changes will be synced when this PR is merged to main\n\n### Dry-Run Results\n\`\`\`\n${syncOutput}\n\`\`\``;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: body
+            });
 
       - name: Report sync failure
         if: failure()
-        run: |
-          echo "## ❌ Workspace Sync Failed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "❌ Failed to sync changes to workspace" >> $GITHUB_STEP_SUMMARY
-          echo "📁 **Workspace:** https://app.boxel.ai/iantest4/skills" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **Commit:** [\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ **Action required:** Please check the workflow logs for details" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Troubleshooting" >> $GITHUB_STEP_SUMMARY
-          echo "- Verify Matrix credentials are correctly set in repository secrets" >> $GITHUB_STEP_SUMMARY
-          echo "- Check workspace permissions and URL" >> $GITHUB_STEP_SUMMARY
-          echo "- Review file filtering rules (.gitignore/.boxelignore)" >> $GITHUB_STEP_SUMMARY
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Try to get sync output if available
+            const syncOutput = `${{ steps.sync.outputs.SYNC_OUTPUT }}` || `${{ steps.dry_run.outputs.SYNC_OUTPUT }}` || 'No output captured';
+            const body = `## ❌ Workspace Sync Failed\n\n❌ Failed to sync changes to workspace\n📁 **Workspace:** https://app.boxel.ai/iantest4/skills\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⚠️ **Action required:** Please check the workflow logs for details\n\n### Error Output\n\`\`\`\n${syncOutput}\n\`\`\`\n\n### Troubleshooting\n- Verify Matrix credentials are correctly set in repository secrets\n- Check workspace permissions and URL\n- Review file filtering rules (.gitignore/.boxelignore)`;
+
+            if (context.eventName === 'pull_request') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: body
+              });
+            } else {
+              await github.rest.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: context.sha,
+                body: body
+              });
+            }
