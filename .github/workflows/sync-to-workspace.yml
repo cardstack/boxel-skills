@@ -1,0 +1,103 @@
+name: Sync to Workspace
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed
+    branches:
+      - main
+
+jobs:
+  sync-workspace:
+    name: Sync to Boxel Workspace
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install workspace-sync-cli
+        run: npm install -g @iancalcardstack/workspace-sync-cli
+
+      - name: Verify CLI installation
+        run: |
+          workspace-push --help
+          workspace-pull --help
+
+      - name: Dry-run sync for PR
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
+        env:
+          MATRIX_URL: https://matrix.boxel.ai
+          MATRIX_USERNAME: ${{ secrets.MATRIX_USERNAME }}
+          MATRIX_PASSWORD: ${{ secrets.MATRIX_PASSWORD }}
+        run: |
+          echo "🔍 Running dry-run sync for PR #${{ github.event.number }}"
+          echo "📁 Target workspace: https://app.boxel.ai/iantest4/skills"
+          echo "🔗 PR: ${{ github.event.pull_request.html_url }}"
+          echo ""
+          workspace-push . https://app.boxel.ai/iantest4/skills --dry-run
+          echo ""
+          echo "✅ Dry-run completed - no changes were made to the workspace"
+
+      - name: Sync to workspace (main branch or merged PR)
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true))
+        env:
+          MATRIX_URL: https://matrix.boxel.ai
+          MATRIX_USERNAME: ${{ secrets.MATRIX_USERNAME }}
+          MATRIX_PASSWORD: ${{ secrets.MATRIX_PASSWORD }}
+        run: |
+          echo "🚀 Starting sync to workspace..."
+          echo "📁 Target workspace: https://app.boxel.ai/iantest4/skills"
+          echo "🔗 Commit: ${{ github.sha }}"
+          echo ""
+
+          workspace-push . https://app.boxel.ai/iantest4/skills
+
+          echo ""
+          echo "✅ Workspace sync completed successfully!"
+
+      - name: Report sync status
+        if: success() && (github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)))
+        run: |
+          echo "## 🎉 Workspace Sync Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Successfully synced changes to workspace" >> $GITHUB_STEP_SUMMARY
+          echo "📁 **Workspace:** https://app.boxel.ai/iantest4/skills" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Commit:** [\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
+          echo "⏰ **Synced at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+      - name: Report dry-run status
+        if: success() && github.event_name == 'pull_request' && github.event.action != 'closed'
+        run: |
+          echo "## 🔍 Workspace Sync Dry-Run Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Dry-run completed successfully - no changes were made" >> $GITHUB_STEP_SUMMARY
+          echo "📁 **Target workspace:** https://app.boxel.ai/iantest4/skills" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **PR:** #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "ℹ️ Changes will be synced when this PR is merged to main" >> $GITHUB_STEP_SUMMARY
+
+      - name: Report sync failure
+        if: failure()
+        run: |
+          echo "## ❌ Workspace Sync Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ Failed to sync changes to workspace" >> $GITHUB_STEP_SUMMARY
+          echo "📁 **Workspace:** https://app.boxel.ai/iantest4/skills" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Commit:** [\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Action required:** Please check the workflow logs for details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Troubleshooting" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify Matrix credentials are correctly set in repository secrets" >> $GITHUB_STEP_SUMMARY
+          echo "- Check workspace permissions and URL" >> $GITHUB_STEP_SUMMARY
+          echo "- Review file filtering rules (.gitignore/.boxelignore)" >> $GITHUB_STEP_SUMMARY
