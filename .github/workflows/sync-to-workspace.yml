@@ -48,7 +48,7 @@ jobs:
           echo ""
 
           # Capture the output
-          OUTPUT=$(workspace-push . https://app.boxel.ai/iantest4/skills --dry-run 2>&1)
+          OUTPUT=$(workspace-push . https://app.boxel.ai/iantest4/skills --delete --dry-run 2>&1)
           echo "$OUTPUT"
 
           # Save output for later use
@@ -73,7 +73,7 @@ jobs:
           echo ""
 
           # Capture the output
-          OUTPUT=$(workspace-push . https://app.boxel.ai/iantest4/skills 2>&1)
+          OUTPUT=$(workspace-push . https://app.boxel.ai/iantest4/skills --delete  2>&1)
           echo "$OUTPUT"
 
           # Save output for later use
