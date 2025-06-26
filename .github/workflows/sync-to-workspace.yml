@@ -27,7 +27,7 @@ jobs:
           node-version: "18"
 
       - name: Install workspace-sync-cli
-        run: npm install -g @iancalcardstack/workspace-sync-cli
+        run: npm install -g @cardstack/workspace-sync-cli
 
       - name: Verify CLI installation
         run: |
