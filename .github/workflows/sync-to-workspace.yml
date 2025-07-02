@@ -11,7 +11,7 @@ on:
 
 env:
   STAGING_WORKSPACE_URL: https://realms-staging.stack.cards/skills
-  PRODUCTION_WORKSPACE_URL: https://app.boxel.ai/iantest4/skills-prod
+  PRODUCTION_WORKSPACE_URL: https://app.boxel.ai/skills
 
 jobs:
   sync-workspace:
