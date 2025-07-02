@@ -44,9 +44,9 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.action != 'closed'
         id: dry_run
         env:
-          MATRIX_URL: https://matrix.boxel.ai
-          MATRIX_USERNAME: ${{ secrets.MATRIX_USERNAME }}
-          MATRIX_PASSWORD: ${{ secrets.MATRIX_PASSWORD }}
+          MATRIX_URL: https://matrix-staging.stack.cards
+          MATRIX_USERNAME: ${{ secrets.STAGING_MATRIX_USERNAME }}
+          MATRIX_PASSWORD: ${{ secrets.STAGING_MATRIX_PASSWORD }}
         run: |
           echo "🔍 Running dry-run sync for PR #${{ github.event.number }}"
           echo "📁 Target workspace: ${{ env.STAGING_WORKSPACE_URL }}"
