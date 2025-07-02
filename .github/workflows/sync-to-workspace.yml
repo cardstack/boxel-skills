@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
     types:
       - opened
@@ -13,7 +13,8 @@ on:
       - closed
     branches:
       - main
-
+  release:
+    types: [published]
 env:
   STAGING_WORKSPACE_URL: https://realms-staging.stack.cards/skills
   PRODUCTION_WORKSPACE_URL: https://app.boxel.ai/iantest4/skills-prod
@@ -91,7 +92,7 @@ jobs:
           echo "✅ Staging workspace sync completed successfully!"
 
       - name: Sync to production workspace (release tags)
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'v'))
         id: sync_production
         env:
           MATRIX_URL: https://matrix.boxel.ai
@@ -180,11 +181,11 @@ jobs:
             const productionSyncOutput = `${{ steps.sync_production.outputs.SYNC_OUTPUT }}` || '';
             const dryRunSyncOutput = `${{ steps.dry_run.outputs.SYNC_OUTPUT }}` || '';
             const syncOutput = stagingSyncOutput || productionSyncOutput || dryRunSyncOutput || 'No output captured';
-            
+
             const isProduction = context.ref.startsWith('refs/tags/v');
             const workspace = isProduction ? '${{ env.PRODUCTION_WORKSPACE_URL }}' : '${{ env.STAGING_WORKSPACE_URL }}';
             const environment = isProduction ? 'production' : 'staging';
-            
+
             const body = `## ❌ ${environment.charAt(0).toUpperCase() + environment.slice(1)} Workspace Sync Failed\n\n❌ Failed to sync changes to ${environment} workspace\n📁 **Workspace:** ${workspace}\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⚠️ **Action required:** Please check the workflow logs for details\n\n### Error Output\n\`\`\`\n${syncOutput}\n\`\`\`\n\n### Troubleshooting\n- Verify Matrix credentials are correctly set in repository secrets\n- Check workspace permissions and URL\n- Review file filtering rules (.gitignore/.boxelignore)`;
 
             if (context.eventName === 'pull_request') {
