@@ -71,6 +71,55 @@
             "module": "@cardstack/boxel-host/commands/set-active-llm"
           },
           "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/open-workspace"
+          },
+          "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/preview-format"
+          },
+          "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/update-code-path-with-selection"
+          },
+          "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/write-text-file"
+          },
+          "requiresApproval": true
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/copy-card"
+          },
+          "requiresApproval": true
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/copy-source"
+          },
+          "requiresApproval": true
+        },
+        {
+          "codeRef": {
+            "module": "@cardstack/boxel-host/commands/patch-fields",
+            "name": "default"
+          },
+          "requiresApproval": false
         }
       ],
       "description": "Help users navigate Boxel efficiently, switching between modes and orchestrating workflows",
