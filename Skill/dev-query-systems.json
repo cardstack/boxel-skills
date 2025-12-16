@@ -1,9 +1,14 @@
 {
   "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "Skill",
+        "module": "https://cardstack.com/base/skill"
+      }
+    },
     "type": "card",
     "attributes": {
       "title": "Query Systems",
-      "description": "Card search patterns and query filter syntax",
       "cardInfo": {
         "notes": null,
         "title": "Query Systems",
@@ -11,13 +16,8 @@
         "thumbnailURL": null
       },
       "commands": [],
-      "instructions": "## Query Essentials\n\n**The 'on' Rule (MEMORIZE THIS!):**\n```ts\n// ❌ WRONG - Missing 'on'\n{ range: { price: { lte: 100 } } }\n\n// ✅ CORRECT - Include 'on' for filters\n{\n  on: { module: new URL('./product', import.meta.url).href, name: 'Product' },\n  range: { price: { lte: 100 } }\n}\n```\n\n**⚠️ CRITICAL Path Rule:**\n- **In .gts files (queries):** Use `./` - you're in the same directory as the module\n- **In JSON files (`adoptsFrom`):** Use `../` - instances live in folders, need to navigate up\n- `./` means \"same directory\" when used with `import.meta.url`\n\n**Filter types needing 'on':**\n- `eq`, `contains`, `range` (except after type filter)\n- Sort on type-specific fields\n\n**Basic query pattern:**\n```ts\nconst query = {\n  filter: {\n    every: [\n      { type: { module: new URL('./product', import.meta.url).href, name: 'Product' } },\n      { on: { module: new URL('./product', import.meta.url).href, name: 'Product' }, eq: { status: 'active' } }\n    ]\n  }\n};\n```\n\n**When to use what:**\n- Display cards as-is → `PrerenderedCardSearch`\n- Need data manipulation → `getCards`"
-    },
-    "meta": {
-      "adoptsFrom": {
-        "name": "Skill",
-        "module": "https://cardstack.com/base/skill"
-      }
+      "description": "Card search patterns and query filter syntax",
+      "instructions": "## Query Essentials\n\n**The 'on' Rule (MEMORIZE THIS!):**\n```ts\n// ❌ WRONG - Missing 'on'\n{ range: { price: { lte: 100 } } }\n\n// ✅ CORRECT - Include 'on' for filters\n{\n  on: { module: new URL('./product', import.meta.url).href, name: 'Product' },\n  range: { price: { lte: 100 } }\n}\n```\n\n**⚠️ CRITICAL Path Rule:**\n- **In .gts files (queries):** Use `./` - you're in the same directory as the module\n- **In JSON files (`adoptsFrom`):** Use `../` - instances live in folders, need to navigate up\n- `./` means \"same directory\" when used with `import.meta.url`\n\n**Filter types needing 'on':**\n- `eq`, `contains`, `range` (except after type filter)\n- Sort on type-specific fields\n\n**Filter composition types:**\n- `any`: allows an \"OR\" union of other filters\n- `every`: allows an \"AND\" union of other filters\n- `not`: allow negating another filter\n\n**Basic query pattern:**\n```ts\nconst query = {\n  filter: {\n    every: [\n      { type: { module: new URL('./product', import.meta.url).href, name: 'Product' } },\n      { on: { module: new URL('./product', import.meta.url).href, name: 'Product' }, eq: { status: 'active' } }\n    ]\n  }\n};\n```\n\n**Defining query-backed fields:**\n```ts\n@field shirts = linksToMany(Shirt, {\n  query: {\n    filter: {\n      // implicit clause merged during execution: on: { module: Shirt.module, name: 'Shirt' }\n      eq: { size: '$this.profile.shirtSize' },\n    },\n    realm: '$thisRealm',\n    sort: [\n      {\n        by: 'updatedAt',\n        direction: 'desc',\n      },\n    ],\n    page: { size: 12 },\n  },\n});\n\n@field profile = linksTo(Profile, {\n  query: {\n    filter: {\n      eq: { primary: true },\n    },\n    // `linksTo` takes the first matching card (post-sort) or null when no results.\n  },\n});\n```\n\n**When to use what to query cards:**\n- Efficient display-only → `PrerenderedCardSearch`\n- Need data manipulation → `getCards`\n- Treat query result as a field → query-backed fields\n```"
     },
     "relationships": {
       "cardInfo.theme": {
