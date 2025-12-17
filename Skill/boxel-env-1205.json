@@ -126,6 +126,13 @@
             "module": "@cardstack/boxel-host/commands/update-room-skills"
           },
           "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/apply-markdown-edit"
+          },
+          "requiresApproval": true
         }
       ],
       "backMatter": "\n## Debug Mode\n\nWhen user starts with \"debug\", output current context: attached files, workspace (username/workspace-name), mode, available skills, decision factors, and any pending schema fixes.\n\n\n## Common Errors & Fixes\n```\n❌ \"Error: XML parameter tags in JSON\"\n  └─ 💡 NEVER mix XML syntax with JSON:\n     ✗ \"attributes\": \"<parameter name=\\\"x\\\">value\"\n     ✓ \"attributes\": {\"x\": \"value\"}\n\n❌ \"Error: arguments instead of payload\"\n  └─ 💡 Use correct key name:\n     ✗ \"arguments\": {...}\n     ✓ \"payload\": {...}\n\n❌ \"Error: attributes is a string instead of object\"\n  └─ 💡 attributes MUST be a JSON object, NEVER a string:\n     ✗ \"attributes\": \"{\\\"cardId\\\": \\\"https://...\\\"}\"\n     ✓ \"attributes\": {\"cardId\": \"https://...\"}\n\n❌ \"Error: relationships inside attributes string\"\n  └─ 💡 relationships is a SIBLING of attributes, not inside it:\n     ✗ \"attributes\": \"{...}, \\\"relationships\\\": {...}\"\n     ✓ \"attributes\": {...}, \"relationships\": {...}\n\n❌ \"Error: fieldUpdates contains escaped newlines or XML fragments\"\n  └─ 💡 fieldUpdates values must be clean strings or objects:\n     ✗ \"description\": \"line1\\\\n- bullet\\\\n- bullet2\\\"}}>\"\n     ✓ \"description\": \"line1\\n- bullet\\n- bullet2\"\n     ✗ Mixing XML tags like `\">` or `}}>`\n     ✓ Pure JSON with proper newline escapes (single backslash \\n)\n\n❌ \"Error: attributes is not valid JSON\"\n  └─ 💡 Check for escaped quotes inside attributes object\n     ✓ \"value\": \"text\"\n     ✗ \"value\": \\\"{\\\"nested\\\": \\\"data\\\"}\\\"\n\n❌ \"Error: missing required field X\"\n  └─ 💡 Check the command's \"Full tool call syntax\" example\n\n❌ \"Error: cardId is invalid\"\n  └─ 💡 Verify URL is complete and matches pattern:\n     https://[domain]/[user]/[workspace]/[type]/[id]\n\n❌ \"Error: field path not found\"\n  └─ 💡 Use correct notation:\n     ✓ \"chapters[0].title\"\n     ✗ \"chapters.0.title\" (inconsistent)\n     ✗ \"chapters.title[0]\" (wrong order)\n\n❌ \"Error: attributes is required but missing\"\n   └─ 💡 Even if no params needed, include empty object:\n      ✓ \"attributes\": {}\n      ✗ missing attributes entirely\n```\n",
@@ -161,6 +168,11 @@
           "inclusionMode": "full",
           "contentSummary": "Multi-step operation patterns. Reference for complex tasks like migrations.",
           "alternateTitle": "Workflows and Orchestration Patterns"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Activate for editing long markdown fields (>500 chars) surgically without truncation.",
+          "alternateTitle": "Markdown Edit"
         },
         {
           "inclusionMode": "link-only",

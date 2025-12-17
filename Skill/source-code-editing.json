@@ -2,8 +2,8 @@
   "data": {
     "meta": {
       "adoptsFrom": {
-        "name": "Skill",
-        "module": "https://cardstack.com/base/skill"
+        "name": "SkillPlus",
+        "module": "https://app.boxel.ai/catalog/skill-plus"
       }
     },
     "type": "card",
@@ -22,7 +22,7 @@
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": null
+          "self": "https://app.boxel.ai/catalog/Theme/cardstack"
         }
       }
     }
