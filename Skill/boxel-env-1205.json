@@ -224,10 +224,15 @@
       },
       "relatedSkills.6.skill": {
         "links": {
-          "self": "./boxel-dev-1203"
+          "self": "./env-markdown-edit"
         }
       },
       "relatedSkills.7.skill": {
+        "links": {
+          "self": "./boxel-dev-1203"
+        }
+      },
+      "relatedSkills.8.skill": {
         "links": {
           "self": "./source-code-editing"
         }

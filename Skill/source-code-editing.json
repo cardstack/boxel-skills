@@ -11,8 +11,8 @@
       "title": "Source Code Editing",
       "cardInfo": {
         "notes": null,
-        "title": null,
-        "description": null,
+        "title": "Source Code Editing",
+        "description": "A skill to guide models to create SEARCH/REPLACE blocks to edit code, modified from Aider - https://aider.chat/",
         "thumbnailURL": null
       },
       "commands": [],
