@@ -144,7 +144,6 @@
           "inclusionMode": "full",
           "contentSummary": "Defines communication style. Always active for intent-based responses and concise summaries.",
           "alternateTitle": "Assistant Persona"
-
         },
         {
           "inclusionMode": "full",
