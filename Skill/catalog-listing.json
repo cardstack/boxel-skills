@@ -2,13 +2,12 @@
   "data": {
     "meta": {
       "adoptsFrom": {
-        "name": "SkillPlus",
+        "name": "SkillPlusMarkdown",
         "module": "https://app.boxel.ai/catalog/skill-plus"
       }
     },
     "type": "card",
     "attributes": {
-      "instructions": "Before running the operation, ensure the following conditions are met:\n\n1. The create, use, install, and remix commands must exist and be callable.\n2. Except generate gts card definition via listing, create and update listing, the user must provide all of the following:\n- A valid Realm URL\n- A Listing Card\n- An Action Type: \"use\", \"install\", or \"remix\"\n\nIf any value is missing, prompt the user to provide the missing input(s). If all inputs are available, proceed automatically without asking for confirmation.\n\nBased on the action type:\n- If actionType === \"use\" → run the use command\n- If actionType === \"install\" → run the install command\n- If actionType === \"remix\" → run the remix command\n- If the action type is not one of the above, ignore command execution but check for other specified actions.\n\nFor \"use\", \"install\" and \"remix\", use the following inputs to run the command:\n- Realm URL: [user input]\n- Listing: [user input]\n\nIf actionType is remix:\n- After running remix, also run remix code to generate two example prompts.\n- Respond with:\n    1. A confirmation message summarizing the remix operation.\n    2. A follow-up message with two listing-related remix prompts.If specific prompts can't be generated, provide two general suggestions (e.g., \"Change to dark theme\", \"Convert to minimalist layout).\n\nIf actionType is update and asks for either update category or tag:\n\nCategory\n- query search module: `{catalog realm}/catalog-app/listing/category`, name: Category\n\nTag \n- query search module: `{catalog realm}/catalog-app/listing/tag` , name: Tag\n\nFind appropriate instance(s) and update them\n\nIf actionType is generate .gts card definition via listing requirement:\n- First, create an empty .gts file, make sure the gts file exist after creation.\n- Measure the requirements, split into several steps of response if found to be large\n- Code generation must not exceed 1000 lines per response\n- Continue in subsequent responses if needed.\n- Once complete, create some example and show the module and example via preview-format command. Make sure the module is full path which includes the realm url",
       "commands": [
         {
           "codeRef": {
@@ -54,6 +53,15 @@
       "cardInfo.theme": {
         "links": {
           "self": "https://app.boxel.ai/catalog/Theme/cardstack"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./catalog-listing.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./catalog-listing.md"
         }
       }
     }
