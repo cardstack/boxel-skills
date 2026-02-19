@@ -9,5 +9,176 @@ permissions:
 
 jobs:
   diff-skills:
-    uses: cardstack/gh-actions/.github/workflows/diff-skills.yml@skills-matrix-cs-8727
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed JSON files
+        id: changed
+        run: |
+          FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- 'Skill/*.json')
+          if [ -z "$FILES" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "$FILES" > "$RUNNER_TEMP/changed_files.txt"
+          fi
+
+      - name: Generate diff
+        id: diff
+        if: steps.changed.outputs.has_changes == 'true'
+        run: |
+          diff_file="$RUNNER_TEMP/skills-diff.md"
+          echo "## Skills Diff" > "$diff_file"
+          echo "" >> "$diff_file"
+
+          # Write the Python diff script
+          cat > "$RUNNER_TEMP/smart_diff.py" << 'PYEOF'
+          import json, sys, difflib
+
+          def expand(text):
+              try:
+                  obj = json.loads(text)
+                  s = json.dumps(obj, indent=2, sort_keys=True, ensure_ascii=False)
+                  return s.replace('\\n', '\n')
+              except:
+                  return text
+
+          def sentence_start(text, pos):
+              """Find the start of the sentence containing pos."""
+              i = pos - 1
+              while i > 0:
+                  if text[i] in '.!?' and i + 1 < len(text) and text[i + 1] == ' ':
+                      return i + 2
+                  i -= 1
+              return 0
+
+          def sentence_end(text, pos):
+              """Find the end of the sentence containing pos."""
+              i = pos
+              while i < len(text):
+                  if text[i] in '.!?' and (i + 1 >= len(text) or text[i + 1] == ' '):
+                      return i + 1
+                  i += 1
+              return len(text)
+
+          def trim_pair(old_line, new_line):
+              """Extract the sentence containing the change."""
+              prefix_len = 0
+              for i in range(min(len(old_line), len(new_line))):
+                  if old_line[i] == new_line[i]:
+                      prefix_len = i + 1
+                  else:
+                      break
+              start = sentence_start(old_line, prefix_len)
+              end_old = sentence_end(old_line, prefix_len)
+              end_new = sentence_end(new_line, prefix_len)
+              return (
+                  old_line[start:end_old],
+                  new_line[start:end_new],
+              )
+
+          def trim_long(text, max_len=120):
+              if len(text) > max_len:
+                  h = max_len // 2 - 2
+                  return f"{text[:h]}...{text[-h:]}"
+              return text
+
+          old_text = expand(open(sys.argv[1]).read())
+          new_text = expand(open(sys.argv[2]).read())
+          filename = sys.argv[3]
+
+          diff = list(difflib.unified_diff(
+              old_text.splitlines(), new_text.splitlines(),
+              fromfile=f"a/{filename}", tofile=f"b/{filename}",
+              lineterm='', n=1,
+          ))
+          if not diff:
+              sys.exit(0)
+
+          out = []
+          i = 0
+          while i < len(diff):
+              line = diff[i]
+              if line.startswith('---') or line.startswith('+++') or line.startswith('@@'):
+                  out.append(line)
+                  i += 1
+                  continue
+              if line.startswith('-') and not line.startswith('---'):
+                  minus, plus = [], []
+                  while i < len(diff) and diff[i].startswith('-') and not diff[i].startswith('---'):
+                      minus.append(diff[i][1:])
+                      i += 1
+                  while i < len(diff) and diff[i].startswith('+') and not diff[i].startswith('+++'):
+                      plus.append(diff[i][1:])
+                      i += 1
+                  if len(minus) == len(plus):
+                      for m, p in zip(minus, plus):
+                          if max(len(m), len(p)) > 120:
+                              tm, tp = trim_pair(m, p)
+                              out.append(f"-{tm}")
+                              out.append(f"+{tp}")
+                          else:
+                              out.append(f"-{m}")
+                              out.append(f"+{p}")
+                  else:
+                      for m in minus:
+                          out.append(f"-{trim_long(m)}")
+                      for p in plus:
+                          out.append(f"+{trim_long(p)}")
+                  continue
+              if line.startswith(' '):
+                  out.append(f" {trim_long(line[1:])}")
+              else:
+                  out.append(line)
+              i += 1
+
+          print('\n'.join(out))
+          PYEOF
+
+          while IFS= read -r file; do
+            git show "${{ github.event.pull_request.base.sha }}:$file" > "$RUNNER_TEMP/old.json" 2>/dev/null || echo "{}" > "$RUNNER_TEMP/old.json"
+            git show "${{ github.event.pull_request.head.sha }}:$file" > "$RUNNER_TEMP/new.json" 2>/dev/null || echo "{}" > "$RUNNER_TEMP/new.json"
+
+            FILE_DIFF=$(python3 "$RUNNER_TEMP/smart_diff.py" "$RUNNER_TEMP/old.json" "$RUNNER_TEMP/new.json" "$file")
+
+            if [ -n "$FILE_DIFF" ]; then
+              {
+                echo "### $file"
+                echo ""
+                echo '````diff'
+                echo "$FILE_DIFF"
+                echo '````'
+                echo ""
+              } >> "$diff_file"
+            fi
+          done < "$RUNNER_TEMP/changed_files.txt"
+
+          # Check if any diffs were actually found
+          if [ "$(wc -l < "$diff_file")" -le 2 ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Truncate if too large for a PR comment
+          if [ $(wc -c < "$diff_file") -gt 60000 ]; then
+            head -c 60000 "$diff_file" > "$diff_file.tmp"
+            {
+              cat "$diff_file.tmp"
+              echo ""
+              echo ""
+              echo "> :warning: Diff truncated. See the full diff in the Files tab."
+            } > "$diff_file"
+          fi
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          echo "diff_file=$diff_file" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on PR
+        if: steps.diff.outputs.has_changes == 'true'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: skills-diff
+          path: ${{ steps.diff.outputs.diff_file }}
