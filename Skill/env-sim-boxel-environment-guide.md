@@ -552,8 +552,8 @@ patch-fields_3e67 with attributes.cardId set to the card URL and attributes.fiel
   "payload": {
     "description": "Copy some-def.gts to workspace B",
     "attributes": {
-      "fromRealmUrl": "https://[boxel-app-domain]/user/workspaceA/some-def.gts",
-      "toRealmUrl": "https://[boxel-app-domain]/user/workspaceB/renamed.gts"
+      "originSourceUrl": "https://[boxel-app-domain]/user/workspaceA/some-def.gts",
+      "destinationSourceUrl": "https://[boxel-app-domain]/user/workspaceB/renamed.gts"
     }
   }
 }
@@ -623,7 +623,7 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 
 ### Multi-Realm Operations
 ```json
-`copy-source_5d09` with `attributes.fromRealmUrl` and `attributes.toRealmUrl` set
+`copy-source_5d09` with `attributes.originSourceUrl` and `attributes.destinationSourceUrl` set
 → `copy-card_eefc` with `attributes.sourceCard` and `attributes.realm` set
 → `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk modification
 ```
