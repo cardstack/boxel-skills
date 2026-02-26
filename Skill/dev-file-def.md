@@ -1,11 +1,11 @@
 ## FileDef — First-Class File Support
 
-`FileDef` is a **third kind of def** in Boxel, alongside `CardDef` and `FieldDef`. A FileDef instance represents a file that lives in the realm — an image, document, or other asset — with metadata automatically extracted during indexing.
+`FileDef` is a **third kind of "def"** in Boxel, alongside `CardDef` and `FieldDef`. A FileDef instance represents a file that lives in the realm — an image, document, or other asset — with metadata automatically extracted during indexing.
 
 ### Key Rules
 
 - **FileDef instances have their own identity** (like cards), so you reference them with `linksTo`, never `contains`
-- **All display formats are pre-implemented** — do not write `isolated`, `embedded`, `fitted`, or `atom` templates for FileDef types
+- **Render them using the same display formats** — FileDefs have `isolated`, `embedded`, `fitted`, and `atom` templates
 - **Files are not editable via the card edit interface** — users replace them by uploading a new file
 
 ---
@@ -30,6 +30,7 @@ FileDef                          → any file
 ```
 
 **Use the most specific type that fits.** Prefer `PngDef` over `ImageDef` when you specifically need PNG; prefer `ImageDef` over `FileDef` when any image format is acceptable.
+**This set is not extensible by Boxel users (currently).** The Boxel project provides these types and only new releases of boxel can add new ones. This may change in the future.
 
 ---
 
@@ -62,23 +63,23 @@ import CsvFileDef from 'https://cardstack.com/base/csv-file-def';
 
 Every FileDef instance exposes these base fields:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | URL identifier of the file |
-| `url` | string | Current URL of the file |
-| `sourceUrl` | string | Original source URL |
-| `name` | string | Filename (e.g. `photo.png`) |
+| Field         | Type   | Description                  |
+| ------------- | ------ | ---------------------------- |
+| `id`          | string | URL identifier of the file   |
+| `url`         | string | Current URL of the file      |
+| `sourceUrl`   | string | Original source URL          |
+| `name`        | string | Filename (e.g. `photo.png`)  |
 | `contentType` | string | MIME type (e.g. `image/png`) |
-| `contentHash` | string | MD5 hash of file content |
-| `contentSize` | number | File size in bytes |
+| `contentHash` | string | MD5 hash of file content     |
+| `contentSize` | number | File size in bytes           |
 
 Additional fields added by subtype:
 
-| Type | Extra Fields |
-|------|-------------|
-| `ImageDef` + all image subtypes | `width` (px), `height` (px) |
-| `MarkdownDef`, `TextFileDef`, `TsFileDef`, `GtsFileDef`, `JsonFileDef` | `title`, `excerpt`, `content` (full text) |
-| `CsvFileDef` | `title`, `excerpt`, `content`, `columns` (array), `columnCount`, `rowCount` |
+| Type                                                                   | Extra Fields                                                                |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `ImageDef` + all image subtypes                                        | `width` (px), `height` (px)                                                 |
+| `MarkdownDef`, `TextFileDef`, `TsFileDef`, `GtsFileDef`, `JsonFileDef` | `title`, `excerpt`, `content` (full text)                                   |
+| `CsvFileDef`                                                           | `title`, `excerpt`, `content`, `columns` (array), `columnCount`, `rowCount` |
 
 ---
 
@@ -92,10 +93,10 @@ import FileDef from 'https://cardstack.com/base/file-api';
 import MarkdownDef from 'https://cardstack.com/base/markdown-file-def';
 
 export class ProductListing extends CardDef {
-  @field photo = linksTo(PngDef);        // Specifically PNG
-  @field banner = linksTo(ImageDef);     // Any image format
-  @field attachment = linksTo(FileDef);  // Any file type
-  @field readme = linksTo(MarkdownDef);  // Markdown document
+  @field photo = linksTo(PngDef); // Specifically PNG
+  @field banner = linksTo(ImageDef); // Any image format
+  @field attachment = linksTo(FileDef); // Any file type
+  @field readme = linksTo(MarkdownDef); // Markdown document
 }
 ```
 
@@ -127,6 +128,7 @@ static isolated = class Isolated extends Component<typeof ProductListing> {
 ```
 
 **Image built-in formats:**
+
 - `isolated` → full-size image + filename + dimensions footer
 - `embedded` → responsive `<img>` that fills its container width
 - `fitted` → `background-image: cover` for fixed-size grid cells
@@ -138,16 +140,16 @@ static isolated = class Isolated extends Component<typeof ProductListing> {
 
 These are completely different and are **not interchangeable**:
 
-| | `MarkdownDef` | `MarkdownField` |
-|---|---|---|
-| **Kind** | FileDef — a `.md` file in the realm | FieldDef — inline text stored in the card's JSON |
-| **Import** | `https://cardstack.com/base/markdown-file-def` | `https://cardstack.com/base/markdown` |
-| **Declaration** | `@field notes = linksTo(MarkdownDef)` | `@field notes = contains(MarkdownField)` |
-| **Stored as** | Separate `.md` file referenced by URL | String embedded in the card's `.json` |
-| **Has own URL?** | ✅ Yes — shareable and reusable | ❌ No — owned by the containing card |
-| **Editable in card UI?** | ❌ No — replaced by uploading a new file | ✅ Yes — inline markdown editor |
-| **Extra fields** | `title`, `excerpt`, `content` auto-extracted | Raw markdown string only |
-| **Use when** | Stand-alone documents, content shared across cards, files managed outside Boxel | Inline rich text that belongs to the card, like a description or body field |
+|                          | `MarkdownDef`                                                                   | `MarkdownField`                                                             |
+| ------------------------ | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Kind**                 | FileDef — a `.md` file in the realm                                             | FieldDef — inline text stored in the card's JSON                            |
+| **Import**               | `https://cardstack.com/base/markdown-file-def`                                  | `https://cardstack.com/base/markdown`                                       |
+| **Declaration**          | `@field notes = linksTo(MarkdownDef)`                                           | `@field notes = contains(MarkdownField)`                                    |
+| **Stored as**            | Separate `.md` file referenced by URL                                           | String embedded in the card's `.json`                                       |
+| **Has own URL?**         | ✅ Yes — shareable and reusable                                                 | ❌ No — owned by the containing card                                        |
+| **Editable in card UI?** | ❌ No — replaced by uploading a new file                                        | ✅ Yes — inline markdown editor                                             |
+| **Extra fields**         | `title`, `excerpt`, `content` auto-extracted                                    | Raw markdown string only                                                    |
+| **Use when**             | Stand-alone documents, content shared across cards, files managed outside Boxel | Inline rich text that belongs to the card, like a description or body field |
 
 ---
 
@@ -155,10 +157,10 @@ These are completely different and are **not interchangeable**:
 
 **🚨 Do NOT use `Base64ImageField` for images.** Use an image FileDef type instead.
 
-| | FileDef (`ImageDef`, `PngDef`, etc.) | `Base64ImageField` |
-|---|---|---|
-| **Storage** | Separate file in the realm | Base64 data embedded in the card's JSON |
-| **AI context cost** | ✅ Minimal — just a URL reference | ❌ Extremely large — can exhaust context |
-| **Shareable** | ✅ Yes — has its own URL | ❌ No — embedded in one card |
-| **Performance** | ✅ Standard HTTP caching | ❌ Bloated JSON payloads |
-| **Use** | ✅ Always prefer this | ⚠️ Avoid |
+|                     | FileDef (`ImageDef`, `PngDef`, etc.) | `Base64ImageField`                       |
+| ------------------- | ------------------------------------ | ---------------------------------------- |
+| **Storage**         | Separate file in the realm           | Base64 data embedded in the card's JSON  |
+| **AI context cost** | ✅ Minimal — just a URL reference    | ❌ Extremely large — can exhaust context |
+| **Shareable**       | ✅ Yes — has its own URL             | ❌ No — embedded in one card             |
+| **Performance**     | ✅ Standard HTTP caching             | ❌ Bloated JSON payloads                 |
+| **Use**             | ✅ Always prefer this                | ⚠️ Avoid                                 |
