@@ -153,4 +153,4 @@ Note: Use `null`, not an empty array `[]`
   * `"../Author/jane-doe"` not `"../Author/jane-doe.json"`
 * **Date formats**: 
   * DateField: `"2024-11-15"`
-  * DatetimeField: `"2024-11-15T10:00:00Z"`
+  * DateTimeField: `"2024-11-15T10:00:00Z"`
