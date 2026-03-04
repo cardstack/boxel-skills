@@ -37,7 +37,23 @@ import MarkdownField from 'https://cardstack.com/base/markdown';
 import TextAreaField from 'https://cardstack.com/base/text-area';
 import BigIntegerField from 'https://cardstack.com/base/big-integer';
 import CodeRefField from 'https://cardstack.com/base/code-ref';
-import Base64ImageField from 'https://cardstack.com/base/base64-image'; // Don't use - too large for AI processing
+import Base64ImageField from 'https://cardstack.com/base/base64-image'; // 🚨 NEVER USE - embeds binary in JSON, crashes AI context; use FileDef types instead
+
+// ⁸ FileDef imports - for file fields (use linksTo, never contains)
+import FileDef from 'https://cardstack.com/base/file-api';
+import ImageDef from 'https://cardstack.com/base/image-file-def';     // any image
+import PngDef from 'https://cardstack.com/base/png-image-def';        // .png
+import JpgDef from 'https://cardstack.com/base/jpg-image-def';        // .jpg/.jpeg
+import SvgDef from 'https://cardstack.com/base/svg-image-def';        // .svg
+import GifDef from 'https://cardstack.com/base/gif-image-def';        // .gif
+import WebpDef from 'https://cardstack.com/base/webp-image-def';      // .webp
+import AvifDef from 'https://cardstack.com/base/avif-image-def';      // .avif
+import MarkdownDef from 'https://cardstack.com/base/markdown-file-def'; // .md (NOT same as MarkdownField)
+import TextFileDef from 'https://cardstack.com/base/text-file-def';   // .txt
+import TsFileDef from 'https://cardstack.com/base/ts-file-def';       // .ts
+import GtsFileDef from 'https://cardstack.com/base/gts-file-def';     // .gts
+import JsonFileDef from 'https://cardstack.com/base/json-file-def';   // .json
+import CsvFileDef from 'https://cardstack.com/base/csv-file-def';     // .csv
 import ColorField from 'https://cardstack.com/base/color';
 import EmailField from 'https://cardstack.com/base/email';
 import PercentageField from 'https://cardstack.com/base/percentage';

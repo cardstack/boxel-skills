@@ -1,0 +1,38 @@
+{
+  "data": {
+    "type": "card",
+    "attributes": {
+      "cardTitle": "File Definitions (FileDef)",
+      "cardDescription": "How to use FileDef, ImageDef, MarkdownDef, and related types for file fields in Boxel cards",
+      "cardInfo": {
+        "notes": null,
+        "name": "File Definitions (FileDef)",
+        "summary": "How to use FileDef, ImageDef, MarkdownDef, and related types for file fields in Boxel cards",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "https://app.boxel.ai/catalog/skill-plus"
+      }
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://app.boxel.ai/catalog/Theme/cardstack"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./dev-file-def.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./dev-file-def.md"
+        }
+      }
+    }
+  }
+}
