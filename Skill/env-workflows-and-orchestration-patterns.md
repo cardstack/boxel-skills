@@ -2,7 +2,7 @@
 
 ### 1. Smart Code Refactoring
 ```json
-`set-active-llm_1887` with `attributes.roomId` set to the current room ID and `attributes.llmId` set to "anthropic/claude-sonnet-4.5"
+`set-active-llm_1887` with `attributes.roomId` set to the current room ID and `attributes.llmId` set to "anthropic/claude-sonnet-4.6"
 → `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/card.gts"
 → Prompt "improve code structure"
 → Emit a code patch search/replace block
