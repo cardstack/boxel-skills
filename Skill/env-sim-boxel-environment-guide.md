@@ -85,8 +85,8 @@ User wants to change card appearance/logic/code OR create new code?
 │       ├─ Find Boxel Development skill URL from skill-divider-X below
 │       ├─ Find Source Code Editing skill URL from skill-divider-X below
 │       ├─ Check LLM is code-approved
-│       │   ├─ Using at least claude 4.5+/gemini 2.5+/GPT-5+? → ✓ Continue
-│       │   └─ Different model? → Call set-active-llm_1887 with "anthropic/claude-sonnet-4.5"
+│       │   ├─ Using at least claude 4.6+/gemini 2.5+/GPT-5+? → ✓ Continue
+│       │   └─ Different model? → Call set-active-llm_1887 with "anthropic/claude-sonnet-4.6"
 │       ├─ Send 2 tool calls in one message withs update-room-skills with BOTH URLs and optionally a set-active-LLM
 │       └─ NOW proceed with code generation
 ├─ Development skill active? → Proceed in current mode
@@ -142,9 +142,9 @@ User requests code creation/modification in Code Mode?
 │      └─ Call update-room-skills with that URL
 │         ↓ (wait for activation)
 ├─ LLM Check: Current model code-approved?
-│  ├─ Using anthropic/claude-sonnet-4.5, google/gemini-2.5-pro, or anthropic/claude-opus-4.1? → ✓ Continue
+│  ├─ Using anthropic/claude-sonnet-4.6, google/gemini-2.5-pro, or anthropic/claude-opus-4.1? → ✓ Continue
 │  └─ Using different model?
-│      ├─ Call set-active-llm_1887 with roomId and llmId = "anthropic/claude-sonnet-4.5"
+│      ├─ Call set-active-llm_1887 with roomId and llmId = "anthropic/claude-sonnet-4.6"
 │      └─ Continue
 └─ ✓ BOTH skills active + LLM approved → Proceed with code generation
    ├─ Use SEARCH/REPLACE for all code creation/modification
@@ -668,7 +668,7 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 
 ### 1. Smart Code Refactoring
 ```json
-`set-active-llm_1887` with `attributes.roomId` set to the current room ID and `attributes.llmId` set to "anthropic/claude-sonnet-4.5"
+`set-active-llm_1887` with `attributes.roomId` set to the current room ID and `attributes.llmId` set to "anthropic/claude-sonnet-4.6"
 → `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/card.gts"
 → Prompt "improve code structure"
 → Emit a code patch search/replace block
@@ -748,10 +748,10 @@ Use stack URLs to fetch card details and understand user's exploration path.
 
 ## LLM Selection Strategy
 
-**🚨 CRITICAL: Always start with anthropic/claude-sonnet-4.5 for coding**
+**🚨 CRITICAL: Always start with anthropic/claude-sonnet-4.6 for coding**
 
 ### Recommendations
-- **Coding**: `anthropic/claude-sonnet-4.5` (always start here)
+- **Coding**: `anthropic/claude-sonnet-4.6` (always start here)
 - **Debug alternative**: `google/gemini-2.5-pro` or `google/gemini-2.5-flash`
 - **Complex refactoring**: `anthropic/claude-opus-4.1` (ask permission)
 - **General chat**: `openai/gpt-4.1`
@@ -763,7 +763,7 @@ Use stack URLs to fetch card details and understand user's exploration path.
 
 ```
 What task are you doing?
-├─ 📝 Writing Code? → anthropic/claude-sonnet-4.5 (ALWAYS)
+├─ 📝 Writing Code? → anthropic/claude-sonnet-4.6 (ALWAYS)
 │   └─ Complex refactoring? → Ask permission → anthropic/claude-opus-4.1
 ├─ 🐛 Debugging?
 │   ├─ Try current LLM first
@@ -778,24 +778,24 @@ What task are you doing?
 ### Available LLM IDs
 
 **🌟 Preferred Models:**
-- `anthropic/claude-sonnet-4.5` - **PRIMARY CODING MODEL**
+- `anthropic/claude-sonnet-4.6` - **PRIMARY CODING MODEL**
 - `openai/gpt-4.1` - **GENERAL PURPOSE**
 - `google/gemini-2.5-pro` - **THINKING/ANALYSIS**
 
 **Pattern:** `{provider}/{model-name}` - If not listed, construct using this format  
-**Fallback:** If model unavailable, switch to known models like `openai/gpt-4.1` or `anthropic/claude-sonnet-4.5`
+**Fallback:** If model unavailable, switch to known models like `openai/gpt-4.1` or `anthropic/claude-sonnet-4.6`
 
-**Important:** Always let users try switching to ANY model they request; the system will handle availability. If errors occur, suggest switching back to `openai/gpt-4.1` or `anthropic/claude-sonnet-4.5`.
+**Important:** Always let users try switching to ANY model they request; the system will handle availability. If errors occur, suggest switching back to `openai/gpt-4.1` or `anthropic/claude-sonnet-4.6`.
 
 ### Switching Command for Setting LLM
 ```json
 {
   "name": "set-active-llm_1887",
   "payload": {
-    "description": "use Sonnet 4.5",
+    "description": "use Sonnet 4.6",
     "attributes": {
       "roomId": "!current-room-id:matrix.org",
-      "llmId": "anthropic/claude-sonnet-4.5"
+      "llmId": "anthropic/claude-sonnet-4.6"
     }
   }
 }
