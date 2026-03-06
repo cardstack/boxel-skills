@@ -1,0 +1,46 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "https://app.boxel.ai/catalog/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardTitle": "Indexing Operations",
+      "cardDescription": "Indexing control commands for realm operations.",
+      "cardInfo": {
+        "notes": null,
+        "name": "Indexing Operations",
+        "summary": "Indexing reads realm content into the query index and provides controls for running indexing jobs.",
+        "cardThumbnailURL": null
+      },
+      "commands": [
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/cancel-indexing-job"
+          },
+          "requiresApproval": false
+        }
+      ]
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://app.boxel.ai/catalog/Theme/cardstack"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./env-indexing-operations.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./env-indexing-operations.md"
+        }
+      }
+    }
+  }
+}
