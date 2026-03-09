@@ -23,6 +23,13 @@
             "module": "@cardstack/boxel-host/commands/cancel-indexing-job"
           },
           "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/invalidate-realm-urls"
+          },
+          "requiresApproval": false
         }
       ]
     },
