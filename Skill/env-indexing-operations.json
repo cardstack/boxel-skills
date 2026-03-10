@@ -20,14 +20,28 @@
         {
           "codeRef": {
             "name": "default",
-            "module": "@cardstack/boxel-host/commands/cancel-indexing-job"
+            "module": "@cardstack/boxel-host/commands/invalidate-realm-urls"
           },
           "requiresApproval": false
         },
         {
           "codeRef": {
             "name": "default",
-            "module": "@cardstack/boxel-host/commands/invalidate-realm-urls"
+            "module": "@cardstack/boxel-host/commands/reindex-realm"
+          },
+          "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/full-reindex-realm"
+          },
+          "requiresApproval": false
+        },
+        {
+          "codeRef": {
+            "name": "default",
+            "module": "@cardstack/boxel-host/commands/cancel-indexing-job"
           },
           "requiresApproval": false
         }
