@@ -34,6 +34,60 @@ Use this when a user wants specific files re-indexed for a realm. The user may a
 }
 ```
 
+## Reindex Realm
+
+Use this when a user wants to reindex a realm using the normal, lighter/default mode.
+
+### Preconditions
+- User has `write` access to the target realm.
+- `realmUrl` is known.
+
+### Behavior
+- Republishes a from-scratch indexing job in the lighter/default mode.
+- Use this when the user wants to pick up normal recent changes or refresh a realm.
+- This is broader than invalidating specific URLs and lighter than a full reindex.
+
+### Command Call Template
+
+```json
+{
+  "name": "reindex-realm_xxxx",
+  "payload": {
+    "description": "Reindex this realm using the default mode",
+    "attributes": {
+      "realmUrl": "<realmUrl>"
+    }
+  }
+}
+```
+
+## Full Reindex Realm
+
+Use this when a user wants a full rebuild of a realm index.
+
+### Preconditions
+- User has `write` access to the target realm.
+- `realmUrl` is known.
+
+### Behavior
+- Forces a full realm reindex so every file is revisited.
+- Use this when the user suspects indexing drift, stale results, or wants a deep/full refresh.
+- This is heavier than the normal reindex command.
+
+### Command Call Template
+
+```json
+{
+  "name": "full-reindex-realm_xxxx",
+  "payload": {
+    "description": "Force a full reindex of this realm",
+    "attributes": {
+      "realmUrl": "<realmUrl>"
+    }
+  }
+}
+```
+
 ## Cancel Running Indexing Job
 
 Use this when a user asks to stop indexing for a specific realm.
