@@ -9,7 +9,7 @@
     },
     "meta": {
       "adoptsFrom": {
-        "module": "https://app.boxel.ai/catalog/skill-plus",
+        "module": "@cardstack/catalog/skill-plus",
         "name": "SkillPlusMarkdown"
       }
     },
