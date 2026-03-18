@@ -3,7 +3,7 @@
     "meta": {
       "adoptsFrom": {
         "name": "SkillSet",
-        "module": "https://app.boxel.ai/catalog/skill-set"
+        "module": "@cardstack/catalog/skill-set"
       }
     },
     "type": "card",
@@ -122,7 +122,7 @@
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "https://app.boxel.ai/catalog/Theme/cardstack"
+          "self": "@cardstack/catalog/Theme/cardstack"
         }
       },
       "relatedSkills.0.skill": {
