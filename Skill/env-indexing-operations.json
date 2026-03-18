@@ -50,7 +50,7 @@
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "https://cardstack.com/base/Theme/cardstack"
+          "self": "https://cardstack.com/base/Theme/cardstack-brand-guide"
         }
       },
       "instructionsSource": {
