@@ -9,7 +9,7 @@
     },
     "meta": {
       "adoptsFrom": {
-        "module": "@cardstack/catalog/skill-plus",
+        "module": "https://cardstack.com/base/skill-plus",
         "name": "SkillPlusMarkdown"
       }
     },
