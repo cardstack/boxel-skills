@@ -3,7 +3,7 @@
     "meta": {
       "adoptsFrom": {
         "name": "SkillSet",
-        "module": "@cardstack/catalog/skill-set"
+        "module": "https://cardstack.com/base/skill-set"
       }
     },
     "type": "card",
@@ -122,7 +122,7 @@
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "@cardstack/catalog/Theme/cardstack"
+          "self": "https://cardstack.com/base/Theme/cardstack"
         }
       },
       "relatedSkills.0.skill": {

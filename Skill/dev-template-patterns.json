@@ -3,7 +3,7 @@
     "meta": {
       "adoptsFrom": {
         "name": "SkillPlusMarkdown",
-        "module": "@cardstack/catalog/skill-plus"
+        "module": "https://cardstack.com/base/skill-plus"
       }
     },
     "type": "card",
@@ -19,7 +19,7 @@
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "@cardstack/catalog/Theme/cardstack"
+          "self": "https://cardstack.com/base/Theme/cardstack"
         }
       },
       "instructionsSource": {
