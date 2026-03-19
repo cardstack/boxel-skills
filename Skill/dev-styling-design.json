@@ -8,15 +8,13 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Styling & Design",
       "cardInfo": {
         "notes": null,
         "name": "Styling & Design",
         "summary": "CSS safety rules and formatting helpers",
         "cardThumbnailURL": null
       },
-      "commands": [],
-      "cardDescription": "CSS safety rules and formatting helpers"
+      "commands": []
     },
     "relationships": {
       "cardInfo.theme": {

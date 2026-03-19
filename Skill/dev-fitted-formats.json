@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Fitted Formats",
-      "cardDescription": "Four sub-format strategy for responsive grid layouts",
       "cardInfo": {
         "notes": null,
         "name": "Fitted Formats",

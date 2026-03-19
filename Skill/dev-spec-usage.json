@@ -8,15 +8,13 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Spec Usage",
       "cardInfo": {
         "notes": null,
         "name": "Spec Usage",
         "summary": "How to use card, field, component, app, and command specs",
         "cardThumbnailURL": null
       },
-      "commands": [],
-      "cardDescription": "How to use card, field, component, app, and command specs"
+      "commands": []
     },
     "relationships": {
       "cardInfo.theme": {

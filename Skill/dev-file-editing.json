@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "File Editing",
-      "cardDescription": "SEARCH/REPLACE patterns and tracking mode for code generation",
       "cardInfo": {
         "notes": null,
         "name": "File Editing",
