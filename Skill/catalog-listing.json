@@ -44,10 +44,7 @@
           },
           "requiresApproval": false
         }
-      ],
-      "cardTitle": "Catalog Listing",
-      "cardDescription": null,
-      "cardThumbnailURL": null
+      ]
     },
     "relationships": {
       "cardInfo.theme": {

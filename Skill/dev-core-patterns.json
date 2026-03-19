@@ -9,7 +9,7 @@
     "type": "card",
     "attributes": {
       "cardInfo": {
-        "notes": null,
+        "notes": "Essential patterns for defining cards and fields, including best practices for structure and organization.",
         "name": "Core Patterns",
         "summary": "Essential card and field definition patterns",
         "cardThumbnailURL": null

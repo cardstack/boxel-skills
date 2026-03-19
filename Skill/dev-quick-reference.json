@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Quick Reference",
-      "cardDescription": "Essential imports, helpers, and file structure patterns",
       "cardInfo": {
         "notes": null,
         "name": "Quick Reference",

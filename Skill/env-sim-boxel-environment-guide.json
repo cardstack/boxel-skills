@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "SIM Boxel Environment Guide ",
-      "cardDescription": "Help users navigate Boxel efficiently, switching between modes and orchestrating workflows",
       "cardInfo": {
         "notes": null,
         "name": "SIM Boxel Environment Guide",

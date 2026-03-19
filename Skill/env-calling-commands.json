@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Calling Commands",
-      "cardDescription": "Reference guide for the correct JSON structure when invoking Boxel commands",
       "cardInfo": {
         "notes": null,
         "name": "Calling Commands",

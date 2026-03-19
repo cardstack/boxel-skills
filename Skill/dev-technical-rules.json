@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Technical Rules",
-      "cardDescription": "Critical technical requirements and validation rules",
       "cardInfo": {
         "notes": null,
         "name": "Technical Rules",

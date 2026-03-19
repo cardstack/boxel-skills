@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Defensive Programming",
-      "cardDescription": "Safe data access patterns and error handling",
       "cardInfo": {
         "notes": null,
         "name": "Defensive Programming",

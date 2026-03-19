@@ -8,8 +8,6 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Creating and Editing Cards",
-      "cardDescription": "Quick reference for choosing the right combination of commands to create new cards or update existing ones",
       "cardInfo": {
         "notes": null,
         "name": "Creating and Editing Cards",

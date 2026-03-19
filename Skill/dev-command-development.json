@@ -2,8 +2,6 @@
   "data": {
     "type": "card",
     "attributes": {
-      "cardTitle": "Command Development",
-      "cardDescription": "Command structure, host APIs, and progress tracking",
       "cardInfo": {
         "notes": null,
         "name": "Command Development",
