@@ -2,8 +2,6 @@
   "data": {
     "type": "card",
     "attributes": {
-      "cardTitle": "Core Concept",
-      "cardDescription": "Foundation concepts for Boxel card development",
       "cardInfo": {
         "notes": null,
         "name": "Core Concept",
