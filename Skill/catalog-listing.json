@@ -8,6 +8,12 @@
     },
     "type": "card",
     "attributes": {
+      "cardInfo": {
+        "name": null,
+        "notes": null,
+        "summary": null,
+        "cardThumbnailURL": null
+      },
       "commands": [
         {
           "codeRef": {
@@ -55,10 +61,6 @@
       "instructionsSource": {
         "links": {
           "self": "./catalog-listing.md"
-        },
-        "data": {
-          "type": "file",
-          "id": "./catalog-listing.md"
         }
       }
     }

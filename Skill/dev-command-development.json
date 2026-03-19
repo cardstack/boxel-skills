@@ -1,20 +1,20 @@
 {
   "data": {
-    "type": "card",
-    "attributes": {
-      "cardInfo": {
-        "notes": null,
-        "name": "Command Development",
-        "summary": "Command structure, host APIs, and progress tracking",
-        "cardThumbnailURL": null
-      },
-      "commands": []
-    },
     "meta": {
       "adoptsFrom": {
         "name": "SkillPlusMarkdown",
         "module": "https://cardstack.com/base/skill-plus"
       }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "name": "Command Development",
+        "notes": null,
+        "summary": "Command structure, host APIs, and progress tracking",
+        "cardThumbnailURL": null
+      },
+      "commands": []
     },
     "relationships": {
       "cardInfo.theme": {
@@ -25,10 +25,6 @@
       "instructionsSource": {
         "links": {
           "self": "./dev-command-development.md"
-        },
-        "data": {
-          "type": "file",
-          "id": "./dev-command-development.md"
         }
       }
     }
