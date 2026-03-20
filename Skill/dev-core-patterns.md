@@ -235,29 +235,30 @@ static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ I
     
     <style scoped> /* ³⁴ Component styles */
       .blog-post-surface {
+        container-type: inline-size;
         width: 100%;
         max-width: 42rem;
         margin: 0 auto;
-        padding: clamp(1.25rem, 4vw, 2rem);
+        padding: clamp(1.25rem, 4cqi, 2rem);
         display: flex;
         flex-direction: column;
-        gap: clamp(1rem, 2.5vw, 1.5rem);
+        gap: clamp(1rem, 2.5cqi, 1.5rem);
         height: 100%;
         min-height: 100%;
         overflow-y: auto;
         font-size: 0.875rem;
         line-height: 1.3;
       }
-      
-      @media (max-width: 800px) {
+
+      @container (max-width: 800px) {
         .blog-post-surface {
           max-width: none;
-          padding: clamp(1rem, 6vw, 1.5rem);
+          padding: clamp(1rem, 6cqi, 1.5rem);
         }
       }
       
       .blog-post-surface > header h1 {
-        font-size: clamp(1.125rem, 3vw, 1.5rem);
+        font-size: clamp(1.125rem, 3cqi, 1.5rem);
         margin-top: 0.25rem;
         line-height: 1.2;
       }

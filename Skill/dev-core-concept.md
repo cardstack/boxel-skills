@@ -94,7 +94,7 @@ For computed fields, ask: "Am I keeping this simple and unidirectional?"
 
 **Every CardDef inherits:**
 
-- `title`, `description`, `thumbnailURL`
+- `cardTitle`, `cardDescription`, `cardThumbnailURL`
 
 ### Inherited Fields and CardInfo
 
@@ -102,37 +102,36 @@ For computed fields, ask: "Am I keeping this simple and unidirectional?"
 
 #### Direct Inherited Fields (Read-Only)
 
-- `title` (StringField) - Computed pass-through from `cardInfo.title`
-- `description` (StringField) - Computed pass-through from `cardInfo.description`
-- `thumbnailURL` (StringField) - Computed pass-through from `cardInfo.thumbnailURL`
+- `cardTitle` (StringField) - Computed pass-through from `cardInfo.name`
+- `cardDescription` (StringField) - Computed pass-through from `cardInfo.summary`
+- `cardThumbnailURL` (StringField) - Computed pass-through from `cardInfo.cardThumbnailURL`
 
 #### CardInfo Field (User-Editable)
 
 Every card also inherits a `cardInfo` field which contains the actual user-editable values:
 
-- `cardInfo.title` (StringField) - User-editable card title
-- `cardInfo.description` (StringField) - User-editable card description
-- `cardInfo.thumbnailURL` (StringField) - User-editable thumbnail image URL
+- `cardInfo.name` (StringField) - User-editable card title
+- `cardInfo.summary` (StringField) - User-editable card description
+- `cardInfo.cardThumbnailURL` (StringField) - User-editable card thumbnail image URL
 - `cardInfo.theme` (linksTo ThemeCard) - Optional theme card link
 - `cardInfo.notes` (MarkdownField) - Optional internal notes
 
 **How It Works:**
-The top-level `title`, `description`, and `thumbnailURL` fields are computed properties that automatically pass through the values from `cardInfo.title`, `cardInfo.description`, and `cardInfo.thumbnailURL` respectively. This means:
+The top-level `cardTitle`, `cardDescription`, and `cardThumbnailURL` fields are computed properties that automatically pass through the values from `cardInfo.name`, `cardInfo.summary`, and `cardInfo.cardThumbnailURL` respectively. This means:
 
-- When you read `@model.title` in templates, you get the value from `cardInfo.title`
+- By default, when you read `@model.cardTitle` in templates, you get the value from `cardInfo.name`
 - Users edit values through the `cardInfo` field in edit mode
-- Override to add custom logic that respects user input
-
-**Best Practice:** Define your own primary field and compute `title` to respect user's `cardInfo.title` choice:
+- If `cardInfo.name` is empty, the default fallback for `@model.cardTitle` is `Untitled [DisplayName]`, where `DisplayName` is the static `displayName` property
+- IF a card's parent class has custom logic that overrides the default behavior of `@model.cardTitle`, OR if user wants `@model.cardTitle` to be the computed of a different field (not `cardInfo.name`), THEN you need to override to add custom logic that respects user input. Here is how you can override it:
 
 ```gts
 export class BlogPost extends CardDef {
   @field headline = contains(StringField); // Your primary field
 
-  // Override inherited title - respects user's cardInfo.title if set
-  @field title = contains(StringField, {
+  // Overriding inherited cardTitle - respects user's cardInfo.name if set
+  @field cardTitle = contains(StringField, {
     computeVia: function () {
-      return this.cardInfo?.title ?? this.headline ?? 'Untitled';
+      return this.cardInfo?.name ?? this.headline ?? 'Untitled';
     },
   });
 }

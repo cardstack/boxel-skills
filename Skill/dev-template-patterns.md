@@ -267,7 +267,7 @@ export class ShoppingList extends CardDef {
   static isolated = class Isolated extends Component<typeof this> {
     <template>
       <article>
-        <h1>{{@model.title}}</h1>
+        <h1><@fields.cardTitle /></h1>
         
         {{! Show first and last items using get helper }}
         <section class="featured">
