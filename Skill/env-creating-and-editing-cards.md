@@ -3,9 +3,9 @@
 ### Creating Cards
 | Tool | Use When |
 |------|----------|
-| **write-text-file** | New card from scratch (provide full JSON structure) |
+| **SEARCH/REPLACE** | **Always use for .gts files** — new definitions, templates, any code file |
+| **write-text-file** | New .json card instances from scratch (structured data, typically small) |
 | **copy-card + patch-fields** | Clone existing card as template, then modify |
-| **SEARCH/REPLACE** | New .gts definitions or JSON via code mode |
 
 ### Editing Cards
 | Tool | Use When | Don't Use When |
@@ -18,9 +18,10 @@
 **Quick Decision:**
 ```
 Card doesn't exist yet?
-├─ From scratch → write-text-file
+├─ New .gts file → SEARCH/REPLACE with (new) marker (ALWAYS — never write-text-file for .gts)
+├─ New .json instance → write-text-file
 ├─ Clone + modify → copy-card → patch-fields
-└─ Code mode → SEARCH/REPLACE
+└─ Code mode .json → SEARCH/REPLACE
 
 Card already exists?
 ├─ Update fields → patch-fields (preferred)

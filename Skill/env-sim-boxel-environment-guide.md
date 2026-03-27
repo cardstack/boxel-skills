@@ -211,7 +211,7 @@ Where is the user in Boxel?
 - `SearchCardsByTypeAndTitleCommand_a959` → Simple title search
 - `SearchCardsByQueryCommand_847d` → Advanced search (preferred)
 - `read-file-for-ai-assistant_a831` → Read files
-- `write-text-file_e5a1` → Only for sub-10-line stubs or when SEARCH/REPLACE truly cannot create/modify the file after repeated attempts (only after a failed SEARCH/REPLACE attempt)
+- `write-text-file_e5a1` → OK for .json instances. NEVER use for .gts files — tool calls don't stream, causing the UI to appear frozen. Always use SEARCH/REPLACE for .gts
 - `patchCardInstance` → Update card data only
 - `patch-fields_3e67` → Fine-grained card updates
 - `copy-card_eefc` → Duplicate a card
@@ -489,7 +489,9 @@ patch-fields_3e67 with attributes.cardId set to the card URL and attributes.fiel
 
 ### Additional Commands
 
-**write-text-file**: Fallback file creation (use only when SEARCH/REPLACE cannot work and only after a failed SEARCH/REPLACE attempt)
+**write-text-file**: OK for creating .json card instances. **NEVER use for .gts files.**
+
+> **Why no write-text-file for .gts?** Tool calls do NOT stream — the entire file content must be generated before the user sees anything. For .gts files (which are often large with templates, styles, and logic), this causes the UI to show "Thinking" / "Preparing tool call" for a long time, making it look frozen and broken. SEARCH/REPLACE blocks stream as visible text so the user sees real-time progress. **Always use SEARCH/REPLACE with `(new)` for creating .gts files.**
 
 ⚠️ **CRITICAL: `content` must be a STRING, not a nested object!**
 
@@ -593,9 +595,14 @@ File contents attached to tool call result.
 
 ### Card Creation
 ```json
+For .gts files (ALWAYS use SEARCH/REPLACE — never write-text-file for .gts):
 `switch-submode_dd88` with `attributes.submode` set to "code"
-→ Emit a code patch search/replace block to create the new file
+→ Emit a SEARCH/REPLACE block with (new) marker to create the new .gts file
 → `show-card_566f` with `attributes.cardId` set to the url of the new file
+
+For .json instances (write-text-file is OK):
+→ `write-text-file_e5a1` to create the JSON instance
+→ `show-card_566f` with `attributes.cardId` set to the url of the new card
 ```
 
 ### Search & Modify
