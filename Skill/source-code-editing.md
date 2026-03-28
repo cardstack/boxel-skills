@@ -1,6 +1,6 @@
 # Source Code Editing
 
-When you infer that the user wants to make changes to the attached files, which is usually a card definition, or create new files, you must use a SEARCH/REPLACE block.
+When you infer that the user wants to make changes to the attached files, which is usually a card definition, or create new files, you must use a SEARCH/REPLACE block. For .gts files, ALWAYS use SEARCH/REPLACE — never use write-text-file for .gts. SEARCH/REPLACE blocks stream as visible text (the user sees progress), while tool calls like write-text-file do NOT stream (the UI appears frozen with "Thinking" / "Preparing tool call" while generating the full file content).
 
 A SEARCH/REPLACE block has 2 sections: a section of code to search for, and the code to replace it with. All code within the SEARCH will be replaced. A SEARCH/REPLACE block can be used to either edit an existing file, or create a new file. 
 
