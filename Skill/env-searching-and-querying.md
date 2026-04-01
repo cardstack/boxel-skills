@@ -12,7 +12,7 @@
 }
 ```
 
-**Operations:** `eq`, `contains`, `range`, `not`, `type`, `every` (AND), `any` (OR)
+**Operations:** `eq`, `in`, `contains`, `range`, `not`, `type`, `every` (AND), `any` (OR)
 
 **Find instances after schema change:**
 ```json
