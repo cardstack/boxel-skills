@@ -1,6 +1,13 @@
 # Boxel Flavored Markdown (BFM)
 
-BFM is the markdown dialect Boxel reads and writes. It extends CommonMark + GitHub Flavored Markdown with directives for embedding cards by URL.
+BFM is the markdown dialect Boxel reads and writes. It extends CommonMark + GitHub Flavored Markdown with:
+
+- Card directives (`:card[URL]`, `::card[URL | spec]`) for embedding cards
+- Mermaid diagrams in fenced code blocks
+- LaTeX math via `$...$` / `$$...$$` (KaTeX)
+- GFM alerts (`> [!NOTE]`, `> [!WARNING]`, etc.)
+- Footnotes, extended tables, heading IDs
+- Monaco-powered syntax highlighting for fenced code blocks
 
 ## Where BFM is used
 
@@ -18,12 +25,89 @@ The same text copies cleanly between these surfaces.
 
 Standard CommonMark plus GFM. The common subset you can rely on:
 
-- ATX headings (`# H1` … `###### H6`) — marker and text must be on the **same line**
+- ATX headings (`# H1` … `###### H6`) — marker and text must be on the **same line**. BFM auto-assigns `user-content-*` IDs to headings so they're anchorable.
 - Paragraphs, hard breaks (two trailing spaces + `\n`), horizontal rules
 - Emphasis (`*em*`, `**strong**`), inline code (`` `x` ``), fenced code blocks
 - Lists (bullet `-`/`+`/`*`, ordered `1.` — note `.` not `)`)
 - Links `[text](url)` and images `![alt](url)`
 - GFM tables (`|`-separated), strikethrough (`~~x~~`), autolinks
+- **Extended tables** — column alignment, colspan/rowspan, multi-line cells (via `marked-extended-tables`)
+
+## BFM extensions beyond CommonMark/GFM
+
+In addition to card directives, BFM enables several marked extensions. Anywhere BFM renders, these work:
+
+### Mermaid diagrams
+
+Fenced code blocks tagged `mermaid` render as SVG diagrams (lazily loaded client-side):
+
+```md
+```mermaid
+flowchart TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Do thing]
+    B -->|No| D[Skip]
+```
+```
+
+Server-rendered output emits a `<pre class="mermaid">…source…</pre>` placeholder that the client replaces with rendered SVG on mount. If mermaid fails to parse the source, the placeholder stays visible as plain text — safe but ugly, so validate your diagram syntax.
+
+### Math (KaTeX)
+
+LaTeX-style math via `$...$` (inline) and `$$...$$` (block). Both use KaTeX under the hood.
+
+```md
+Inline math: the area is $\pi r^2$ square units.
+
+Block math on its own lines:
+
+$$
+E = mc^2
+$$
+```
+
+Inline rules:
+- Must be bounded by `$` or `$$` with no whitespace immediately inside (`$ x $` won't match; `$x$` will)
+- Must be followed by whitespace, punctuation, or end-of-string
+
+Block rules:
+- Opening `$$` and closing `$$` each on their own line
+- Content between on one or more lines
+
+Rendering is lazy: the parser emits a `.math-placeholder` element with the raw LaTeX in `data-math`, and KaTeX is loaded and invoked client-side on mount. Escape a literal `$` in prose as `\$` to prevent it being interpreted as math.
+
+### GFM alerts
+
+Blockquote-based callout syntax:
+
+```md
+> [!NOTE]
+> Useful information.
+
+> [!TIP]
+> Helpful advice.
+
+> [!IMPORTANT]
+> Crucial context.
+
+> [!WARNING]
+> Caution required.
+
+> [!CAUTION]
+> Risk of harm.
+```
+
+### Footnotes
+
+```md
+Here's a claim.[^1]
+
+[^1]: And here's the backing source.
+```
+
+### Syntax-highlighted code blocks
+
+Fenced code blocks with a language tag (e.g. ``` ```ts ```) are highlighted via the Monaco editor's tokenizer when Monaco is available on the page. Falls back to plain `<pre>` when it isn't. The `mermaid` language is special-cased (see above).
 
 ## Card directives (the Boxel extension)
 
@@ -107,7 +191,28 @@ Block card with size:
 | --- | --- |
 |  a  |  b  |
 
-```lang
-fenced code
+Inline math: $\pi r^2$
+
+Block math:
+
+$$
+E = mc^2
+$$
+
+> [!NOTE]
+> GFM alert.
+
+Footnote reference.[^1]
+
+[^1]: And its definition.
+
+```mermaid
+flowchart TD
+  A --> B
+```
+
+```ts
+// highlighted by Monaco when available
+const answer = 42;
 ```
 ```
