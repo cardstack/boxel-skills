@@ -10,6 +10,10 @@
 
 For theming, CSS variables, spacing scales, and CSS safety rules, see Module 3: Theme-First Design System.
 
+### `static markdown` templates
+
+The `markdown` format emits plain text (Boxel Flavored Markdown), not HTML. A working default exists (HTML-to-markdown fallback), so only define `static markdown` when the default is poor. When you do, the same `<@fields.x />` delegation rules apply — children render their own `markdown` format, composed into the parent's output with whitespace preserved. See the `dev-markdown-format` skill for authoring details and the `dev-bfm-syntax` skill for the dialect.
+
 #### ⚠️ CRITICAL: @model Iteration vs @fields Delegation
 
 **Once you iterate with @model, you CANNOT delegate to @fields within that iteration.**

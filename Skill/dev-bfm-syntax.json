@@ -1,0 +1,38 @@
+{
+  "data": {
+    "type": "card",
+    "attributes": {
+      "cardTitle": "Boxel Flavored Markdown (BFM)",
+      "cardDescription": "The markdown dialect Boxel reads and writes: CommonMark + GFM plus card directives for embedding cards by URL.",
+      "cardInfo": {
+        "notes": null,
+        "name": "Boxel Flavored Markdown (BFM)",
+        "summary": "BFM dialect reference: where it renders, base syntax, and the :card/::card directives for embedding cards.",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "https://cardstack.com/base/skill-plus"
+      }
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://cardstack.com/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./dev-bfm-syntax.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./dev-bfm-syntax.md"
+        }
+      }
+    }
+  }
+}
