@@ -1,0 +1,38 @@
+{
+  "data": {
+    "type": "card",
+    "attributes": {
+      "cardTitle": "Markdown Format Authoring",
+      "cardDescription": "How to write `static markdown` templates on CardDef, FieldDef, and FileDef — when to rely on the default HTML-to-markdown fallback, which helpers to use, and the authoring pitfalls to avoid.",
+      "cardInfo": {
+        "notes": null,
+        "name": "Markdown Format Authoring",
+        "summary": "Authoring `static markdown` templates: defaults, markdownEscape, markdown-helpers toolkit, delegation, and pitfalls.",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "https://cardstack.com/base/skill-plus"
+      }
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://cardstack.com/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./dev-markdown-format.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./dev-markdown-format.md"
+        }
+      }
+    }
+  }
+}

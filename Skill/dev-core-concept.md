@@ -25,6 +25,7 @@ Boxel is a composable card-based system where information lives in self-containe
   - `fitted`: **🚨 ESSENTIAL** - Fixed dimensions for grids/galleries/dashboards (parent sets both width AND height)
   - `atom`: Minimal inline representation
   - `edit`: Form for data modification (default provided, override only if needed)
+  - `markdown`: Text-only Boxel Flavored Markdown representation (default HTML-to-markdown fallback provided — override only when the fallback produces poor output). See `dev-markdown-format` and `dev-bfm-syntax` skills.
 
 **🔴 CRITICAL:** Modern Boxel cards require ALL THREE display formats: isolated, embedded, AND fitted. Missing custom fitted format will fallback to basic fitted view that won't look very nice or have enough info to show in grids, choosers, galleries, or dashboards.
 
@@ -91,6 +92,7 @@ For computed fields, ask: "Am I keeping this simple and unidirectional?"
 - `fitted` - Fixed dimensions for grids/galleries
 - `atom` - Minimal inline representation
 - `edit` - Form for data modification
+- `markdown` - BFM text representation (default fallback provided; opt-in override)
 
 **Every CardDef inherits:**
 

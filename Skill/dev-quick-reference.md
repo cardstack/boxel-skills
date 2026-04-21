@@ -20,7 +20,8 @@ import { formatDateTime, formatCurrency } from '@cardstack/boxel-ui/helpers';
 
 **File Types:** `.gts` (definitions) | `.json` (instances)  
 **Core Pattern:** CardDef/FieldDef → contains/linksTo → Templates → Instances  
-**Essential Formats:** Every CardDef MUST implement `isolated`, `embedded`, AND `fitted` formats
+**Essential Formats:** Every CardDef MUST implement `isolated`, `embedded`, AND `fitted` formats  
+**Optional `markdown` Format:** A working default (HTML-to-markdown fallback) is provided; only define `static markdown` when the default output is poor — see `dev-markdown-format`.
 
 ```gts
 // ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══
@@ -72,6 +73,7 @@ import { Button, Pill, Avatar, FieldContainer, CardContainer, BoxelSelect, ViewS
 // ⁴ Helper imports
 import { eq, gt, gte, lt, lte, and, or, not, cn, add, subtract, multiply, divide } from '@cardstack/boxel-ui/helpers';
 import { currencyFormat, formatDateTime, optional, pick } from '@cardstack/boxel-ui/helpers';
+import { markdownEscape } from '@cardstack/boxel-ui/helpers'; // escape user-supplied strings in `static markdown` templates
 import { concat, fn } from '@ember/helper';
 import { get } from '@ember/helper';
 import { on } from '@ember/modifier';
