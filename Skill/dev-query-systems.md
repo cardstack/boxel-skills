@@ -46,7 +46,7 @@ const query = {
       // implicit clause merged during execution: on: { module: Shirt.module, name: 'Shirt' }
       eq: { size: '$this.profile.shirtSize' },
     },
-    realm: '$thisRealm',
+    realm: '$REALM',
     sort: [
       {
         by: 'updatedAt',
