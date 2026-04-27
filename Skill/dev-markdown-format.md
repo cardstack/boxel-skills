@@ -230,7 +230,7 @@ let html = markdownToHtml(rawSource, {
 
 **Critical: import from the subpath `@cardstack/runtime-common/marked-sync`, not the bare `@cardstack/runtime-common`.** The `marked-sync` module is registered as a separate (lazy-loaded) shim so the markdown parser + DOMPurify + extensions don't get pulled into the eager host bundle for cards that don't render markdown. The bare `@cardstack/runtime-common` does **not** re-export `markdownToHtml` or `preloadMarkdownLanguages`.
 
-If you import from the wrong path, the named import silently binds to `undefined`. JavaScript namespace imports never error on missing keys — they just produce `undefined`, which then fails downstream when you try to call the helper. The runtime now surfaces this as a tight `ReferenceError` at module-load time:
+If you import from the wrong path, the runtime catches the mismatch at module-load time and surfaces a tight `ReferenceError` naming both the missing export and the source module:
 
 ```
 ReferenceError: Module '@cardstack/runtime-common' has no exported
@@ -238,6 +238,8 @@ member 'markdownToHtml'. If this is a card, check the import
 statement that names 'markdownToHtml' — you may be importing from
 the wrong module ID.
 ```
+
+(In standard ESM, a named-import mismatch like this would already fail at module-link time. Cardstack's realm loader uses an AMD-style transform under the hood, which historically turned missing-export mismatches into silent `undefined` bindings that failed later with confusing downstream errors. The current runtime restores the link-time-error behavior for shimmed modules — so wrong imports surface immediately, with the actionable message above.)
 
 Other helpers that live on the same `marked-sync` subpath (also import from there, not the bare module):
 
