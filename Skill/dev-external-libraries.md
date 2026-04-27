@@ -1,3 +1,22 @@
+## Importing runtime helpers from `@cardstack/runtime-common`
+
+The `@cardstack/runtime-common` package exposes its surface at two granularities:
+
+1. **The bare module ID** — `import { Loader, baseRealm, ... } from '@cardstack/runtime-common'`. Eagerly bundled in the host. Stable, broad, always available.
+2. **Subpath modules** — `import { markdownToHtml } from '@cardstack/runtime-common/marked-sync'`. Lazy-loaded so heavy deps (markdown parser, DOMPurify, etc.) don't bloat the eager host bundle for cards that don't use them.
+
+**Subpath exports are NOT re-exported from the bare module.** Common subpaths and the names they expose:
+
+| Subpath | Useful exports |
+|---|---|
+| `@cardstack/runtime-common/marked-sync` | `markdownToHtml`, `preloadMarkdownLanguages`, `wrapTablesHtml` |
+
+If you import a name that doesn't exist on a namespace, JavaScript silently binds it to `undefined`. The runtime now catches this at module-load time and surfaces a tight `ReferenceError` that names the missing export AND the source module — so a typo'd import path is visible immediately instead of producing a confusing downstream `TypeError` from inside Glimmer's helper-encoder.
+
+When in doubt: **prefer the subpath import** for anything that isn't a core runtime utility. The error message itself will tell you when you've reached for a bare-module name that doesn't exist.
+
+## Async loading external CDN libraries
+
 **Async loading pattern:**
 ```gts
 import { task, restartableTask, timeout } from 'ember-concurrency';
