@@ -1,3 +1,24 @@
+## Importing runtime helpers from `@cardstack/runtime-common`
+
+The `@cardstack/runtime-common` package exposes its surface at two granularities:
+
+1. **The bare module ID** — `import { Loader, baseRealm, ... } from '@cardstack/runtime-common'`. Eagerly bundled in the host. Stable, broad, always available.
+2. **Subpath modules** — `import { markdownToHtml } from '@cardstack/runtime-common/marked-sync'`. Lazy-loaded so heavy deps (markdown parser, DOMPurify, etc.) don't bloat the eager host bundle for cards that don't use them.
+
+**Subpath exports are NOT re-exported from the bare module.** Common subpaths and the names they expose:
+
+| Subpath | Useful exports |
+|---|---|
+| `@cardstack/runtime-common/marked-sync` | `markdownToHtml`, `preloadMarkdownLanguages`, `wrapTablesHtml` |
+
+If you reach for a subpath-only export on the bare module — a common slip when a name is "almost" on the right module — the runtime catches the mismatch at module-load time and surfaces a tight `ReferenceError` that names both the missing export and the source module. So a wrong import path is visible immediately, with an actionable message, instead of producing a confusing downstream `TypeError` from inside Glimmer's helper-encoder.
+
+When in doubt: **prefer the subpath import** for anything that isn't a core runtime utility. If you reach for a name from the wrong `@cardstack/runtime-common` module, the runtime error will tell you which export is missing from which module.
+
+(Background: in standard ESM, a named-import mismatch fails at module-link time and you'd see the error immediately. Cardstack's realm loader uses an AMD-style transform under the hood, which historically turned missing-export mismatches into silent `undefined` bindings that failed later. The current runtime restores the link-time-error behavior for shimmed modules.)
+
+## Async loading external CDN libraries
+
 **Async loading pattern:**
 ```gts
 import { task, restartableTask, timeout } from 'ember-concurrency';
