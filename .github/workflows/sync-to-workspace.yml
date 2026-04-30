@@ -156,7 +156,7 @@ jobs:
         with:
           script: |
             const syncOutput = `${{ steps.dry_run.outputs.SYNC_OUTPUT }}`;
-            const body = `## 🔍 Workspace Sync Dry-Run Complete\n\n✅ Dry-run completed successfully - no changes were made\n📁 **Target workspace:** ${{ env.STAGING_WORKSPACE_URL }}\n🔗 **PR:** #${{ github.event.number }}\nℹ️ Changes will be synced when this PR is merged to main\n\n### Dry-Run Results\n\`\`\`\n${syncOutput}\n\`\`\``;
+            const body = `## 🔍 Workspace Sync Dry-Run Complete\n\n✅ Dry-run completed successfully - no changes were made\n📁 **Target workspace:** ${{ env.STAGING_WORKSPACE_URL }}\n🔗 **PR:** #${{ github.event.number }}\nℹ️ Changes will be synced when this PR is merged to main\n\n<details>\n<summary>Dry-Run Results</summary>\n\n\`\`\`\n${syncOutput}\n\`\`\`\n\n</details>`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
