@@ -43,6 +43,66 @@ The `markdown` format emits plain text (Boxel Flavored Markdown), not HTML. A wo
 - Need filtering? → Use query patterns (PrerenderedCardSearch/getCards)
 - Need custom control? → Use @model but handle ALL rendering yourself
 
+#### ⚠️ CRITICAL: Block-Param Names Must Not Match HTML Tag Names
+
+**A block param introduced by `as |x|` shadows any lowercase HTML tag with the same name inside the block.** In `.gts` strict mode, `<x>` is resolved as "invoke the block-param `x` as a component", *not* as an HTML element. Picking block-param names that don't collide with HTML tags is the rule; this is about avoiding the footgun in the first place.
+
+```hbs
+<!-- ❌ block-param `s` shadows the <s> strikethrough tag -->
+<Shell as |s|>
+  <button disabled={{not s.isEditing}}><s>S</s></button>
+</Shell>
+
+<!-- ❌ block-param `section` shadows the <section> HTML5 element -->
+{{#each this.sections as |section sectionIndex|}}
+  <section class='content-section'>...</section>
+{{/each}}
+
+<!-- ❌ block-param `option` shadows the <option> tag -->
+<BoxelSelect @options={{@model.options}} as |option|>
+  <option />
+</BoxelSelect>
+
+<!-- ✅ rename the block param so it can't collide -->
+<Shell as |shell|>
+  <button disabled={{not shell.isEditing}}><s>S</s></button>
+</Shell>
+
+{{#each this.sections as |sec sectionIndex|}}
+  <section class='content-section'>...</section>
+{{/each}}
+
+<BoxelSelect @options={{@model.options}} as |opt|>
+  <option>{{opt.label}}</option>
+</BoxelSelect>
+```
+
+**Avoid these block-param names** (HTML tags that commonly come up as iteration / yield-data names):
+
+| Don't use | Use instead |
+|---|---|
+| `s`, `b`, `i`, `u`, `q` | `surface`, `bold`, `item`, `unit`, `quote` |
+| `section` | `sec` |
+| `option` | `opt` |
+| `a` | `link`, `anchor` |
+| `p` | `para` |
+| `nav`, `header`, `footer`, `main`, `aside`, `article` | qualify (`navData`, `pageHeader`, …) |
+| `form`, `input`, `button`, `label`, `select`, `option` | qualify |
+| `dt`, `dd`, `li`, `tr`, `td`, `th` | qualify |
+| `sub`, `sup`, `del`, `ins` | qualify |
+
+The safe rule: **block-param names should be at least 2 characters AND not match any HTML tag**. Multi-word names (`firstItem`, `selectedOption`, `currentSection`) are always safe. Short single-word names are fine if they're not tag names (`item`, `tile`, `bullet`, `member`, `task` etc.).
+
+**Exception — when the block-param IS a component:** sometimes the yielded value is itself a card/field component you want to invoke (e.g. `<@fields.items as |Item|>` … `<Item @format='embedded' />`). In that case, **capitalize the block-param name** (TitleCase). Strict mode treats uppercase tags as components unconditionally — no shadowing concern, and the convention matches Ember's component-naming rules. The lowercase footgun only applies when the yielded value is data, not a component.
+
+**If the rule is violated, the runtime symptom is generic and unhelpful:** Glimmer's component-manager lookup returns `null` for the shadowed name and crashes with
+
+```
+TypeError: Cannot read properties of null (reading 'manager')
+```
+
+…sometimes wrapped as `"Render binding desync"` in the indexer's error_doc with the TypeError buried in `additionalErrors[0]`. The error does NOT name the offending block-param or tag, and the same message can come from many other causes (any path where Glimmer is asked to invoke a `null` component reference). Treat the message as a hint to look for this footgun, *not* as proof of it — but the easiest way not to chase the message is to not write the footgun in the first place.
+
 ### Accessing @fields by Index: The Bridge Pattern
 
 **Use Case:** You need to use `@model` data to find specific items in a `containsMany` or `linksToMany` collection, then render those items using their field templates for proper delegated rendering.
