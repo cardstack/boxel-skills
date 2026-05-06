@@ -20,7 +20,7 @@
         {
           "codeRef": {
             "name": "default",
-            "module": "@cardstack/boxel-host/commands/invalidate-realm-urls"
+            "module": "@cardstack/boxel-host/commands/invalidate-realm-identifiers"
           },
           "requiresApproval": false
         },
