@@ -87,6 +87,7 @@ import { task, restartableTask } from 'ember-concurrency';
 // - DOM timing: Use Glimmer modifiers with cleanup
 // - Async coordination: Use task/restartableTask from ember-concurrency  
 // - Delays: Use await timeout(ms) from ember-concurrency, not setTimeout
+// - NEVER `await someTask.perform()` (or `.then()` it) from outside a task — that downcasts the cancelable TaskInstance to a Promise, surfacing cancelations as unhandled `TaskCancelation` rejections. If the caller needs to await a task, the caller must itself be a task; invoke from the template with `(perform this.fooTask)`.
 
 // ⁵ Icon imports
 import EmailIcon from '@cardstack/boxel-icons/mail';
