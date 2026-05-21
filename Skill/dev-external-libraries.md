@@ -106,6 +106,60 @@ export class CurrencyLoader extends CardDef {
 }
 ```
 
+## Critical pitfall: never `await` a task from outside the task
+
+Inside an ember-concurrency task body, `await` is **syntactic sugar for `yield`**. A Babel transform turns the async arrow into a generator under the hood, which is what lets the runtime cancel it between yields. That cancelability is the entire reason to use `restartableTask`, `dropTask`, `enqueueTask`, etc.
+
+Outside a task body, `await` is plain JavaScript and has no notion of cancelation. So this is wrong:
+
+```ts
+// ⚠️ WRONG — `await` here downcasts the cancelable TaskInstance to a Promise
+async fetchResults() {
+  let results = await this.queryServer.perform();
+  this.results = results;
+}
+```
+
+`queryServer.perform()` returns a `TaskInstance`. The moment you `await` it (or call `.then()` on it) from a non-task context, you've cast it to a Promise — and Promises cannot be canceled. If `queryServer` is then canceled (a restart, a drop, the component being torn down, the route changing), the cancelation surfaces as a `TaskCancelation` rejection in your logs, and the outer function treats it as a real error.
+
+Reaching for `try/catch` with `didCancel(e)` to swallow the rejection technically silences the log, but it's exactly the cluttered defensive code that ember-concurrency was built to eliminate.
+
+**The fix: keep the call inside a task.** Promote the caller to a task too, and `(perform ...)` it from the template:
+
+```gts
+import { task, timeout } from 'ember-concurrency';
+import perform from 'ember-concurrency/helpers/perform';
+import { on } from '@ember/modifier';
+import { tracked } from '@glimmer/tracking';
+
+@tracked results = null;
+
+queryServer = task(async () => {
+  await timeout(10000);
+  return 123;
+});
+
+// ✅ caller is also a task — `await` here is sugar for `yield`, fully cancelable
+fetchResults = task(async () => {
+  let results = await this.queryServer.perform();
+  this.results = results;
+});
+
+<template>
+  <Button {{on 'click' (perform this.fetchResults)}}>Fetch</Button>
+</template>
+```
+
+With the whole chain inside ember-concurrency's domain, cancelation is routine and silent — no rejections, no `try/catch`, no `didCancel` checks.
+
+**Heuristics that flag this smell:**
+- `await something.perform()` written in a non-task method (including an `async action() { ... }`)
+- `something.perform().then(...)` anywhere
+- A `try/catch` whose only job is filtering `didCancel(e)` — the awaited task should have been called from another task instead
+- An `@action async ...` that calls `.perform()` — promote it to a task and use `(perform ...)` in the template
+
+To read a task's result reactively in a template without awaiting it, use the task's own derived state (`task.lastSuccessful.value`, `task.last.value`, `task.isRunning`, etc.) rather than awaiting `.perform()` into a tracked field.
+
 ## External Libraries: Bringing Third-Party Power to Boxel
 
 **When to Use External Libraries:** Sometimes you need specialized functionality like 3D graphics (Three.js), data visualization (D3), or charts. Boxel plays well with external libraries when you follow the right patterns.
