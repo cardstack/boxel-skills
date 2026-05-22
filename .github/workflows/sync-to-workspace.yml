@@ -142,29 +142,63 @@ jobs:
           fi
           echo "✅ Production workspace sync completed successfully!"
 
-      - name: Report staging sync status
-        if: success() && (github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)))
+      - name: Compute sync report fields
+        if: ${{ !cancelled() }}
+        id: report
+        run: |
+          {
+            echo "now=$(date -u '+%Y-%m-%d %H:%M:%S')"
+            echo "short_sha=${GITHUB_SHA::7}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Find merged PR for push event
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: merged_pr
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+            });
+            const merged = prs.find(p => p.merged_at);
+            return merged ? String(merged.number) : '';
+          result-encoding: string
+
+      - name: Report staging sync status on PR
+        if: success() && steps.merged_pr.outputs.result != ''
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: workspace-sync
+          number: ${{ steps.merged_pr.outputs.result }}
+          message: |
+            ## 🎉 Staging Workspace Sync Successful
+
+            ✅ Successfully synced changes to staging workspace
+            📁 **Workspace:** ${{ env.STAGING_WORKSPACE_URL }}
+            🔗 **Commit:** [`${{ steps.report.outputs.short_sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+            ⏰ **Synced at:** ${{ steps.report.outputs.now }} UTC
+
+            ### Sync Details
+            ```
+            ${{ steps.sync_staging.outputs.SYNC_OUTPUT }}
+            ```
+
+      - name: Report staging sync status on commit
+        if: success() && github.event_name == 'push' && steps.merged_pr.outputs.result == ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const syncOutput = `${{ steps.sync_staging.outputs.SYNC_OUTPUT }}`;
-            const body = `## 🎉 Staging Workspace Sync Successful\n\n✅ Successfully synced changes to staging workspace\n📁 **Workspace:** ${{ env.STAGING_WORKSPACE_URL }}\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⏰ **Synced at:** ${new Date().toISOString().replace('T', ' ').substring(0, 19)} UTC\n\n### Sync Details\n\`\`\`\n${syncOutput}\n\`\`\``;
+            const body = `## 🎉 Staging Workspace Sync Successful\n\n✅ Successfully synced changes to staging workspace\n📁 **Workspace:** ${{ env.STAGING_WORKSPACE_URL }}\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⏰ **Synced at:** ${{ steps.report.outputs.now }} UTC\n\n### Sync Details\n\`\`\`\n${syncOutput}\n\`\`\``;
 
-            if (context.eventName === 'pull_request') {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                body: body
-              });
-            } else {
-              await github.rest.repos.createCommitComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                commit_sha: context.sha,
-                body: body
-              });
-            }
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: body
+            });
 
       - name: Report production sync status
         if: success() && startsWith(github.ref, 'refs/tags/v')
@@ -183,81 +217,84 @@ jobs:
 
       - name: Report dry-run status
         if: success() && github.event_name == 'pull_request' && github.event.action != 'closed'
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: workspace-sync
+          message: |
+            ## 🔍 Workspace Sync Dry-Run Complete
+
+            ✅ Dry-run completed successfully - no changes were made
+            📁 **Target workspace:** ${{ env.STAGING_WORKSPACE_URL }}
+            🔗 **PR:** #${{ github.event.number }}
+            ℹ️ Changes will be synced when this PR is merged to main
+
+            <details>
+            <summary>Dry-Run Results</summary>
+
+            ```
+            ${{ steps.dry_run.outputs.SYNC_OUTPUT }}
+            ```
+            </details>
+
+      - name: Compose failure message
+        if: failure()
+        id: fail
+        run: |
+          {
+            echo "short_sha=${GITHUB_SHA::7}"
+            if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+              echo "environment=production"
+              echo "workspace=${{ env.PRODUCTION_WORKSPACE_URL }}"
+            else
+              echo "environment=staging"
+              echo "workspace=${{ env.STAGING_WORKSPACE_URL }}"
+            fi
+            STAGING_OUT='${{ steps.sync_staging.outputs.SYNC_OUTPUT }}'
+            PROD_OUT='${{ steps.sync_production.outputs.SYNC_OUTPUT }}'
+            DRY_OUT='${{ steps.dry_run.outputs.SYNC_OUTPUT }}'
+            OUT="${STAGING_OUT:-${PROD_OUT:-${DRY_OUT:-No output captured}}}"
+            echo "output<<EOF"
+            echo "$OUT"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Report sync failure on PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: workspace-sync
+          message: |
+            ## ❌ Staging Workspace Sync Failed
+
+            ❌ Failed to sync changes to staging workspace
+            📁 **Workspace:** ${{ steps.fail.outputs.workspace }}
+            🔗 **Commit:** [`${{ steps.fail.outputs.short_sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+            ⚠️ **Action required:** Please check the workflow logs for details
+
+            ### Error Output
+            ```
+            ${{ steps.fail.outputs.output }}
+            ```
+
+            ### Troubleshooting
+            - Verify Matrix credentials are correctly set in repository secrets
+            - Check workspace permissions and URL
+            - Review file filtering rules (.gitignore/.boxelignore)
+
+      - name: Report sync failure on commit
+        if: failure() && github.event_name != 'pull_request'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const marker = '<!-- workspace-sync -->';
-            const syncOutput = `${{ steps.dry_run.outputs.SYNC_OUTPUT }}`;
-            const body = `${marker}\n## 🔍 Workspace Sync Dry-Run Complete\n\n✅ Dry-run completed successfully - no changes were made\n📁 **Target workspace:** ${{ env.STAGING_WORKSPACE_URL }}\n🔗 **PR:** #${{ github.event.number }}\nℹ️ Changes will be synced when this PR is merged to main\n\n<details>\n<summary>Dry-Run Results</summary>\n\n\`\`\`\n${syncOutput}\n\`\`\`\n</details>`;
+            const syncOutput = `${{ steps.fail.outputs.output }}`;
+            const environment = '${{ steps.fail.outputs.environment }}';
+            const workspace = '${{ steps.fail.outputs.workspace }}';
+            const title = environment.charAt(0).toUpperCase() + environment.slice(1);
+            const body = `## ❌ ${title} Workspace Sync Failed\n\n❌ Failed to sync changes to ${environment} workspace\n📁 **Workspace:** ${workspace}\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⚠️ **Action required:** Please check the workflow logs for details\n\n### Error Output\n\`\`\`\n${syncOutput}\n\`\`\`\n\n### Troubleshooting\n- Verify Matrix credentials are correctly set in repository secrets\n- Check workspace permissions and URL\n- Review file filtering rules (.gitignore/.boxelignore)`;
 
-            const { data: comments } = await github.rest.issues.listComments({
+            await github.rest.repos.createCommitComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
+              commit_sha: context.sha,
+              body: body
             });
-            const existing = comments.find(c => c.body.includes(marker));
-
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body: body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                body: body
-              });
-            }
-
-      - name: Report sync failure
-        if: failure()
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: |
-            const stagingSyncOutput = `${{ steps.sync_staging.outputs.SYNC_OUTPUT }}` || '';
-            const productionSyncOutput = `${{ steps.sync_production.outputs.SYNC_OUTPUT }}` || '';
-            const dryRunSyncOutput = `${{ steps.dry_run.outputs.SYNC_OUTPUT }}` || '';
-            const syncOutput = stagingSyncOutput || productionSyncOutput || dryRunSyncOutput || 'No output captured';
-
-            const isProduction = context.ref.startsWith('refs/tags/v');
-            const workspace = isProduction ? '${{ env.PRODUCTION_WORKSPACE_URL }}' : '${{ env.STAGING_WORKSPACE_URL }}';
-            const environment = isProduction ? 'production' : 'staging';
-
-            const marker = '<!-- workspace-sync -->';
-            const body = `${marker}\n## ❌ ${environment.charAt(0).toUpperCase() + environment.slice(1)} Workspace Sync Failed\n\n❌ Failed to sync changes to ${environment} workspace\n📁 **Workspace:** ${workspace}\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⚠️ **Action required:** Please check the workflow logs for details\n\n### Error Output\n\`\`\`\n${syncOutput}\n\`\`\`\n\n### Troubleshooting\n- Verify Matrix credentials are correctly set in repository secrets\n- Check workspace permissions and URL\n- Review file filtering rules (.gitignore/.boxelignore)`;
-
-            if (context.eventName === 'pull_request') {
-              const { data: comments } = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-              });
-              const existing = comments.find(c => c.body.includes(marker));
-
-              if (existing) {
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: existing.id,
-                  body: body
-                });
-              } else {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.payload.pull_request.number,
-                  body: body
-                });
-              }
-            } else {
-              await github.rest.repos.createCommitComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                commit_sha: context.sha,
-                body: body
-              });
-            }
