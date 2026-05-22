@@ -10,8 +10,8 @@ on:
     types: [published]
 
 env:
-  STAGING_WORKSPACE_URL: https://realms-staging.stack.cards/skills
-  PRODUCTION_WORKSPACE_URL: https://app.boxel.ai/skills
+  STAGING_WORKSPACE_URL: https://realms-staging.stack.cards/skills/
+  PRODUCTION_WORKSPACE_URL: https://app.boxel.ai/skills/
 
 jobs:
   sync-workspace:
@@ -25,15 +25,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
 
-      - name: Install workspace-sync-cli
-        run: npm install -g @cardstack/workspace-sync-cli
-
-      - name: Verify CLI installation
-        run: |
-          workspace-push --help
-          workspace-pull --help
+      - name: Install Boxel CLI
+        run: npm install -g @cardstack/boxel-cli@latest
 
       - name: Dry-run sync for PR
         if: github.event_name == 'pull_request' && github.event.action != 'closed'
@@ -43,21 +38,33 @@ jobs:
           MATRIX_USERNAME: ${{ secrets.STAGING_MATRIX_USERNAME }}
           MATRIX_PASSWORD: ${{ secrets.STAGING_MATRIX_PASSWORD }}
         run: |
+          boxel profile add \
+            --user "@${MATRIX_USERNAME}:stack.cards" \
+            --password "${MATRIX_PASSWORD}" \
+            --matrix-url "${MATRIX_URL}"
+
           echo "🔍 Running dry-run sync for PR #${{ github.event.number }}"
           echo "📁 Target workspace: ${{ env.STAGING_WORKSPACE_URL }}"
           echo "🔗 PR: ${{ github.event.pull_request.html_url }}"
           echo ""
 
-          # Capture the output
-          OUTPUT=$(workspace-push . ${{ env.STAGING_WORKSPACE_URL }} --delete --dry-run 2>&1)
+          set +e
+          OUTPUT=$(boxel realm push . ${{ env.STAGING_WORKSPACE_URL }} --delete --dry-run 2>&1)
+          STATUS=$?
+          set -e
           echo "$OUTPUT"
 
-          # Save output for later use
-          echo "SYNC_OUTPUT<<EOF" >> $GITHUB_OUTPUT
-          echo "$OUTPUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "SYNC_OUTPUT<<EOF"
+            echo "$OUTPUT"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           echo ""
+          if [ $STATUS -ne 0 ]; then
+            echo "❌ boxel realm push failed with exit code $STATUS"
+            exit $STATUS
+          fi
           echo "✅ Dry-run completed - no changes were made to the workspace"
 
       - name: Sync to staging workspace (main branch or merged PR)
@@ -68,21 +75,33 @@ jobs:
           MATRIX_USERNAME: ${{ secrets.STAGING_MATRIX_USERNAME }}
           MATRIX_PASSWORD: ${{ secrets.STAGING_MATRIX_PASSWORD }}
         run: |
+          boxel profile add \
+            --user "@${MATRIX_USERNAME}:stack.cards" \
+            --password "${MATRIX_PASSWORD}" \
+            --matrix-url "${MATRIX_URL}"
+
           echo "🚀 Starting sync to staging workspace..."
           echo "📁 Target workspace: ${{ env.STAGING_WORKSPACE_URL }}"
           echo "🔗 Commit: ${{ github.sha }}"
           echo ""
 
-          # Capture the output
-          OUTPUT=$(workspace-push . ${{ env.STAGING_WORKSPACE_URL }} --delete  2>&1)
+          set +e
+          OUTPUT=$(boxel realm push . ${{ env.STAGING_WORKSPACE_URL }} --delete 2>&1)
+          STATUS=$?
+          set -e
           echo "$OUTPUT"
 
-          # Save output for later use
-          echo "SYNC_OUTPUT<<EOF" >> $GITHUB_OUTPUT
-          echo "$OUTPUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "SYNC_OUTPUT<<EOF"
+            echo "$OUTPUT"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           echo ""
+          if [ $STATUS -ne 0 ]; then
+            echo "❌ boxel realm push failed with exit code $STATUS"
+            exit $STATUS
+          fi
           echo "✅ Staging workspace sync completed successfully!"
 
       - name: Sync to production workspace (release tags)
@@ -93,22 +112,34 @@ jobs:
           MATRIX_USERNAME: ${{ secrets.MATRIX_USERNAME }}
           MATRIX_PASSWORD: ${{ secrets.MATRIX_PASSWORD }}
         run: |
+          boxel profile add \
+            --user "@${MATRIX_USERNAME}:boxel.ai" \
+            --password "${MATRIX_PASSWORD}" \
+            --matrix-url "${MATRIX_URL}"
+
           echo "🚀 Starting sync to production workspace..."
           echo "📁 Target workspace: ${{ env.PRODUCTION_WORKSPACE_URL }}"
           echo "🏷️ Tag: ${{ github.ref_name }}"
           echo "🔗 Commit: ${{ github.sha }}"
           echo ""
 
-          # Capture the output
-          OUTPUT=$(workspace-push . ${{ env.PRODUCTION_WORKSPACE_URL }} --delete  2>&1)
+          set +e
+          OUTPUT=$(boxel realm push . ${{ env.PRODUCTION_WORKSPACE_URL }} --delete 2>&1)
+          STATUS=$?
+          set -e
           echo "$OUTPUT"
 
-          # Save output for later use
-          echo "SYNC_OUTPUT<<EOF" >> $GITHUB_OUTPUT
-          echo "$OUTPUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "SYNC_OUTPUT<<EOF"
+            echo "$OUTPUT"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           echo ""
+          if [ $STATUS -ne 0 ]; then
+            echo "❌ boxel realm push failed with exit code $STATUS"
+            exit $STATUS
+          fi
           echo "✅ Production workspace sync completed successfully!"
 
       - name: Report staging sync status
@@ -155,22 +186,38 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const marker = '<!-- workspace-sync -->';
             const syncOutput = `${{ steps.dry_run.outputs.SYNC_OUTPUT }}`;
-            const body = `## 🔍 Workspace Sync Dry-Run Complete\n\n✅ Dry-run completed successfully - no changes were made\n📁 **Target workspace:** ${{ env.STAGING_WORKSPACE_URL }}\n🔗 **PR:** #${{ github.event.number }}\nℹ️ Changes will be synced when this PR is merged to main\n\n<details>\n<summary>Dry-Run Results</summary>\n\n\`\`\`\n${syncOutput}\n\`\`\`\n\n</details>`;
+            const body = `${marker}\n## 🔍 Workspace Sync Dry-Run Complete\n\n✅ Dry-run completed successfully - no changes were made\n📁 **Target workspace:** ${{ env.STAGING_WORKSPACE_URL }}\n🔗 **PR:** #${{ github.event.number }}\nℹ️ Changes will be synced when this PR is merged to main\n\n<details>\n<summary>Dry-Run Results</summary>\n\n\`\`\`\n${syncOutput}\n\`\`\`\n</details>`;
 
-            await github.rest.issues.createComment({
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: body
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: body
+              });
+            }
 
       - name: Report sync failure
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
-            // Try to get sync output if available
             const stagingSyncOutput = `${{ steps.sync_staging.outputs.SYNC_OUTPUT }}` || '';
             const productionSyncOutput = `${{ steps.sync_production.outputs.SYNC_OUTPUT }}` || '';
             const dryRunSyncOutput = `${{ steps.dry_run.outputs.SYNC_OUTPUT }}` || '';
@@ -180,15 +227,32 @@ jobs:
             const workspace = isProduction ? '${{ env.PRODUCTION_WORKSPACE_URL }}' : '${{ env.STAGING_WORKSPACE_URL }}';
             const environment = isProduction ? 'production' : 'staging';
 
-            const body = `## ❌ ${environment.charAt(0).toUpperCase() + environment.slice(1)} Workspace Sync Failed\n\n❌ Failed to sync changes to ${environment} workspace\n📁 **Workspace:** ${workspace}\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⚠️ **Action required:** Please check the workflow logs for details\n\n### Error Output\n\`\`\`\n${syncOutput}\n\`\`\`\n\n### Troubleshooting\n- Verify Matrix credentials are correctly set in repository secrets\n- Check workspace permissions and URL\n- Review file filtering rules (.gitignore/.boxelignore)`;
+            const marker = '<!-- workspace-sync -->';
+            const body = `${marker}\n## ❌ ${environment.charAt(0).toUpperCase() + environment.slice(1)} Workspace Sync Failed\n\n❌ Failed to sync changes to ${environment} workspace\n📁 **Workspace:** ${workspace}\n🔗 **Commit:** [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha})\n⚠️ **Action required:** Please check the workflow logs for details\n\n### Error Output\n\`\`\`\n${syncOutput}\n\`\`\`\n\n### Troubleshooting\n- Verify Matrix credentials are correctly set in repository secrets\n- Check workspace permissions and URL\n- Review file filtering rules (.gitignore/.boxelignore)`;
 
             if (context.eventName === 'pull_request') {
-              await github.rest.issues.createComment({
+              const { data: comments } = await github.rest.issues.listComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.pull_request.number,
-                body: body
               });
+              const existing = comments.find(c => c.body.includes(marker));
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body: body
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number,
+                  body: body
+                });
+              }
             } else {
               await github.rest.repos.createCommitComment({
                 owner: context.repo.owner,
