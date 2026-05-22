@@ -20,10 +20,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: "20"
 
@@ -144,7 +144,7 @@ jobs:
 
       - name: Report staging sync status
         if: success() && (github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)))
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const syncOutput = `${{ steps.sync_staging.outputs.SYNC_OUTPUT }}`;
@@ -168,7 +168,7 @@ jobs:
 
       - name: Report production sync status
         if: success() && startsWith(github.ref, 'refs/tags/v')
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const syncOutput = `${{ steps.sync_production.outputs.SYNC_OUTPUT }}`;
@@ -183,7 +183,7 @@ jobs:
 
       - name: Report dry-run status
         if: success() && github.event_name == 'pull_request' && github.event.action != 'closed'
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const marker = '<!-- workspace-sync -->';
@@ -215,7 +215,7 @@ jobs:
 
       - name: Report sync failure
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const stagingSyncOutput = `${{ steps.sync_staging.outputs.SYNC_OUTPUT }}` || '';
