@@ -1,9 +1,11 @@
 name: Sync to Workspace
 
-# Delegates to the reusable workflow in cardstack/boxel. The ref is
-# pinned to the cs-11180 PR branch while #4897 is open so this PR's CI
-# exercises the reusable workflow before merge; swap to @main once
-# #4897 lands.
+# Delegates to the reusable workflow in cardstack/boxel. Tracks @main
+# so changes to the realm-server's _publish/_unpublish-realm contract
+# or boxel-cli's realm push/publish commands auto-propagate on the next
+# run; the monorepo's preview-realm-integration workflow gates them
+# behind a path-filtered E2E test, so contract drift surfaces there at
+# PR time before consumers start failing.
 
 on:
   push:
@@ -16,7 +18,7 @@ on:
 
 jobs:
   sync:
-    uses: cardstack/boxel/.github/workflows/sync-workspace.yml@cs-11180-extract-shared-preview-realm-github-actions-to-monorepo
+    uses: cardstack/boxel/.github/workflows/sync-workspace.yml@main
     with:
       staging-workspace-url: https://realms-staging.stack.cards/skills/
       production-workspace-url: https://app.boxel.ai/skills/
