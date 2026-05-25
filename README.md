@@ -2,9 +2,9 @@
 
 ## Development
 
-To develop core boxel skills, first install the workspace sync tool
+To develop core boxel skills, first install the [Boxel CLI](https://www.npmjs.com/package/@cardstack/boxel-cli):
 
-    npm install -g @cardstack/workspace-sync-cli
+    npm install -g @cardstack/boxel-cli
 
 And checkout this repository
 
