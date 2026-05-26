@@ -2,6 +2,12 @@ name: Diff Skills
 
 on:
   pull_request:
+    # Skill cards are JSON files. Gate the workflow at the trigger so
+    # PRs that only touch CI / docs / .gitignore (which produce no
+    # changed-files matrix entries) don't fail the downstream
+    # post-diffs job on an empty matrix.
+    paths:
+      - "**/*.json"
 
 permissions:
   contents: read
