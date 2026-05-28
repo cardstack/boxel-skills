@@ -121,6 +121,11 @@
           "inclusionMode": "link-only",
           "contentSummary": "When a broken-link placeholder appears in a rendered card, follow the placeholder URL back to the linked instance to read its error doc and propose a remediation (fix the linked card, re-target the link, or remove it)",
           "alternateTitle": "Diagnosing Broken Links"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "linksTo / linksToMany slots read as Card | undefined during the lazy-load window and on broken links; guard patterns for computeds, templates, and helpers (optional chaining, == null skips, ?. in maps, filter before render); getRelationship for structured per-slot state",
+          "alternateTitle": "Defensive Link Traversal"
         }
       ]
     },
@@ -223,6 +228,11 @@
       "relatedSkills.18.skill": {
         "links": {
           "self": "./env-diagnosing-broken-links"
+        }
+      },
+      "relatedSkills.19.skill": {
+        "links": {
+          "self": "./dev-defensive-link-traversal"
         }
       }
     }
