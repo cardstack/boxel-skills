@@ -1,6 +1,6 @@
 # Diagnosing Broken Links
 
-When a `linksTo` or `linksToMany` target is broken (deleted or errored), Boxel renders a **broken-link placeholder** in place of the linked card. JavaScript access to the field returns `undefined` for singular links and skips the broken element for plural links. The placeholder in the DOM is the **canonical signal** that something is wrong — not a transient loading state, not a missing field, not a bug to ignore.
+When a `linksTo` or `linksToMany` target is broken (deleted or errored), Boxel renders a **broken-link placeholder** in place of the linked card. JavaScript access reads as `undefined` for a singular `linksTo`, and per-element for a `linksToMany` each broken (or not-yet-loaded) slot reads as `undefined` in place — the slot is preserved, not removed, so `arr.length` is unchanged. (Card authors must guard these reads — see the **Defensive Link Traversal** skill.) The placeholder in the DOM is the **canonical signal** that something is wrong — not a transient loading state, not a missing field, not a bug to ignore.
 
 The parent card carrying the broken link indexes cleanly. The error lives on the **linked instance**, not the parent. To diagnose, you follow the URL back to the linked instance.
 
