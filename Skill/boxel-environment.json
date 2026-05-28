@@ -217,6 +217,11 @@
           "inclusionMode": "link-only",
           "contentSummary": "Indexing control commands and workflows for realm indexing jobs.",
           "alternateTitle": "Indexing Operations"
+        },
+        {
+          "inclusionMode": "link-only",
+          "contentSummary": "Activate when a broken-link placeholder appears in a card — guides following the URL back to the linked instance to read its error doc and propose a remediation.",
+          "alternateTitle": "Diagnosing Broken Links"
         }
       ]
     },
@@ -274,6 +279,11 @@
       "relatedSkills.9.skill": {
         "links": {
           "self": "./env-indexing-operations"
+        }
+      },
+      "relatedSkills.10.skill": {
+        "links": {
+          "self": "./env-diagnosing-broken-links"
         }
       }
     }

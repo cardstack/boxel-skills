@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "https://cardstack.com/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "notes": null,
+        "name": "Diagnosing Broken Links",
+        "summary": "When a linksTo or linksToMany target renders the broken-link placeholder, follow the URL back to the linked instance to read its error doc and propose a remediation",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://cardstack.com/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./env-diagnosing-broken-links.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./env-diagnosing-broken-links.md"
+        }
+      }
+    }
+  }
+}

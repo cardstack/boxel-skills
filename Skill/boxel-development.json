@@ -116,6 +116,11 @@
           "inclusionMode": "link-only",
           "contentSummary": "Replicate API essentials, enum fields, API call patterns, response parsing, finding model schemas",
           "alternateTitle": "Replicate AI Integration"
+        },
+        {
+          "inclusionMode": "link-only",
+          "contentSummary": "When a broken-link placeholder appears in a rendered card, follow the placeholder URL back to the linked instance to read its error doc and propose a remediation (fix the linked card, re-target the link, or remove it)",
+          "alternateTitle": "Diagnosing Broken Links"
         }
       ]
     },
@@ -213,6 +218,11 @@
       "relatedSkills.17.skill": {
         "links": {
           "self": "./dev-replicate-ai"
+        }
+      },
+      "relatedSkills.18.skill": {
+        "links": {
+          "self": "./env-diagnosing-broken-links"
         }
       }
     }
