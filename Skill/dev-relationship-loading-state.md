@@ -21,13 +21,13 @@ import { getRelationshipMembershipState } from 'https://cardstack.com/base/card-
 
 Expose `isLoading` through a getter and bind it. The flagship case is a **query-backed `linksToMany`**, which runs a search to resolve:
 
-```ts
+```gts
 class Matchmaker extends CardDef {
   @field cardTitle = contains(StringField);
   @field matches = linksToMany(() => Person, {
     query: {
       filter: { eq: { name: '$this.cardTitle' } },
-      page: { size: 10, number: 0 },
+      page: { size: 10 },
     },
   });
 
@@ -57,12 +57,12 @@ This is the one rule that trips people up. `getRelationshipMembershipState` **on
 So a template that shows a spinner **must also render the field**. If you bind `isLoading` but never touch the field, the load never starts and **`isLoading` stays `false` forever** — the spinner never appears.
 
 ```hbs
-{{! ❌ BROKEN — nothing reads `matches`, so the search never runs }}
-{{!    and `matchesLoading` is always false }}
+{{!-- ❌ BROKEN — nothing reads `matches`, so the search never runs
+      and `matchesLoading` is always false --}}
 {{#if @model.matchesLoading}}<Spinner />{{/if}}
 
-{{! ✅ the {{#each}} reads the field, which triggers the search; }}
-{{!    isLoading then reports that search's progress }}
+{{!-- ✅ the {{#each}} reads the field, which triggers the search;
+      isLoading then reports that search's progress --}}
 {{#if @model.matchesLoading}}<Spinner />{{/if}}
 {{#each @model.matches as |match|}}<PersonPill @person={{match}} />{{/each}}
 ```
