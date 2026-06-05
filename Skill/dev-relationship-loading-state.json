@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "https://cardstack.com/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "notes": null,
+        "name": "Relationship Loading State",
+        "summary": "Render a live progress indicator for query-backed linksToMany (and any linksTo / linksToMany) via getRelationshipMembershipState().isLoading",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://cardstack.com/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./dev-relationship-loading-state.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./dev-relationship-loading-state.md"
+        }
+      }
+    }
+  }
+}
