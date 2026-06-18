@@ -79,35 +79,38 @@ const query = {
 Declare a `search-entry`-rooted query and render the yielded entries. Each `entry.component` renders itself — prerendered HTML inert (hydrated lazily on interaction) or a live card — so the card never decides which:
 
 ```gts
+import { CardDef, Component } from 'https://cardstack.com/base/card-api';
 import {
   searchEntryWireQueryFromQuery,
   type SearchEntryWireQuery,
 } from '@cardstack/runtime-common';
 
-class Isolated extends Component<typeof BlogPost> {
-  get query(): SearchEntryWireQuery {
-    // Build the search-entry query from an ordinary query, then add realms.
-    return {
-      ...searchEntryWireQueryFromQuery({
-        filter: {
-          on: { module: new URL('./author', import.meta.url).href, name: 'Author' },
-          eq: { status: 'active' },
-        },
-        sort: [{ by: 'title', direction: 'asc' }],
-      }),
-      realms: ['https://my-realm.example/'], // realm URLs to search
-    };
-  }
+class BlogPost extends CardDef {
+  static isolated = class Isolated extends Component<typeof BlogPost> {
+    get query(): SearchEntryWireQuery {
+      // Build the search-entry query from an ordinary query, then add realms.
+      return {
+        ...searchEntryWireQueryFromQuery({
+          filter: {
+            on: { module: new URL('./author', import.meta.url).href, name: 'Author' },
+            eq: { status: 'active' },
+          },
+          sort: [{ by: 'title', direction: 'asc' }],
+        }),
+        realms: ['https://my-realm.example/'], // realm URLs to search
+      };
+    }
 
-  <template>
-    <@context.searchResultsComponent @query={{this.query}} @mode='hover' as |results|>
-      {{#each results.entries key='id' as |entry|}}
-        <entry.component />
-      {{else}}
-        {{if results.isLoading 'Loading…' 'No results'}}
-      {{/each}}
-    </@context.searchResultsComponent>
-  </template>
+    <template>
+      <@context.searchResultsComponent @query={{this.query}} @mode='hover' as |results|>
+        {{#each results.entries key='id' as |entry|}}
+          <entry.component />
+        {{else}}
+          {{if results.isLoading 'Loading…' 'No results'}}
+        {{/each}}
+      </@context.searchResultsComponent>
+    </template>
+  };
 }
 ```
 
