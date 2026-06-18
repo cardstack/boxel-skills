@@ -33,14 +33,14 @@ The `markdown` format emits plain text (Boxel Flavored Markdown), not HTML. A wo
 {{/each}}
 
 <!-- ✅ OPTION 3: If filtering needed, use query patterns -->
-<!-- Use PrerenderedCardSearch or getCards for filtered collections -->
+<!-- Use @context.searchResultsComponent or getCards for filtered collections -->
 ```
 
 **Why this breaks:** @fields provides field-level components. Once you're iterating with @model, you're working with raw data, not field components.
 
 **Decision Rule:** Before iterating, decide:
 - Need composability? → Use delegated rendering
-- Need filtering? → Use query patterns (PrerenderedCardSearch/getCards)
+- Need filtering? → Use query patterns (@context.searchResultsComponent / getCards)
 - Need custom control? → Use @model but handle ALL rendering yourself
 
 #### ⚠️ CRITICAL: Block-Param Names Must Not Match HTML Tag Names
@@ -383,7 +383,7 @@ export class ShoppingList extends CardDef {
 **When NOT to Use:**
 - If you need to iterate all items → use `<@fields.items />` delegation
 - If you need custom rendering for each → use `{{#each @model.items}}` pattern
-- For simple filtering → use query patterns with PrerenderedCardSearch
+- For simple filtering → use query patterns with @context.searchResultsComponent
 
 **Performance Consideration:**
 The `get` helper is efficient for accessing specific indices. For complex filtering or transformation, consider using query patterns or computed properties instead.
