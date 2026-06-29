@@ -520,6 +520,8 @@ Wrap inputs with `FieldContainer` for consistent label + input layout. Use compo
 
 ### Icons
 
+**Always set explicit `width` and `height` attributes on an icon component** — never size an icon through CSS (`.glyph { width: 1.5rem }`) alone. The attributes give the SVG an intrinsic size, which is required for it to render at the right dimensions during prerender where the scoped CSS may not have applied yet; CSS-only sizing collapses or mis-sizes the glyph in those passes. Use CSS on the icon only for color. This is the one place plain numeric (px-equivalent) sizing is expected — the rem-over-px preference does not apply to icon `width`/`height` attributes.
+
 Icons and SVGs must not use hardcoded hex fills — use theme color tokens via CSS:
 
 ```gts
@@ -528,7 +530,10 @@ Icons and SVGs must not use hardcoded hex fills — use theme color tokens via C
   <ellipse fill='#fed7aa' /><circle fill='#ef4444' />
 </svg>
 
-// Correct — styled with theme token
+// Avoid — no intrinsic size; relies on CSS that may not apply during prerender
+<ChefHat class='chef-hat-icon' />
+
+// Correct — explicit width/height attributes, CSS for color only
 <ChefHat width='12' height='12' class='chef-hat-icon' />
 ```
 
