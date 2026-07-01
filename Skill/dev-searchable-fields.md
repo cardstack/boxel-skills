@@ -14,7 +14,7 @@ type Searchable = true | string | string[];
 ## The one invariant: contained is always in, links are opt-in
 
 - **Contained fields are always included** — for the card being indexed and for every card pulled into the doc. `searchable` never touches them; a `contains` / `containsMany` value is in the doc because its owner is.
-- **A link is `{ id }` only unless you make it searchable.** Not annotated ⇒ just the reference. Annotated ⇒ the target card is pulled in, and (being a card in the doc) all of *its* contained fields come along automatically.
+- **A link is captured as a bare reference unless you make it searchable** — a `linksTo` as its target's `{ id }`, a `linksToMany` as an array of `{ id }` refs. Not annotated ⇒ just the reference(s). Annotated ⇒ the target card(s) are pulled in, and (being cards in the doc) all of *their* contained fields come along automatically.
 
 This shallow-by-default behavior for links is the whole point: a search doc includes exactly the linked cards you name, nothing more.
 
@@ -65,7 +65,7 @@ There is no path segment that names "this link itself" — paths name the *next*
   @field author = linksTo(Author, { searchable: true });   // now `eq: { 'author.name': … }` resolves
   ```
 
-- **Query-backed relationships are never captured.** A `linksTo` / `linksToMany` with a `query` can't be invalidated when matching cards change, so it would go stale. `searchable` is accepted but **inert** on one (a valid no-op), and a path cannot route deeper through it — routing a *filter* through a query-backed hop errors like any other non-searchable hop.
+- **Query-backed relationships are never captured.** A `linksTo` / `linksToMany` with a `query` can't be invalidated when matching cards change, so it would go stale. `searchable` is accepted but **inert** on a query-backed relationship (a valid no-op), and a path cannot route deeper through it — routing a *filter* through a query-backed hop errors like any other non-searchable hop.
 - **No wildcard.** There is deliberately no "make everything searchable" form; a cyclic or high-fan-out link graph could otherwise pull an unbounded slice of the realm into one doc.
 - **Cycles clip to `{ id }`; broken or not-loaded links degrade to `{ id }`.**
 

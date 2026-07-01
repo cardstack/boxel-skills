@@ -129,7 +129,7 @@
         },
         {
           "inclusionMode": "link-only",
-          "contentSummary": "The `searchable` field option controls which links a card's search doc follows: contained fields are always included; a link is { id } until made searchable; true = the self link, a dotted path = a deeper (n+1) link, an array combines routes; links capture the declared type only; query-backed relationships are inert; querying a resolvable-but-non-searchable path errors",
+          "contentSummary": "The `searchable` field option controls which links a card's search doc follows: contained fields are always included; an unmarked link is a bare reference only (a linksTo as its { id }, a linksToMany as an array of them) until made searchable; true = the self link, a dotted path = a deeper (n+1) link, an array combines routes; links capture the declared type only; query-backed relationships are inert; querying a resolvable-but-non-searchable path errors",
           "alternateTitle": "Searchable Fields"
         }
       ]

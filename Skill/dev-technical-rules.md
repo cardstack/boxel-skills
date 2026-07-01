@@ -45,7 +45,7 @@ class MyCard extends CardDef { }         // ❌ Missing export
 
 ### Making links queryable: the `searchable` option
 
-A `contains` value is always in a card's search doc, so you can filter on it with no extra work. A **link is not**: a `linksTo` / `linksToMany` is stored as `{ id }` only unless you mark it `searchable`, and filtering across a non-searchable link errors at query time.
+A `contains` value is always in a card's search doc, so you can filter on it with no extra work. A **link is not**: unless you mark it `searchable` it is stored as a bare reference only — a `linksTo` as its `{ id }`, a `linksToMany` as an array of `{ id }` refs — and filtering across a non-searchable link errors at query time.
 
 ```gts
 @field author = linksTo(Author);                          // filter on author.name → errors
