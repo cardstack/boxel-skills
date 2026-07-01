@@ -49,7 +49,7 @@ export class BlogPost extends CardDef {
   
   @field headline = contains(StringField);
   @field publishDate = contains(DateField);
-  @field author = linksTo(Author);
+  @field author = linksTo(Author, { searchable: true }); // searchable → filter on author.* in queries
   @field tags = containsMany(TagField);
   @field relatedPosts = linksToMany(() => BlogPost);
   

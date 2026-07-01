@@ -5,6 +5,8 @@
 <@fields.items @format="embedded" />
 ```
 
+> Delegated rendering governs **display** only. What a card's embedded/fitted templates render does **not** decide how deep its search doc goes — that is controlled entirely by the `searchable` field option (see the **Searchable Fields** skill). Rendering a linked card in a template does not make it queryable, and marking a link `searchable` does not require rendering it.
+
 **Make cards clickable:**
 ```hbs
 <CardContainer

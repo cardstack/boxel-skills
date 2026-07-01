@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "https://cardstack.com/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "notes": null,
+        "name": "Searchable Fields",
+        "summary": "The `searchable` field option — how it decides which links are followed into a card's search doc (contained always included; links opt-in; true = self link, dotted path = deeper link)",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://cardstack.com/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "./dev-searchable-fields.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "./dev-searchable-fields.md"
+        }
+      }
+    }
+  }
+}
