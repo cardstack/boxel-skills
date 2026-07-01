@@ -1,9 +1,10 @@
 **Card specs (linksTo/linksToMany):**
 ```gts
 import { Author } from './author';
-@field author = linksTo(Author);
+@field author = linksTo(Author, { searchable: true }); // searchable → queryable via author.*
 @field contributors = linksToMany(Author);
 ```
+Mark a link `searchable` to pull its target into the search doc and make it queryable (a plain link is stored as `{ id }` only); see the **Searchable Fields** skill.
 
 **Field specs (contains/containsMany):**
 ```gts

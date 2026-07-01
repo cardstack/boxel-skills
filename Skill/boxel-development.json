@@ -126,6 +126,11 @@
           "inclusionMode": "full",
           "contentSummary": "linksTo / linksToMany slots read as Card | undefined during the lazy-load window and on broken links; guard patterns for computeds, templates, and helpers (optional chaining, == null skips, ?. in maps, filter before render); getRelationship for structured per-slot state",
           "alternateTitle": "Defensive Link Traversal"
+        },
+        {
+          "inclusionMode": "link-only",
+          "contentSummary": "The `searchable` field option controls which links a card's search doc follows: contained fields are always included; a link is { id } until made searchable; true = the self link, a dotted path = a deeper (n+1) link, an array combines routes; links capture the declared type only; query-backed relationships are inert; querying a resolvable-but-non-searchable path errors",
+          "alternateTitle": "Searchable Fields"
         }
       ]
     },
@@ -233,6 +238,11 @@
       "relatedSkills.19.skill": {
         "links": {
           "self": "./dev-defensive-link-traversal"
+        }
+      },
+      "relatedSkills.20.skill": {
+        "links": {
+          "self": "./dev-searchable-fields"
         }
       }
     }

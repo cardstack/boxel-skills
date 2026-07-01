@@ -43,6 +43,18 @@ class MyCard extends CardDef { }         // ❌ Missing export
 @field address = linksTo(AddressField);       // NEVER!
 ```
 
+### Making links queryable: the `searchable` option
+
+A `contains` value is always in a card's search doc, so you can filter on it with no extra work. A **link is not**: a `linksTo` / `linksToMany` is stored as `{ id }` only unless you mark it `searchable`, and filtering across a non-searchable link errors at query time.
+
+```gts
+@field author = linksTo(Author);                          // filter on author.name → errors
+@field author = linksTo(Author, { searchable: true });    // author.name now queryable
+@field authors = linksToMany(Author, { searchable: 'address.country' }); // deeper route
+```
+
+`searchable: true` makes the link itself queryable; a dotted path reaches a deeper (n+1) link; an array combines routes. See the **Searchable Fields** skill for the full rules.
+
 ### MANDATORY TECHNICAL REQUIREMENTS
 
 1. **Always use SEARCH/REPLACE with tracking for .gts files**
