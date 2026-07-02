@@ -1,0 +1,79 @@
+/* Boxel surface accessories are signage, labels, hints, and status chrome.
+ * They do not register as surfaces and should stay visually distinct from
+ * database-bound surface content. */
+
+.surface-accessory {
+  --surface-accessory-width: 8.5rem;
+
+  display: inline-grid;
+  inline-size: var(--surface-accessory-width);
+  min-block-size: 1.35rem;
+  align-items: center;
+  justify-items: start;
+  padding: 0.18rem 0.42rem;
+  border: 1px solid var(--surface-accessory-border, #d9dde4);
+  border-radius: 4px;
+  background: var(--surface-accessory-bg, #f6f7f9);
+  color: var(--surface-accessory-fg, #5f6673);
+  font-family:
+    ui-monospace,
+    "SF Mono",
+    Menlo,
+    Consolas,
+    "Liberation Mono",
+    monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0;
+  white-space: normal;
+}
+
+.surface-accessory[data-surface-accessory='description'] {
+  min-block-size: 2rem;
+  font-weight: 600;
+}
+
+.surface-accessory[data-surface-accessory='status'] {
+  text-transform: uppercase;
+}
+
+.surface-accessory[data-surface-accessory-position='block-start'] {
+  margin-block-end: 0.5rem;
+}
+
+.surface-accessory[data-surface-accessory-position='block-end'] {
+  margin-block-start: 0.5rem;
+}
+
+.surface-accessory[data-surface-accessory-position='inline-start'] {
+  margin-inline-end: 0.5rem;
+}
+
+.surface-accessory[data-surface-accessory-position='inline-end'] {
+  margin-inline-start: 0.5rem;
+}
+
+.surface-accessory[data-surface-accessory-tone='info'] {
+  --surface-accessory-border: #c7d7ec;
+  --surface-accessory-bg: #f0f6ff;
+  --surface-accessory-fg: #315f97;
+}
+
+.surface-accessory[data-surface-accessory-tone='success'] {
+  --surface-accessory-border: #b7dfca;
+  --surface-accessory-bg: #eef8f2;
+  --surface-accessory-fg: #1f6b48;
+}
+
+.surface-accessory[data-surface-accessory-tone='warn'] {
+  --surface-accessory-border: #e4d2aa;
+  --surface-accessory-bg: #fff8e7;
+  --surface-accessory-fg: #8a5a10;
+}
+
+.surface-accessory[data-surface-accessory-tone='danger'] {
+  --surface-accessory-border: #efb9bc;
+  --surface-accessory-bg: #fff1f2;
+  --surface-accessory-fg: #9f2930;
+}
