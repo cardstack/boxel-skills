@@ -1,0 +1,354 @@
+/* ─── boxel-surface · cell chrome (inlay) ──────────────────────────
+ *
+ * Shared cell-as-square-box chrome for any host that lays out
+ * cell-shaped lift targets (grid cells, canvas frames with field
+ * cells, kanban card fields, calendar event tiles).
+ *
+ * The cell IS the focus rect. No inner wrapper. Inlay paints
+ * directly on `.bx-cell` for hover / focus / range / has-lift
+ * states. The companion `<LiftChevron>` (boxel-surface) reads
+ * the parent cell's state to drive its own opacity tiers.
+ *
+ * NAMING (per docs/SURFACE-VOCABULARY.md)
+ * =======================================
+ *
+ * - `.bx-cell`             the cell wrapper; framework class
+ * - `.is-focused`          cell is the focused unit
+ * - `.is-in-range`         cell is part of the active range
+ * - `.is-hovered`          (optional, host-toggled if CSS :hover
+ *                           is insufficient — usually unnecessary)
+ * - `.has-lift`            cell's contract.lift includes 'edit';
+ *                           gates whether the chevron-tier rules
+ *                           below apply (cells without an edit
+ *                           lift don't show a chevron)
+ *
+ * INLAY vs DECAL (per spec § III)
+ * ===============================
+ *
+ * Everything painted by THIS sheet is INLAY (the surface's own
+ * chrome): hover bg, focus border + bg, range tint. The system
+ * paints DECALS (selection marquee, drag ghost, focus ring) on
+ * the spot plane via separate CSS — those don't live here.
+ *
+ * THEMING
+ * =======
+ *
+ * Every visual is parameterized by a CSS variable so hosts can
+ * theme without overriding the rules themselves. Defaults match
+ * the indigo accent used in the K.5 demo; override per-host:
+ *
+ *   .my-host-pane {
+ *     --bx-cell-accent: #ea580c;
+ *     --bx-cell-bg-focus: rgba(234, 88, 12, 0.18);
+ *   }
+ */
+
+.bx-cell {
+  /* layout — flex so widget content can fill horizontally; the
+   * single-row flex keeps the chevron's absolute position
+   * relative to the cell's box. */
+  display: flex;
+  align-items: center;
+  padding: var(--bx-cell-padding, 8px 12px);
+  min-height: var(--bx-cell-min-height, 36px);
+
+  /* gesture hints */
+  cursor: cell;
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* chrome */
+  position: relative;
+  background: var(--bx-cell-bg, transparent);
+  transition:
+    background var(--bx-cell-transition, 80ms),
+    box-shadow var(--bx-cell-transition, 80ms);
+}
+
+/* Form controls inside a cell opt back into user-select: WebKit
+ * blocks pointer drag (e.g., <input type="range">) on inputs whose
+ * ancestor has `user-select: none`. The cell's user-select is for
+ * BLOCKING text-selection on the cell BACKGROUND (so click-drag in
+ * the cell gap doesn't paint a text selection); it's not meant to
+ * disable form-control drag. Re-enable on every interactive child. */
+.bx-cell input,
+.bx-cell select,
+.bx-cell textarea,
+.bx-cell [contenteditable=""],
+.bx-cell [contenteditable="true"] {
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+
+/* ─── inlay states ────────────────────────────────────────────── */
+
+/* Hover — soft tint indicating the cell is interactive. Lower
+ * priority than focus / range; falls back beneath those. */
+.bx-cell:hover:not(.is-focused):not(.is-in-range) {
+  background: var(--bx-cell-bg-hover, #fafafb);
+}
+
+/* In-range — light accent tint, signals participation in the
+ * current range selection. */
+.bx-cell.is-in-range {
+  background: var(--bx-cell-bg-range, rgba(99, 102, 241, 0.08));
+}
+
+/* Focused — strongest accent tint + raised z so any inlay (range
+ * border, drag handle) paints above neighboring cells. */
+.bx-cell.is-focused {
+  background: var(--bx-cell-bg-focus, rgba(99, 102, 241, 0.18));
+  z-index: 2;
+}
+
+/* Disabled — muted color and no pointer feedback. */
+.bx-cell.is-disabled {
+  cursor: not-allowed;
+  opacity: var(--bx-cell-disabled-opacity, 0.5);
+}
+
+/* SOURCE-OF-OPEN-LIFT — when a cell is the anchor of an open lift,
+ * the lift's chrome owns "this is being edited." Cell suppresses
+ * its own focus tint and wears a SUBTLE 1px accent ring that
+ * matches the lift's elevated ring (32% opacity) so the cell + lift
+ * read as ONE connected surface.
+ *
+ * NO thick inset bars or heavy borders — the ring is the only
+ * chrome. The lift below sits adjacent and provides the "this is
+ * the source" relationship by proximity.
+ *
+ * The host (e.g., GridTablePane) stamps `is-source` on the cell
+ * when `liftState.isOpenFor(row, col)` is true. Wins over focused
+ * + in-range — we don't double-paint state. */
+.bx-cell.is-source {
+  background: var(--bx-cell-bg, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--bx-cell-accent-strong, #4f46e5) 32%, transparent);
+  z-index: 2;
+}
+.bx-cell.is-source.is-focused,
+.bx-cell.is-source.is-in-range,
+.bx-cell.is-source.is-focused.is-in-range {
+  /* Source wins — drop focused bg + range tint, keep only the
+   * subtle ring. */
+  background: var(--bx-cell-bg, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--bx-cell-accent-strong, #4f46e5) 32%, transparent);
+}
+
+/* ─── editing state ──────────────────────────────────────────────
+ *
+ * When an inline editor is mounted inside the cell, suppress the
+ * range/focus tints — the editor's own white background fills the
+ * cell rectangle so the user sees a clean "this is now an input"
+ * affordance instead of a small white box floating in lavender.
+ *
+ * `:has()` makes this declarative: any cell whose subtree includes
+ * `.bx-cell-editor-wrap` (the framework-level wrapper around an
+ * activated editor) drops its tint AND removes its own padding so
+ * the editor can stretch edge-to-edge. The widget editors handle
+ * their own border + padding (text input border, number input shell)
+ * — the cell just gets out of the way.
+ */
+.bx-cell:has(.bx-cell-editor-wrap) {
+  background: var(--bx-cell-bg-edit, #fff);
+  padding: 0;
+}
+.bx-cell .bx-cell-editor-wrap {
+  /* `display: contents` lets the editor itself become the layout
+   * child of `.bx-cell-content`. The wrapper carries the autofocus
+   * modifier without adding a layout box. */
+  display: contents;
+}
+/* Editor descendants — generic fill rules. Each widget editor still
+ * paints its own border + caret + padding; these rules just make
+ * sure the editor's box covers the cell rectangle. */
+.bx-cell:has(.bx-cell-editor-wrap) .bx-cell-content {
+  /* override the host's `flex: 1 1 auto` to also stretch vertically */
+  align-self: stretch;
+  height: 100%;
+  min-height: var(--bx-cell-min-height, 36px);
+}
+
+/* ─── chevron tier rules (companion to <LiftChevron>) ─────────
+ *
+ * The chevron component owns its rest baseline (opacity 0),
+ * chevron-hover, lift-open, and focus-visible tiers via scoped
+ * styles. THIS sheet contributes the parent-driven cell-hover
+ * and cell-focused tiers — those depend on the surrounding
+ * cell's state, not the chevron itself.
+ *
+ * Gated on `.has-lift` so cells whose contract doesn't support
+ * an edit lift (Pattern A widgets) don't surface a chevron at all.
+ */
+
+.bx-cell.has-lift:hover .bx-lift-chevron:not(:hover):not(.is-lift-open) {
+  opacity: var(--bx-lift-chevron-hover-opacity, 0.35);
+}
+.bx-cell.has-lift.is-focused
+  .bx-lift-chevron:not(:hover):not(.is-lift-open) {
+  opacity: var(--bx-lift-chevron-focus-opacity, 0.6);
+  color: var(--bx-cell-accent, #6366f1);
+}
+
+/* ─── row helper (optional) ───────────────────────────────────
+ *
+ * A convenience wrapper if the host wants the row-focused-then-
+ * accent-stripe-on-leftmost-cell idiom. Hosts that prefer to
+ * compute this themselves can omit `.bx-row` and just use
+ * `.bx-cell` directly.
+ */
+
+.bx-row {
+  display: grid;
+  /* `grid-template-columns` set inline per row by the host */
+  border-bottom: 1px solid var(--bx-row-divider, #f3f4f6);
+}
+.bx-row:last-child {
+  border-bottom: none;
+}
+.bx-row:has(.bx-cell.is-focused) .bx-cell:first-child {
+  /* Row-focus indicator on the leftmost cell. Thin 2px stripe so
+   * the row is locatable at a glance without a thick border. */
+  box-shadow: inset 2px 0 0 var(--bx-cell-accent, #4f46e5);
+}
+
+/* SUBGRID variant — rows that participate in a SHARED column grid
+ * owned by an enclosing body wrapper. The body sets
+ * `display: grid; grid-template-columns: <template>;`; each row
+ * spans every column (`grid-column: 1 / -1`) and inherits the
+ * column template via `subgrid`. This gives ONE source of truth
+ * for column widths across all rows, fixing the jagged-column
+ * failure mode where each row's per-row grid recomputed widths
+ * independently.
+ *
+ * Browsers: Chrome 117+, Safari 16+, Firefox 71+. All current
+ * green. */
+.bx-row.bx-row--subgrid {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+
+/* ─── CELL VARIANTS ─────────────────────────────────────────────
+ *
+ * `.bx-cell` is the BASE — focus / hover / source / range chrome
+ * works the same across every variant. Variants change only the
+ * JUSTIFICATION (how the box is filled): typography rhythm,
+ * label vs value placement, padding density, hover affordance.
+ * Each variant invokes a prior-UX grammar the user already knows
+ * from somewhere (Excel, macOS prefs, Stripe checkout).
+ *
+ *   .bx-cell--table        Tabular row — TanStack table, GitHub PR
+ *                           list, Notion database. Tight rhythm,
+ *                           single-line, ellipsis. (≈ default base.)
+ *   .bx-cell--spreadsheet  Excel / Sheets / Airtable. Same as
+ *                           table but denser + corner adornment
+ *                           slots (validation, fill handle).
+ *   .bx-cell--property     Adobe Photoshop properties pane, macOS
+ *                           System Prefs, Inspector. Label LEFT,
+ *                           value RIGHT, justified to opposite
+ *                           edges. No row dividers (whitespace is
+ *                           the divider). Generous breathing.
+ *   .bx-cell--form         Web form. Label ABOVE value, value
+ *                           fills width. Vertical rhythm dominates.
+ *                           Stripe / Google Forms / sign-up flow.
+ *
+ * The widget bundle (toggle, pill, calendar, ...) stays identical.
+ * Only the cell wrapper varies. Same widgets read differently
+ * depending on the room they sit in.
+ */
+
+/* ─── --property — label left, value right, no dividers ──────── */
+
+.bx-cell.bx-cell--property {
+  /* Two-track grid: label takes its natural width (auto), value
+   * fills the rest and right-aligns its content. The label and
+   * value are stamped as separate slots inside the cell — the
+   * host fills `.bx-cell__label` and `.bx-cell__value`. */
+  display: grid;
+  grid-template-columns: minmax(80px, max-content) 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  min-height: 40px;
+  /* No bottom border — whitespace + the cell-level hover tint
+   * separate rows. Photoshop / System Prefs idiom. */
+  border-bottom: none;
+}
+.bx-cell.bx-cell--property .bx-cell__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--bx-cell-fg-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  user-select: none;
+}
+.bx-cell.bx-cell--property .bx-cell__value {
+  display: flex;
+  align-items: center;
+  /* Push value content to the RIGHT edge — label-left, value-right,
+   * justified to opposite edges. Mirrors the Photoshop properties
+   * pane idiom where the column's right edge is a strong vertical
+   * gutter the eye tracks down. */
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--bx-cell-fg, #111827);
+}
+/* Property hover — extend tint edge-to-edge so the row feels like
+ * one tap target. Distinct from --table (subtle bg-only). */
+.bx-cell.bx-cell--property:hover:not(.is-focused):not(.is-source) {
+  background: var(--bx-cell-bg-hover, #f8f9fb);
+}
+/* Property focus — accent ring on the VALUE side only, not the
+ * label side. The label is "what this is"; the focus ring belongs
+ * to "what's editable". */
+.bx-cell.bx-cell--property.is-focused {
+  background: transparent;
+}
+.bx-cell.bx-cell--property.is-focused .bx-cell__value {
+  box-shadow: inset 0 0 0 1.5px var(--bx-cell-accent, #6366f1);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+}
+/* Property source-of-lift — same 1px @ 32% accent ring as the base
+ * cell-source, but applied to the VALUE box only (not the whole
+ * cell). The label keeps its at-rest look — the lift below is
+ * "editing the value", not "editing the field's name". */
+.bx-cell.bx-cell--property.is-source {
+  background: transparent;
+  box-shadow: none;
+}
+.bx-cell.bx-cell--property.is-source .bx-cell__value {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--bx-cell-accent-strong, #4f46e5) 32%, transparent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+}
+
+/* ─── default token palette ───────────────────────────────────
+ *
+ * Set on :root so any host inherits unless it overrides on a
+ * narrower selector. Hosts can theme by setting these vars on
+ * their own pane / surface root.
+ */
+
+:root {
+  --bx-cell-accent: #6366f1;
+  --bx-cell-accent-strong: #4f46e5;
+
+  --bx-cell-bg-hover: #fafafb;
+  --bx-cell-bg-focus: rgba(99, 102, 241, 0.18);
+  --bx-cell-bg-range: rgba(99, 102, 241, 0.08);
+
+  --bx-cell-padding: 8px 12px;
+  --bx-cell-min-height: 36px;
+  --bx-cell-transition: 80ms;
+
+  --bx-row-divider: #f3f4f6;
+}
