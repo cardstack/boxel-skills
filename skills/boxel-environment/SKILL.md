@@ -208,13 +208,19 @@ Load any of these with the readRealmFile tool when the topic is relevant:
 
 - `references/assistant-persona.md` — **Assistant Persona**: Defines communication style. Always active for intent-based responses and concise summaries.
 - `references/calling-commands.md` — **Calling Commands**: JSON structure for all tool calls. Required before any command execution.
-- `references/choosing-llm-models.md` — **User Environment Awareness**: Parse workspace, mode, open cards. Needed to understand user context each message.
-- `references/searching-and-querying.md` — **Choosing LLM Models**: Model selection rules. Check when code tasks detected or debugging stuck.
-- `references/user-environment-awareness.md` — **Searching and Querying**: Query syntax for finding cards. Use when SEARCH/FIND task detected in decision tree.
+- `references/choosing-llm-models.md` — **Choosing LLM Models**: Model selection rules. Check when code tasks detected or debugging stuck.
+- `references/searching-and-querying.md` — **Searching and Querying**: Query syntax for finding cards. Use when SEARCH/FIND task detected in decision tree.
+- `references/user-environment-awareness.md` — **User Environment Awareness**: Parse workspace, mode, open cards. Needed to understand user context each message.
 - `references/workflows-and-orchestration-patterns.md` — **Workflows and Orchestration Patterns**: Multi-step operation patterns. Reference for complex tasks like migrations.
 - `references/markdown-edit.md` — **Markdown Edit**: Activate for editing long markdown fields (>500 chars) surgically without truncation.
-- `references/source-code-editing.md` — **Source Code Editing**: Activate for SEARCH/REPLACE operations on .gts or .json files.
 - `references/indexing-operations.md` — **Indexing Operations**: Indexing control commands and workflows for realm indexing jobs.
+
+## Related skills
+
+Standalone skills in this realm — load their SKILL.md (sibling directories under `skills/`, relative to this file's URL):
+
+- `../boxel-development/SKILL.md` — **Boxel Development**: Activate for Code Mode or writing new .gts code. Contains syntax, imports, and patterns.
+- `../source-code-editing/SKILL.md` — **Source Code Editing**: Activate for SEARCH/REPLACE operations on .gts or .json files.
 
 ## Debug Mode
 
