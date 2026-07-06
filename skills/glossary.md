@@ -206,7 +206,6 @@ Substantial JS libraries shipped *inside* a realm filesystem rather than via npm
 - **pretext** — Two-phase canvas text-measurement engine (Chen Glou / Sebastian Markbage). Inlined per-card (no separate import URL because Boxel's GTS compiler requires module exports). → `library-pretext`
 - **ember-lume** — Spatial Lounge POC. Source primitives in the surfaces source repo's `test-app/lib/ember-lume/`; the production-relevant pieces are inlined into `surfaces/scene/`. Don't reach for ember-lume directly.
 - **TanStack table-core / store** — Inlined into `surfaces/grid/`. Don't import via esm.run; go through surfaces so versions stay pinned to what surfaces was tested against.
-- **`.claude/extension-libs/`** — Tracked folder shipping the actual dist bytes for bxl, surfaces, ember-flow, pretext so the agent can upload them into a user realm when missing. → `.claude/extension-libs/README.md`
 - **realm-bundle-shim convention** — One-line `<realm>/<lib>.ts` that does `export * from './<lib>/index';`. Lets cards import via `'./<lib>'` (or absolute URL) regardless of whether the bundle is chunked. → `organize-realm-bundle-shim`
 
 ## 14. External libraries (ESM CDN)
@@ -455,9 +454,6 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`show-kanban-from-query`** — Status-grouped column view with one `PrerenderedCardSearch` per column. Lower-friction `layout-kanban-drag-drop` alternative when DnD isn't needed.
 - **`polymorphic-card-subclass`** — CardDef hierarchy where `adoptsFrom` discriminates the subclass per instance. Differs from `polymorphic-field-subclass` (FieldDef runtime swap).
 
-### Workspace-specific extensions (under `.claude/extensions/`)
-Library wrappers (`library-bxl`, `library-surfaces`, `library-ember-flow`, `library-pretext`), surface-library patterns (`surface-form-card`, `surface-field-kit`, `surface-default-template`, `outline-panel-toggle`, `theme-css-token-redefinition`), the realm-bundle-shim convention (`organize-realm-bundle-shim`), provider-specific image generators (`integrate-replicate-ai-image`, `deprecated-cloudflare-image-upload`), and bxl primer extractions (`bxl-computevia-fields`, `bxl-rule-preview`, `bxl-guide-validation`, `bxl-stable-target-paths`).
-
 ## 26. `.claude/` directory layout
 
 - **`CLAUDE.md`** — Claude Code's cardinal doc (always loaded).
@@ -465,8 +461,6 @@ Library wrappers (`library-bxl`, `library-surfaces`, `library-ember-flow`, `libr
 - **`README.md`** — Human-facing setup guide.
 - **`commands/`** — Slash commands (action layer).
 - **`skills/`** — Portable skill tree (this file's home).
-- **`.claude/extensions/`** — Workspace-specific patterns (tracked, but assume this workspace's libraries).
-- **`.claude/extension-libs/`** — Pre-built dist bundles the agent can upload to user realms.
 - **`.claude/learnings/`** — Session scratchpad; `/distill-learnings` folds into skill tree.
 
 ## 27. Acronyms

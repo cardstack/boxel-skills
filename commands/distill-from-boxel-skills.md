@@ -59,7 +59,6 @@ The naming convention is consistent enough that most files map mechanically:
 | `dev-spec-usage.md` | `skills/boxel/references/spec-usage.md` |
 | `dev-styling-design.md` | `skills/boxel/references/styling-design.md` (+ `skills/boxel-design/SKILL.md`) |
 | `dev-template-patterns.md` | `skills/boxel-ui-guidelines/references/template-patterns.md` (note: NOT `skills/boxel/references/template-syntax.md` — those are disambiguated; see Naming conventions in `skills/boxel-patterns/SKILL.md`) |
-| `dev-replicate-ai.md` | `.claude/extensions/integrate-replicate-ai-image/` (workspace-specific) |
 | `boxel-design.md` | `skills/boxel-design/SKILL.md` |
 | `boxel-ui-guidelines.md` | `skills/boxel-ui-guidelines/SKILL.md` |
 | `boxel-design-system.md` | `skills/boxel-design/references/theme-design-system.md` (+ `skills/boxel-theme-development/SKILL.md`) |
