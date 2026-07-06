@@ -13,4 +13,4 @@ To load one: this skill's own URL is shown as its id above. Strip the trailing `
 
 skills/source-code-editing/SKILL.md
 
-ALWAYS load this before emitting any code edit, new source file, or code diff — in every conversation, even if you already know the SEARCH/REPLACE format from another skill or from prior experience. It defines the exact block format Boxel's code editor applies, and it may have changed since your information. Never write or modify a .gts file in a conversation where you have not read it.
+Load this BEFORE making any code edit, creating a source file, or showing a code diff. It defines the exact SEARCH/REPLACE block format Boxel's code editor applies — edits written without these instructions will not apply. Do not attempt to write or modify .gts files until you have loaded and read it.
