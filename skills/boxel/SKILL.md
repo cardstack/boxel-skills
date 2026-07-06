@@ -95,10 +95,13 @@ Core syntax and patterns (load when topic comes up):
 - `references/data-management.md` — File organization, JSON instance format, field value patterns, relationships.
 - `references/card-references.md` — `links.self` shapes: relative (`./Foo/bar` / `../Foo/bar`) vs absolute vs registered-prefix; FileDef-typed relationships need the file extension; `$REALM` and `@cardstack/...` rules; common silent-failure modes.
 - `references/defensive-programming.md` — Optional chaining, default values, try/catch, array validation.
+- `references/defensive-link-traversal.md` — Reading `linksTo`/`linksToMany` is not like `contains`: a linked slot reads `undefined` while loading and forever if broken. The per-slot contract, `linksToMany` `undefined` holes (`arr.length` unchanged), `.filter(Boolean)` before count/render, and `getRelationship`/`RelationshipState` for distinguishing loading vs broken.
+- `references/relationship-loading-state.md` — `getRelationshipMembershipState(this, 'field').isLoading`: a live, tracked per-field boolean for driving a spinner (flagship: query-backed `linksToMany`). Observe-only — the template must also read the field or the load never starts.
 
 Subsystems (load when used):
 
 - `references/query-systems.md` — Query syntax, the `on` rule, filter types, `PrerenderedCardSearch` vs `getCards`.
+- `references/searchable-fields.md` — The `searchable` field option (`true | string | string[]`) controlling which `linksTo`/`linksToMany` targets are pulled into the search doc (contained always in; links opt-in); dotted-path routing; the query-time error for querying a non-searchable path.
 - `references/fitted-formats.md` — Four sub-formats (badge/strip/tile/card), size classification. Quick reference only.
 - **`references/design-playbook.md`** — **The recommended way to design any user-facing card.** Four-stage process: (1) mockup with no variables, (2) extract theme DNA, (3) tokenize, (4) derive fitted/embedded. Includes the verbatim design-challenge framing (Pentagram art director + internal taste-maker) and the "fitted features the media" rule. Trust your intrinsic design taste; this is a process, not a CSS rulebook.
 - `references/container-query-fitted-layout.md` — Mandatory implementation standard for every `fitted` template: two-element `.cq` → `.fit` structure, container-query sub-formats, `pow()` typography variables, `minmax(0, 1fr)` body rows, and `min-height: 0` overflow discipline. Derive the visual layout from the design playbook first, then implement fitted with this guide.
