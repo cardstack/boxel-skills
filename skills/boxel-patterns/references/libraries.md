@@ -137,6 +137,12 @@ import { startCase, kebabCase, debounce, throttle, isEqual } from 'lodash';
 
 ---
 
+## Tier 3 — Realm-bundled libraries (workspace-specific)
+
+Substantial JS libraries that ship as generated bundles inside a realm filesystem (Boxel's de-facto package manager — realms don't resolve npm). The library catalogue, canonical URLs, import statements, and rebuild commands are **workspace-specific**.
+
+---
+
 ## Tier 4 — ESM CDN imports (for one-off third-party libs)
 
 When you need a library outside the above tiers, import directly from a CDN:
@@ -173,6 +179,7 @@ Audio cards can also reach for the browser's built-in `AudioContext` directly �
 | `Resource`, `resource()` | 2 | `ember-resources` |
 | `modifier()` | 2 | `ember-modifier` |
 | `tracked`, `GlimmerComponent` | 2 | `@glimmer/*` |
+| Any realm-bundled library (UI surface kits, computation runtimes, canvas/flow editors, etc.) | 3 | Workspace-specific |
 | Three.js, chess.js, etc. | 4 | `https://esm.run/<pkg>` |
 | Tone.js (music toolkit) | 4 | `https://esm.run/tone@14` (pin major) — see `integrate-tone-js-via-cdn` |
 | Raw `AudioContext` (no library) | n/a | Built-in browser API — see `integrate-web-audio-synthesis` |

@@ -228,6 +228,7 @@ For every import path and every integration surface:
   - **Tier 2** — npm (`@cardstack/*`, `@ember/*`, `@glimmer/*`, `ember-*`).
   - **Tier 4** — ESM CDN (`https://esm.run/three`, `https://esm.sh/leaflet`, etc.).
 - **Tier 3 — realm-bundled libraries** — workspace-specific.
+
 ---
 
 ## Source Realm Fallbacks
