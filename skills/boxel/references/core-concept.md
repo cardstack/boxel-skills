@@ -162,7 +162,7 @@ A common temptation: in an `isolated` template you want a "Mark mastered" button
 
 - **Treat `args.model` as read-only outside the `edit` format.** The host's edit-format renderer is the official mutation surface — that's why it exists.
 - **For interactive UI** (study sessions, timers, kanban drag), keep local UI state in `@tracked` properties on the Component. The card's persisted state stays untouched; the Component manages the session.
-- **To persist a mutation from a non-edit Component**, use a Command. Define a Command that takes the value and calls the realm's save API, then invoke it from the action handler. `SaveCardCommand` is the canonical surface — see `.claude/skills/boxel/references/command-development.md`.
+- **To persist a mutation from a non-edit Component**, use a Command. Define a Command that takes the value and calls the realm's save API, then invoke it from the action handler. `SaveCardCommand` is the canonical surface — see `skills/boxel/references/command-development.md`.
 
 If you find yourself reaching for `(model as any)`, that's a sign the workflow should go through a Command or through the edit format, not through ad-hoc mutation.
 

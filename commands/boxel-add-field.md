@@ -20,11 +20,11 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel/SKILL.md`
-2. `.claude/skills/boxel/references/lint-workflow.md`
-3. `.claude/skills/source-code-editing/SKILL.md`
-4. If the field is file-typed: `.claude/skills/boxel-file-def/SKILL.md`.
-5. If the field is enum-ish: `.claude/skills/boxel/references/enumerations.md`.
+1. `skills/boxel/SKILL.md`
+2. `skills/boxel/references/lint-workflow.md`
+3. `skills/source-code-editing/SKILL.md`
+4. If the field is file-typed: `skills/boxel-file-def/SKILL.md`.
+5. If the field is enum-ish: `skills/boxel/references/enumerations.md`.
 
 ## Procedure
 

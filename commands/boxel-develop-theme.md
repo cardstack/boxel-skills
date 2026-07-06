@@ -23,14 +23,14 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel-theme-development/SKILL.md`.
-2. `.claude/skills/boxel-theme-development/references/shadcn-boxel-token-mapping.md` before assigning semantic token values.
-3. `.claude/skills/boxel-theme-development/references/design-md-adapter.md` if DESIGN.md, brand-guide prose, or token conversion is involved.
-4. `.claude/skills/boxel/references/theme-design-system.md`.
-5. `.claude/skills/boxel-patterns/patterns/theme-first-workflow/README.md`.
-6. `.claude/skills/boxel-design/SKILL.md` when visual direction must be invented or improved.
-7. `.claude/skills/boxel-ui-guidelines/references/use-boxel-design-tokens-for-theming.md` when checking downstream template token usage.
-8. `.claude/skills/source-code-editing/SKILL.md` before `.gts` edits.
+1. `skills/boxel-theme-development/SKILL.md`.
+2. `skills/boxel-theme-development/references/shadcn-boxel-token-mapping.md` before assigning semantic token values.
+3. `skills/boxel-theme-development/references/design-md-adapter.md` if DESIGN.md, brand-guide prose, or token conversion is involved.
+4. `skills/boxel/references/theme-design-system.md`.
+5. `skills/boxel-patterns/patterns/theme-first-workflow/README.md`.
+6. `skills/boxel-design/SKILL.md` when visual direction must be invented or improved.
+7. `skills/boxel-ui-guidelines/references/use-boxel-design-tokens-for-theming.md` when checking downstream template token usage.
+8. `skills/source-code-editing/SKILL.md` before `.gts` edits.
 
 ## Procedure
 

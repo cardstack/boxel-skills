@@ -20,9 +20,9 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel-environment/SKILL.md`
-2. `.claude/skills/boxel-environment/references/searching-and-querying.md`
-3. `.claude/skills/boxel/references/query-systems.md`
+1. `skills/boxel-environment/SKILL.md`
+2. `skills/boxel-environment/references/searching-and-querying.md`
+3. `skills/boxel/references/query-systems.md`
 
 ## Procedure
 

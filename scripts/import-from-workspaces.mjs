@@ -18,6 +18,8 @@
 // What it does (see the RFC "Directional update" + spec §1/§6/§9):
 //   .claude/skills/        -> skills/         (SKILL.md gets `boxel.kind: skill`)
 //   .claude/commands/      -> commands/       (each .md gets `name:` + `boxel.kind: skill`)
+//   Every shipped .md also has skills-realm self-references made realm-root-
+//   relative so the realm can be cloned (CS-11791) — see rewriteSelfRefs.
 //   CLAUDE.md              -> index.md        (maintained head + rewritten body, with
 //                                              extension-referencing prose removed)
 //                                              + CLAUDE.md/AGENTS.md symlinks -> index.md
@@ -30,7 +32,7 @@
 // Everything below the first `## ` heading is synced mechanically.
 
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, readdirSync, statSync, symlinkSync, existsSync, mkdtempSync } from 'node:fs';
-import { join, dirname, basename, relative } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
@@ -50,14 +52,26 @@ function parseArgs(argv) {
   return args;
 }
 
-// ---- path rewriting -------------------------------------------------------
-// `.claude/skills/` (and extensions) collapse to repo-root paths; learnings
-// stays `.claude/learnings/` (it isn't shipped, but index.md still references it).
-function rewritePaths(text) {
+// ---- self-reference relativization (CS-11791) -----------------------------
+// Make skills-realm self-references realm-root-relative so the realm can be
+// cloned to another URL without dangling back at the origin. Only content that
+// actually ships is self-consistent to rewrite — `skills/` and `commands/`.
+// `.claude/learnings/`, `.claude/extensions/`, `.claude/extension-libs/` are
+// NOT shipped, so their references are left untouched (nothing to point at).
+// `@cardstack/skills/` and hard-coded `<host>/skills/` are the realm's own
+// prefix / deployed URLs and collapse to root-relative too. Every such ref in
+// the content is prose / inline-code (there are no markdown link targets among
+// them), so dropping the prefix is location-independent and safe. Base-realm
+// imports (`cardstack.com/base/…`) and provenance citations into other realms
+// (`…stack.cards/ctse/…`) don't contain `/skills/`, so they're untouched.
+const SKILLS_HOST_RE =
+  /https?:\/\/[a-z0-9.:-]*(?:boxel\.ai|stack\.cards|cardstack\.com|localhost)(?::\d+)?\/skills\//gi;
+function rewriteSelfRefs(text) {
   return text
     .replaceAll('.claude/skills/', 'skills/')
-    .replaceAll('.claude/extension-libs/', 'extension-libs/')
-    .replaceAll('.claude/extensions/', 'extensions/');
+    .replaceAll('.claude/commands/', 'commands/')
+    .replaceAll('@cardstack/skills/', '')
+    .replace(SKILLS_HOST_RE, '');
 }
 
 // ---- frontmatter injection ------------------------------------------------
@@ -131,7 +145,7 @@ function buildIndex(claudeMd, headTemplate) {
   }
 
   const head = headTemplate.trimEnd();
-  return rewritePaths(`${head}\n\n${indexSections.join('\n\n')}\n`);
+  return rewriteSelfRefs(`${head}\n\n${indexSections.join('\n\n')}\n`);
 }
 
 // ---- main -----------------------------------------------------------------
@@ -139,15 +153,23 @@ function run(workspaces, dest) {
   const claude = join(workspaces, '.claude');
   if (!existsSync(claude)) throw new Error(`No .claude dir in ${workspaces}`);
 
-  // 1. skills/ — SKILL.md gets `boxel.kind: skill`; everything else verbatim.
-  copyTree(join(claude, 'skills'), join(dest, 'skills'), (src) =>
-    basename(src) === 'SKILL.md' ? ensureFrontmatterKeys(readFileSync(src, 'utf8')) : null,
-  );
+  // 1. skills/ — every .md is self-ref-relativized; SKILL.md also gets
+  //    `boxel.kind: skill`. Non-.md (e.g. scripts/*.py) copied verbatim so
+  //    their mode is preserved and their internal path logic isn't disturbed.
+  copyTree(join(claude, 'skills'), join(dest, 'skills'), (src) => {
+    if (!src.endsWith('.md')) return null;
+    let content = readFileSync(src, 'utf8');
+    if (basename(src) === 'SKILL.md') content = ensureFrontmatterKeys(content);
+    return rewriteSelfRefs(content);
+  });
 
-  // 2. commands/ — each *.md gets `name:` (from filename) + `boxel.kind: skill`.
+  // 2. commands/ — each *.md gets `name:` (from filename) + `boxel.kind: skill`,
+  //    then self-ref relativization.
   copyTree(join(claude, 'commands'), join(dest, 'commands'), (src) =>
     src.endsWith('.md')
-      ? ensureFrontmatterKeys(readFileSync(src, 'utf8'), { name: basename(src, '.md') })
+      ? rewriteSelfRefs(
+          ensureFrontmatterKeys(readFileSync(src, 'utf8'), { name: basename(src, '.md') }),
+        )
       : null,
   );
 

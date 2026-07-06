@@ -26,9 +26,9 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel-environment/SKILL.md` (for the host-side context).
-2. `.claude/skills/boxel/references/lint-workflow.md` (mandatory lint gate for `.gts` work).
-3. `.claude/skills/boxel-patterns/references/integration-surfaces.md` §10 (full boxel-cli surface).
+1. `skills/boxel-environment/SKILL.md` (for the host-side context).
+2. `skills/boxel/references/lint-workflow.md` (mandatory lint gate for `.gts` work).
+3. `skills/boxel-patterns/references/integration-surfaces.md` §10 (full boxel-cli surface).
 4. The target realm's `.boxel-sync.json` (file → md5 manifest) and `.boxel-history/` (per-realm git history) if inspecting state.
 
 ## Procedure

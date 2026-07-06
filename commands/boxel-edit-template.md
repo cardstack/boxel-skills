@@ -20,18 +20,18 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel/SKILL.md` (focus: `references/template-syntax.md`)
-2. **If editing the fitted format: `.claude/skills/boxel/references/container-query-fitted-layout.md` is REQUIRED reading.** Don't write a fitted template without it.
-3. `.claude/skills/boxel/references/lint-workflow.md`
-4. `.claude/skills/boxel-ui-guidelines/SKILL.md`
-5. `.claude/skills/source-code-editing/SKILL.md`
-6. If the change is design-driven: `.claude/skills/boxel-design/SKILL.md`.
+1. `skills/boxel/SKILL.md` (focus: `references/template-syntax.md`)
+2. **If editing the fitted format: `skills/boxel/references/container-query-fitted-layout.md` is REQUIRED reading.** Don't write a fitted template without it.
+3. `skills/boxel/references/lint-workflow.md`
+4. `skills/boxel-ui-guidelines/SKILL.md`
+5. `skills/source-code-editing/SKILL.md`
+6. If the change is design-driven: `skills/boxel-design/SKILL.md`.
 
 ## Procedure
 
 1. Read the current template — confirm which format you're editing.
 2. SEARCH/REPLACE the template. Preserve `<style scoped>` blocks and tracking markers.
-3. **For `fitted`, follow `.claude/skills/boxel/references/container-query-fitted-layout.md` exactly** — two-element `.cq` → `.fit` pattern, six height quanta, `pow()`-based typography, `minmax(0, 1fr)` body row, `min-height: 0` on grid children. Hand-rolling without these will overflow at edge sizes.
+3. **For `fitted`, follow `skills/boxel/references/container-query-fitted-layout.md` exactly** — two-element `.cq` → `.fit` pattern, six height quanta, `pow()`-based typography, `minmax(0, 1fr)` body row, `min-height: 0` on grid children. Hand-rolling without these will overflow at edge sizes.
 4. For multi-card delegation, use `<@fields.x />` — don't iterate `@model` then try `<@fields.x />` inside the loop.
 5. Use theme tokens (`var(--background)`, `var(--muted)`, `var(--border)`) — no hard-coded colors.
 

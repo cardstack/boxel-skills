@@ -21,10 +21,10 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel-environment/SKILL.md`
-2. `.claude/skills/boxel-environment/references/common-errors.md`
-3. `.claude/skills/boxel-environment/references/indexing-operations.md`
-4. If the cause turns out to be in code: `.claude/skills/boxel/SKILL.md`.
+1. `skills/boxel-environment/SKILL.md`
+2. `skills/boxel-environment/references/common-errors.md`
+3. `skills/boxel-environment/references/indexing-operations.md`
+4. If the cause turns out to be in code: `skills/boxel/SKILL.md`.
 
 ## Procedure
 

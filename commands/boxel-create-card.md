@@ -20,16 +20,16 @@ boxel:
 
 ## Read (REQUIRED, in order)
 
-1. **`.claude/skills/boxel/references/design-playbook.md`** — THE process. Four stages: mockup → extract → tokenize → derive. The verbatim Pentagram-art-director framing IS stage 1. Read this in full before any other skill.
-2. **`.claude/skills/boxel-ui-guidelines/references/delegated-render-control.md`** — REQUIRED if this card embeds other cards via `<@fields.X @format='...' />`. Covers: format choice (fitted vs embedded — *upstream* of any CSS; pick the wrong one and you get empty boxes), the plural-field wrapper trap (`linksToMany` ≠ `containsMany` in class names), atom-on-dark-background invisibility, stagger via CSS-variable cascade through `display: contents`, and the per-format chrome contract.
-3. **`.claude/skills/boxel-patterns/patterns/app-card-home-with-prerendered-search/README.md`** — REQUIRED if this build is a card *family* (2+ related CardDefs). Build a Home CardDef alongside them so the realm has an entry point.
-4. `.claude/skills/boxel-patterns/patterns/cardinfo-override-title/README.md` — the `cardTitle` override that respects user input.
-5. `.claude/skills/boxel/SKILL.md` (focus on `references/core-concept.md` — CardInfo + computed pass-throughs).
-6. `.claude/skills/boxel/references/base-field-catalog.md` — reach past `StringField` when the value has a known shape (`EmailField`, `DateRangeField`, `PercentageField`, etc.).
-7. `.claude/skills/boxel/references/icons.md` — verify icons against the CDN HEAD before importing.
-8. `.claude/skills/boxel/references/lint-workflow.md` — mandatory installed npm `boxel` lint gate.
-9. `.claude/skills/source-code-editing/SKILL.md`.
-10. Check `.claude/skills/boxel-patterns/SKILL.md` for a ready pattern matching the outcome (`automate-linked-to-me-lookup`, `format-morph-shared-component`, `polymorphic-field-subclass`, `resource-for-state`).
+1. **`skills/boxel/references/design-playbook.md`** — THE process. Four stages: mockup → extract → tokenize → derive. The verbatim Pentagram-art-director framing IS stage 1. Read this in full before any other skill.
+2. **`skills/boxel-ui-guidelines/references/delegated-render-control.md`** — REQUIRED if this card embeds other cards via `<@fields.X @format='...' />`. Covers: format choice (fitted vs embedded — *upstream* of any CSS; pick the wrong one and you get empty boxes), the plural-field wrapper trap (`linksToMany` ≠ `containsMany` in class names), atom-on-dark-background invisibility, stagger via CSS-variable cascade through `display: contents`, and the per-format chrome contract.
+3. **`skills/boxel-patterns/patterns/app-card-home-with-prerendered-search/README.md`** — REQUIRED if this build is a card *family* (2+ related CardDefs). Build a Home CardDef alongside them so the realm has an entry point.
+4. `skills/boxel-patterns/patterns/cardinfo-override-title/README.md` — the `cardTitle` override that respects user input.
+5. `skills/boxel/SKILL.md` (focus on `references/core-concept.md` — CardInfo + computed pass-throughs).
+6. `skills/boxel/references/base-field-catalog.md` — reach past `StringField` when the value has a known shape (`EmailField`, `DateRangeField`, `PercentageField`, etc.).
+7. `skills/boxel/references/icons.md` — verify icons against the CDN HEAD before importing.
+8. `skills/boxel/references/lint-workflow.md` — mandatory installed npm `boxel` lint gate.
+9. `skills/source-code-editing/SKILL.md`.
+10. Check `skills/boxel-patterns/SKILL.md` for a ready pattern matching the outcome (`automate-linked-to-me-lookup`, `format-morph-shared-component`, `polymorphic-field-subclass`, `resource-for-state`).
 
 ## Procedure — apply the design playbook
 

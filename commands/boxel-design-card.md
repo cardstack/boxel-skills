@@ -20,11 +20,11 @@ boxel:
 
 ## Read
 
-1. **`.claude/skills/boxel-patterns/patterns/theme-first-workflow/README.md`** — the Theme card structure + `cardInfo.theme` linkage.
-2. `.claude/skills/boxel-theme-development/SKILL.md` if the task creates or changes the Theme/StyleReference/BrandGuide artifact itself.
-3. `.claude/skills/boxel-design/SKILL.md`
-4. `.claude/skills/boxel-ui-guidelines/SKILL.md`
-5. `.claude/skills/boxel/SKILL.md` (focus: `references/theme-design-system.md`, `references/styling-design.md`, `references/core-concept.md` for the cardInfo/theme system)
+1. **`skills/boxel-patterns/patterns/theme-first-workflow/README.md`** — the Theme card structure + `cardInfo.theme` linkage.
+2. `skills/boxel-theme-development/SKILL.md` if the task creates or changes the Theme/StyleReference/BrandGuide artifact itself.
+3. `skills/boxel-design/SKILL.md`
+4. `skills/boxel-ui-guidelines/SKILL.md`
+5. `skills/boxel/SKILL.md` (focus: `references/theme-design-system.md`, `references/styling-design.md`, `references/core-concept.md` for the cardInfo/theme system)
 
 ## Procedure
 

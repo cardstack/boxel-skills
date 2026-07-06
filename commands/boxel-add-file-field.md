@@ -20,12 +20,12 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel-file-def/SKILL.md`
-2. `.claude/skills/boxel/SKILL.md`
-3. `.claude/skills/boxel/references/lint-workflow.md`
-4. `.claude/skills/boxel-file-def/references/no-inline-binary.md`
-5. `.claude/skills/source-code-editing/SKILL.md`
-6. If rendering the file (preview, gallery): `.claude/skills/boxel-ui-guidelines/SKILL.md`.
+1. `skills/boxel-file-def/SKILL.md`
+2. `skills/boxel/SKILL.md`
+3. `skills/boxel/references/lint-workflow.md`
+4. `skills/boxel-file-def/references/no-inline-binary.md`
+5. `skills/source-code-editing/SKILL.md`
+6. If rendering the file (preview, gallery): `skills/boxel-ui-guidelines/SKILL.md`.
 
 ## Procedure
 

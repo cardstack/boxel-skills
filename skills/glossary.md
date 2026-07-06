@@ -310,7 +310,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 → `boxel-patterns/references/integration-surfaces.md` §10
 
-## 22. Slash commands (`.claude/commands/<name>.md`)
+## 22. Slash commands (`commands/<name>.md`)
 
 - **`/boxel-create-card`** — New CardDef / FieldDef / small card family.
 - **`/boxel-add-field`** — Add or change schema fields, computed fields, relationships.
@@ -463,8 +463,8 @@ Library wrappers (`library-bxl`, `library-surfaces`, `library-ember-flow`, `libr
 - **`CLAUDE.md`** — Claude Code's cardinal doc (always loaded).
 - **`AGENTS.md`** — Same content for non-Claude agents (Codex, Cursor, Aider, Gemini CLI, Factory Droid).
 - **`README.md`** — Human-facing setup guide.
-- **`.claude/commands/`** — Slash commands (action layer).
-- **`.claude/skills/`** — Portable skill tree (this file's home).
+- **`commands/`** — Slash commands (action layer).
+- **`skills/`** — Portable skill tree (this file's home).
 - **`.claude/extensions/`** — Workspace-specific patterns (tracked, but assume this workspace's libraries).
 - **`.claude/extension-libs/`** — Pre-built dist bundles the agent can upload to user realms.
 - **`.claude/learnings/`** — Session scratchpad; `/distill-learnings` folds into skill tree.

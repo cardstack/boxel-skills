@@ -11,7 +11,7 @@ Visual decisions for Boxel cards.
 
 ## The actual process lives in `boxel/references/design-playbook.md`
 
-[`.claude/skills/boxel/references/design-playbook.md`](../boxel/references/design-playbook.md) is the canonical four-stage design workflow:
+[`skills/boxel/references/design-playbook.md`](../boxel/references/design-playbook.md) is the canonical four-stage design workflow:
 
 1. **Stage 1 — Mockup pass** with no variables. Verbatim Pentagram-art-director / internal-taste-maker brief. Hardcoded `#hex`, real fonts, real px sizes. Write the design first; theme tokens come later.
 2. **Stage 2 — Extract theme** from the mockup (rule of two — tokenize if a value appears twice+). The Theme card's `cssVariables` ARE the design's palette.

@@ -28,7 +28,7 @@ If the user's intent is clear, route to the matching command below. If unsure wh
 
 ## Common Actions (slash commands)
 
-The action layer lives in `.claude/commands/`. Pick the one that matches the user's outcome:
+The action layer lives in `commands/`. Pick the one that matches the user's outcome:
 
 ### Schema & code
 
