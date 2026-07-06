@@ -198,6 +198,57 @@ For benchmark-style coverage, exercise both common query surfaces across the set
 - **Schema query:** `linksToMany(Target, { query })` plus `computeVia` rollups over the materialized relationship.
 - **Display query:** `PrerenderedCardSearch` in an isolated dashboard section when the card only needs rendered results, not model objects.
 
+## `@context.searchResultsComponent` — entry-rooted result lists
+
+The newer display surface for a list of results (the `<SearchResults>` component). Declare an **`entry`-rooted** query and render the yielded entries; each `entry.component` renders itself — prerendered HTML (inert, hydrated lazily on interaction) or a live card — so the card never branches on which.
+
+**When to use what to query cards:**
+- Display a list of results (cards or files) → `@context.searchResultsComponent`.
+- Need the instances in JS (read / manipulate) → `getCards` (reactive) or `@context.store.search` (imperative, returns instances).
+- Treat a query result as a field → query-backed fields (`linksTo` / `linksToMany` with a `query`).
+
+```gts
+import { CardDef, Component } from 'https://cardstack.com/base/card-api';
+import {
+  searchEntryWireQueryFromQuery,
+  type SearchEntryWireQuery,
+} from '@cardstack/runtime-common';
+
+class BlogPost extends CardDef {
+  static isolated = class Isolated extends Component<typeof BlogPost> {
+    get query(): SearchEntryWireQuery {
+      // Build the entry query from an ordinary query, then add realms.
+      return {
+        ...searchEntryWireQueryFromQuery({
+          filter: {
+            on: { module: new URL('./author', import.meta.url).href, name: 'Author' },
+            eq: { status: 'active' },
+          },
+          sort: [{ by: 'title', direction: 'asc' }],
+        }),
+        realms: ['https://my-realm.example/'], // realm URLs to search
+      };
+    }
+
+    <template>
+      <@context.searchResultsComponent @query={{this.query}} @mode='hover' as |results|>
+        {{#each results.entries key='id' as |entry|}}
+          <entry.component />
+        {{else}}
+          {{if results.isLoading 'Loading…' 'No results'}}
+        {{/each}}
+      </@context.searchResultsComponent>
+    </template>
+  };
+}
+```
+
+- `@query` — an `entry`-rooted query (`SearchEntryWireQuery`). Build it from a normal query with `searchEntryWireQueryFromQuery`, then set `realms` (and optionally `page`). Changing it re-runs the search.
+- `@mode` — hydration of prerendered rows on interaction: `'none'` (stay inert), `'hover'` (default), `'click'`, `'touch'`.
+- Yields `results`: `results.entries` (each `entry` exposes `.component`, `.id`, `.isError`, plus `.displayName` / `.iconHtml` for a row with no HTML yet), `results.isLoading`, `results.meta` (`{ page: { total } }`), and `results.errors`.
+
+> boxel-skills marks `@context.prerenderedCardSearchComponent` / `<PrerenderedCardSearch>` as the older display surface superseded by `@context.searchResultsComponent`. The pattern library still uses `PrerenderedCardSearch` throughout, so it's documented below; a tree-wide migration to `searchResultsComponent` is a separate follow-up.
+
 ## `PrerenderedCardSearch` essentials
 
 Use this for query-backed grid/list views inside a card template — the realm pre-renders the matching cards in your chosen format (`embedded`, `fitted`, `atom`, `head`), and you yield over `cards` in the template.
