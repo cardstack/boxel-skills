@@ -100,7 +100,7 @@ Core syntax and patterns (load when topic comes up):
 
 Subsystems (load when used):
 
-- `references/query-systems.md` — Query syntax, the `on` rule, filter types, `PrerenderedCardSearch` vs `getCards`.
+- `references/query-systems.md` — Query syntax, the `on` rule, filter types, and the display surfaces: `@context.searchResultsComponent` (entry-rooted, preferred), `PrerenderedCardSearch`, and `getCards`.
 - `references/searchable-fields.md` — The `searchable` field option (`true | string | string[]`) controlling which `linksTo`/`linksToMany` targets are pulled into the search doc (contained always in; links opt-in); dotted-path routing; the query-time error for querying a non-searchable path.
 - `references/fitted-formats.md` — Four sub-formats (badge/strip/tile/card), size classification. Quick reference only.
 - **`references/design-playbook.md`** — **The recommended way to design any user-facing card.** Four-stage process: (1) mockup with no variables, (2) extract theme DNA, (3) tokenize, (4) derive fitted/embedded. Includes the verbatim design-challenge framing (Pentagram art director + internal taste-maker) and the "fitted features the media" rule. Trust your intrinsic design taste; this is a process, not a CSS rulebook.
