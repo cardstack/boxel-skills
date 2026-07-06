@@ -20,9 +20,11 @@
 //   .claude/commands/      -> commands/       (each .md gets `name:` + `boxel.kind: skill`)
 //   Every shipped .md also has skills-realm self-references made realm-root-
 //   relative so the realm can be cloned (CS-11791) — see rewriteSelfRefs.
-//   CLAUDE.md              -> index.md        (maintained head + rewritten body, with
-//                                              extension-referencing prose removed)
+//   CLAUDE.md              -> index.md        (maintained head + rewritten body)
 //                                              + CLAUDE.md/AGENTS.md symlinks -> index.md
+//   Content wrapped in `<!-- workspaces-only -->` … `<!-- /workspaces-only -->`
+//   is stripped from every shipped .md (CS-11796) — used for extension docs and
+//   any other boxel-workspaces-only material that shouldn't reach the realm.
 //   .claude/extensions/, .claude/extension-libs/ -> NOT shipped (out of scope for skill
 //                            unification — they stay in boxel-workspaces; see Non-goals)
 //   .claude/learnings/, .claude/plans/        -> NOT shipped (skipped)
@@ -72,6 +74,25 @@ function rewriteSelfRefs(text) {
     .replaceAll('.claude/commands/', 'commands/')
     .replaceAll('@cardstack/skills/', '')
     .replace(SKILLS_HOST_RE, '');
+}
+
+// ---- workspaces-only regions (CS-11796) -----------------------------------
+// Content that documents out-of-scope extensions (and any other
+// boxel-workspaces-only material) is wrapped in the source with
+// `<!-- workspaces-only -->` … `<!-- /workspaces-only -->`. boxel-workspaces
+// keeps it (HTML comments are invisible when rendered); the import strips it so
+// the shipped skills carry no references to content that isn't in the realm.
+// Works block-level (markers on their own lines) and inline (a trailing clause
+// on a line). Leading/trailing horizontal whitespace and one trailing newline
+// are consumed so no stray gaps or double spaces remain.
+function stripWorkspacesOnly(text) {
+  const stripped = text.replace(
+    /[^\S\n]*<!-- workspaces-only -->[\s\S]*?<!-- \/workspaces-only -->[^\S\n]*\n?/g,
+    '',
+  );
+  // Only tidy blank lines when a region was actually removed, so files without
+  // markers pass through byte-for-byte.
+  return stripped === text ? text : stripped.replace(/\n{3,}/g, '\n\n');
 }
 
 // ---- frontmatter injection ------------------------------------------------
@@ -124,28 +145,14 @@ function copyTree(srcDir, destDir, transform) {
 }
 
 // ---- index.md -------------------------------------------------------------
-// Split the CLAUDE.md body (everything from the first `## ` on) into level-2
-// sections. Extension-related prose is dropped (extensions are out of scope);
-// the rest becomes the index.md body under the maintained head template.
+// The body is everything from the first `## ` on; the maintained head template
+// replaces CLAUDE.md's workspaces-specific title + intro. Workspaces-only
+// regions (e.g. the extensions sections) are dropped via their markers.
 function buildIndex(claudeMd, headTemplate) {
   const bodyStart = claudeMd.indexOf('\n## ');
   const body = bodyStart === -1 ? '' : claudeMd.slice(bodyStart + 1);
-
-  const sections = body.split(/\n(?=## )/); // each starts with `## `
-  const indexSections = [];
-
-  for (const section of sections) {
-    const heading = section.slice(0, section.indexOf('\n'));
-    if (/\.claude\/extension/.test(heading)) continue; // drop extension sections
-    // Drop the "For workspace-specific capabilities…" paragraph too.
-    const kept = section
-      .split('\n')
-      .filter((line) => !line.startsWith('For workspace-specific capabilities'));
-    indexSections.push(kept.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd());
-  }
-
   const head = headTemplate.trimEnd();
-  return rewriteSelfRefs(`${head}\n\n${indexSections.join('\n\n')}\n`);
+  return rewriteSelfRefs(`${head}\n\n${stripWorkspacesOnly(body).trimEnd()}\n`);
 }
 
 // ---- main -----------------------------------------------------------------
@@ -158,7 +165,7 @@ function run(workspaces, dest) {
   //    their mode is preserved and their internal path logic isn't disturbed.
   copyTree(join(claude, 'skills'), join(dest, 'skills'), (src) => {
     if (!src.endsWith('.md')) return null;
-    let content = readFileSync(src, 'utf8');
+    let content = stripWorkspacesOnly(readFileSync(src, 'utf8'));
     if (basename(src) === 'SKILL.md') content = ensureFrontmatterKeys(content);
     return rewriteSelfRefs(content);
   });
@@ -168,7 +175,9 @@ function run(workspaces, dest) {
   copyTree(join(claude, 'commands'), join(dest, 'commands'), (src) =>
     src.endsWith('.md')
       ? rewriteSelfRefs(
-          ensureFrontmatterKeys(readFileSync(src, 'utf8'), { name: basename(src, '.md') }),
+          stripWorkspacesOnly(
+            ensureFrontmatterKeys(readFileSync(src, 'utf8'), { name: basename(src, '.md') }),
+          ),
         )
       : null,
   );

@@ -90,12 +90,6 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 - `link-flip-card` — CSS-only front/back flip primitive: `perspective` + `transform: rotateY(180deg)` + `backface-visibility: hidden`, driven by a single `@tracked isFlipped`. Flashcards, product reveals, two-sided info cards.
 - `link-host-mode-paths` — Route clean external URLs (`/`, `/about`, `/blog`, `/pricing`) to specific cards via `hostRoutingRules` on the `RealmConfig` card at `/realm.json`. The realm-server rewrites `cardURL` server-side on every request and injects the routing map into the SPA so post-hydration nav stays consistent. Public realms only; static paths (no `/blog/:slug` params); same-realm `instance` references enforced at read time.
 
-### Workspace-specific libraries → `.claude/extensions/`
-
-Patterns that name a specific realm-bundled library (a layout-and-cell runtime, a bxl-style computation runtime, a node-graph library, a canvas text-layout engine like pretext, etc.) live in [`.claude/extensions/`](../../extensions/README.md) rather than the portable skill tree. Non-core or provider-specific image generators also live there. Extensions are tracked in git but separate from portable patterns because they assume *this* workspace's setup. Ask the user which library applies; if an extension matches the outcome, read its README + example. Realm-bundle-shim conventions for shipping libraries inside a realm also live there.
-
-**Pre-built bundles** for the workspace's realm-bundled libraries (bxl, surfaces, ember-flow, pretext) live in [`.claude/extension-libs/`](../../extension-libs/README.md). When a card needs one of these libraries and the target realm doesn't have it, upload the relevant subtree there (via `boxel realm push` or `boxel file write`). The companion extension under `.claude/extensions/library-<name>/` documents the *import statements*; the `extension-libs/<name>/` subtree is the *bytes*.
-
 ### Integrate external
 
 - `integrate-openrouter-image-generation` — Preferred image generator. OpenRouter chat completions with `modalities: ['image', 'text']`; default to Gemini image, use ChatGPT/OpenAI image models when requested; persist bytes with `WriteBinaryFileCommand` + `ImageDef`.
@@ -233,8 +227,7 @@ For every import path and every integration surface:
   - **Tier 1** — Boxel base (URL-pinned, `https://cardstack.com/base/...`).
   - **Tier 2** — npm (`@cardstack/*`, `@ember/*`, `@glimmer/*`, `ember-*`).
   - **Tier 4** — ESM CDN (`https://esm.run/three`, `https://esm.sh/leaflet`, etc.).
-- **Tier 3 — realm-bundled libraries** — workspace-specific. See [`.claude/extensions/`](../../extensions/README.md) for the library catalogue, import statements, and rebuild commands. Each workspace has its own.
-
+- **Tier 3 — realm-bundled libraries** — workspace-specific.
 ---
 
 ## Source Realm Fallbacks
@@ -242,7 +235,7 @@ For every import path and every integration surface:
 When no ready pattern matches, look in the source-realm analyses before reinventing. These live in the `familiar-turkey` realm — ask the user for the current URLs or grep the realm directly:
 
 - **BSL-STUDY** (V1, 2026-04-21) — 457 patterns from 168 user realms + 5 team codebases, each with rating (promote / distill / reference / skip), source file path, and line range.
-- **BSL-STUDY-V2** — Realm-bundled library tier analysis (workspace-specific libraries; see `.claude/extensions/`). Covers 44 newer realms.
+- **BSL-STUDY-V2** — Realm-bundled library tier analysis (workspace-specific libraries). Covers 44 newer realms.
 - **BSL-STUDY-V3** — Boxel-catalog (production realm) analysis with current syntax updates.
 - **REALMS-CATALOG** — Which realm contains what (browse by realm).
 

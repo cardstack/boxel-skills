@@ -47,8 +47,6 @@ boxel:
 
 4. Update templates' `<style scoped>` blocks to reference only theme tokens (`var(--background)`, `var(--card)`, `var(--primary)`, `var(--font-sans)`, etc.). Strip any hard-coded colors.
 
-5. If multi-theme drop-ins are wanted (drop-in CSS theme files that re-define Boxel's existing token set), check `.claude/extensions/` — the convention is workspace-specific.
-
 ## Done Criteria (self-verify)
 
 - [ ] A Theme card exists in the realm and is linked from each affected instance via `cardInfo.theme`.

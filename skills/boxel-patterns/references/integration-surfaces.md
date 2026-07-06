@@ -186,7 +186,7 @@ Boxel UI's curated icon set. Imported as `import IconName from '@cardstack/boxel
 
 ## 6. Realm-bundled libraries (workspace-specific)
 
-Substantial libraries shipped inside the realm filesystem rather than via npm — Boxel's de-facto package manager. The actual library catalogue, canonical URLs, and import statements are workspace-specific and live in [`.claude/extensions/`](../../../extensions/README.md).
+Substantial libraries shipped inside the realm filesystem rather than via npm — Boxel's de-facto package manager. The actual library catalogue, canonical URLs, and import statements are workspace-specific.
 
 Common kinds of realm-bundled libraries:
 
@@ -252,7 +252,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 
 **Built-in audio** doesn't need a CDN: `AudioContext`, `OscillatorNode`, and friends live in the browser. See `integrate-web-audio-synthesis` for the raw-API pattern — UI sound feedback, drum machines, tone generators — paralleling the Three.js modifier lifecycle.
 
-**Trade-off:** No reproducible build. URL-pin versions and document the choice. For reproducibility, use the realm-bundled approach (workspace-specific — see `.claude/extensions/`).
+**Trade-off:** No reproducible build. URL-pin versions and document the choice. For reproducibility, use the realm-bundled approach.
 
 ---
 
@@ -399,9 +399,7 @@ boxel consolidate-workspaces                                Merge multiple watch
 | Generate an AI image | §7 (OpenRouter image generation) + pattern `integrate-openrouter-image-generation`; write output bytes with `WriteBinaryFileCommand` |
 | Hit a third-party HTTP API | §3 + §7 + pattern `integrate-send-request-via-proxy` |
 | Embed Three.js / Leaflet / chess.js | §8 (ESM CDN) + patterns `integrate-three-js-via-cdn` etc. |
-| Embed flow / canvas editor | §6 (a workspace's flow/canvas library, if present in `.claude/extensions/`) |
 | Render BFM | §9 (BFM features) + pattern `show-runtime-markdown-html` |
 | Write BFM (static markdown format) | §9 + skill `boxel-markdown-format` |
 | Sync a realm locally | §10 (boxel-cli) + command `/boxel-sync-workspace` |
-| Compute Excel formulas / JQ-style queries | §6 (a workspace's computation-runtime library, if present in `.claude/extensions/`) |
 | Drive the live Boxel app | §3 (host commands) + skill `boxel-environment` |
