@@ -20,9 +20,9 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/catalog-listing/SKILL.md`
-2. `.claude/skills/boxel-environment/SKILL.md`
-3. For atomic install: `.claude/skills/boxel-patterns/patterns/command-atomic-install/README.md`.
+1. `skills/catalog-listing/SKILL.md`
+2. `skills/boxel-environment/SKILL.md`
+3. For atomic install: `skills/boxel-patterns/patterns/command-atomic-install/README.md`.
 
 ## Procedure
 

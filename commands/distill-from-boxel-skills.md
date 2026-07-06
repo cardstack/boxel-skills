@@ -11,7 +11,7 @@ boxel:
 
 The Boxel AI Assistant (the in-app card-side AI) loads skills from the **`cardstack/boxel-skills`** GitHub repo at https://github.com/cardstack/boxel-skills. Each upstream `Skill/<name>.md` becomes a skill the assistant can mount when answering Boxel-card questions.
 
-This workspace's skill tree under `.claude/skills/` is a parallel, **locally-tracked** descendant of that material — adapted for the local-development side of the same product: Claude Code, Cursor, Aider, etc. operating on `.gts` files in a workspace, rather than the host's AI Assistant operating inside the live app.
+This workspace's skill tree under `skills/` is a parallel, **locally-tracked** descendant of that material — adapted for the local-development side of the same product: Claude Code, Cursor, Aider, etc. operating on `.gts` files in a workspace, rather than the host's AI Assistant operating inside the live app.
 
 The two trees share most of their content (CardDef syntax, query traps, theme rules, design playbook) and diverge in a few well-defined places (template-helper imports that work in the host but not in realm GTS, host-internal command surfaces, etc.). When upstream lands a substantive improvement — a new gotcha, a clearer rule, a heuristic catalogue — the same insight usually belongs here too. This command is the playbook for getting it in.
 
@@ -32,7 +32,7 @@ The two trees share most of their content (CardDef syntax, query traps, theme ru
 1. The actual diff from the PR/commit (via `gh pr view` if authenticated, otherwise `https://patch-diff.githubusercontent.com/raw/cardstack/boxel-skills/pull/<N>.diff`).
 2. The destination file(s) in our skill tree per the mapping below.
 3. If the change touches a pattern we already maintain (e.g. `query-systems`, `delegated-rendering`), the existing version, to compare tone + avoid duplication.
-4. `.claude/skills/glossary.md` — the running index of terms.
+4. `skills/glossary.md` — the running index of terms.
 
 ## File-to-file mapping
 
@@ -136,7 +136,7 @@ When the local destination already has a section on the same topic, prefer **str
 
 ### 4. Update the glossary if needed
 
-If the upstream change introduces a new term, helper, pattern, slug, or convention — OR adds a new cardinal rule — also update `.claude/skills/glossary.md` per its maintenance contract. The glossary's job is to stay findable as the back-of-book index.
+If the upstream change introduces a new term, helper, pattern, slug, or convention — OR adds a new cardinal rule — also update `skills/glossary.md` per its maintenance contract. The glossary's job is to stay findable as the back-of-book index.
 
 ### 5. Show the user and get approval
 

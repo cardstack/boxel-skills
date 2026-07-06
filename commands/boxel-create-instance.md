@@ -20,9 +20,9 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel/SKILL.md` (focus: `references/data-management.md`)
-2. `.claude/skills/boxel-create-edit-cards/SKILL.md`
-3. `.claude/skills/source-code-editing/SKILL.md` (if going via SEARCH/REPLACE)
+1. `skills/boxel/SKILL.md` (focus: `references/data-management.md`)
+2. `skills/boxel-create-edit-cards/SKILL.md`
+3. `skills/source-code-editing/SKILL.md` (if going via SEARCH/REPLACE)
 
 ## Procedure
 
@@ -79,4 +79,4 @@ Count must match the number of `<ClassName>` instances you intended to push. If 
 
 - "Error: attributes is a string" → `attributes` must be an object literal, not a stringified JSON.
 - "Error: relationships inside attributes" → move `relationships` to be a sibling at the top level of `data`.
-- See `.claude/skills/boxel-environment/references/common-errors.md` for the full error catalogue.
+- See `skills/boxel-environment/references/common-errors.md` for the full error catalogue.

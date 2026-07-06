@@ -28,7 +28,7 @@ Only promote a new realm discovery into Ready Patterns when it captures implemen
 For any pattern or reference that imports `@cardstack/boxel-host/commands/<name>`, run the host-command audit before promoting it:
 
 ```sh
-BOXEL_MONOREPO=/path/to/boxel node .claude/skills/boxel-patterns/scripts/audit-host-command-refs.mjs
+BOXEL_MONOREPO=/path/to/boxel node skills/boxel-patterns/scripts/audit-host-command-refs.mjs
 ```
 
 The audit compares skill-tree command imports with `packages/host/app/commands/index.ts` in the live monorepo. A missing command import is a blocker for Ready Patterns unless the monorepo has changed and the audit is refreshed.
@@ -158,7 +158,7 @@ Filenames are how agents discover content. Stick to these:
 - **No duplicate filenames across the tree.** Two references named the same thing (`template-patterns.md` in two places, `quick-reference.md` in two places) confuse agents and cross-references. Disambiguate by domain (`template-syntax.md` for Glimmer syntax patterns; `template-patterns.md` for UI template patterns; `cheatsheet.md` for one quick-ref vs the more specific one).
 - **References live under a skill.** Pattern READMEs cross-link references via path: `boxel/references/<topic>.md`. References don't have an `example.gts`; their job is to explain mechanics, not ship recipes.
 - **`SKILL.md` is the skill entry point.** Every skill folder has exactly one `SKILL.md`. References live under `<skill>/references/<topic>.md`. Don't create a second `SKILL.md` or rename it.
-- **Commands use the `boxel-` prefix.** Every action command in `.claude/commands/` is `boxel-<verb>.md` so they cluster together in slash-command menus. Exception: cross-cutting commands (`distill-learnings.md`).
+- **Commands use the `boxel-` prefix.** Every action command in `commands/` is `boxel-<verb>.md` so they cluster together in slash-command menus. Exception: cross-cutting commands (`distill-learnings.md`).
 
 ### Validation frontmatter
 

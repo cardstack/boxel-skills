@@ -20,8 +20,8 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel-environment/SKILL.md`
-2. `.claude/skills/boxel-environment/references/host-commands-reference.md`
+1. `skills/boxel-environment/SKILL.md`
+2. `skills/boxel-environment/references/host-commands-reference.md`
 
 ## Procedure
 

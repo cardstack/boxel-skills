@@ -13,7 +13,7 @@ boxel:
 - About to share the workspace with someone new and want the scratchpad cleaned up.
 - A learning has been validated through repeated use and should graduate into the skill tree.
 
-> **Sibling command**: for upstream sync (folding a `cardstack/boxel-skills` PR into our skill tree with the realm-GTS adaptations), use [`/distill-from-boxel-skills`](./distill-from-boxel-skills.md) instead. That command's input is an upstream PR or commit; this command's input is the local `.claude/learnings/` scratchpad. Both write into the same skill tree under `.claude/skills/`.
+> **Sibling command**: for upstream sync (folding a `cardstack/boxel-skills` PR into our skill tree with the realm-GTS adaptations), use [`/distill-from-boxel-skills`](./distill-from-boxel-skills.md) instead. That command's input is an upstream PR or commit; this command's input is the local `.claude/learnings/` scratchpad. Both write into the same skill tree under `skills/`.
 
 ## Procedure
 
@@ -63,7 +63,7 @@ If a learning needs a new section in an existing file, propose the section headi
 
 If a learning needs a new file in the skill tree, propose the path + initial body + which SKILL.md / parent SKILL needs to reference it.
 
-When a distillation introduces a new term, concept, library, helper, host command, pattern, slash command, convention, or acronym — OR renames an existing one — **also update [`.claude/skills/glossary.md`](../skills/glossary.md)** so the glossary stays current. New patterns get a one-line entry in the matching outcome group under §25; new conventions go under §24; new host commands under §18; etc.
+When a distillation introduces a new term, concept, library, helper, host command, pattern, slash command, convention, or acronym — OR renames an existing one — **also update [`skills/glossary.md`](../skills/glossary.md)** so the glossary stays current. New patterns get a one-line entry in the matching outcome group under §25; new conventions go under §24; new host commands under §18; etc.
 
 ### 5. Show the user and get approval
 

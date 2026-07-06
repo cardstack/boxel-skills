@@ -19,7 +19,7 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel-patterns/SKILL.md` — the intent taxonomy.
+1. `skills/boxel-patterns/SKILL.md` — the intent taxonomy.
 2. After picking a pattern, its `patterns/<slug>/README.md` and `patterns/<slug>/example.gts`.
 3. The pattern's "See also" section — usually points to one or two supporting skills.
 

@@ -21,9 +21,9 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/catalog-listing/SKILL.md`
-2. `.claude/skills/catalog-listing/references/submission-workflow.md`
-3. `.claude/skills/boxel-environment/SKILL.md`
+1. `skills/catalog-listing/SKILL.md`
+2. `skills/catalog-listing/references/submission-workflow.md`
+3. `skills/boxel-environment/SKILL.md`
 
 ## Procedure
 

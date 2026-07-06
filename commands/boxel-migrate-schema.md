@@ -19,9 +19,9 @@ boxel:
 
 ## Read
 
-1. `.claude/skills/boxel/SKILL.md`
-2. `.claude/skills/boxel-environment/SKILL.md` (focus: `references/workflows-and-orchestration.md`)
-3. `.claude/skills/source-code-editing/SKILL.md`
+1. `skills/boxel/SKILL.md`
+2. `skills/boxel-environment/SKILL.md` (focus: `references/workflows-and-orchestration.md`)
+3. `skills/source-code-editing/SKILL.md`
 
 ## Procedure
 
