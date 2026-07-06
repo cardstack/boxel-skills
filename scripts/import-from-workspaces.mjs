@@ -86,11 +86,15 @@ function rewriteSelfRefs(text) {
 // on a line). Leading/trailing horizontal whitespace and one trailing newline
 // are consumed so no stray gaps or double spaces remain.
 function stripWorkspacesOnly(text) {
+  // Consume one leading newline so a block region (markers on their own lines)
+  // collapses tightly, but never a trailing newline — eating the newline after
+  // an inline region that ends a paragraph would pull the following `---` up
+  // against the text and turn it into a setext heading.
   const stripped = text.replace(
-    /[^\S\n]*<!-- workspaces-only -->[\s\S]*?<!-- \/workspaces-only -->[^\S\n]*\n?/g,
+    /\n?<!-- workspaces-only -->[\s\S]*?<!-- \/workspaces-only -->/g,
     '',
   );
-  // Only tidy blank lines when a region was actually removed, so files without
+  // Only tidy blank runs when a region was actually removed, so files without
   // markers pass through byte-for-byte.
   return stripped === text ? text : stripped.replace(/\n{3,}/g, '\n\n');
 }
