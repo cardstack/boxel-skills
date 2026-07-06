@@ -62,7 +62,7 @@ The action layer lives in `.claude/commands/`. Pick the one that matches the use
 
 ## Skill catalog
 
-Commands route to these supporting skills. They're documented in `.claude/skills/` and auto-activate on description triggers — you don't load them all upfront.
+Commands route to these supporting skills. They're documented in `skills/` and auto-activate on description triggers — you don't load them all upfront.
 
 ### Foundation
 
@@ -99,7 +99,7 @@ Commands route to these supporting skills. They're documented in `.claude/skills
 
 **`/distill-learnings`** consolidates the scratchpad into the relevant skill ref or pattern README (where the learning naturally belongs), then archives consumed files to `.claude/learnings/_distilled/`. Run it (or suggest it) when several entries have accumulated.
 
-**`/distill-from-boxel-skills`** is the sibling command for upstream sync. The Boxel AI Assistant uses skills from [cardstack/boxel-skills](https://github.com/cardstack/boxel-skills); when upstream merges a substantive PR (a new gotcha, clearer rule, or heuristic catalogue), this command backports it into our `.claude/skills/` tree with the realm-GTS adaptations applied. The backport log lives at `.claude/learnings/_distilled/boxel-skills-backports.md`. Use when a user references a specific upstream PR or asks to sync recent changes.
+**`/distill-from-boxel-skills`** is the sibling command for upstream sync. The Boxel AI Assistant uses skills from [cardstack/boxel-skills](https://github.com/cardstack/boxel-skills); when upstream merges a substantive PR (a new gotcha, clearer rule, or heuristic catalogue), this command backports it into our `skills/` tree with the realm-GTS adaptations applied. The backport log lives at `.claude/learnings/_distilled/boxel-skills-backports.md`. Use when a user references a specific upstream PR or asks to sync recent changes.
 
 ## Conventions
 
@@ -125,9 +125,8 @@ Commands route to these supporting skills. They're documented in `.claude/skills
   7. **Render smoke test** in the host UI per CardDef before claiming done. The earlier gates don't catch template-render failures (missing fields, broken CQ layout, empty content).
 
   See [`.claude/learnings/_distilled/.../build-a-kit-sequential-checklist.md`](.claude/learnings/) for the full sub-checklist, and [`skills/boxel-environment/references/indexing-operations.md`](skills/boxel-environment/references/indexing-operations.md) for the verification hierarchy.
-
 - **Query traps that silently return zero rows.** Three rules you must hold simultaneously or your queries fail invisibly (see [`query-systems.md`](skills/boxel/references/query-systems.md)):
-  1. **`filter: { type: ref }` to select all cards of a type — NEVER `filter: { on: ref }`.** `on` is a _scope_ for predicates (`eq`/`contains`/`range`), not a filter by itself. A bare `{ on: ref }` returns zero rows.
+  1. **`filter: { type: ref }` to select all cards of a type — NEVER `filter: { on: ref }`.** `on` is a *scope* for predicates (`eq`/`contains`/`range`), not a filter by itself. A bare `{ on: ref }` returns zero rows.
   2. **Custom sort fields require `on: ref`.** Only `lastModified`, `createdAt`, `cardURL` work without it. Sorting by `lastName`, `dates.start`, etc. without `on` is rejected.
   3. **Build refs with `codeRef(here, path, name)` from `@cardstack/runtime-common`.** Import `realmURL` as a Symbol from the same module — don't use `Symbol.for('realmURL')` (different Symbol, doesn't match what the host injects).
 - **Format choice = who owns the cell size, not what the cell looks like.** `@format='embedded'` lets the child decide its height — use for lists, feeds, roster rows. `@format='fitted'` makes the child fill a parent-controlled box — use for uniform tile grids (portraits, calendar cells). Picking fitted for a list with short content leaves empty boxes below each row. The fix is the format choice, upstream of any CSS. See "Picking the format" in [`delegated-render-control.md`](skills/boxel-ui-guidelines/references/delegated-render-control.md).
