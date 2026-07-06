@@ -8,7 +8,7 @@ validated: source-proven
 
 **When to use:** Overview dashboards, admin consoles, catalog home pages, inboxes, workflow boards, and any app card that needs "Products 77", "Open issues 12", "Pending orders 4", or similar summary counts. Use this before reaching for `getCards()` just to count records.
 
-**The insight:** `PrerenderedCardSearch` exposes pagination metadata through its `<:meta>` block. A query with `page: { size: 1, number: 0 }` transfers only one rendered result but still gives you `meta.page.total`. The dashboard can then render `meta.page.total` as a tile value while leaving `<:response>` empty.
+**The insight:** `@context.searchResultsComponent` yields `results.meta` alongside the entries. A query with `page: { size: 1, number: 0 }` transfers only one rendered result but still gives you `results.meta.page.total`. The dashboard renders that total as the tile value and simply never renders `results.entries`.
 
 Use the current query shape:
 
@@ -29,8 +29,8 @@ const openTaskCountQuery: Query = {
 For all cards of a type, use `filter: { type: taskRef }`. Do not use `filter: { on: taskRef }`; `on` scopes predicates and is not a type filter.
 
 **Gotchas:**
-- `@isLive={{true}}` is useful for operational dashboards, but expensive if you put many count tiles on one page. Default it off unless live updates matter.
-- Keep `<:response>` empty for count-only tiles; rendering every card defeats the purpose.
+- Search-entry queries are live by default, which is great for operational dashboards but keeps a subscription open per tile — be mindful when putting many count tiles on one page.
+- Never render `results.entries` for count-only tiles; you only want `results.meta.page.total`. Rendering every card defeats the purpose.
 - If the tile navigates to a filtered section, use the exact same predicate in the count query and destination list query so the number and list agree.
 - Custom field predicates and sorts need `on: ref`; the top-level all-of-type filter is the only part that uses `type: ref`.
 - Pair with shimmer loading states when the dashboard is a first screen.

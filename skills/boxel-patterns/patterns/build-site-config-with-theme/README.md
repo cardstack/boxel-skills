@@ -35,4 +35,4 @@ export class SiteConfig extends CardDef {
 
 **Source:** `realms-staging.stack.cards/ctse/copper-cleft/site-config.gts:15-42`, `components/site-navbar.gts:114-146`, `BSL-STUDY.md:656-660`.
 
-**See also:** `theme-first-workflow`, `cardinfo-override-title`, `app-card-home-with-prerendered-search`.
+**See also:** `theme-first-workflow`, `cardinfo-override-title`, `app-card-home-with-search`.

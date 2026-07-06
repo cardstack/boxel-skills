@@ -90,7 +90,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **`getCard(this, urlThunk)`** — Component-level reactive single-card fetch.
 - **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration. Supersedes `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
 - **`searchEntryWireQueryFromQuery` / `SearchEntryWireQuery`** — Helper + type (from `@cardstack/runtime-common`) that turn an ordinary query into the entry-rooted query `@context.searchResultsComponent` expects. → `boxel/references/query-systems.md`
-- **`PrerenderedCardSearch`** — Live-updating component that renders matching cards in a chosen format. Pass `@query`, `@realms`, `@format`, optional `@isLive`. Older display surface — `@context.searchResultsComponent` is preferred for new work. → `show-card-list-with-views`, `app-card-home-with-prerendered-search`
+- **`PrerenderedCardSearch`** — Live-updating component that renders matching cards in a chosen format. Pass `@query`, `@realms`, `@format`, optional `@isLive`. Older display surface — `@context.searchResultsComponent` is preferred for new work. → `show-card-list-with-views`, `app-card-home-with-search`
 - **`prerenderedCardSearchComponent`** — Lower-level component-factory accessed via `@context.prerenderedCardSearchComponent`.
 - **`@isLive={{true}}`** — Re-fetch on every realm change. **Pay-per-keystroke cost; default OFF** unless you specifically need live updates.
 - **filter `type`** — `filter: { type: codeRef(…) }` selects all instances of a CardDef. **THE ONLY way to filter-by-type.**
@@ -100,8 +100,8 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **`codeRef(here, path, name)`** — Build a `ResolvedCodeRef` for use in queries. Imported from `@cardstack/runtime-common`. → `boxel/references/query-systems.md`
 - **`realmURL`** — A **Symbol** exported from `@cardstack/runtime-common` AND `https://cardstack.com/base/card-api`. **Don't write `Symbol.for('realmURL')`** — that creates a different Symbol. Read realm via `card[realmURL]?.href`.
 - **silent zero-rows traps** (memorize) — (1) `filter: { on: ref }` with no predicate. (2) Custom sort field without `on:`. (3) `Symbol.for('realmURL')` instead of the canonical Symbol import. (4) Bare `links.self` like `"Foo/bar"` instead of `"./Foo/bar"` — relationship deserialization throws and the parent card silently fails to index. (5) FileDef-typed relationships dropping the file extension (e.g. `"../guide"` instead of `"../guide.md"`) — file exists but parent card fails to type-filter. → `boxel/references/query-systems.md`, `boxel/references/card-references.md`
-- **verified query composition patterns** — Templates that have been confirmed against a live realm + indexer (not just inferred from source): `every: [{ type: ref }, { on: ref, eq: { … } }]`, `… in: { field: [values] } …`, `… range: { field: { gte: … } } …`, `… contains: { cardTitle: … } …`. Build a **validation lab card** in the realm with one `PrerenderedCardSearch` section per pattern you depend on; assert non-empty results in browser QA. → `boxel/references/query-systems.md`
-- **transient federated-search failures** — `boxel search` can briefly return `Realms not found` right after a new card landing while the realm-server settles. Read files back, `boxel realm wait-for-ready`, validate via `PrerenderedCardSearch`, then retry. → `boxel-environment/references/workflows-and-orchestration.md`
+- **verified query composition patterns** — Templates that have been confirmed against a live realm + indexer (not just inferred from source): `every: [{ type: ref }, { on: ref, eq: { … } }]`, `… in: { field: [values] } …`, `… range: { field: { gte: … } } …`, `… contains: { cardTitle: … } …`. Build a **validation lab card** in the realm with one `@context.searchResultsComponent` section per pattern you depend on; assert non-empty results in browser QA. → `boxel/references/query-systems.md`
+- **transient federated-search failures** — `boxel search` can briefly return `Realms not found` right after a new card landing while the realm-server settles. Read files back, `boxel realm wait-for-ready`, validate via `@context.searchResultsComponent`, then retry. → `boxel-environment/references/workflows-and-orchestration.md`
 
 ## 6. Theme system
 
@@ -357,7 +357,7 @@ In rough priority order:
 - **Boxel built-in feature work uses the Boxel Brand Guide.** Base cards, host-facing Boxel UI, and Boxel-branded catalog material use `https://cardstack.com/base/Theme/boxel-brand-guide` as the style source.
 - **`cardInfo.theme` is the per-instance override** (wins over computed `cardTheme`).
 - **Override `cardTitle` when there's a primary field.** Respect `cardInfo.name` first.
-- **Build a Home app whenever you ship 2+ related CardDefs.** `prefersWideFormat = true` + one `PrerenderedCardSearch` per CardDef in the family. → `app-card-home-with-prerendered-search`
+- **Build a Home app whenever you ship 2+ related CardDefs.** `prefersWideFormat = true` + one `@context.searchResultsComponent` section per CardDef in the family. → `app-card-home-with-search`
 - **Lint is mandatory.** `npx boxel file lint` before push, `npx boxel lint` after push. Prefer `npx boxel` over bare `boxel` to avoid a stale global v0.0.1 shim. → `boxel/references/lint-workflow.md`
 - **Don't reach for `cancel-indexing`.** Slow ≠ stuck. Sample for 5+ minutes before doing anything. Never `--cancel-pending` to "recover from slow." → `boxel-environment/references/indexing-operations.md`
 - **Fresh-realm push uses `/_atomic` batches.** Pushing > 30 files at once can silently drop indexing jobs. Push kit-by-kit with verification. → `boxel-environment/references/indexing-operations.md`
@@ -380,7 +380,7 @@ In rough priority order:
 Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`. Indexed by outcome.
 
 ### Show
-- **`app-card-home-with-prerendered-search`** — Home CardDef for any card family.
+- **`app-card-home-with-search`** — Home CardDef for any card family.
 - **`show-card-list-with-views`** — Generic CardsGrid with view names.
 - **`show-count-tiles-from-query`** — Dashboard count tiles via `page: { size: 1 }` + `meta.page.total`.
 - **`show-table-from-query`** — Sortable rows from a query.
@@ -412,7 +412,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 ### Layout
 - **`layout-design-board`** — Parent card = layout shell composing many cards.
 - **`layout-kanban-drag-drop`** — Persistent kanban using `KanbanPlane`.
-- **`layout-3d-card-carousel`** — `PrerenderedCardSearch` + CSS perspective + per-card vars for a 3D arrangement.
+- **`layout-3d-card-carousel`** — `@context.searchResultsComponent` (`@overlays={{false}}`) + CSS perspective + per-card vars for a 3D arrangement.
 - **`layout-sectioned-record-with-nav`** — Long-record card with sticky 220px left nav rail + main content stack of `<@fields.<section> @format='embedded' />`. Click-to-scroll active highlight. Pairs with `organize-sensitive-stub-pair`.
 
 ### Link / Navigate
@@ -457,7 +457,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 ### Planned (no `example.gts` yet — do not chase; fall back to source realms or core skills)
 
 - **`attach-remote-image`** — Hand-author an `ImageDef` JSON instance pointing at an external URL without uploading bytes. Need surfaced by 3 agents in 2026-05-22 batch.
-- **`show-kanban-from-query`** — Status-grouped column view with one `PrerenderedCardSearch` per column. Lower-friction `layout-kanban-drag-drop` alternative when DnD isn't needed.
+- **`show-kanban-from-query`** — Status-grouped column view with one `@context.searchResultsComponent` per column. Lower-friction `layout-kanban-drag-drop` alternative when DnD isn't needed.
 - **`polymorphic-card-subclass`** — CardDef hierarchy where `adoptsFrom` discriminates the subclass per instance. Differs from `polymorphic-field-subclass` (FieldDef runtime swap).
 
 ## 26. `.claude/` directory layout

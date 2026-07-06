@@ -52,6 +52,11 @@ import { getCards, getCard }            from '@cardstack/runtime-common';
 import { getField, getFieldIcon }       from '@cardstack/runtime-common';
 import { cardDefComputedFields }        from '@cardstack/runtime-common';
 import { Command }                      from '@cardstack/runtime-common/commands';
+// Preferred result-list surface for new work — build its query with searchEntryWireQueryFromQuery,
+// then render via @context.searchResultsComponent.
+import { searchEntryWireQueryFromQuery } from '@cardstack/runtime-common';
+import type { SearchEntryWireQuery }     from '@cardstack/runtime-common';
+// Older surface, superseded by the above (still available via @context.prerenderedCardSearchComponent):
 import { prerenderedCardSearchComponent } from '@cardstack/runtime-common/prerendered-card-search';
 ```
 

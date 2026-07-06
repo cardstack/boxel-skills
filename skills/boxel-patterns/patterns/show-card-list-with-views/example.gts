@@ -1,6 +1,10 @@
 import GlimmerComponent from '@glimmer/component';
 import { type CardContext } from 'https://cardstack.com/base/card-api';
-import { type Query } from '@cardstack/runtime-common';
+import {
+  searchEntryWireQueryFromQuery,
+  type Query,
+  type SearchEntryWireQuery,
+} from '@cardstack/runtime-common';
 
 // 🧩 PATTERN: Generic CardsGrid with view selector.
 //
@@ -18,36 +22,43 @@ interface CardsGridSignature {
 }
 
 export class CardsGrid extends GlimmerComponent<CardsGridSignature> {
+  // Convert the incoming legacy Query into a search-entry query: attach
+  // the realms to search and pin the fitted format. Search-entry queries
+  // are live by default, so there's no @isLive to set.
+  get searchQuery(): SearchEntryWireQuery {
+    let q = searchEntryWireQueryFromQuery(this.args.query);
+    return {
+      ...q,
+      realms: this.args.realms,
+      filter: {
+        ...q.filter,
+        eq: { ...q.filter?.eq, htmlQuery: { eq: { format: 'fitted' } } },
+      },
+    };
+  }
+
   <template>
     <ul
       class='cards {{@selectedView}}-view'
       data-test-cards-grid-cards
       ...attributes
     >
-      {{#let
-        (component @context.prerenderedCardSearchComponent)
-        as |PrerenderedCardSearch|
-      }}
-        <PrerenderedCardSearch
-          @query={{@query}}
-          @format='fitted'
-          @realms={{@realms}}
-          @isLive={{true}}
-        >
-          <:loading>
-            <li class='loading'>Loading…</li>
-          </:loading>
-          <:response as |cards|>
-            {{#each cards key='url' as |card|}}
-              <li class='{{@selectedView}}-view-container'>
-                <card.component class='card' />
-              </li>
-            {{else}}
-              <li class='empty'>No cards found.</li>
-            {{/each}}
-          </:response>
-        </PrerenderedCardSearch>
-      {{/let}}
+      <@context.searchResultsComponent
+        @query={{this.searchQuery}}
+        @mode='hover'
+        as |results|
+      >
+        {{#if results.isLoading}}
+          <li class='loading'>Loading…</li>
+        {{/if}}
+        {{#each results.entries key='id' as |entry|}}
+          <li class='{{@selectedView}}-view-container'>
+            <entry.component class='card' />
+          </li>
+        {{else}}
+          <li class='empty'>No cards found.</li>
+        {{/each}}
+      </@context.searchResultsComponent>
     </ul>
 
     <style scoped>

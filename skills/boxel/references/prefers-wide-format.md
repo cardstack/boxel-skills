@@ -24,7 +24,7 @@ Concretely, set to `true` when the isolated view is:
 
 | Kind of card | Why it needs wide |
 |---|---|
-| **App-card home** (`prefersWideFormat = true` is the canonical step-0 with `PrerenderedCardSearch` sections) | The home is the launcher / brand surface; grids and tables of children need horizontal room. |
+| **App-card home** (`prefersWideFormat = true` is the canonical step-0 with `@context.searchResultsComponent` sections) | The home is the launcher / brand surface; grids and tables of children need horizontal room. |
 | **Long-record card** with sectioned left nav (`layout-sectioned-record-with-nav`) | 220px nav rail + main content needs ≥800px total. |
 | **Dashboard / multi-card layout** (`layout-design-board`, KPI surfaces, moodboards) | Tile grids of child cards crowd at narrow widths. |
 | **Document / article card** (`pretext` multi-column layouts, magazine spreads) | Multi-column flow doesn't make sense in a single column. |
@@ -68,7 +68,7 @@ The fix is symmetric: drop the line, save, refresh.
 ## Where it interacts
 
 - **`link-host-mode-paths`** — every routed `path: "/about"` card MUST set `prefersWideFormat = true`. Published-realm URLs are intended to be full-page; without the static property the host shows operator-mode chrome on a *public* URL.
-- **`app-card-home-with-prerendered-search`** — the home CardDef sets it. The `PrerenderedCardSearch` sections need width to render their child grids.
+- **`app-card-home-with-search`** — the home CardDef sets it. The result-list sections (`@context.searchResultsComponent`; older builds used `PrerenderedCardSearch`) need width to render their child grids.
 - **`layout-sectioned-record-with-nav`** — pattern won't work without it. The 220px sticky nav + main content needs ≥800px.
 - **`layout-3d-card-carousel`** — perspective + per-card translateZ requires viewport width to feel spatial.
 - **`/boxel-create-card`** done-criteria — confirm whether the card you just created should be wide-format. Don't skip this; the default is wrong for app cards.
@@ -84,7 +84,7 @@ The default isn't `true` because *most* CardDefs are records — a Person, a Tas
 
 ## See also
 
-- [`app-card-home-with-prerendered-search`](../../boxel-patterns/patterns/app-card-home-with-prerendered-search/README.md) — the home-page pattern that requires this.
+- [`app-card-home-with-search`](../../boxel-patterns/patterns/app-card-home-with-search/README.md) — the home-page pattern that requires this.
 - [`layout-sectioned-record-with-nav`](../../boxel-patterns/patterns/layout-sectioned-record-with-nav/README.md) — sectioned long-record cards.
 - [`layout-3d-card-carousel`](../../boxel-patterns/patterns/layout-3d-card-carousel/README.md) — spatial layouts.
 - [`link-host-mode-paths`](../../boxel-patterns/patterns/link-host-mode-paths/README.md) — published-realm routed pages.

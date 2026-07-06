@@ -1,17 +1,18 @@
 import GlimmerComponent from '@glimmer/component';
-import { prerenderedCardSearchComponent } from '@cardstack/runtime-common/prerendered-card-search';
+import { type CardContext } from 'https://cardstack.com/base/card-api';
+import { type Query } from '@cardstack/runtime-common';
+import { get } from '@ember/helper';
 
-// 🧩 PATTERN: Generic table over Query + realm
+// 🧩 PATTERN: Generic field-table over Query + realm
 //
 // One component, any query. Caller passes the query + the columns to render.
-
-interface Query {
-  filter: {
-    on: { module: string; name: string };
-    [key: string]: any;
-  };
-  sort?: Array<{ by: string; on?: any }>;
-}
+//
+// A per-field table needs the LIVE card instances (one <td> per column, reading
+// each field's value), so this uses `context.getCards` — NOT the search-results
+// or prerendered surfaces, which render whole cards and expose no addressable
+// fields. `getCards` is only available via the rendering context; importing it
+// as a value compiles (TS sees the type) but explodes at runtime with
+// "getCards is not a function".
 
 interface TableSignature {
   Args: {
@@ -19,15 +20,23 @@ interface TableSignature {
     realm: string;
     columns: string[];          // field names to render
     headers?: string[];         // optional header labels (defaults to columns)
+    context?: CardContext;
   };
 }
 
 export class CardTable extends GlimmerComponent<TableSignature> {
-  PrerenderedCards = prerenderedCardSearchComponent;
-
   get headers(): string[] {
     return this.args.headers ?? this.args.columns;
   }
+
+  // Live-tracked search over the realm. `.instances` is the reactive array of
+  // CardDefs; `.isLoading` flips while the search runs.
+  cards = this.args.context?.getCards(
+    this,
+    () => this.args.query,
+    () => [this.args.realm],
+    { isLive: true },
+  );
 
   <template>
     <table class='card-table'>
@@ -39,33 +48,19 @@ export class CardTable extends GlimmerComponent<TableSignature> {
         </tr>
       </thead>
       <tbody>
-        <this.PrerenderedCards
-          @query={{@query}}
-          @format='embedded'
-          @realms={{(array @realm)}}
-        >
-          <:loading>
-            <tr><td colspan={{@columns.length}}>Loading…</td></tr>
-          </:loading>
-          <:response as |cards|>
-            {{#each cards as |c|}}
-              <tr>
-                {{#each @columns as |col|}}
-                  <td>
-                    {{!--
-                      In production: use a FieldRenderer with a
-                      WeakMap<Box, BoxComponent> cache to avoid re-renders.
-                      Sketch:  this.fieldFor(c, col)
-                    --}}
-                    {{get c.card col}}
-                  </td>
-                {{/each}}
-              </tr>
-            {{else}}
-              <tr><td colspan={{@columns.length}}>No results.</td></tr>
-            {{/each}}
-          </:response>
-        </this.PrerenderedCards>
+        {{#if this.cards.isLoading}}
+          <tr><td colspan={{@columns.length}}>Loading…</td></tr>
+        {{else}}
+          {{#each this.cards.instances as |card|}}
+            <tr>
+              {{#each @columns as |col|}}
+                <td>{{get card col}}</td>
+              {{/each}}
+            </tr>
+          {{else}}
+            <tr><td colspan={{@columns.length}}>No results.</td></tr>
+          {{/each}}
+        {{/if}}
       </tbody>
     </table>
   </template>
@@ -82,4 +77,5 @@ export class CardTable extends GlimmerComponent<TableSignature> {
 //   @realm='https://realms.example.com/team/'
 //   @columns={{array 'firstName' 'lastName' 'email'}}
 //   @headers={{array 'First' 'Last' 'Email'}}
+//   @context={{@context}}
 // />

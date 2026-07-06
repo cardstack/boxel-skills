@@ -224,4 +224,4 @@ The fitted format keeps the preview compact in the 220px rail.
 - [`format-morph-shared-component`](../format-morph-shared-component/README.md) — when you want the edit + isolated views to share the same layout shell, morphing only the inputs.
 - [`theme-first-workflow`](../theme-first-workflow/README.md) — every long-record card wants a brand theme before this template lands; the nav-highlight color and section accents come from there.
 - [`cardinfo-override-title`](../cardinfo-override-title/README.md) — the header band's title comes from `cardInfo.name` first, primary field second.
-- [`app-card-home-with-prerendered-search`](../app-card-home-with-prerendered-search/README.md) — when the record is part of a card family, the home app links into it.
+- [`app-card-home-with-search`](../app-card-home-with-search/README.md) — when the record is part of a card family, the home app links into it.

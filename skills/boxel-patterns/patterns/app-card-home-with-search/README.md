@@ -2,16 +2,16 @@
 validated: source-proven
 ---
 
-# app-card-home-with-prerendered-search — Every card family needs a home
+# app-card-home-with-search — Every card family needs a home
 
-**What this gives you:** A `Home` CardDef (typically named after the brand — `Surge`, `RowAndRail`, `BoxelHome`) that sits at the top of a card family and uses `PrerenderedCardSearch` to dynamically list every Meet / Listing / Project / etc. in the realm. `prefersWideFormat = true` so it opens edge-to-edge. The user lands on it, sees the realm at a glance, drills in from there.
+**What this gives you:** A `Home` CardDef (typically named after the brand — `Surge`, `RowAndRail`, `BoxelHome`) that sits at the top of a card family and uses `@context.searchResultsComponent` to dynamically list every Meet / Listing / Project / etc. in the realm. `prefersWideFormat = true` so it opens edge-to-edge. The user lands on it, sees the realm at a glance, drills in from there.
 
 **When to use:** Whenever you build a card *family* — 2+ related CardDefs (Meet + Swimmer + Club, Project + Task + Person, Show + Listing + Venue, etc.). Building a single utility card? Skip this pattern. Building anything where the user will accumulate instances over time? Build the home.
 
 **Why it matters:**
 - **Discoverability.** A realm with 5 CardDefs and no home shows users an `index.json` `CardsGrid` of mixed cards in adoption order. A home puts the brand voice up front and arranges the suite the way the designer intended.
 - **Editorial framing.** The home is where you set the typography pairing, the eyebrow voice, the color story. Children inherit through the theme cascade.
-- **Live by construction.** `PrerenderedCardSearch` re-runs as the realm changes — new instances appear automatically, no manual relationship-wiring on the home.
+- **Live by construction.** `@context.searchResultsComponent` re-runs as the realm changes — new instances appear automatically, no manual relationship-wiring on the home.
 
 **Recipe shape:**
 
@@ -20,7 +20,13 @@ validated: source-proven
 import { CardDef, Component, field, contains, linksTo } from 'https://cardstack.com/base/card-api';
 import StringField from 'https://cardstack.com/base/string';
 import TextAreaField from 'https://cardstack.com/base/text-area';
-import { codeRef, realmURL, type Query } from '@cardstack/runtime-common';
+import {
+  codeRef,
+  realmURL,
+  searchEntryWireQueryFromQuery,
+  type Query,
+  type SearchEntryWireQuery,
+} from '@cardstack/runtime-common';
 import BoltIcon from '@cardstack/boxel-icons/bolt';
 import { Meet } from './meet';
 
@@ -70,6 +76,32 @@ export class Surge extends CardDef {
       };
     }
 
+    // Each section wraps its Query in searchEntryWireQueryFromQuery, then
+    // attaches `realms` + the fitted display format via filter.eq.htmlQuery.
+    // This is what <@context.searchResultsComponent> consumes.
+    get meetsWireQuery(): SearchEntryWireQuery {
+      const q = searchEntryWireQueryFromQuery(this.meetsQuery);
+      return {
+        ...q,
+        realms: this.realms,
+        filter: {
+          ...q.filter,
+          eq: { ...q.filter?.eq, htmlQuery: { eq: { format: 'fitted' } } },
+        },
+      };
+    }
+    get swimmersWireQuery(): SearchEntryWireQuery {
+      const q = searchEntryWireQueryFromQuery(this.swimmersQuery);
+      return {
+        ...q,
+        realms: this.realms,
+        filter: {
+          ...q.filter,
+          eq: { ...q.filter?.eq, htmlQuery: { eq: { format: 'fitted' } } },
+        },
+      };
+    }
+
     <template>
       <article class='sg'>
         <header class='sg-mast'>
@@ -87,35 +119,27 @@ export class Surge extends CardDef {
         {{!-- Dynamic section: every Meet in the realm, fitted, live --}}
         <section class='sg-section'>
           <h2 class='sg-section-title'>The calendar</h2>
-          {{#let
-            (component @context.prerenderedCardSearchComponent)
-            as |PrerenderedCardSearch|
-          }}
-            <ul class='sg-meets'>
-              <PrerenderedCardSearch
-                @query={{this.meetsQuery}}
-                @format='fitted'
-                @realms={{this.realms}}
-                @isLive={{true}}
-              >
-                <:loading>
-                  <li class='sg-loading'>Loading…</li>
-                </:loading>
-                <:response as |cards|>
-                  {{#each cards key='url' as |c|}}
-                    <li class='sg-meets-cell'>
-                      <c.component class='sg-card' />
-                    </li>
-                  {{else}}
-                    <li class='sg-empty'>No meets yet.</li>
-                  {{/each}}
-                </:response>
-              </PrerenderedCardSearch>
-            </ul>
-          {{/let}}
+          <ul class='sg-meets'>
+            <@context.searchResultsComponent
+              @query={{this.meetsWireQuery}}
+              @mode='hover'
+              as |results|
+            >
+              {{#if results.isLoading}}
+                <li class='sg-loading'>Loading…</li>
+              {{/if}}
+              {{#each results.entries key='id' as |entry|}}
+                <li class='sg-meets-cell'>
+                  <entry.component class='sg-card' />
+                </li>
+              {{else}}
+                <li class='sg-empty'>No meets yet.</li>
+              {{/each}}
+            </@context.searchResultsComponent>
+          </ul>
         </section>
 
-        {{!-- Add one section per CardDef in the family --}}
+        {{!-- Add one @context.searchResultsComponent section per CardDef in the family --}}
       </article>
 
       <style scoped>
@@ -171,31 +195,31 @@ export class Surge extends CardDef {
 }
 ```
 
-**`@isLive={{true}}` is expensive — opt in deliberately, don't default to it.**
+**`@context.searchResultsComponent` is live by construction — mind the cost on multi-section homes.**
 
-`@isLive={{true}}` subscribes the query to realm change events. Every time ANY card in the realm is created, edited, or deleted, the live query re-fetches and re-renders. For a Home with 4 prerendered sections all set to `@isLive={{true}}`, editing a single Swimmer somewhere else in the realm fires **4 re-fetches per save** — even though only one section's data actually changed. With the host's autosave on each keystroke, this can make unrelated edit forms feel sluggish because the Home tab is consuming CPU on every reindex.
+Each `@context.searchResultsComponent` section subscribes its query to realm change events. Every time ANY card in the realm is created, edited, or deleted, the matching sections re-fetch and re-render. For a Home with 4 result-list sections, editing a single Swimmer somewhere else in the realm can fire re-fetches across every section whose query might be affected — even though only one section's data actually changed. With the host's autosave on each keystroke, this can make unrelated edit forms feel sluggish because the Home tab is consuming CPU on every reindex.
 
-```ts
-{{!-- ❌ Default-on @isLive is a perf trap on multi-section homes --}}
-<PrerenderedCardSearch @query={{this.q}} @realms={{this.realms}} @isLive={{true}} />
+There is no snapshot/live toggle to reach for — the surface is live by default. The lever you *do* have is `@mode`: `'hover'` (default) hydrates each result so it can respond to hover; `'none'` renders the prerendered HTML with no per-result interactivity, which is cheaper for dense read-only sections.
 
-{{!-- ✅ Default to snapshot semantics. The query refetches on mount and when
-       @query / @realms change. That's enough for ~all dashboards. --}}
-<PrerenderedCardSearch @query={{this.q}} @realms={{this.realms}} />
+```hbs
+{{!-- ✅ Default: hover-hydrated results. --}}
+<@context.searchResultsComponent @query={{this.q}} as |results|>
+  {{#each results.entries key='id' as |entry|}}<entry.component />{{/each}}
+</@context.searchResultsComponent>
 
-{{!-- ✅ Only opt into live when the section genuinely needs to reflect
-       changes the user makes in another tab without a manual refresh
-       (e.g. a "live results" ticker during an active meet). --}}
-<PrerenderedCardSearch @query={{this.q}} @realms={{this.realms}} @isLive={{true}} />
+{{!-- ✅ Cheaper for dense, read-only sections — no per-result hover hydration. --}}
+<@context.searchResultsComponent @query={{this.q}} @mode='none' as |results|>
+  {{#each results.entries key='id' as |entry|}}<entry.component />{{/each}}
+</@context.searchResultsComponent>
 ```
 
-If you find yourself adding `@isLive={{true}}` to every section "just because," that's the signal to drop it from all of them and add it back to the one or two sections that genuinely benefit.
+Keep the number of live sections on a single Home modest, and prefer `@mode='none'` for sections the user only reads.
 
-**Why `PrerenderedCardSearch` (display) instead of `getCards` (instances):**
+**Why `@context.searchResultsComponent` (display) instead of `getCards` (instances):**
 
 | Use case | Pick |
 |---|---|
-| Showing the cards as themselves (fitted/embedded HTML) | `PrerenderedCardSearch` |
+| Showing the cards as themselves (fitted/embedded HTML) | `@context.searchResultsComponent` |
 | Reading model values to compute aggregates (counts, sums, charts) | `getCards` |
 | Both — list and aggregate | `getCards`, then render with `<@fields ...>` |
 
@@ -205,9 +229,9 @@ The home almost always wants the first. The host pre-renders each result on the 
 
 The home's outermost element (`.sg` in the example) MUST leave decoration to the host's CardContainer. No `border-radius`, no `border`, no `box-shadow`, no opaque `background` (`var(--paper)` is fine — the paper is the brand surface, not chrome), no `overflow`. Brand-specific outer treatment goes on the Theme card as `--radius`, `--background`, `--border`. See `boxel-ui-guidelines/references/delegated-render-control.md`.
 
-**Critical — no plural-field wrapper for prerendered output:**
+**Critical — no plural-field wrapper for search-results output:**
 
-`PrerenderedCardSearch` does NOT wrap its `:response` in `.plural-field / .containsMany-field / .linksToMany-field` — that wrapper only appears for `<@fields.plural @format='...' />` direct rendering. With prerendered, you own the `<ul>` / `<li>` shell yourself, so `display: grid` on the `<ul>` works without any `display: contents` tricks. The chrome `:deep()` overrides still apply because each result renders inside its own `.boxel-card-container`.
+`@context.searchResultsComponent` does NOT wrap its yielded entries in `.plural-field / .containsMany-field / .linksToMany-field` — that wrapper only appears for `<@fields.plural @format='...' />` direct rendering. With the search-results surface, you own the `<ul>` / `<li>` shell yourself, so `display: grid` on the `<ul>` works without any `display: contents` tricks. The chrome `:deep()` overrides still apply because each result renders inside its own `.boxel-card-container`.
 
 **The three query traps:**
 
@@ -220,24 +244,24 @@ See `boxel/references/query-systems.md` for the canonical reference and `~/Proje
 **Other gotchas:**
 - `import.meta.url` works in `.gts` at runtime but TS complains — declare `const here: string = import.meta.url;` once at top with `@ts-expect-error` on the line above.
 - Compound sort paths like `dates.start` work for fields-of-fields (`DateRangeField.start`).
-- The home loads when `model.id` is undefined briefly — the realmURL getter handles this by returning `[]` instead of throwing, and `PrerenderedCardSearch` just shows `<:loading>` until realms is non-empty.
+- The home loads when `model.id` is undefined briefly — the realmURL getter handles this by returning `[]` instead of throwing, and `@context.searchResultsComponent` reports `results.isLoading` until realms is non-empty.
 - If you want to open this card by default when someone visits the realm root, rely on `index.json`'s `CardsGrid` showing this as the first card (with a thumbnail + clear title).
 
 ## Host-mode click-through — MANDATORY for any app card that publishes
 
-In the published Host mode, cards rendered inside `<:response as |cards|>` blocks do NOT click through to their isolated view by default. The host's in-app click-to-open machinery (`@context.cardComponentModifier`) doesn't run on the published static site. Visitors see beautifully rendered fitted tiles that do nothing on click.
+In the published Host mode, cards rendered from `@context.searchResultsComponent` entries do NOT click through to their isolated view by default. The host's in-app click-to-open machinery (`@context.cardComponentModifier`) doesn't run on the published static site. Visitors see beautifully rendered fitted tiles that do nothing on click.
 
-**Fix: wrap each rendered card in an `<a href={{c.url}}>` overlay.** The overlay pattern keeps the underlying card render natural (no height-100% chain through component chrome) and just adds a transparent click target on top:
+**Fix: wrap each rendered card in an `<a href={{entry.id}}>` overlay.** The overlay pattern keeps the underlying card render natural (no height-100% chain through component chrome) and just adds a transparent click target on top:
 
 ```hbs
-<:response as |cards|>
-  {{#each cards key='url' as |c|}}
+<@context.searchResultsComponent @query={{this.q}} as |results|>
+  {{#each results.entries key='id' as |entry|}}
     <li class='project-cell'>
-      <c.component class='project-card-inner' />
-      <a class='card-link' href={{c.url}} aria-label='Open card'></a>
+      <entry.component class='project-card-inner' />
+      <a class='card-link' href={{entry.id}} aria-label='Open card'></a>
     </li>
   {{/each}}
-</:response>
+</@context.searchResultsComponent>
 ```
 
 CSS:
@@ -269,14 +293,14 @@ CSS:
 
 ### Why overlay, not wrap
 
-The first instinct is to wrap the card: `<a><c.component /></a>`. That breaks fitted cards because the anchor needs `display: block; height: 100%; width: 100%;` and the height-100% chain has to propagate through the component's outer chrome (`boxel-card-container`). The chain breaks silently and the rendered card collapses to zero height. Use the overlay pattern.
+The first instinct is to wrap the card: `<a><entry.component /></a>`. That breaks fitted cards because the anchor needs `display: block; height: 100%; width: 100%;` and the height-100% chain has to propagate through the component's outer chrome (`boxel-card-container`). The chain breaks silently and the rendered card collapses to zero height. Use the overlay pattern.
 
 ### The mode matrix
 
 | Mode | What enables click | Mechanism |
 |---|---|---|
 | **Interact / Code** (in-app) | `{{@context.cardComponentModifier ...}}` on a `CardContainer` | Pushes the card onto the Boxel app's card stack |
-| **Host** (published site) | `<a href={{c.url}}>` overlay | Plain browser navigation to the card's URL |
+| **Host** (published site) | `<a href={{entry.id}}>` overlay | Plain browser navigation to the card's URL |
 
 Complementary, not redundant. An app card that publishes AND is browsable in-app can stack both: the overlay anchor for Host clicks, the modifier on the inner CardContainer for in-app push. The anchor is inert in Interact mode (no navigation pane); the modifier is inert in Host (no Boxel app running).
 
@@ -286,7 +310,7 @@ In Host mode, open dev tools, inspect a rendered tile. Look for an `<a href="htt
 
 **Source / verified against:**
 - `boxel-catalog/components/grid.gts` (the `CardsGrid` pattern this descends from).
-- A swim-meet `Surge` home card (4 prerendered sections — Meets / Swimmers / Clubs / Results) is one worked example; ask the user for the current URL if you want to read it.
-- `SearchResource` type — see `runtime-common/index.ts` in the boxel monorepo.
+- A swim-meet `Surge` home card (4 result-list sections — Meets / Swimmers / Clubs / Results) is one worked example; ask the user for the current URL if you want to read it.
+- `searchEntryWireQueryFromQuery` / `SearchEntryWireQuery` — see `runtime-common/index.ts` in the boxel monorepo. Full treatment in `boxel/references/query-systems.md`.
 
 **See also:** [`show-card-list-with-views`](../show-card-list-with-views/) (the lower-level CardsGrid component), [`automate-linked-to-me-lookup`](../automate-linked-to-me-lookup/) (when you need models not just rendered HTML), [`boxel-ui-guidelines/references/delegated-render-control.md`](../../../boxel-ui-guidelines/references/delegated-render-control.md), [`boxel/references/query-systems.md`](../../../boxel/references/query-systems.md).

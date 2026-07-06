@@ -115,7 +115,7 @@ Only `lastModified`, `createdAt`, and `cardURL` are general sort fields that can
 
 ### Validate query shapes with a realm-native lab card
 
-For query-heavy work, build a tiny **validation lab card** in the target realm that renders one `PrerenderedCardSearch` section per query shape you depend on. Run it in browser QA and assert that each section shows non-empty results. This is more reliable than static code inspection because it exercises the host search component, realm indexing, card-reference resolution, and child-card render formats all together — the four places query bugs actually surface.
+For query-heavy work, build a tiny **validation lab card** in the target realm that renders one `@context.searchResultsComponent` section per query shape you depend on. Run it in browser QA and assert that each section shows non-empty results. This is more reliable than static code inspection because it exercises the host search component, realm indexing, card-reference resolution, and child-card render formats all together — the four places query bugs actually surface.
 
 Common gates:
 
@@ -169,17 +169,17 @@ const query: Query = {
 ```
 
 **When to use what to query cards:**
-- Efficient display-only → `PrerenderedCardSearch`
+- Efficient display-only → `@context.searchResultsComponent` (the newer `<SearchResults>` surface; older builds used `PrerenderedCardSearch`)
 - Need data manipulation → `getCards`
 - Treat query result as a field → query-backed fields
 
-### ⚠️ `@isLive={{true}}` is expensive — default it OFF
+### ⚠️ Legacy `@isLive={{true}}` is expensive — default it OFF
 
-`<PrerenderedCardSearch @isLive={{true}}>` subscribes to realm change events. Every card create/edit/delete anywhere in the realm fires a re-fetch. On a dashboard with 4 sections, editing an unrelated card triggers 4× re-fetches per autosave — heavy CPU use that can make other tabs (including edit forms) feel sluggish even though the card-store itself is local-first in-memory.
+This applies to the older `<PrerenderedCardSearch>` surface. `<PrerenderedCardSearch @isLive={{true}}>` subscribes to realm change events. Every card create/edit/delete anywhere in the realm fires a re-fetch. On a dashboard with 4 sections, editing an unrelated card triggers 4× re-fetches per autosave — heavy CPU use that can make other tabs (including edit forms) feel sluggish even though the card-store itself is local-first in-memory.
 
 The default behavior without `@isLive` is "fetch on mount, refetch when `@query` or `@realms` change." That's correct for ~95% of dashboards.
 
-Use `@isLive={{true}}` only when the section needs to reflect changes the user makes in *another* tab without manually refreshing (a live results ticker during an event, a notifications inbox, etc.). Don't default it on.
+Use `@isLive={{true}}` only when the section needs to reflect changes the user makes in *another* tab without manually refreshing (a live results ticker during an event, a notifications inbox, etc.). Don't default it on. (New work should prefer `@context.searchResultsComponent`, which has no `@isLive` arg — liveness is handled by the surface.)
 
 **Query-backed relationship vs explicit linked composition:**
 
@@ -188,15 +188,15 @@ Use `@isLive={{true}}` only when the section needs to reflect changes the user m
 | The app owner curates the exact list/order manually (playlist, selected demos, hand-picked recipe plan) | Plain `linksToMany` with explicit JSON relationships |
 | The app should discover cards from the realm by status/date/owner/type | `linksToMany(Target, { query })` |
 | You need a reverse lookup such as "all Tasks whose project points to this Project" | `linksToMany(Target, { query })` with `eq: { 'project.id': '$this.id' }` |
-| You only need display HTML for a dashboard and not model objects | `<PrerenderedCardSearch>` |
+| You only need display HTML for a dashboard and not model objects | `@context.searchResultsComponent` (older builds used `<PrerenderedCardSearch>`) |
 | The filter depends on local UI state or needs live updates while the card is open | `this.args.context.getCards(...)` in the component |
 
-If a brief says "use queries", do not satisfy it with explicit `linksToMany` alone. Include at least one query-backed field, `PrerenderedCardSearch`, or component-level `getCards` call.
+If a brief says "use queries", do not satisfy it with explicit `linksToMany` alone. Include at least one query-backed field, a `@context.searchResultsComponent` section, or a component-level `getCards` call.
 
 For benchmark-style coverage, exercise both common query surfaces across the set:
 
 - **Schema query:** `linksToMany(Target, { query })` plus `computeVia` rollups over the materialized relationship.
-- **Display query:** `PrerenderedCardSearch` in an isolated dashboard section when the card only needs rendered results, not model objects.
+- **Display query:** `@context.searchResultsComponent` in an isolated dashboard section when the card only needs rendered results, not model objects. (The older `<PrerenderedCardSearch>` surface still works but is superseded.)
 
 ## `@context.searchResultsComponent` — entry-rooted result lists
 
@@ -247,18 +247,17 @@ class BlogPost extends CardDef {
 - `@mode` — hydration of prerendered rows on interaction: `'none'` (stay inert), `'hover'` (default), `'click'`, `'touch'`.
 - Yields `results`: `results.entries` (each `entry` exposes `.component`, `.id`, `.isError`, plus `.displayName` / `.iconHtml` for a row with no HTML yet), `results.isLoading`, `results.meta` (`{ page: { total } }`), and `results.errors`.
 
-> boxel-skills marks `@context.prerenderedCardSearchComponent` / `<PrerenderedCardSearch>` as the older display surface superseded by `@context.searchResultsComponent`. The pattern library still uses `PrerenderedCardSearch` throughout, so it's documented below; a tree-wide migration to `searchResultsComponent` is a separate follow-up.
+> boxel-skills prefers `@context.searchResultsComponent` (above) as the display surface for new work. `@context.prerenderedCardSearchComponent` / `<PrerenderedCardSearch>` is the older surface it supersedes. The pattern library still uses `PrerenderedCardSearch` in places, so the contrast is captured below; a tree-wide migration to `searchResultsComponent` is a separate follow-up.
 
-## `PrerenderedCardSearch` essentials
+## Legacy: `PrerenderedCardSearch`
 
-Use this for query-backed grid/list views inside a card template — the realm pre-renders the matching cards in your chosen format (`embedded`, `fitted`, `atom`, `head`), and you yield over `cards` in the template.
+Still works, but superseded by `@context.searchResultsComponent` — prefer that surface for new work. `PrerenderedCardSearch` takes a legacy `@query` (an ordinary `Query`, not entry-rooted), plus `@format`, `@realms`, and `@isLive` as separate args, and yields through **named blocks** (`<:loading>` / `<:empty>` / `<:response as |cards|>`) where each yielded card exposes `.url` / `.component`:
 
 ```hbs
 <PrerenderedCardSearch
   @query={{this.toWatchQuery}}
   @realms={{this.realmHrefs}}
   @format='fitted'
-  @isLive={{true}}
 >
   <:loading>Loading…</:loading>
   <:response as |cards|>
@@ -269,28 +268,7 @@ Use this for query-backed grid/list views inside a card template — the realm p
 </PrerenderedCardSearch>
 ```
 
-**Filter shape — verified working forms:**
+Contrast with `@context.searchResultsComponent`, which takes a single entry-rooted `@query` (build with `searchEntryWireQueryFromQuery`, carry `realms`/`format` inside the query), a single block `as |results|`, and yields `entry.component` / `entry.id` rather than `card.url` / `card.component`. The query-filter shapes (`eq`, `every`, `on`-scoped sorts, `page`, and the three silent-zero-rows failure modes above) are identical across both surfaces — only the component contract differs.
 
-```ts
-// String enum equality
-eq: { status: 'to-watch' }
-
-// Boolean equality (yes, works on BooleanField)
-eq: { isFavorite: true }
-
-// Multi-clause AND
-every: [
-  { eq: { status: 'watched' } },
-  { eq: { isFavorite: true } },
-]
-
-// Sort needs `on` for type-specific fields
-sort: [{ on: codeRef, by: 'watchedAt', direction: 'desc' }]
-```
-
-**Pagination defaults:** Without `page`, the realm returns a sensible default (typically 20-50). For dashboards that want everything, set `page: { size: 200 }`. Don't over-page — `PrerenderedCardSearch` is rendering each result.
-
-**Empty + loading slots:** Use `<:loading>` and `<:empty>` named blocks for the corresponding states; only `<:response>` receives the `cards` argument.
-
-**Isolated format isn't supported here.** Prerender covers `embedded`, `fitted`, `atom`, `head` only. For isolated, use `getCards` and render the card via its own component.
+Prerender covers `embedded`, `fitted`, `atom`, `head` only (no isolated). For isolated, use `getCards` and render the card via its own component.
 ```

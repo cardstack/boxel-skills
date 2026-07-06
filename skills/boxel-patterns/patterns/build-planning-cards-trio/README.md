@@ -186,5 +186,5 @@ Before declaring a MicroMockups card done, audit against:
 
 - `boxel/references/design-playbook.md` "Planning before code — Stage 0" — the textual definition of what each plan card contains + ASCII templates.
 - `theme-first-workflow` — runs AFTER stage 0, before stage 1 mockup.
-- `app-card-home-with-prerendered-search` — the production card-family entry point; built from the plan trio's deliverables.
+- `app-card-home-with-search` — the production card-family entry point; built from the plan trio's deliverables.
 - `cardinfo-override-title` — applies to plan cards too (use the document title).
