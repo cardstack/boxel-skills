@@ -117,6 +117,7 @@ Troubleshooting:
 
 Specialty:
 - `references/indexing-operations.md` — Realm reindexing commands.
+- `references/diagnosing-broken-links.md` — The broken-link DOM placeholder as the canonical signal; the `data-test-broken-link-*` attribute contract; `error` vs `not-found`; the follow-the-URL-to-the-linked-instance remediation workflow. (Card-author side: `boxel/references/defensive-link-traversal.md`.)
 - `references/source-code-editing.md` — Cross-link to the SEARCH/REPLACE skill.
 
 ## Sibling skills
