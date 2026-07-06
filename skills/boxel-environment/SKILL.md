@@ -198,7 +198,7 @@ boxel:
 - `copy-source_5d09` → Duplicate a file
 - `transform-cards_33d7` → Bulk update with command
 - `write-text-file_e5a1` → OK for .json instances. NEVER use for .gts files — tool calls don't stream, causing the UI to appear frozen. Always use SEARCH/REPLACE for .gts.
-- `invalidate-realm-urls_xxxx` → Trigger indexing for specific file URLs in a realm (requires write access)
+- `invalidate-realm-identifiers_xxxx` → Trigger indexing for specific file URLs in a realm (requires write access)
 - `reindex-realm_xxxx` → Reindex a realm using the default mode (requires write access)
 - `full-reindex-realm_xxxx` → Force a full reindex of a realm (requires write access)
 - `cancel-indexing-job_xxxx` → Cancel currently running indexing job for a realm (requires write access)
