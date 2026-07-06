@@ -113,7 +113,7 @@ boxel:
 
 **STEP 3: CODE TASK**
 ```
-□ 3.0 In interact submode? → call the switch-submode command with submode "code" FIRST — switching auto-enables the coding skills (Boxel Development, code editing). Then continue below.
+□ 3.0 In interact submode AND the user wants to change or create code (template, logic, schema, new .gts)? → call the switch-submode command with submode "code" FIRST — switching auto-enables the coding skills. Read-only code questions: answer in place, do not switch.
 □ 3a. LLM approved? (claude-4.6+/gemini-2.5+/gpt-5+)
   └─ NO → set-active-llm_1887 "anthropic/claude-sonnet-4.6"
 □ 3b. Boxel Development skill active?
