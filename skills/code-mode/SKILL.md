@@ -1,5 +1,5 @@
 ---
-name: "Code Mode Skills"
+name: "Boxel Code Editing"
 description: "Directory of skills for working with code in Boxel; load each linked skill on demand before using it"
 boxel:
   kind: skill
