@@ -5,7 +5,13 @@ import {
   contains,
 } from 'https://cardstack.com/base/card-api';
 import StringField from 'https://cardstack.com/base/string';
-import { codeRef, realmURL, type Query } from '@cardstack/runtime-common';
+import {
+  codeRef,
+  realmURL,
+  searchEntryWireQueryFromQuery,
+  type Query,
+  type SearchEntryWireQuery,
+} from '@cardstack/runtime-common';
 import { tracked } from '@glimmer/tracking';
 import { on } from '@ember/modifier';
 import { gt } from '@cardstack/boxel-ui/helpers';
@@ -14,7 +20,7 @@ import CubeIcon from '@cardstack/boxel-icons/cube';
 // Replace this with the CardDef you want to display on the cylinder.
 import { TradingCard } from './trading-card';
 
-// 🧩 PATTERN: 3D card carousel driven by PrerenderedCardSearch.
+// 🧩 PATTERN: 3D card carousel driven by @context.searchResultsComponent.
 //
 // For n cards at index i, the angle is `i / n * 360deg`. Each slot
 // gets `--card-index` and `--total-cards` as CSS variables; the slot's
@@ -57,6 +63,21 @@ export class CardCarousel extends CardDef {
       return r ? [String(r)] : [];
     }
 
+    // Fold the legacy Query into a search-entry query: attach the realms
+    // and pin the fitted format. Search-entry queries are live by
+    // default, so there's no @isLive to set.
+    get searchQuery(): SearchEntryWireQuery {
+      const q = searchEntryWireQueryFromQuery(this.query);
+      return {
+        ...q,
+        realms: this.realms,
+        filter: {
+          ...q.filter,
+          eq: { ...q.filter?.eq, htmlQuery: { eq: { format: 'fitted' } } },
+        },
+      };
+    }
+
     toggleRotate = () => {
       this.isRotating = !this.isRotating;
     };
@@ -71,35 +92,34 @@ export class CardCarousel extends CardDef {
         </header>
 
         <div class='cylinder {{if this.isRotating "spinning"}}'>
-          {{#let
-            (component @context.prerenderedCardSearchComponent)
-            as |PrerenderedCardSearch|
-          }}
-            <PrerenderedCardSearch
-              @query={{this.query}}
-              @realms={{this.realms}}
-              @format='fitted'
-              @isLive={{true}}
-            >
-              <:loading>
-                <div class='empty'>Loading…</div>
-              </:loading>
-              <:response as |cards|>
-                {{#if (gt cards.length 0)}}
-                  {{#each cards key='url' as |card index|}}
-                    <div
-                      class='slot'
-                      style='--card-index: {{index}}; --total-cards: {{cards.length}}'
-                    >
-                      <card.component />
-                    </div>
-                  {{/each}}
-                {{else}}
-                  <div class='empty'>No cards yet.</div>
-                {{/if}}
-              </:response>
-            </PrerenderedCardSearch>
-          {{/let}}
+          {{! @overlays={{false}} — the carousel lays results out on the
+              cylinder itself, so it wants plain rendering with no
+              operator-mode overlay chrome interfering with the 3D
+              transforms. }}
+          <@context.searchResultsComponent
+            @query={{this.searchQuery}}
+            @mode='hover'
+            @overlays={{false}}
+            as |results|
+          >
+            {{#if results.isLoading}}
+              <div class='empty'>Loading…</div>
+            {{/if}}
+            {{#if (gt results.entries.length 0)}}
+              {{#each results.entries key='id' as |entry index|}}
+                <div
+                  class='slot'
+                  style='--card-index: {{index}}; --total-cards: {{results.entries.length}}'
+                >
+                  <entry.component />
+                </div>
+              {{/each}}
+            {{else}}
+              {{#unless results.isLoading}}
+                <div class='empty'>No cards yet.</div>
+              {{/unless}}
+            {{/if}}
+          </@context.searchResultsComponent>
         </div>
       </div>
 
@@ -203,11 +223,13 @@ export class CardCarousel extends CardDef {
 //   card. If your card has a chrome wrapper, the var rides on the
 //   outer slot.
 //
-// - `@isLive={{true}}` cost. Re-fetches on every realm change.
-//   Default off; flip on only when the carousel needs live updates.
+// - Liveness. Search-entry queries are live by default — the carousel
+//   re-fetches on every realm change, no flag to toggle. If you need a
+//   snapshot, freeze the entries once yielded rather than re-deriving.
 //
-// - Card chrome breaks immersion. PrerenderedCardSearch children
-//   come with CardContainer chrome (rounded corners, halo). For a
-//   clean carousel look, use `@displayContainer={{false}}` per card,
-//   or recolor the chrome via `:deep(.boxel-card-container)` from
+// - Card chrome breaks immersion. searchResultsComponent entries can
+//   come with operator-mode overlays plus CardContainer chrome
+//   (rounded corners, halo). Pass `@overlays={{false}}` to drop the
+//   overlay, and for a clean carousel look use `@displayContainer={{false}}`
+//   per card or recolor the chrome via `:deep(.boxel-card-container)` from
 //   scoped CSS — see boxel-ui-guidelines/references/delegated-render-control.md.

@@ -140,7 +140,7 @@ Don't treat the transient as proof your query syntax is wrong. Recovery sequence
 
 1. Read the relevant files back with `boxel file read` to confirm they're really in the realm.
 2. `boxel realm wait-for-ready --realm <url>` until the realm reports ready.
-3. Validate through a host-rendered `PrerenderedCardSearch` card when possible — that path exercises the indexer differently than the federated-search CLI route.
+3. Validate through a host-rendered result-list card when possible (`@context.searchResultsComponent`; older builds used `PrerenderedCardSearch`) — that path exercises the indexer differently than the federated-search CLI route.
 4. Retry `boxel search` after the realm has indexed.
 
 If the transient recurs while parallel agents are landing into the same realm, record it in the tracking doc (above) so other agents don't rewrite valid query syntax chasing a state issue.

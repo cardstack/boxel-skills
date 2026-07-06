@@ -53,7 +53,9 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `Command<TInput, TResult>` | Base class for new Commands. |
 | `getCards`, `getCard` | Query the realm for cards by filter. |
 | `getField`, `getFieldIcon`, `cardDefComputedFields` | Field metadata for generic rendering. |
-| `prerenderedCardSearchComponent` | Live-updating card-grid component (use via `@context.prerenderedCardSearchComponent`). |
+| `searchResultsComponent` | Preferred result-list surface for new work — the `<SearchResults>` component, used via `@context.searchResultsComponent` (entry-rooted query built with `searchEntryWireQueryFromQuery`). |
+| `prerenderedCardSearchComponent` | Older card-grid surface (via `@context.prerenderedCardSearchComponent`), superseded by `searchResultsComponent`. |
+| `searchEntryWireQueryFromQuery`, `SearchEntryWireQuery` | Build the entry-rooted query that `@context.searchResultsComponent` takes, from an ordinary `Query`. |
 | `getMenuItems`, `GetMenuItemParams` | Typed menu construction. |
 | `baseRRI('<module>')` | Canonical base-realm module URL. |
 | `Query`, `Sort`, `TypedFilter` | Query type primitives. |

@@ -130,7 +130,7 @@ Each path → a dedicated CardDef instance. Add a nav bar to each page (or to a 
   { "path": "/blog" }
 ]
 ```
-The blog post pages are accessed via their card URLs (e.g. `/BlogPost/welcome-to-2026`) — you don't need a rule per post. The `/blog` rule renders the index card (which uses `PrerenderedCardSearch` to list posts). Individual post pages still have card-id-based URLs and look unstyled in the URL bar; live with it, or use the next pattern.
+The blog post pages are accessed via their card URLs (e.g. `/BlogPost/welcome-to-2026`) — you don't need a rule per post. The `/blog` rule renders the index card (which uses `@context.searchResultsComponent` to list posts). Individual post pages still have card-id-based URLs and look unstyled in the URL bar; live with it, or use the next pattern.
 
 **Pretty-slug-per-post (still requires a rule per post — no wildcards):**
 ```json
@@ -180,7 +180,7 @@ For end-to-end test coverage, see `packages/matrix/tests/host-mode.spec.ts` — 
 
 ## See also
 
-- [`app-card-home-with-prerendered-search`](../app-card-home-with-prerendered-search/README.md) — the Home card pattern that pairs naturally with a `/` route. Build your Home CardDef first, then add the routing rule.
+- [`app-card-home-with-search`](../app-card-home-with-search/README.md) — the Home card pattern that pairs naturally with a `/` route. Build your Home CardDef first, then add the routing rule.
 - [`theme-first-workflow`](../theme-first-workflow/README.md) — every routed page card wants a brand-driven theme.
 - [`show-card-list-with-views`](../show-card-list-with-views/README.md) — for the index card of a `/blog` route.
 - [`integrate-screenshot-card-format`](../integrate-screenshot-card-format/README.md) — auto-generate Open Graph images for each routed page (use the rule's target card id as the screenshot subject).

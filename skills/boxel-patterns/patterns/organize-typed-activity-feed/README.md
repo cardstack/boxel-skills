@@ -225,5 +225,5 @@ The `category` enum is a denormalization of the type — it makes some filter sh
 - [`organize-base-class-taxonomy`](../organize-base-class-taxonomy/README.md) — when the base has *no fields*, just the type marker. This pattern's base has fields too.
 - [`polymorphic-field-subclass`](../polymorphic-field-subclass/README.md) — when the variant is a *slot inside one card* (FieldDef inheritance), not a feed-of-cards (CardDef inheritance).
 - [`format-morph-shared-component`](../format-morph-shared-component/README.md) — for sharing template chrome across format/subclass boundaries.
-- [`show-card-list-with-views`](../show-card-list-with-views/README.md) — feeds rendered through `PrerenderedCardSearch`; pass the base type to get mixed types, the subtype for filtered streams.
+- [`show-card-list-with-views`](../show-card-list-with-views/README.md) — feeds rendered through `@context.searchResultsComponent`; pass the base type to get mixed types, the subtype for filtered streams.
 - [`boxel/references/query-systems.md`](../../../boxel/references/query-systems.md) — `every: [{ type }, { on, eq }]` composition; custom-field sorts.

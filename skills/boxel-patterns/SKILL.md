@@ -43,9 +43,9 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 
 ### Show
 
-- **`app-card-home-with-prerendered-search`** *(README-only)* — The home CardDef for any card family. `prefersWideFormat = true` + one `PrerenderedCardSearch` section per CardDef in the family (Meets / Swimmers / Clubs / Results, or Listings / Performers / Venues, etc.). Live-updating, owns its own `<ul>/<li>` shell so the plural-field wrapper trap doesn't apply. **Build this whenever you build 2+ related CardDefs.**
-- `show-card-list-with-views` — Generic CardsGrid that takes `Query` + realms + a view name (`card` / `strip` / `grid`) and renders via `@context.prerenderedCardSearchComponent` with `@isLive={{true}}`. The lower-level building block used inside `app-card-home-with-prerendered-search`.
-- `show-count-tiles-from-query` — Dashboard count tiles that issue `page: { size: 1 }` queries and read `meta.page.total` from `PrerenderedCardSearch`'s `<:meta>` block. Use for overview badges, operational signals, inbox counts, and clickable dashboard sections without rendering every matching card.
+- **`app-card-home-with-search`** *(README-only)* — The home CardDef for any card family. `prefersWideFormat = true` + one `@context.searchResultsComponent` section per CardDef in the family (Meets / Swimmers / Clubs / Results, or Listings / Performers / Venues, etc.). Live-updating, owns its own `<ul>/<li>` shell so the plural-field wrapper trap doesn't apply. **Build this whenever you build 2+ related CardDefs.**
+- `show-card-list-with-views` — Generic CardsGrid that takes `Query` + realms + a view name (`card` / `strip` / `grid`) and renders via `@context.searchResultsComponent` (entry-rooted, live by default). The lower-level building block used inside `app-card-home-with-search`.
+- `show-count-tiles-from-query` — Dashboard count tiles that issue `page: { size: 1 }` queries and read `results.meta.page.total` from `@context.searchResultsComponent` (with `@mode='none'`, since only the count is needed). Use for overview badges, operational signals, inbox counts, and clickable dashboard sections without rendering every matching card.
 - `show-table-from-query` — Reusable table that takes a `Query` + realm and renders any cards-of-type as sortable rows. WeakMap field-component caching.
 - `show-runtime-markdown-html` — Render BFM/markdown to HTML at runtime in `isolated`/`embedded` templates via MarkdownField + `<@fields.body />`.
 - `show-wiki-links` — Turn `[[Page Name]]` text inside rendered MarkdownField output into clickable links that resolve against a self-referential `relatedPages = linksToMany(() => WikiPage)` relationship and call `viewCard`.
@@ -78,7 +78,7 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 
 - `layout-design-board` — Parent card = layout shell; each `linksTo` child renders at a chosen format. Includes the chrome-strip CSS trick.
 - `layout-kanban-drag-drop` — Persistent kanban board using `KanbanPlane` from `@cardstack/boxel-ui/components`: columns + placements data model, fitted child cards, pointer/keyboard drag, ghost/insertion behavior, hidden columns, and WIP limits.
-- `layout-3d-card-carousel` — `PrerenderedCardSearch` + CSS `perspective` + per-card `--card-index` / `--total-cards` CSS vars for a circular 3D arrangement. Auto-rotate, hover lift, filter-state reactive. The 3D-hero alternative to a flat grid.
+- `layout-3d-card-carousel` — `@context.searchResultsComponent` (`@overlays={{false}}`) + CSS `perspective` + per-card `--card-index` / `--total-cards` CSS vars for a circular 3D arrangement. Auto-rotate, hover lift, filter-state reactive. The 3D-hero alternative to a flat grid.
 - `layout-sectioned-record-with-nav` — Long-record card with sticky 220px left nav rail (one button per section, click-to-scroll, active-section highlight) + main content stack of `<@fields.<section> @format='embedded' />`. Pairs with `organize-sensitive-stub-pair` for record/stub apps. Requires `prefersWideFormat = true`.
 
 ### Link / Navigate
@@ -313,7 +313,7 @@ These are slugs reserved in the taxonomy but **not yet extracted**. Do not chase
 - `layout-brainstorm` — Text + card nodes connected by edges.
 - `layout-architecture-diagram` — Component nodes + data-flow edges.
 - `layout-timeline` — Date + event entries renderer.
-- `show-kanban-from-query` — Status-grouped column view built with one `PrerenderedCardSearch` per kanban column. Lower-friction alternative to `layout-kanban-drag-drop` when drag-and-drop isn't needed; the column queries do the grouping. Extracted as the fallback shape during the 2026-05-22 sales kit.
+- `show-kanban-from-query` — Status-grouped column view built with one `@context.searchResultsComponent` per kanban column. Lower-friction alternative to `layout-kanban-drag-drop` when drag-and-drop isn't needed; the column queries do the grouping. Extracted as the fallback shape during the 2026-05-22 sales kit.
 
 ### Link / Navigate (planned)
 

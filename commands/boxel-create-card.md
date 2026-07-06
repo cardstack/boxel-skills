@@ -22,7 +22,7 @@ boxel:
 
 1. **`skills/boxel/references/design-playbook.md`** — THE process. Four stages: mockup → extract → tokenize → derive. The verbatim Pentagram-art-director framing IS stage 1. Read this in full before any other skill.
 2. **`skills/boxel-ui-guidelines/references/delegated-render-control.md`** — REQUIRED if this card embeds other cards via `<@fields.X @format='...' />`. Covers: format choice (fitted vs embedded — *upstream* of any CSS; pick the wrong one and you get empty boxes), the plural-field wrapper trap (`linksToMany` ≠ `containsMany` in class names), atom-on-dark-background invisibility, stagger via CSS-variable cascade through `display: contents`, and the per-format chrome contract.
-3. **`skills/boxel-patterns/patterns/app-card-home-with-prerendered-search/README.md`** — REQUIRED if this build is a card *family* (2+ related CardDefs). Build a Home CardDef alongside them so the realm has an entry point.
+3. **`skills/boxel-patterns/patterns/app-card-home-with-search/README.md`** — REQUIRED if this build is a card *family* (2+ related CardDefs). Build a Home CardDef alongside them so the realm has an entry point.
 4. `skills/boxel-patterns/patterns/cardinfo-override-title/README.md` — the `cardTitle` override that respects user input.
 5. `skills/boxel/SKILL.md` (focus on `references/core-concept.md` — CardInfo + computed pass-throughs).
 6. `skills/boxel/references/base-field-catalog.md` — reach past `StringField` when the value has a known shape (`EmailField`, `DateRangeField`, `PercentageField`, etc.).
@@ -173,7 +173,7 @@ Require 200 before adding `static icon = X`. See `boxel/references/icons.md` "CD
 - [ ] No duplicate `:deep(.boxel-card-container--boundaries)` rules per section. When switching strategies, DELETE the stale rule — don't just add an override below it. `grep -c "boundaries" <file>` should equal one rule per styled section.
 
 **Home app (mandatory for card families):**
-- [ ] If this build introduces 2+ related CardDefs, a `Home` CardDef exists alongside them with `prefersWideFormat = true` and one `PrerenderedCardSearch` section per CardDef. The realm has a clear entry point — no manual indexing. See `app-card-home-with-prerendered-search`.
+- [ ] If this build introduces 2+ related CardDefs, a `Home` CardDef exists alongside them with `prefersWideFormat = true` and one `@context.searchResultsComponent` section per CardDef. The realm has a clear entry point — no manual indexing. See `app-card-home-with-search`.
 
 **`prefersWideFormat` decision (most-forgotten static property):**
 - [ ] For each new CardDef, decided **at creation time** whether `static prefersWideFormat = true` is right. Set true for app-card homes, long-record cards with side nav, dashboards, document / multi-column cards, 3D/spatial layouts, routed pages, spreadsheets, slide decks. Leave false for detail / form / note / settings cards. **Don't defer — discovering you needed it later means rewriting the layout you already wrote against the narrow column.** See `boxel/references/prefers-wide-format.md`.

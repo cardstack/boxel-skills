@@ -10,7 +10,13 @@ import StringField from 'https://cardstack.com/base/string';
 import GlimmerComponent from '@glimmer/component';
 import { on } from '@ember/modifier';
 import { tracked } from '@glimmer/tracking';
-import { codeRef, realmURL, type Query } from '@cardstack/runtime-common';
+import {
+  codeRef,
+  realmURL,
+  searchEntryWireQueryFromQuery,
+  type Query,
+  type SearchEntryWireQuery,
+} from '@cardstack/runtime-common';
 import { optional } from '@cardstack/boxel-ui/helpers';
 
 // @ts-expect-error import.meta is host-supported in Boxel realm modules.
@@ -24,7 +30,6 @@ interface CountTileSignature {
     label: string;
     hint?: string;
     tone?: 'neutral' | 'warning' | 'danger';
-    isLive?: boolean;
     onActivate?: () => void;
   };
 }
@@ -34,41 +39,46 @@ class CountTile extends GlimmerComponent<CountTileSignature> {
     return this.args.tone ?? 'neutral';
   }
 
+  // Fold the legacy Query into a search-entry query: attach the realms
+  // and pin the 'head' format (only one row is transferred anyway — the
+  // count comes from results.meta.page.total, not the entries).
+  get searchQuery(): SearchEntryWireQuery {
+    let q = searchEntryWireQueryFromQuery(this.args.query);
+    return {
+      ...q,
+      realms: this.args.realms,
+      filter: {
+        ...q.filter,
+        eq: { ...q.filter?.eq, htmlQuery: { eq: { format: 'head' } } },
+      },
+    };
+  }
+
   <template>
-    {{#let
-      (component @context.prerenderedCardSearchComponent)
-      as |Search|
-    }}
-      <Search
-        @query={{@query}}
-        @format='head'
-        @realms={{@realms}}
-        @isLive={{@isLive}}
-      >
-        <:loading>
-          <button class='count-tile loading {{this.tone}}' type='button'>
-            <span class='value'>...</span>
-            <span class='label'>{{@label}}</span>
-          </button>
-        </:loading>
-
-        <:response></:response>
-
-        <:meta as |meta|>
-          <button
-            class='count-tile {{this.tone}}'
-            type='button'
-            {{on 'click' (optional @onActivate)}}
-          >
-            <span class='value'>{{meta.page.total}}</span>
-            <span class='label'>{{@label}}</span>
-            {{#if @hint}}
-              <span class='hint'>{{@hint}}</span>
-            {{/if}}
-          </button>
-        </:meta>
-      </Search>
-    {{/let}}
+    <@context.searchResultsComponent
+      @query={{this.searchQuery}}
+      @mode='none'
+      as |results|
+    >
+      {{#if results.isLoading}}
+        <button class='count-tile loading {{this.tone}}' type='button'>
+          <span class='value'>...</span>
+          <span class='label'>{{@label}}</span>
+        </button>
+      {{else}}
+        <button
+          class='count-tile {{this.tone}}'
+          type='button'
+          {{on 'click' (optional @onActivate)}}
+        >
+          <span class='value'>{{results.meta.page.total}}</span>
+          <span class='label'>{{@label}}</span>
+          {{#if @hint}}
+            <span class='hint'>{{@hint}}</span>
+          {{/if}}
+        </button>
+      {{/if}}
+    </@context.searchResultsComponent>
 
     <style scoped>
       .count-tile {
