@@ -227,7 +227,6 @@ For every import path and every integration surface:
   - **Tier 1** — Boxel base (URL-pinned, `https://cardstack.com/base/...`).
   - **Tier 2** — npm (`@cardstack/*`, `@ember/*`, `@glimmer/*`, `ember-*`).
   - **Tier 4** — ESM CDN (`https://esm.run/three`, `https://esm.sh/leaflet`, etc.).
-- **Tier 3 — realm-bundled libraries** — workspace-specific.
 
 ---
 
