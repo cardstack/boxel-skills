@@ -1,3 +1,15 @@
+---
+name: markdown-edit
+description: Surgical edits to long MarkdownField values via apply-markdown-edit.
+boxel:
+  kind: skill
+  commands:
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/apply-markdown-edit'
+        name: default
+        requiresApproval: true
+---
+
 # Markdown Field Editing
 
 **SCOPE:** MarkdownField edits in card instances only. Use `patch-fields` for other fields, SEARCH/REPLACE for code.

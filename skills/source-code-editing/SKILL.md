@@ -1,19 +1,12 @@
 ---
-<<<<<<< HEAD
-name: Source Code Editing
-description: Format for editing or creating source files in Boxel — emit SEARCH/REPLACE blocks in the exact syntax the code editor applies. Load before making edits or showing code diffs in the code editor.
-=======
 name: source-code-editing
 description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, and recovery from failed matches. Required before issuing any code edit.
->>>>>>> 9c55346 (Import skills from boxel-workspaces WIP)
 boxel:
   kind: skill
 ---
 
 # Source Code Editing
 
-<<<<<<< HEAD
-=======
 _A skill to guide models to create SEARCH/REPLACE blocks to edit code, modified from Aider - https://aider.chat/_
 
 ## Pair with
@@ -27,7 +20,6 @@ _A skill to guide models to create SEARCH/REPLACE blocks to edit code, modified 
 - Writing brand-new files where the schema is still undecided. Decide the schema with `boxel` first.
 - JSON instance data — `write-text-file` and `patch-fields` are often better for `.json` (this skill is mandatory for `.gts`).
 
->>>>>>> 9c55346 (Import skills from boxel-workspaces WIP)
 When you infer that the user wants to make changes to the attached files, which is usually a card definition, or create new files, you must use a SEARCH/REPLACE block. For .gts files, ALWAYS use SEARCH/REPLACE — never use write-text-file for .gts. SEARCH/REPLACE blocks stream as visible text (the user sees progress), while tool calls like write-text-file do NOT stream (the UI appears frozen with "Thinking" / "Preparing tool call" while generating the full file content).
 
 A SEARCH/REPLACE block has 2 sections: a section of code to search for, and the code to replace it with. All code within the SEARCH will be replaced. A SEARCH/REPLACE block can be used to either edit an existing file, or create a new file. 

@@ -1,3 +1,19 @@
+---
+name: searching-and-querying
+description: Finding cards with the search-cards host commands and query syntax.
+boxel:
+  kind: skill
+  commands:
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/search-cards'
+        name: SearchCardsByTypeAndTitleCommand
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/search-cards'
+        name: SearchCardsByQueryCommand
+        requiresApproval: false
+---
+
 ## Query Structure
 
 **Always wrap filter in query object:**

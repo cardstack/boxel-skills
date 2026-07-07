@@ -124,7 +124,15 @@ function ensureFrontmatterKeys(content, { name } = {}) {
   const hasName = /^name:/m.test(fm);
   const hasBoxel = /^boxel:/m.test(fm);
   if (name && !hasName) fm = `name: ${name}\n${fm}`;
-  if (!hasBoxel) fm = `${fm}\nboxel:\n  kind: skill`;
+  if (!hasBoxel) {
+    // No `boxel:` block at all — synthesize the minimal one.
+    fm = `${fm}\nboxel:\n  kind: skill`;
+  } else if (!/^\s+kind:/m.test(fm)) {
+    // A `boxel:` block exists (e.g. it carries `commands:`) but is missing
+    // `kind: skill` — inject it as the block's first child. Idempotent: a
+    // block that already declares `kind:` is left untouched.
+    fm = fm.replace(/^boxel:$/m, 'boxel:\n  kind: skill');
+  }
   return `---\n${fm}\n---${parts.rest}`;
 }
 

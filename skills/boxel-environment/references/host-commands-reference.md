@@ -1,3 +1,67 @@
+---
+name: host-commands-reference
+description: Full catalog of Boxel host commands — what each does and its approval rules.
+boxel:
+  kind: skill
+  commands:
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/switch-submode'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/show-card'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/transform-cards'
+        name: default
+        requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/read-card-for-ai-assistant'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/read-file-for-ai-assistant'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/set-active-llm'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/open-workspace'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/preview-format'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/update-code-path-with-selection'
+        name: default
+        requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/write-text-file'
+        name: default
+        requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/copy-card'
+        name: default
+        requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/copy-source'
+        name: default
+        requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/patch-fields'
+        name: default
+        requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/commands/update-room-skills'
+        name: default
+        requiresApproval: false
+---
+
 # Host Commands Reference
 
 Quick lookup of every command available to this skill, what it does, and notable rules.
