@@ -7,8 +7,6 @@ boxel:
 
 # Source Code Editing
 
-_A skill to guide models to create SEARCH/REPLACE blocks to edit code, modified from Aider - https://aider.chat/_
-
 ## Pair with
 
 - **`boxel`** — to know *what* to change. This skill only describes the edit transport.
