@@ -14,7 +14,14 @@
         "summary": "Ensures boxel-ui components are used in templates and theming guidelines are followed",
         "cardThumbnailURL": null
       },
-      "commands": [],
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "https://cardstack.com/base/Theme/boxel-brand-guide"
+        }
+      },
       "instructionsSource": {
         "links": {
           "self": "./boxel-ui-guidelines.md"
@@ -22,13 +29,6 @@
         "data": {
           "type": "file",
           "id": "./boxel-ui-guidelines.md"
-        }
-      }
-    },
-    "relationships": {
-      "cardInfo.theme": {
-        "links": {
-          "self": "https://cardstack.com/base/Theme/boxel-brand-guide"
         }
       }
     }

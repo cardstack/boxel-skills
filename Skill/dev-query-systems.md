@@ -76,7 +76,7 @@ const query = {
 
 **Rendering a result list via `@context.searchResultsComponent`:**
 
-Declare a `search-entry`-rooted query and render the yielded entries. Each `entry.component` renders itself — prerendered HTML inert (hydrated lazily on interaction) or a live card — so the card never decides which:
+Declare an `entry`-rooted query and render the yielded entries. Each `entry.component` renders itself — prerendered HTML inert (hydrated lazily on interaction) or a live card — so the card never decides which:
 
 ```gts
 import { CardDef, Component } from 'https://cardstack.com/base/card-api';
@@ -88,7 +88,7 @@ import {
 class BlogPost extends CardDef {
   static isolated = class Isolated extends Component<typeof BlogPost> {
     get query(): SearchEntryWireQuery {
-      // Build the search-entry query from an ordinary query, then add realms.
+      // Build the entry query from an ordinary query, then add realms.
       return {
         ...searchEntryWireQueryFromQuery({
           filter: {
@@ -114,6 +114,6 @@ class BlogPost extends CardDef {
 }
 ```
 
-- `@query` — a `search-entry`-rooted query (`SearchEntryWireQuery`). Build it from a normal query with `searchEntryWireQueryFromQuery`, then set `realms` (and optionally `page`). Changing it re-runs the search.
+- `@query` — an `entry`-rooted query (`SearchEntryWireQuery`). Build it from a normal query with `searchEntryWireQueryFromQuery`, then set `realms` (and optionally `page`). Changing it re-runs the search.
 - `@mode` — hydration of prerendered rows on interaction: `'none'` (stay inert), `'hover'` (default), `'click'`, `'touch'`.
 - Yields `results`: `results.entries` (each `entry` exposes `.component`, `.id`, `.isError`, plus `.displayName` / `.iconHtml` for a row with no HTML yet), `results.isLoading`, `results.meta` (`{ page: { total } }`), and `results.errors`.
