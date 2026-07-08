@@ -101,6 +101,8 @@ Every *SEARCH/REPLACE block* must use this format:
 6. The end of the replace block: ╚═══ REPLACE ═══╝
 7. The closing fence: ```
 
+Each of the three markers appears *EXACTLY ONCE* per block: one ╔═══ SEARCH ════╗, one ╠═══════════════╣ dividing line, one ╚═══ REPLACE ═══╝. Never repeat the dividing line. Do NOT add a second ╠═══════════════╣ (or any marker) before the closing ╚═══ REPLACE ═══╝ — the replace section ends at ╚═══ REPLACE ═══╝, and anything you put after your replacement lines is treated as file content, so a stray marker gets written into the file as a literal line of box-drawing characters.
+
 Every *SEARCH* section must *EXACTLY MATCH* the existing file content, character for character, including all comments, docstrings, etc.
 If the file contains code or other data wrapped/escaped in json/xml/quotes or other containers, you need to propose edits to the literal contents of the file, including the container markup.
 

@@ -32,29 +32,30 @@ The action layer lives in `commands/`. Pick the one that matches the user's outc
 
 ### Schema & code
 
-- **`/boxel-create-card`** — Create a new CardDef, FieldDef, or small card family with all required formats.
-- **`/boxel-add-field`** — Add, rename, retype, or remove fields on an existing CardDef/FieldDef.
-- **`/boxel-add-file-field`** — Add a file-backed field (FileDef / ImageDef / MarkdownDef / CsvFileDef).
-- **`/boxel-edit-template`** — Change `isolated` / `embedded` / `fitted` / `edit` / `atom` / `markdown` templates.
+- **[`/boxel-create-card`](commands/boxel-create-card.md)** — Create a new CardDef, FieldDef, or small card family with all required formats.
+- **[`/boxel-add-field`](commands/boxel-add-field.md)** — Add, rename, retype, or remove fields on an existing CardDef/FieldDef.
+- **[`/boxel-add-file-field`](commands/boxel-add-file-field.md)** — Add a file-backed field (FileDef / ImageDef / MarkdownDef / CsvFileDef).
+- **[`/boxel-edit-template`](commands/boxel-edit-template.md)** — Change `isolated` / `embedded` / `fitted` / `edit` / `atom` / `markdown` templates.
 
 ### Data & instances
 
-- **`/boxel-create-instance`** — Create new JSON card instances or update existing ones.
-- **`/boxel-migrate-schema`** — Find and update instances after a schema change (batched, with confirmation).
+- **[`/boxel-create-instance`](commands/boxel-create-instance.md)** — Create new JSON card instances or update existing ones.
+- **[`/boxel-migrate-schema`](commands/boxel-migrate-schema.md)** — Find and update instances after a schema change (batched, with confirmation).
 
 ### Discovery & design
 
-- **`/boxel-build-from-pattern`** — Start from a working pattern matching the user's outcome (Show / Pick / Build / Automate / Lay out / Link / Use a library / Make a Command / Theme).
-- **`/boxel-design-card`** — Improve visual design — colors, typography, theme tokens, asset direction.
-- **`/boxel-search-cards`** — Find cards in a realm by type, title, or query filter.
-- **`/boxel-preview-card`** — Preview a card / module / format in the live Boxel app.
+- **[`/boxel-build-from-pattern`](commands/boxel-build-from-pattern.md)** — Start from a working pattern matching the user's outcome (Show / Pick / Build / Automate / Lay out / Link / Use a library / Make a Command / Theme).
+- **[`/boxel-design-card`](commands/boxel-design-card.md)** — Improve visual design — colors, typography, theme tokens, asset direction.
+- **[`/boxel-develop-theme`](commands/boxel-develop-theme.md)** — Create, convert, audit, or patch a Theme, Style Reference, Detailed Style Reference, or Brand Guide.
+- **[`/boxel-search-cards`](commands/boxel-search-cards.md)** — Find cards in a realm by type, title, or query filter.
+- **[`/boxel-preview-card`](commands/boxel-preview-card.md)** — Preview a card / module / format in the live Boxel app.
 
 ### Catalog & runtime
 
-- **`/boxel-install-listing`** — Use, install, remix, or update a catalog listing.
-- **`/boxel-submit-listing`** — Submit a catalog listing through the workflow-card PR flow.
-- **`/boxel-debug-runtime`** — Diagnose runtime, indexing, command, or mode issues.
-- **`/boxel-sync-workspace`** — Pull / push / sync a realm to a local directory via `boxel-cli`; manage `.boxel-sync.json` + `.boxel-history`.
+- **[`/boxel-install-listing`](commands/boxel-install-listing.md)** — Use, install, remix, or update a catalog listing.
+- **[`/boxel-submit-listing`](commands/boxel-submit-listing.md)** — Submit a catalog listing through the workflow-card PR flow.
+- **[`/boxel-debug-runtime`](commands/boxel-debug-runtime.md)** — Diagnose runtime, indexing, command, or mode issues.
+- **[`/boxel-sync-workspace`](commands/boxel-sync-workspace.md)** — Pull / push / sync a realm to a local directory via `boxel-cli`; manage `.boxel-sync.json` + `.boxel-history`.
 
 ## Skill-tree glossary
 
@@ -89,18 +90,6 @@ Commands route to these supporting skills. They're documented in `skills/` and a
   - `references/integration-surfaces.md` — capability cheatsheet (what cards can reach for: base APIs, host commands, AI services, BFM, boxel-cli, etc.).
   - `references/libraries.md` — import-path catalogue (where each symbol comes from).
 
-## `.claude/learnings/` — session scratchpad
-
-[`.claude/learnings/`](.claude/learnings/README.md) holds short markdown files capturing workspace-specific learnings discovered during sessions (a realm URL, a convention, a correction the user gave). They're the only persistence layer outside the core skill tree.
-
-**Always read every file in `.claude/learnings/` (excluding the `_distilled/` archive and `README.md`) at the start of any non-trivial task.** They steer behavior for the current session and every future session until distilled out.
-
-**When you discover something workspace-specific worth keeping** — a realm URL, a convention, a quirk the skill tree doesn't already know — add a short markdown file to `.claude/learnings/` using the format in its README. Don't ask permission for small ones; the cost of capturing is low. NEVER duplicate something already in the skill tree.
-
-**`/distill-learnings`** consolidates the scratchpad into the relevant skill ref or pattern README (where the learning naturally belongs), then archives consumed files to `.claude/learnings/_distilled/`. Run it (or suggest it) when several entries have accumulated.
-
-**`/distill-from-boxel-skills`** is the sibling command for upstream sync. The Boxel AI Assistant uses skills from [cardstack/boxel-skills](https://github.com/cardstack/boxel-skills); when upstream merges a substantive PR (a new gotcha, clearer rule, or heuristic catalogue), this command backports it into our `skills/` tree with the realm-GTS adaptations applied. The backport log lives at `.claude/learnings/_distilled/boxel-skills-backports.md`. Use when a user references a specific upstream PR or asks to sync recent changes.
-
 ## Conventions
 
 - **Theme first.** Before writing a new card, decide how it gets a theme: per-instance via `cardInfo.theme`, OR a computed `cardTheme` on the CardDef (inherit from a linked card like `this.project.cardTheme`, query for a "default" Theme in the realm, derive by tag/category, etc.). Templates always reference `var(--*)` tokens. See pattern `theme-first-workflow`.
@@ -124,7 +113,7 @@ Commands route to these supporting skills. They're documented in `skills/` and a
   6. **Typed-search gate**: `npx boxel search --realm <url> --query '{"filter":{"type":{"module":"<absolute-url>","name":"<Class>"}}}' --json` count must match fs file count. `boxel search` is the truth source; `boxel file lint` returning clean while the index is empty has happened repeatedly. Use absolute module URLs in queries — relative paths don't resolve from CLI.
   7. **Render smoke test** in the host UI per CardDef before claiming done. The earlier gates don't catch template-render failures (missing fields, broken CQ layout, empty content).
 
-  See [`.claude/learnings/_distilled/.../build-a-kit-sequential-checklist.md`](.claude/learnings/) for the full sub-checklist, and [`skills/boxel-environment/references/indexing-operations.md`](skills/boxel-environment/references/indexing-operations.md) for the verification hierarchy.
+  See [`skills/boxel-environment/references/indexing-operations.md`](skills/boxel-environment/references/indexing-operations.md) for the verification hierarchy.
 - **Query traps that silently return zero rows.** Three rules you must hold simultaneously or your queries fail invisibly (see [`query-systems.md`](skills/boxel/references/query-systems.md)):
   1. **`filter: { type: ref }` to select all cards of a type — NEVER `filter: { on: ref }`.** `on` is a *scope* for predicates (`eq`/`contains`/`range`), not a filter by itself. A bare `{ on: ref }` returns zero rows.
   2. **Custom sort fields require `on: ref`.** Only `lastModified`, `createdAt`, `cardURL` work without it. Sorting by `lastName`, `dates.start`, etc. without `on` is rejected.
