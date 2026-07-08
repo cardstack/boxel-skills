@@ -81,6 +81,8 @@ Then emit code. Success order: **Runnable → Correct → Attractive → Evolvab
 
 ## 📚 References (read on demand)
 
+Read a reference when its topic comes up — and batch: when several references apply to the task at hand (a new card build usually implicates a handful from this list), read them all in one multi-file read rather than one or two at a time. Every extra round of reads delays your first line of output.
+
 Core syntax and patterns (load when topic comes up):
 
 - `references/core-concept.md` — CardDef vs FieldDef, formats, inherited fields, CardInfo.
