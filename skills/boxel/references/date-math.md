@@ -130,15 +130,19 @@ return this.date?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }
 <div style="width: {{this.totalDays * 30}}px" />
 ```
 
-Move math into a getter:
+Move math into a getter and return an `htmlSafe` string. A plain string bound to `style` is stripped by Glimmer at runtime (style bindings require a `SafeString`), and a concatenated `style='width: {{…}}px'` attribute fails lint (`no-inline-styles` + `style-concatenation`):
 
 ```ts
-get widthStyle() { return `width: ${this.totalDays * 30}px`; }
+import { htmlSafe } from '@ember/template';
+
+get widthStyle() { return htmlSafe(`width: ${this.totalDays * 30}px`); }
 ```
 
 ```hbs
 <div style={{this.widthStyle}} />
 ```
+
+For setting a single CSS custom property, the `cssVar` helper is lighter than a getter. See [`styling-design.md`](styling-design.md) "Dynamic inline styles".
 
 ### ❌ TypeScript thinking the value is a string
 

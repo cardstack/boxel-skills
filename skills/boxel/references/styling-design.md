@@ -32,6 +32,37 @@ The `<style scoped>` tag MUST sit as a direct child of `<template>`. **Do not ne
 
 The build's scoping pass only rewrites selectors when `<style scoped>` is at the top level of `<template>`. Nested inside an element, the styles either leak globally or get stripped entirely depending on the compiler version.
 
+## Dynamic inline styles
+
+A style value that depends on a computed value — a progress bar's width, a swatch's color, a computed transform — cannot be written as a concatenated `style` attribute. `style='width: {{this.progressPct}}%'` fails lint with **both** `no-inline-styles` (the literal `width:` makes it a static inline style) and `style-concatenation` (concatenated styles must be `htmlSafe`). Do not degrade the feature to fixed CSS classes to dodge the rule — there are two sanctioned patterns that keep the value continuous.
+
+**1. `htmlSafe` getter → `style={{this.x}}`** — for a full declaration or several properties at once. A plain (non-`htmlSafe`) string is stripped by Glimmer at runtime, so the wrap is required, not optional:
+
+```gts
+import { htmlSafe } from '@ember/template';
+
+get progressStyle() {
+  return htmlSafe(`width: ${this.progressPct}%`);
+}
+```
+```hbs
+<div class='progress-fill' style={{this.progressStyle}}></div>
+```
+
+**2. `cssVar` helper → a `var()` in scoped CSS** — for setting one custom property, no getter needed:
+
+```gts
+import { cssVar } from '@cardstack/boxel-ui/helpers';
+```
+```hbs
+<div class='progress-fill' style={{cssVar progress-pct=this.progressPct}}></div>
+<style scoped>
+  .progress-fill { width: calc(var(--progress-pct) * 1%); }
+</style>
+```
+
+Reach for `cssVar` when CSS does the arithmetic (`calc`, `clamp`) and for the getter when the whole value is computed in JS.
+
 ## Use valid HTML nesting around `<@fields.X />`
 
 Symptom: `<@fields.assignee @format='embedded' />` renders empty inside a custom isolated template, but the same field renders fine in edit mode. Cause: the surrounding markup is invalid HTML.

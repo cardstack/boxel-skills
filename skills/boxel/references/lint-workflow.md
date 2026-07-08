@@ -2,6 +2,12 @@
 
 Linting is part of the core Boxel code workflow. Every `.gts` change needs a real lint result before it is reported as done.
 
+## In the AI assistant (no shell) — use `checkCorrectness`
+
+The CLI sections below assume a shell. In the AI assistant there is no shell, so **do not** try to run `boxel file lint`. After every applied code patch the assistant automatically issues a `checkCorrectness` command against each patched file (and each affected card instance). It runs the same server-side ESLint + `ember-template-lint` gate and returns the result inline as a card with `correct` (boolean), `errors` (string array), and `warnings` (string array). Clean means `correct: true` with an empty `errors` array — the same bar as `No lint issues found` / `messages: []` below.
+
+The auto-fix loop is bounded (currently 3 attempts per target). Aim to emit clean code on the first pass rather than leaning on the retries — the recurring first-pass offenders (unused/duplicated imports, concatenated inline `style`, unlabeled inputs) are in the `SKILL.md` common-mistakes list. Everything under "What Lint Does NOT Catch" and "Completion Gate" applies to `checkCorrectness` too; the CLI-specific setup and command syntax do not.
+
 ## Required CLI
 
 Use `@cardstack/boxel-cli` 0.2.0 or newer. Do not use a locally checked-out CLI unless the task is to debug CLI source.

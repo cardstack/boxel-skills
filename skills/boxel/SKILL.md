@@ -142,6 +142,9 @@ Sibling skills:
 - Emoji or Boxel icons in templates → use inline SVG.
 - Self-import → import a sibling, not yourself.
 - Helper import mistakes in GTS templates, especially missing imports for `(fn ...)`, `{{on ...}}`, `concat`, `get`, `array`, `hash`, formatters, and predicate helpers, the invalid `ember-concurrency/helpers/perform` import, or use of `(perform ...)` in strict-mode templates. See `references/common-imports.md`.
+- Unused or duplicated imports → lint error (`@typescript-eslint/no-unused-vars`). Import each helper once, from one source, and only if the template actually uses it. Don't import a predicate (`eq`, `gt`, `not`, `and`) from both `@ember/helper` and `@cardstack/boxel-ui/helpers`.
+- Concatenated `style='foo: {{this.x}}'` → lint error (`no-inline-styles` + `style-concatenation`). Use an `htmlSafe` getter or the `cssVar` helper; never fall back to fixed-width CSS classes. See `references/styling-design.md` "Dynamic inline styles".
+- `<input>` / `<textarea>` / `<select>` without a label → lint error (`require-input-label`). Add an `aria-label` (or associate a `<label for>`).
 - AI/image APIs returning `data:image/...;base64` → strip the prefix, write bytes with `WriteBinaryFileCommand`, and store `linksTo(ImageDef/PngDef/FileDef)`; never save the data URI in `outputImageUrl`, `outputText`, notes, JSON, or any string field.
 
 ## ✅ Always
