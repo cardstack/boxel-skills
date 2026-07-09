@@ -5,19 +5,19 @@ boxel:
   kind: skill
   commands:
     - codeRef:
-        module: '@cardstack/boxel-host/commands/invalidate-realm-identifiers'
+        module: '@cardstack/boxel-host/tools/invalidate-realm-identifiers'
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/reindex-realm'
+        module: '@cardstack/boxel-host/tools/reindex-realm'
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/full-reindex-realm'
+        module: '@cardstack/boxel-host/tools/full-reindex-realm'
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/cancel-indexing-job'
+        module: '@cardstack/boxel-host/tools/cancel-indexing-job'
         name: default
         requiresApproval: false
 ---
@@ -192,9 +192,9 @@ The realm stores per-card indexer error state in postgres `boxel_index.error_doc
 | Need | How |
 |---|---|
 | Compile errors per .gts | `npx boxel file lint <path> --realm <url> --file <local-path>` |
-| Try to load a card TYPE | `npx boxel run-command @cardstack/boxel-host/commands/instantiate-card/default --realm <url> --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'` |
+| Try to load a card TYPE | `npx boxel run-command @cardstack/boxel-host/tools/instantiate-card/default --realm <url> --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'` |
 | Force reindex of one card | `npx boxel file touch <path> --realm <url>` |
-| Force reindex of whole realm | `npx boxel run-command @cardstack/boxel-host/commands/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'` |
+| Force reindex of whole realm | `npx boxel run-command @cardstack/boxel-host/tools/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'` |
 | Authoritative error_doc list (admin) | `GET <realm>/_publishability` — requires `authedRealmFetch`; no CLI subcommand yet |
 
 ### Postgres `\u0000` symptom
@@ -229,7 +229,7 @@ REALM="<realm-url>"
 
 # 1. Module load probe — exercise every CardDef
 for mod in style material designer client project quote; do
-  npx boxel run-command @cardstack/boxel-host/commands/get-card-type-schema/default \
+  npx boxel run-command @cardstack/boxel-host/tools/get-card-type-schema/default \
     --realm "$REALM" \
     --input "{\"codeRef\":{\"module\":\"${REALM}${mod}\",\"name\":\"<ClassName>\"}}" \
     --json | grep -E "status|error"

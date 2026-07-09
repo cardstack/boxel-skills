@@ -17,4 +17,4 @@ This rule also applies to:
 - JSON attributes that hold MP3/image/file bytes
 - Notes/summary fields that accidentally capture raw model image payloads
 
-Generated media workflow: keep the data URI transient, write the bytes with `@cardstack/boxel-host/commands/write-binary-file`, then store `linksTo(PngDef/ImageDef/FileDef)`.
+Generated media workflow: keep the data URI transient, write the bytes with `@cardstack/boxel-host/tools/write-binary-file`, then store `linksTo(PngDef/ImageDef/FileDef)`.

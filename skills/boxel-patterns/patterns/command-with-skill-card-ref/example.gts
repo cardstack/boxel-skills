@@ -1,8 +1,8 @@
 import { CardDef, field, contains, StringField, Component } from 'https://cardstack.com/base/card-api';
-// 🎯 NEWER PATH (2026-05+): commands/ai-assistant (was commands/use-ai-assistant).
+// 🎯 NEWER PATH (2026-05+): tools/ai-assistant (was commands/use-ai-assistant).
 //    Symbol is still `UseAiAssistantCommand`.
-import UseAiAssistantCommand from '@cardstack/boxel-host/commands/ai-assistant';
-import SetActiveLLMCommand from '@cardstack/boxel-host/commands/set-active-llm';
+import UseAiAssistantCommand from '@cardstack/boxel-host/tools/ai-assistant';
+import SetActiveLLMCommand from '@cardstack/boxel-host/tools/set-active-llm';
 import { Button } from '@cardstack/boxel-ui/components';
 
 // 🧩 PATTERN: Card-triggered AI Room

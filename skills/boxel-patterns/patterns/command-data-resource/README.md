@@ -4,7 +4,7 @@ validated: source-proven
 
 # command-data-resource — Call a host Command reactively via `commandData<T>`
 
-**What this gives you:** A way to invoke any `@cardstack/boxel-host/commands/*` Command from inside a Glimmer component and have the result render reactively, with built-in `isSuccess` / `cardResult` / `cardError` state. No manual `restartableTask` + `@tracked` plumbing.
+**What this gives you:** A way to invoke any `@cardstack/boxel-host/tools/*` Command from inside a Glimmer component and have the result render reactively, with built-in `isSuccess` / `cardResult` / `cardError` state. No manual `restartableTask` + `@tracked` plumbing.
 
 **When to use:** A component needs the result of a host Command (e.g. `GetAllRealmMetas`, `SearchCardsByQuery`, anything from boxel-host) and wants the template to react when the result resolves or fails.
 
@@ -14,7 +14,7 @@ validated: source-proven
 
 ```ts
 import { commandData } from 'https://cardstack.com/base/resources/command-data';
-import GetAllRealmMetasCommand from '@cardstack/boxel-host/commands/get-all-realm-metas';
+import GetAllRealmMetasCommand from '@cardstack/boxel-host/tools/get-all-realm-metas';
 import type { GetAllRealmMetasResult } from 'https://cardstack.com/base/command';
 
 class MyComponent extends Component<typeof MyCard> {

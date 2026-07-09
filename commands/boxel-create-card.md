@@ -119,7 +119,7 @@ For every CardDef built in this command, run BOTH gates before declaring done:
 REALM="<realm-url>"
 
 # Gate A: module-load probe (the realm-server actually evaluates the .gts)
-npx boxel run-command @cardstack/boxel-host/commands/get-card-type-schema/default \
+npx boxel run-command @cardstack/boxel-host/tools/get-card-type-schema/default \
   --realm "$REALM" \
   --input "{\"codeRef\":{\"module\":\"${REALM}<path>\",\"name\":\"<ClassName>\"}}" \
   --json

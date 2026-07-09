@@ -31,7 +31,7 @@ import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { on } from '@ember/modifier';
 
-import GenerateThumbnailCommand from '@cardstack/boxel-host/commands/generate-thumbnail';
+import GenerateThumbnailCommand from '@cardstack/boxel-host/tools/generate-thumbnail';
 import { Button } from '@cardstack/boxel-ui/components';
 
 class Isolated extends Component<typeof ThumbnailCardAiDemo> {

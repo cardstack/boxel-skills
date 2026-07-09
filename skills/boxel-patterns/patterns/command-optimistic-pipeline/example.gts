@@ -13,8 +13,8 @@ import DatetimeField from 'https://cardstack.com/base/datetime';
 import { tracked } from '@glimmer/tracking';
 import { restartableTask } from 'ember-concurrency';
 import { on } from '@ember/modifier';
-import SaveCardCommand from '@cardstack/boxel-host/commands/save-card';
-import SendRequestViaProxyCommand from '@cardstack/boxel-host/commands/send-request-via-proxy';
+import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
+import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
 
 type SaveResult<T = any> = {
   card: T;

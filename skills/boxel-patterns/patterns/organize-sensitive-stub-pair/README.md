@@ -25,7 +25,7 @@ Two pieces make this work:
 // full-record.gts
 import { CardDef, Component, field, contains, linksTo } from 'https://cardstack.com/base/card-api';
 import { Command } from '@cardstack/runtime-common';
-import SaveCardCommand from '@cardstack/boxel-host/commands/save-card';
+import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
 
 import { IdentitySection, MedicalSection, /* … */ } from './sections';
 import { OperationalStub } from './operational-stub';

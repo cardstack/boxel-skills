@@ -255,7 +255,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`ExecuteAtomicOperationsCommand`** — Apply a plan transactionally; all or nothing.
 - **`SubmissionWorkflowCard`** + **`create-and-open-submission-workflow-card`** + **`retry-submission-workflow`** — Catalog submission flow via workflow card → PR. → `catalog-listing`, `/boxel-submit-listing`
 
-## 18. Host commands (`@cardstack/boxel-host/commands/<name>`)
+## 18. Host commands (`@cardstack/boxel-host/tools/<name>`)
 
 Available only inside the running Boxel app. Each is a default-export `Command` subclass.
 

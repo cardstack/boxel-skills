@@ -48,7 +48,7 @@ The card stores links only. The MP3/JPEG bytes live as separate realm files.
 When generated media arrives as a `data:image/...;base64,...`, write it to the realm before saving the card:
 
 ```gts
-import WriteBinaryFileCommand from '@cardstack/boxel-host/commands/write-binary-file';
+import WriteBinaryFileCommand from '@cardstack/boxel-host/tools/write-binary-file';
 import { ImageDef, linksTo } from 'https://cardstack.com/base/card-api';
 
 @field outputImage = linksTo(ImageDef);
@@ -70,7 +70,7 @@ card.outputImage = new ImageDef({
 });
 ```
 
-Reference implementation: `packages/host/app/commands/screenshot-card.ts` writes screenshot PNG bytes with `WriteBinaryFileCommand`, and `packages/host/tests/integration/commands/write-binary-file-test.gts` verifies the file is accessible and byte-identical afterward.
+Reference implementation: `packages/host/app/tools/screenshot-card.ts` writes screenshot PNG bytes with `WriteBinaryFileCommand`, and `packages/host/tests/integration/commands/write-binary-file-test.gts` verifies the file is accessible and byte-identical afterward.
 
 ---
 

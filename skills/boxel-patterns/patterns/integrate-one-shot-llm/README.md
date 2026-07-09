@@ -13,7 +13,7 @@ validated: source-proven
 **Recipe shape:**
 
 ```ts
-import OneShotLlmRequestCommand from '@cardstack/boxel-host/commands/one-shot-llm-request';
+import OneShotLlmRequestCommand from '@cardstack/boxel-host/tools/one-shot-llm-request';
 
 // Inside a component method or Command.run:
 const llm = new OneShotLlmRequestCommand(this.commandContext);

@@ -182,7 +182,7 @@ The token path key in `profiles.json` is the full realm URL with trailing slash.
 ### K. Run a host command from CLI
 
 ```sh
-boxel run-command @cardstack/boxel-host/commands/get-card-type-schema/default \
+boxel run-command @cardstack/boxel-host/tools/get-card-type-schema/default \
   --realm <realm-url> \
   --input '{"codeRef":{"module":"./project","name":"Project"}}' \
   --json

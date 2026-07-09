@@ -15,12 +15,12 @@ validated: source-proven
 - **Audit / approval trails** — capture the visible state when a workflow card transitions.
 - **Test fixtures** — anywhere a `.png` of a real render beats a hand-curated mock.
 
-**The insight:** `ScreenshotCardCommand` (from `@cardstack/boxel-host/commands/screenshot-card`) is a Boxel host command that orchestrates the realm-server screenshot job end-to-end. You pass two inputs — the target card (as a `linksTo` reference) and a format string — and you get back an `imageDefUrl` you can render straight into an `<img>` or link from another card via `ImageDef` / `PngDef`. The realm-server enqueues the job, the worker drives a Puppeteer browser through the prerender pool, the PNG comes back as base64, and `WriteBinaryFileCommand` writes it to `Screenshots/<slug>-<uuid>.png` in the **target card's own realm**. Cards never see the bytes; you get a clean URL.
+**The insight:** `ScreenshotCardCommand` (from `@cardstack/boxel-host/tools/screenshot-card`) is a Boxel host command that orchestrates the realm-server screenshot job end-to-end. You pass two inputs — the target card (as a `linksTo` reference) and a format string — and you get back an `imageDefUrl` you can render straight into an `<img>` or link from another card via `ImageDef` / `PngDef`. The realm-server enqueues the job, the worker drives a Puppeteer browser through the prerender pool, the PNG comes back as base64, and `WriteBinaryFileCommand` writes it to `Screenshots/<slug>-<uuid>.png` in the **target card's own realm**. Cards never see the bytes; you get a clean URL.
 
 ## Recipe shape
 
 ```ts
-import ScreenshotCardCommand from '@cardstack/boxel-host/commands/screenshot-card';
+import ScreenshotCardCommand from '@cardstack/boxel-host/tools/screenshot-card';
 
 // Inside an @action method:
 let result = await new ScreenshotCardCommand(commandContext).execute({
@@ -69,7 +69,7 @@ To make "Screenshot this card" a right-click affordance on every CardDef, compos
 
 ```ts
 import { getCardMenuItems, type GetCardMenuItemParams, type MenuItemOptions } from '@cardstack/runtime-common';
-import ScreenshotCardCommand from '@cardstack/boxel-host/commands/screenshot-card';
+import ScreenshotCardCommand from '@cardstack/boxel-host/tools/screenshot-card';
 import CameraIcon from '@cardstack/boxel-icons/camera';
 
 class MyCard extends CardDef {
@@ -113,7 +113,7 @@ This gives every instance of `MyCard` two menu items that capture a settled PNG 
 
 ## Source
 
-- Host command: `@cardstack/boxel-host/commands/screenshot-card` — `packages/host/app/commands/screenshot-card.ts` in the boxel monorepo.
+- Host command: `@cardstack/boxel-host/tools/screenshot-card` — `packages/host/app/tools/screenshot-card.ts` in the boxel monorepo.
 - Realm-server endpoint: `POST /_screenshot-card` → `packages/realm-server/handlers/handle-screenshot-card.ts`.
 - Worker task: `packages/runtime-common/tasks/screenshot-card.ts`.
 - Input/output types: `ScreenshotCardInput` / `ScreenshotCardOutput` in `packages/base/command.gts`.

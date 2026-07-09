@@ -5,11 +5,11 @@ boxel:
   kind: skill
   commands:
     - codeRef:
-        module: '@cardstack/boxel-host/commands/search-cards'
+        module: '@cardstack/boxel-host/tools/search-cards'
         name: SearchCardsByTypeAndTitleCommand
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/search-cards'
+        module: '@cardstack/boxel-host/tools/search-cards'
         name: SearchCardsByQueryCommand
         requiresApproval: false
 ---

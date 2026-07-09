@@ -5,7 +5,7 @@ import { action } from '@ember/object';
 import { on } from '@ember/modifier';
 import { Button } from '@cardstack/boxel-ui/components';
 
-import OneShotLlmRequestCommand from '@cardstack/boxel-host/commands/one-shot-llm-request';
+import OneShotLlmRequestCommand from '@cardstack/boxel-host/tools/one-shot-llm-request';
 
 // 🧩 PATTERN: One-shot LLM call via OpenRouter (no conversation, no skill).
 //

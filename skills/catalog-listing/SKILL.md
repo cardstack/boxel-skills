@@ -21,7 +21,7 @@ boxel:
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/preview-format'
+        module: '@cardstack/boxel-host/tools/preview-format'
         name: default
         requiresApproval: false
 ---

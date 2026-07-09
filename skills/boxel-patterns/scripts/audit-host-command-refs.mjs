@@ -13,7 +13,7 @@ const monorepoCandidates = [
 ].filter(Boolean);
 
 const monorepoRoot = monorepoCandidates.find((candidate) =>
-  existsSync(path.join(candidate, 'packages/host/app/commands/index.ts')),
+  existsSync(path.join(candidate, 'packages/host/app/tools/index.ts')),
 );
 
 if (!monorepoRoot) {
@@ -30,7 +30,7 @@ if (!monorepoRoot) {
 
 const commandIndexPath = path.join(
   monorepoRoot,
-  'packages/host/app/commands/index.ts',
+  'packages/host/app/tools/index.ts',
 );
 
 const scanRoots = [
@@ -78,7 +78,7 @@ for (let ref of missing) {
   byCommand.get(ref.command).push(ref);
 }
 for (let [command, refs] of byCommand) {
-  console.error(`@cardstack/boxel-host/commands/${command}`);
+  console.error(`@cardstack/boxel-host/tools/${command}`);
   for (let ref of refs) {
     console.error(`  ${relative(ref.file)}:${ref.line}: ${ref.preview}`);
   }

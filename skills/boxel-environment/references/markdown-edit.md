@@ -5,7 +5,7 @@ boxel:
   kind: skill
   commands:
     - codeRef:
-        module: '@cardstack/boxel-host/commands/apply-markdown-edit'
+        module: '@cardstack/boxel-host/tools/apply-markdown-edit'
         name: default
         requiresApproval: true
 ---

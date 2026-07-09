@@ -11,7 +11,7 @@ import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { on } from '@ember/modifier';
 
-import ScreenshotCardCommand from '@cardstack/boxel-host/commands/screenshot-card';
+import ScreenshotCardCommand from '@cardstack/boxel-host/tools/screenshot-card';
 import { Button } from '@cardstack/boxel-ui/components';
 
 type ScreenshotFormat = 'isolated' | 'embedded';

@@ -82,7 +82,7 @@ Do not treat transport success or `ok: true` as clean by itself. The lint endpoi
 **Pair lint with a runtime instantiation** when a kit is "done":
 
 ```sh
-npx boxel run-command @cardstack/boxel-host/commands/instantiate-card/default \
+npx boxel run-command @cardstack/boxel-host/tools/instantiate-card/default \
   --realm <url> \
   --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'
 ```

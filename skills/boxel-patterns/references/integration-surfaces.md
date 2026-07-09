@@ -70,11 +70,11 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 
 ---
 
-## 3. Host Commands (`@cardstack/boxel-host/commands/<name>`)
+## 3. Host Commands (`@cardstack/boxel-host/tools/<name>`)
 
 Available only inside the running Boxel app. Each is a default-export `Command` class.
 
-**Live audit:** verify command names against your Boxel checkout's `packages/host/app/commands/index.ts` shim list. Older audits run against a stale checkout reported `write-binary-file`, `screenshot-card`, and `generate-thumbnail` missing — they're present in the current mainline (lines 400 / 420 / 424 of the shim list at the time of writing, May 2026). When something looks "missing," check the freshness of the checkout you audited (`git log -1` in that worktree) before concluding the command isn't live.
+**Live audit:** verify command names against your Boxel checkout's `packages/host/app/tools/index.ts` shim list. Older audits run against a stale checkout reported `write-binary-file`, `screenshot-card`, and `generate-thumbnail` missing — they're present in the current mainline (lines 400 / 420 / 424 of the shim list at the time of writing, May 2026). When something looks "missing," check the freshness of the checkout you audited (`git log -1` in that worktree) before concluding the command isn't live.
 
 | Path | Purpose |
 |---|---|
@@ -216,7 +216,7 @@ Card kicks off an AI conversation with a Skill card pre-loaded. For interactive 
 
 Pattern: `command-with-skill-card-ref`.
 
-Path: `@cardstack/boxel-host/commands/ai-assistant` (newer than the older `commands/use-ai-assistant`).
+Path: `@cardstack/boxel-host/tools/ai-assistant` (newer than the older `commands/use-ai-assistant`).
 
 ### OpenRouter Image Generation
 

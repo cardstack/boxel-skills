@@ -4,7 +4,7 @@ validated: source-proven
 
 # integrate-thumbnail-card-ai — Generate an AI thumbnail (and optionally patch `cardInfo.cardThumbnail`) via `GenerateThumbnailCommand`
 
-**What this gives you:** A one-call path for "generate an image to represent this card and store it as a realm file." `GenerateThumbnailCommand` (from `@cardstack/boxel-host/commands/generate-thumbnail`) calls OpenRouter image generation, parses the returned data URL, writes the bytes to the chosen realm via `WriteBinaryFileCommand`, and — if you pass `targetCardId` — automatically patches that card's `cardInfo.cardThumbnail` to link the new `ImageDef`. No manual stitching of the LLM call, the data-URL parser, the binary write, and the relationship patch.
+**What this gives you:** A one-call path for "generate an image to represent this card and store it as a realm file." `GenerateThumbnailCommand` (from `@cardstack/boxel-host/tools/generate-thumbnail`) calls OpenRouter image generation, parses the returned data URL, writes the bytes to the chosen realm via `WriteBinaryFileCommand`, and — if you pass `targetCardId` — automatically patches that card's `cardInfo.cardThumbnail` to link the new `ImageDef`. No manual stitching of the LLM call, the data-URL parser, the binary write, and the relationship patch.
 
 **Sibling pattern:** [`integrate-screenshot-card-format`](../integrate-screenshot-card-format/README.md) — for *actual screenshots* of rendered cards (Puppeteer-driven settled PNG capture). Use that when the user wants a real picture of how the card looks; use **this** pattern when the user wants an AI-designed icon or stylised representation. Most catalog-style "card hero image" flows want this one; doc/audit/Open-Graph flows want the screenshot one.
 
@@ -26,7 +26,7 @@ You can stop after step 1 (just need the image) or stop after step 2 (write the 
 ## Recipe shape
 
 ```ts
-import GenerateThumbnailCommand from '@cardstack/boxel-host/commands/generate-thumbnail';
+import GenerateThumbnailCommand from '@cardstack/boxel-host/tools/generate-thumbnail';
 
 // Inside an @action method:
 let result = await new GenerateThumbnailCommand(commandContext).execute({
@@ -67,7 +67,7 @@ let result = await new GenerateThumbnailCommand(commandContext).execute({
 
 ## How the command works inside
 
-End-to-end flow (from `packages/host/app/commands/generate-thumbnail.ts`):
+End-to-end flow (from `packages/host/app/tools/generate-thumbnail.ts`):
 
 1. Validates `prompt` (required, non-empty).
 2. If `sourceImageUrl` is set and isn't already a data URL, `fetch`es it and converts the response body to a base64 data URL.
@@ -132,7 +132,7 @@ Pair with [`link-command-menu-item`](../link-command-menu-item/README.md) to mak
 
 ```ts
 import { getCardMenuItems, type GetCardMenuItemParams, type MenuItemOptions } from '@cardstack/runtime-common';
-import GenerateThumbnailCommand from '@cardstack/boxel-host/commands/generate-thumbnail';
+import GenerateThumbnailCommand from '@cardstack/boxel-host/tools/generate-thumbnail';
 import { realmURL } from 'https://cardstack.com/base/card-api';
 import WandIcon from '@cardstack/boxel-icons/wand';
 
@@ -174,7 +174,7 @@ class MyCard extends CardDef {
 
 ## Source
 
-- Host command: `@cardstack/boxel-host/commands/generate-thumbnail` — `packages/host/app/commands/generate-thumbnail.ts` in the boxel monorepo.
+- Host command: `@cardstack/boxel-host/tools/generate-thumbnail` — `packages/host/app/tools/generate-thumbnail.ts` in the boxel monorepo.
 - Production caller: `packages/host/app/commands/listing-create.ts` → `autoGenerateThumbnail`.
 - Catalog-realm re-export: `packages/catalog-realm/commands/generate-thumbnail-command.gts` (one-line `export { default as GenerateThumbnailCommand } from '...'`).
 - Default LLM constant: `@cardstack/runtime-common/matrix-constants` → `DEFAULT_IMAGE_GENERATION_LLM`.

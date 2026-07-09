@@ -88,27 +88,27 @@ Kanban helpers in `@cardstack/boxel-ui/components`: `KanbanPlane`, `KanbanDragMa
 ### `@cardstack/boxel-host` â€” host-side commands (only available inside the running app)
 
 ```ts
-import UseAiAssistantCommand    from '@cardstack/boxel-host/commands/ai-assistant';
-import SetActiveLLMCommand      from '@cardstack/boxel-host/commands/set-active-llm';
-import SwitchSubmodeCommand     from '@cardstack/boxel-host/commands/switch-submode';
-import ShowCardCommand          from '@cardstack/boxel-host/commands/show-card';
-import SearchCardsByQueryCommand        from '@cardstack/boxel-host/commands/search-cards';
-import SearchCardsByTypeAndTitleCommand from '@cardstack/boxel-host/commands/search-cards';
-import ReadFileForAiAssistantCommand    from '@cardstack/boxel-host/commands/read-file-for-ai-assistant';
-import PatchFieldsCommand               from '@cardstack/boxel-host/commands/patch-fields';
-import ApplyMarkdownEditCommand         from '@cardstack/boxel-host/commands/apply-markdown-edit';
-import WriteTextFileCommand             from '@cardstack/boxel-host/commands/write-text-file';
-import CopyCardCommand                  from '@cardstack/boxel-host/commands/copy-card';
-import CopySourceCommand                from '@cardstack/boxel-host/commands/copy-source';
-import TransformCardsCommand            from '@cardstack/boxel-host/commands/transform-cards';
-import UpdateRoomSkillsCommand          from '@cardstack/boxel-host/commands/update-room-skills';
-import OpenWorkspaceCommand             from '@cardstack/boxel-host/commands/open-workspace';
-import PreviewFormatCommand             from '@cardstack/boxel-host/commands/preview-format';
-import UpdateCodePathWithSelectionCommand from '@cardstack/boxel-host/commands/update-code-path-with-selection';
-import ReindexRealmCommand              from '@cardstack/boxel-host/commands/reindex-realm';
-import FullReindexRealmCommand          from '@cardstack/boxel-host/commands/full-reindex-realm';
-import CancelIndexingJobCommand         from '@cardstack/boxel-host/commands/cancel-indexing-job';
-import InvalidateRealmIdentifiersCommand from '@cardstack/boxel-host/commands/invalidate-realm-identifiers';
+import UseAiAssistantCommand    from '@cardstack/boxel-host/tools/ai-assistant';
+import SetActiveLLMCommand      from '@cardstack/boxel-host/tools/set-active-llm';
+import SwitchSubmodeCommand     from '@cardstack/boxel-host/tools/switch-submode';
+import ShowCardCommand          from '@cardstack/boxel-host/tools/show-card';
+import SearchCardsByQueryCommand        from '@cardstack/boxel-host/tools/search-cards';
+import SearchCardsByTypeAndTitleCommand from '@cardstack/boxel-host/tools/search-cards';
+import ReadFileForAiAssistantCommand    from '@cardstack/boxel-host/tools/read-file-for-ai-assistant';
+import PatchFieldsCommand               from '@cardstack/boxel-host/tools/patch-fields';
+import ApplyMarkdownEditCommand         from '@cardstack/boxel-host/tools/apply-markdown-edit';
+import WriteTextFileCommand             from '@cardstack/boxel-host/tools/write-text-file';
+import CopyCardCommand                  from '@cardstack/boxel-host/tools/copy-card';
+import CopySourceCommand                from '@cardstack/boxel-host/tools/copy-source';
+import TransformCardsCommand            from '@cardstack/boxel-host/tools/transform-cards';
+import UpdateRoomSkillsCommand          from '@cardstack/boxel-host/tools/update-room-skills';
+import OpenWorkspaceCommand             from '@cardstack/boxel-host/tools/open-workspace';
+import PreviewFormatCommand             from '@cardstack/boxel-host/tools/preview-format';
+import UpdateCodePathWithSelectionCommand from '@cardstack/boxel-host/tools/update-code-path-with-selection';
+import ReindexRealmCommand              from '@cardstack/boxel-host/tools/reindex-realm';
+import FullReindexRealmCommand          from '@cardstack/boxel-host/tools/full-reindex-realm';
+import CancelIndexingJobCommand         from '@cardstack/boxel-host/tools/cancel-indexing-job';
+import InvalidateRealmIdentifiersCommand from '@cardstack/boxel-host/tools/invalidate-realm-identifiers';
 ```
 
 ### Glimmer / Ember primitives
@@ -173,7 +173,7 @@ Audio cards can also reach for the browser's built-in `AudioContext` directly â€
 | `getCards`, `Command` | 2 | `@cardstack/runtime-common` |
 | `Button`, `Pill`, helpers, icons | 2 | `@cardstack/boxel-ui/{components,helpers,icons/*}` |
 | `KanbanPlane`, `KanbanPlacement`, drag/drop board helpers | 2 | `@cardstack/boxel-ui/components` |
-| Any host command (`ai-assistant`, `switch-submode`, etc.) | 2 | `@cardstack/boxel-host/commands/<name>` |
+| Any host command (`ai-assistant`, `switch-submode`, etc.) | 2 | `@cardstack/boxel-host/tools/<name>` |
 | `restartableTask` | 2 | `ember-concurrency` |
 | `Resource`, `resource()` | 2 | `ember-resources` |
 | `modifier()` | 2 | `ember-modifier` |

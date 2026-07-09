@@ -130,7 +130,7 @@ grep -E "@field \w+ = contains\(Date(Time)?Field" <kit>/*.gts
 Pair this static check with at least one runtime instantiation:
 
 ```sh
-npx boxel run-command @cardstack/boxel-host/commands/instantiate-card/default \
+npx boxel run-command @cardstack/boxel-host/tools/instantiate-card/default \
   --realm <url> \
   --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'
 ```

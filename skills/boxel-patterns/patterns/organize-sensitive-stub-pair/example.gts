@@ -26,7 +26,7 @@ import {
 import StringField from 'https://cardstack.com/base/string';
 import BooleanField from 'https://cardstack.com/base/boolean';
 import { Command } from '@cardstack/runtime-common';
-import SaveCardCommand from '@cardstack/boxel-host/commands/save-card';
+import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
 import { Button } from '@cardstack/boxel-ui/components';
 import { on } from '@ember/modifier';
 

@@ -143,8 +143,8 @@ import {
 Host commands:
 
 ```gts
-import SaveCardCommand from '@cardstack/boxel-host/commands/save-card';
-import SendRequestViaProxyCommand from '@cardstack/boxel-host/commands/send-request-via-proxy';
+import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
+import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
 ```
 
 Icons are default imports from descriptor-first icon module names:

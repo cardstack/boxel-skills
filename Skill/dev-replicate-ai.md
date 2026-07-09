@@ -42,9 +42,9 @@ const SizeField = enumField(StringField, {
 ### API Call Pattern
 
 ```gts
-import SendRequestViaProxyCommand from '@cardstack/boxel-host/commands/send-request-via-proxy';
+import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
 import UploadImageCommand from 'https://realms-staging.stack.cards/catalog/commands/upload-image';
-import GetCardCommand from '@cardstack/boxel-host/commands/get-card';
+import GetCardCommand from '@cardstack/boxel-host/tools/get-card';
 import { CloudflareImage } from 'https://realms-staging.stack.cards/catalog/cloudflare-image';
 
 // Build request
