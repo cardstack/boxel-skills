@@ -113,6 +113,18 @@ function splitFrontmatter(content) {
   };
 }
 
+// The platform's canonical frontmatter key for skill-attached tools is
+// `boxel.tools`; `boxel.commands` is the pre-rename spelling (still read via
+// the platform's dual-read). Normalize on import so shipped content never
+// carries the legacy key even if a source file regresses.
+function normalizeLegacyToolsKey(content) {
+  const parts = splitFrontmatter(content);
+  if (!parts) return content;
+  const fm = parts.fm.replace(/^(\s+)commands:(\s*)$/m, '$1tools:$2');
+  if (fm === parts.fm) return content;
+  return `---\n${fm}\n---${parts.rest}`;
+}
+
 function ensureFrontmatterKeys(content, { name } = {}) {
   const parts = splitFrontmatter(content);
   if (!parts) {
@@ -128,7 +140,7 @@ function ensureFrontmatterKeys(content, { name } = {}) {
     // No `boxel:` block at all — synthesize the minimal one.
     fm = `${fm}\nboxel:\n  kind: skill`;
   } else if (!/^\s+kind:/m.test(fm)) {
-    // A `boxel:` block exists (e.g. it carries `commands:`) but is missing
+    // A `boxel:` block exists (e.g. it carries `tools:`) but is missing
     // `kind: skill` — inject it as the block's first child. Idempotent: a
     // block that already declares `kind:` is left untouched.
     fm = fm.replace(/^boxel:$/m, 'boxel:\n  kind: skill');
@@ -177,7 +189,9 @@ function run(workspaces, dest) {
   //    their mode is preserved and their internal path logic isn't disturbed.
   copyTree(join(claude, 'skills'), join(dest, 'skills'), (src) => {
     if (!src.endsWith('.md')) return null;
-    let content = stripWorkspacesOnly(readFileSync(src, 'utf8'));
+    let content = normalizeLegacyToolsKey(
+      stripWorkspacesOnly(readFileSync(src, 'utf8')),
+    );
     if (basename(src) === 'SKILL.md') content = ensureFrontmatterKeys(content);
     return rewriteSelfRefs(content);
   });
@@ -187,8 +201,10 @@ function run(workspaces, dest) {
   copyTree(join(claude, 'commands'), join(dest, 'commands'), (src) =>
     src.endsWith('.md')
       ? rewriteSelfRefs(
-          stripWorkspacesOnly(
-            ensureFrontmatterKeys(readFileSync(src, 'utf8'), { name: basename(src, '.md') }),
+          normalizeLegacyToolsKey(
+            stripWorkspacesOnly(
+              ensureFrontmatterKeys(readFileSync(src, 'utf8'), { name: basename(src, '.md') }),
+            ),
           ),
         )
       : null,
