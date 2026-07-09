@@ -1,11 +1,22 @@
 ---
-name: Source Code Editing
-description: Format for editing or creating source files in Boxel — emit SEARCH/REPLACE blocks in the exact syntax the code editor applies. Load before making edits or showing code diffs in the code editor.
+name: source-code-editing
+description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, and recovery from failed matches. Required before issuing any code edit.
 boxel:
   kind: skill
 ---
 
 # Source Code Editing
+
+## Pair with
+
+- **`boxel`** — to know *what* to change. This skill only describes the edit transport.
+- **`boxel-environment`** — when the edit happens inside the live Boxel app (mode switching, file URL discovery).
+- **`boxel-ui-guidelines`** — when the edit is a template change.
+
+## Don't use for
+
+- Writing brand-new files where the schema is still undecided. Decide the schema with `boxel` first.
+- JSON instance data — `write-text-file` and `patch-fields` are often better for `.json` (this skill is mandatory for `.gts`).
 
 When you infer that the user wants to make changes to the attached files, which is usually a card definition, or create new files, you must use a SEARCH/REPLACE block. For .gts files, ALWAYS use SEARCH/REPLACE — never use write-text-file for .gts. SEARCH/REPLACE blocks stream as visible text (the user sees progress), while tool calls like write-text-file do NOT stream (the UI appears frozen with "Thinking" / "Preparing tool call" while generating the full file content).
 
@@ -89,6 +100,8 @@ Every *SEARCH/REPLACE block* must use this format:
 5. The lines to replace into the source code
 6. The end of the replace block: ╚═══ REPLACE ═══╝
 7. The closing fence: ```
+
+Each of the three markers appears *EXACTLY ONCE* per block: one ╔═══ SEARCH ════╗, one ╠═══════════════╣ dividing line, one ╚═══ REPLACE ═══╝. Never repeat the dividing line. Do NOT add a second ╠═══════════════╣ (or any marker) before the closing ╚═══ REPLACE ═══╝ — the replace section ends at ╚═══ REPLACE ═══╝, and anything you put after your replacement lines is treated as file content, so a stray marker gets written into the file as a literal line of box-drawing characters.
 
 Every *SEARCH* section must *EXACTLY MATCH* the existing file content, character for character, including all comments, docstrings, etc.
 If the file contains code or other data wrapped/escaped in json/xml/quotes or other containers, you need to propose edits to the literal contents of the file, including the container markup.
