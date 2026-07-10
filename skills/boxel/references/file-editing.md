@@ -1,8 +1,7 @@
 # File Editing
 
-The SEARCH/REPLACE block format and the `.gts` edit-tracking convention (line-1 banner, `// ⁿ` markers) are defined in the canonical **`source-code-editing`** skill, not here.
+The SEARCH/REPLACE block format and the `.gts` edit-tracking convention (line-1 banner, `// ⁿ` markers) are defined in the canonical [`source-code-editing`](../../source-code-editing/SKILL.md) skill, not here.
 
-- Path: `../../source-code-editing/SKILL.md`
 - Trigger: any file edit or creation — imports, fields, templates, computed properties, new `.gts` files.
 
 Key reminders:

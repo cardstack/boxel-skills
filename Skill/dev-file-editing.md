@@ -1,6 +1,6 @@
 # File Editing
 
-The SEARCH/REPLACE block format and the `.gts` edit-tracking convention (line-1 banner, `// ⁿ` markers) are defined in the canonical **Source Code Editing** skill (`skills/source-code-editing/SKILL.md`), not here. Consult that skill before editing or creating any file.
+The SEARCH/REPLACE block format and the `.gts` edit-tracking convention (line-1 banner, `// ⁿ` markers) are defined in the canonical [Source Code Editing](../skills/source-code-editing/SKILL.md) skill, not here. If that skill is not already active in this room, read it before editing or creating any file.
 
 Key reminders:
 
