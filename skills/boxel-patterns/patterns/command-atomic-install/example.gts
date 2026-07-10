@@ -6,7 +6,7 @@ import {
   logger,
 } from '@cardstack/runtime-common';
 import { CardDef, field, contains, StringField } from 'https://cardstack.com/base/card-api';
-import ExecuteAtomicOperationsCommand from '@cardstack/boxel-host/commands/execute-atomic-operations';
+import ExecuteAtomicOperationsCommand from '@cardstack/boxel-host/tools/execute-atomic-operations';
 
 // 🧩 PATTERN: Transactional realm install via atomic operations.
 

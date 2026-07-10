@@ -41,7 +41,7 @@ boxel:
 - [ ] `Base64ImageField` is NOT used (it crashes the AI context with embedded binary).
 - [ ] No media bytes or `data:image/...;base64` strings are stored in `StringField`, `outputText`, JSON attributes, or notes.
 - [ ] If the file appears in JSON, empty value is `"self": null`, not `[]`.
-- [ ] Changed `.gts` files passed installed npm `boxel` lint (`boxel file lint ... --file <local-file>` before push and `boxel lint <path> --realm <url>` after push).
+- [ ] Changed `.gts` files passed installed npm `boxel` lint (`npx boxel file lint ... --file <local-file>` before push and `npx boxel lint <path> --realm <url>` after push).
 
 ## Failure Recovery
 

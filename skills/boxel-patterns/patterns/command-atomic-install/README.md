@@ -19,7 +19,7 @@ import {
   extractRelationshipIds,
   logger,
 } from '@cardstack/runtime-common';
-import ExecuteAtomicOperationsCommand from '@cardstack/boxel-host/commands/execute-atomic-operations';
+import ExecuteAtomicOperationsCommand from '@cardstack/boxel-host/tools/execute-atomic-operations';
 
 const log = logger('catalog:install');
 

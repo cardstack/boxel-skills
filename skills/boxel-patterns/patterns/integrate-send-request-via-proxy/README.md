@@ -18,7 +18,7 @@ For first-party LLM calls, prefer `integrate-one-shot-llm` (which is built on to
 **Recipe shape:**
 
 ```ts
-import SendRequestViaProxyCommand from '@cardstack/boxel-host/commands/send-request-via-proxy';
+import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
 
 const proxy = new SendRequestViaProxyCommand(this.commandContext);
 

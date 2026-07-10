@@ -26,7 +26,7 @@ import ImageDef from 'https://cardstack.com/base/image';   // ← WRONG
 The local alias `ImageDef` makes lint happy on the wrong form. At runtime you get ImageCard, the field schema mismatches what your template expects, and downstream loads fail. Verify the right module by probing:
 
 ```sh
-npx boxel run-command @cardstack/boxel-host/commands/get-card-type-schema/default \
+npx boxel run-command @cardstack/boxel-host/tools/get-card-type-schema/default \
   --realm "$REALM" \
   --input '{"codeRef":{"module":"https://cardstack.com/base/image-file-def","name":"default"}}' \
   --json

@@ -2,7 +2,7 @@
 """
 Boxel JSON:API instance correctness scanner.
 
-Catches three classes of bug that pass `boxel file lint` AND `boxel file write` AND
+Catches three classes of bug that pass `npx boxel file lint` AND `npx boxel file write` AND
 even index successfully, then brick the realm at render or reindex time:
 
   Rule 1 (BRICKS REALM)  — `linksToMany` shape uses array under `links.self`.

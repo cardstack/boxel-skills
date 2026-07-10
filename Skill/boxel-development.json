@@ -18,7 +18,7 @@
         {
           "codeRef": {
             "name": "default",
-            "module": "@cardstack/boxel-host/commands/update-room-skills"
+            "module": "@cardstack/boxel-host/tools/update-room-skills"
           },
           "requiresApproval": false
         }

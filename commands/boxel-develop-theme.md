@@ -64,7 +64,7 @@ boxel:
 
 6. **Validate.**
    - If a DESIGN.md file is involved and the CLI is available, run `npx @google/design.md lint DESIGN.md`.
-   - If `.gts` files changed, run `boxel file lint` before push and `boxel lint` after push.
+   - If `.gts` files changed, run `npx boxel file lint` before push and `npx boxel lint` after push.
    - Preview the Theme/BrandGuide and at least one consuming card.
    - Check buttons, inputs, dropdowns, tooltips, pills, and card containers for token-pair contrast and spacing scale.
 

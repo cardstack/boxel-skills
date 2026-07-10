@@ -92,7 +92,7 @@ For a `linksToMany(ImageDef)` gallery, the URL twin is `containsMany(UrlField)`:
 
 The most common silent failure pattern in Boxel card families: declaring `contains(DateField)` in the .gts but writing an ISO datetime (`"2026-06-13T15:30:00Z"`) in the JSON instance, OR declaring `contains(DateTimeField)` and writing only `"2026-06-13"`.
 
-**What happens:** lint passes. `boxel file write` succeeds. The realm indexes the card. The mismatch only surfaces when the host tries to render or re-serialize the instance — `date-fns` `format()` is called on a Date object built from the wrong-shaped string, and throws:
+**What happens:** lint passes. `npx boxel file write` succeeds. The realm indexes the card. The mismatch only surfaces when the host tries to render or re-serialize the instance — `date-fns` `format()` is called on a Date object built from the wrong-shaped string, and throws:
 
 ```
 RangeError: Invalid time value
@@ -130,7 +130,7 @@ grep -E "@field \w+ = contains\(Date(Time)?Field" <kit>/*.gts
 Pair this static check with at least one runtime instantiation:
 
 ```sh
-npx boxel run-command @cardstack/boxel-host/commands/instantiate-card/default \
+npx boxel run-command @cardstack/boxel-host/tools/instantiate-card/default \
   --realm <url> \
   --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'
 ```

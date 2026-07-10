@@ -27,7 +27,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { on } from '@ember/modifier';
 
-import SendRequestViaProxyCommand from '@cardstack/boxel-host/commands/send-request-via-proxy';
+import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
 import { Button } from '@cardstack/boxel-ui/components';
 import CameraIcon from '@cardstack/boxel-icons/camera';
 

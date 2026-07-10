@@ -11,7 +11,7 @@ Catalog submission is a workflow, not an install/copy operation. The high-level 
 Preferred entry point:
 
 - UI menu item on a catalog `Listing`: `Make a PR`
-- Host command: `@cardstack/boxel-host/commands/create-and-open-submission-workflow-card`
+- Host command: `@cardstack/boxel-host/tools/create-and-open-submission-workflow-card`
 
 Required input:
 
@@ -127,8 +127,8 @@ There is no live `retry-submission-workflow` host command in the current monorep
 ## Source Pointers
 
 - Listing menu: `packages/catalog-realm/catalog-app/listing/listing.gts`
-- Workflow command: `packages/host/app/commands/create-submission-workflow.ts`
-- Open wrapper: `packages/host/app/commands/create-and-open-submission-workflow-card.ts`
+- Workflow command: `packages/host/app/tools/create-submission-workflow.ts`
+- Open wrapper: `packages/host/app/tools/create-and-open-submission-workflow-card.ts`
 - Workflow card: `packages/catalog-realm/submission-workflow-card/submission-workflow-card.gts`
 - File collection: `packages/catalog-realm/commands/collect-submission-files.ts`
 - Bot workflow: `packages/bot-runner/lib/pr-listing/pr-listing-workflow-handler.ts`

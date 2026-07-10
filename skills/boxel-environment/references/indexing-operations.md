@@ -3,21 +3,21 @@ name: indexing-operations
 description: Realm reindexing and indexing-job control commands.
 boxel:
   kind: skill
-  commands:
+  tools:
     - codeRef:
-        module: '@cardstack/boxel-host/commands/invalidate-realm-identifiers'
+        module: '@cardstack/boxel-host/tools/invalidate-realm-identifiers'
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/reindex-realm'
+        module: '@cardstack/boxel-host/tools/reindex-realm'
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/full-reindex-realm'
+        module: '@cardstack/boxel-host/tools/full-reindex-realm'
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/cancel-indexing-job'
+        module: '@cardstack/boxel-host/tools/cancel-indexing-job'
         name: default
         requiresApproval: false
 ---
@@ -160,18 +160,18 @@ Sample at 30-second intervals for 5 minutes. Rising count = just slow, leave it 
 
 ## The `/_atomic` batch trap
 
-Pushing 30+ files via `boxel realm push <dir>` uses the `/_atomic` HTTP endpoint. Observed failure modes (institutional-meerkat, 2026-05-22):
+Pushing 30+ files via `npx boxel realm push <dir>` uses the `/_atomic` HTTP endpoint. Observed failure modes (institutional-meerkat, 2026-05-22):
 
 - **351 files at once** → 500 Internal Server Error; push reports failure.
 - **30-44 files per atomic batch** → push reports success, but a fraction of indexing jobs are silently dropped. Cards land on disk but never index.
-- **Per-file `boxel file write`** → reliably enqueues an index job per file.
+- **Per-file `npx boxel file write`** → reliably enqueues an index job per file.
 
 **Recommended push cadence for a fresh realm with > 50 instances:**
 
 1. Push one CardDef family at a time (its `.gts` modules + Theme + a small batch of instances).
 2. Verify with the post-push gate above before pushing the next.
-3. Use `boxel realm sync` instead of `push` when in doubt — sync acks per file.
-4. Fall back to `boxel file write <path>` for the last few stragglers a batch may have dropped.
+3. Use `npx boxel realm sync` instead of `push` when in doubt — sync acks per file.
+4. Fall back to `npx boxel file write <path>` for the last few stragglers a batch may have dropped.
 
 ## Don't reach for `cancel-indexing`
 
@@ -181,7 +181,7 @@ Pushing 30+ files via `boxel realm push <dir>` uses the `/_atomic` HTTP endpoint
 
 If the count is genuinely flat for 10+ minutes with no progress at all:
 
-1. First try `boxel file touch <one card>` to nudge a single card through. If that one indexes, the queue is alive.
+1. First try `npx boxel file touch <one card>` to nudge a single card through. If that one indexes, the queue is alive.
 2. Only after that fails should you consider `cancel-indexing` — base form only, never `--cancel-pending`.
 3. `full-reindex-realm` is the right way to rebuild from scratch — it doesn't need `cancel-indexing` first.
 
@@ -192,9 +192,9 @@ The realm stores per-card indexer error state in postgres `boxel_index.error_doc
 | Need | How |
 |---|---|
 | Compile errors per .gts | `npx boxel file lint <path> --realm <url> --file <local-path>` |
-| Try to load a card TYPE | `npx boxel run-command @cardstack/boxel-host/commands/instantiate-card/default --realm <url> --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'` |
+| Try to load a card TYPE | `npx boxel run-command @cardstack/boxel-host/tools/instantiate-card/default --realm <url> --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'` |
 | Force reindex of one card | `npx boxel file touch <path> --realm <url>` |
-| Force reindex of whole realm | `npx boxel run-command @cardstack/boxel-host/commands/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'` |
+| Force reindex of whole realm | `npx boxel run-command @cardstack/boxel-host/tools/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'` |
 | Authoritative error_doc list (admin) | `GET <realm>/_publishability` — requires `authedRealmFetch`; no CLI subcommand yet |
 
 ### Postgres `\u0000` symptom
@@ -210,7 +210,7 @@ Upstream fix needed: realm-server should sanitize indexer error messages (strip 
 
 ## Verification hierarchy — lint vs index vs render
 
-`boxel file lint` and `boxel lint --realm` are advisory only. Declaring "kit shipped" based on lint-clean has caused full-kit indexing failures to be reported as success. **The truth source for indexing state is `boxel search`.**
+`npx boxel file lint` and `npx boxel lint --realm` are advisory only. Declaring "kit shipped" based on lint-clean has caused full-kit indexing failures to be reported as success. **The truth source for indexing state is `npx boxel search`.**
 
 | Check | Validates | Does NOT validate |
 |---|---|---|
@@ -220,7 +220,7 @@ Upstream fix needed: realm-server should sanitize indexer error messages (strip 
 | `npx boxel search --realm <url> --query '{}'` | **Truth.** What the realm has actually indexed | Whether the visual render is correct |
 | Loading the card in the host UI | Render output | (this is the final truth) |
 
-A schema can pass every static check and still fail to load at runtime. A module can load and still produce zero indexed instances. **Only `boxel search` reads the truth state of the realm.**
+A schema can pass every static check and still fail to load at runtime. A module can load and still produce zero indexed instances. **Only `npx boxel search` reads the truth state of the realm.**
 
 Required gate before declaring "kit shipped":
 
@@ -229,7 +229,7 @@ REALM="<realm-url>"
 
 # 1. Module load probe — exercise every CardDef
 for mod in style material designer client project quote; do
-  npx boxel run-command @cardstack/boxel-host/commands/get-card-type-schema/default \
+  npx boxel run-command @cardstack/boxel-host/tools/get-card-type-schema/default \
     --realm "$REALM" \
     --input "{\"codeRef\":{\"module\":\"${REALM}${mod}\",\"name\":\"<ClassName>\"}}" \
     --json | grep -E "status|error"
@@ -261,7 +261,7 @@ Module load failures happen at JavaScript module evaluation time inside the real
 - `computeVia` or `get`-method that throws at module-evaluation time
 - A bare `linksTo(X)` without thunk in a kit with back-edges — X is not yet evaluated when the field decorator runs
 
-Each passes `boxel file lint` clean. Each makes `boxel search` return empty for that type.
+Each passes `npx boxel file lint` clean. Each makes `npx boxel search` return empty for that type.
 
 ### Error-decoder — common runtime errors and their upstream cause
 
@@ -280,7 +280,7 @@ When you rename or move a `.gts` file mid-session (e.g. `architecture-plan.gts` 
 
 - Lint passes (the local JSON is structurally fine).
 - Indexer fails silently — module resolves to a 404, instance never indexes as the expected type.
-- `boxel search --query '{}'` shows the instance URL but with `adoptsFrom` pointing nowhere useful.
+- `npx boxel search --query '{}'` shows the instance URL but with `adoptsFrom` pointing nowhere useful.
 - A type-filtered search returns 0 even though instances appear to exist on disk.
 
 The discipline: **before any `.gts` move or rename, grep `adoptsFrom.module` across instance JSONs in the realm and rewrite them atomically as part of the same change.**
@@ -298,7 +298,7 @@ Auto-generated stub instances (created by host "+ New" clicks, named with UUID) 
 
 ## Realm creation — local folder is NOT a realm
 
-Creating a directory at `<realm-server>/<owner>/<slug>/` does NOT create a realm on the server. The server has no idea that path exists. Pushing files into it via `boxel file write` may appear to succeed (write to local mirror) but the realm doesn't index anything because there's no realm registered for that path.
+Creating a directory at `<realm-server>/<owner>/<slug>/` does NOT create a realm on the server. The server has no idea that path exists. Pushing files into it via `npx boxel file write` may appear to succeed (write to local mirror) but the realm doesn't index anything because there's no realm registered for that path.
 
 **To create a realm:**
 
@@ -308,7 +308,7 @@ npx boxel realm create <slug> "<Display Name>"
 
 This registers the realm with the user's Matrix account, creates the server-side database entry, and bootstraps the realm config. THEN local folders + file pushes make sense.
 
-A clue that a realm doesn't exist: `boxel search --realm <url> --query '{}'` returns auth errors or empty results consistently. A clue that it DOES exist but is empty: the search returns just the `realm` config card.
+A clue that a realm doesn't exist: `npx boxel search --realm <url> --query '{}'` returns auth errors or empty results consistently. A clue that it DOES exist but is empty: the search returns just the `realm` config card.
 
 ## Host-only commands that can't run from the CLI
 

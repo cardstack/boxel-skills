@@ -8,8 +8,8 @@ import {
 } from 'https://cardstack.com/base/card-api';
 import StringField from 'https://cardstack.com/base/string';
 import NumberField from 'https://cardstack.com/base/number';
-import SendRequestViaProxyCommand from '@cardstack/boxel-host/commands/send-request-via-proxy';
-import WriteBinaryFileCommand from '@cardstack/boxel-host/commands/write-binary-file';
+import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
+import WriteBinaryFileCommand from '@cardstack/boxel-host/tools/write-binary-file';
 
 // PATTERN: OpenRouter image generation with FileDef persistence.
 //

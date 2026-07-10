@@ -3,9 +3,9 @@ name: markdown-edit
 description: Surgical edits to long MarkdownField values via apply-markdown-edit.
 boxel:
   kind: skill
-  commands:
+  tools:
     - codeRef:
-        module: '@cardstack/boxel-host/commands/apply-markdown-edit'
+        module: '@cardstack/boxel-host/tools/apply-markdown-edit'
         name: default
         requiresApproval: true
 ---

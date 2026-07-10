@@ -132,15 +132,15 @@ Why it matters:
 
 Format suggestion: a single `TRACKING.md` at the realm root with sections for *Cards landed*, *Cards in progress*, *Verified*, *Pending QA*, *Learnings*. Sync after every significant landing.
 
-### Transient `boxel search` failures during indexing
+### Transient `npx boxel search` failures during indexing
 
-`boxel search --realm <url>` can briefly return `Realms not found` even when the realm is healthy — typically right after a new card/instance landing, while the realm-server's federated-search registration / index settles. `boxel file read` and `boxel realm wait-for-ready` may both report healthy while `boxel search` still 4xxs.
+`npx boxel search --realm <url>` can briefly return `Realms not found` even when the realm is healthy — typically right after a new card/instance landing, while the realm-server's federated-search registration / index settles. `npx boxel file read` and `npx boxel realm wait-for-ready` may both report healthy while `npx boxel search` still 4xxs.
 
 Don't treat the transient as proof your query syntax is wrong. Recovery sequence:
 
-1. Read the relevant files back with `boxel file read` to confirm they're really in the realm.
-2. `boxel realm wait-for-ready --realm <url>` until the realm reports ready.
+1. Read the relevant files back with `npx boxel file read` to confirm they're really in the realm.
+2. `npx boxel realm wait-for-ready --realm <url>` until the realm reports ready.
 3. Validate through a host-rendered result-list card when possible (`@context.searchResultsComponent`; older builds used `PrerenderedCardSearch`) — that path exercises the indexer differently than the federated-search CLI route.
-4. Retry `boxel search` after the realm has indexed.
+4. Retry `npx boxel search` after the realm has indexed.
 
 If the transient recurs while parallel agents are landing into the same realm, record it in the tracking doc (above) so other agents don't rewrite valid query syntax chasing a state issue.

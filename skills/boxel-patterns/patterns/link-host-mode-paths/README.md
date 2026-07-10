@@ -95,9 +95,9 @@ Three steps:
 Editing `realm.json` directly is the boxel-cli path:
 
 ```bash
-boxel realm pull <realm-url> ./my-realm
+npx boxel realm pull <realm-url> ./my-realm
 # edit ./my-realm/realm.json
-boxel realm push ./my-realm <realm-url>
+npx boxel realm push ./my-realm <realm-url>
 ```
 
 The in-app path is the realm config editor (the UI guard in CS-10052 enforces same-realm `instance` selection so you can't point at a private realm by mistake).
@@ -151,7 +151,7 @@ With each `instance` linking to the corresponding `BlogPost` card. **There's no 
 - **Public permissions required.** Host-mode routing only applies when the realm is reachable by anonymous visitors. A non-public realm 401s before the routing-map lookup happens (`serve-index.ts` checks `hasPublicPermissions(routedRealm, ...)` first).
 - **Card must be saved.** `instance` is `linksTo(CardDef)`, which needs an id. Unsaved drafts won't route.
 - **Trailing-slash handling has a recent fix** (commit `3e167af246`). If you're seeing `/blog/` route correctly but `/blog` not, make sure your boxel deployment is at or past 2026-05-21.
-- **The routing map is read from the indexed searchDoc.** A rule added to `realm.json` doesn't take effect until the realm re-indexes that file. `boxel realm push` triggers it; if you edit via the in-app editor, the save handles indexing.
+- **The routing map is read from the indexed searchDoc.** A rule added to `realm.json` doesn't take effect until the realm re-indexes that file. `npx boxel realm push` triggers it; if you edit via the in-app editor, the save handles indexing.
 - **Path collisions silently lose to the first match.** If two rules share a path, `getHostRoutingMap` returns both and the consumer uses `.find()`, so the *first* wins. Don't rely on that — keep paths unique.
 - **No fallback chain.** If no rule matches the path, the request falls through to the standard card-URL resolver (`<host>/<path>` interpreted as a card id). For a published site, that usually means a 404. Add a `path: "/"` rule explicitly even if you don't think you need it — without it, the bare host URL renders the CardsGrid index card, which is rarely what a marketing site wants.
 - **CardsGrid prerender opt-in.** The default `RealmConfig` includes `includePrerenderedDefaultRealmIndex: false` — the realm's default CardsGrid isolated HTML is skipped on indexing to save wall-clock. Routed sites can leave this off (the routed `path: "/"` rule supplies the home card directly). Set to `true` only if you actually serve the realm's default index card as `/`.
@@ -172,7 +172,7 @@ With each `instance` linking to the corresponding `BlogPost` card. **There's no 
 
 Host mode normally only applies on `*.boxel.host` (or whatever the deployment's host-mode origin is). For local realm development:
 
-- Run `boxel realm push` to land the `realm.json` update into the realm-server's index.
+- Run `npx boxel realm push` to land the `realm.json` update into the realm-server's index.
 - Visit `https://<realm-url>/_path/` in the operator UI to confirm the rule resolved (the URL bar will show the routed-to card id).
 - The full host-mode UX only kicks in when the realm is actually published (or when `config.simulatingHostMode` is on, which is a host-app dev flag).
 

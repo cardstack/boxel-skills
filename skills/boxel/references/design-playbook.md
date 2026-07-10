@@ -344,7 +344,7 @@ Layout latitude in fitted:
 - Keep one editorial micro-object if it scales (eyebrow with tracking does; drop cap doesn't)
 - Drop the schema-rich content; show only the 3-4 fields that survive at 200×200
 
-**Before declaring fitted done, walk all 16 named sizes.** The host previews fitted at 16 specific size boxes (3 badges + 5 strips + 5 tiles + 3 cards). A fitted layout that nails one size and breaks at another isn't done. The full table — Small/Medium/Large Badge, Single/Double/Triple/Double-Wide/Triple-Wide Strip, Small/Regular/CardsGrid/Tall/Large Tile, Compact/Full/Expanded Card — and the per-cell verification checklist live in [`fitted-formats.md`](fitted-formats.md). Use the live app's format preview to walk them visually; `boxel check` is not a substitute.
+**Before declaring fitted done, walk all 16 named sizes.** The host previews fitted at 16 specific size boxes (3 badges + 5 strips + 5 tiles + 3 cards). A fitted layout that nails one size and breaks at another isn't done. The full table — Small/Medium/Large Badge, Single/Double/Triple/Double-Wide/Triple-Wide Strip, Small/Regular/CardsGrid/Tall/Large Tile, Compact/Full/Expanded Card — and the per-cell verification checklist live in [`fitted-formats.md`](fitted-formats.md). Use the live app's format preview to walk them visually; `npx boxel check` is not a substitute.
 
 **Embedded — compressed isolated.**
 

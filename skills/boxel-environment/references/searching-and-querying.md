@@ -3,13 +3,13 @@ name: searching-and-querying
 description: Finding cards with the search-cards host commands and query syntax.
 boxel:
   kind: skill
-  commands:
+  tools:
     - codeRef:
-        module: '@cardstack/boxel-host/commands/search-cards'
+        module: '@cardstack/boxel-host/tools/search-cards'
         name: SearchCardsByTypeAndTitleCommand
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/search-cards'
+        module: '@cardstack/boxel-host/tools/search-cards'
         name: SearchCardsByQueryCommand
         requiresApproval: false
 ---

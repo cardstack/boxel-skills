@@ -3,7 +3,7 @@ name: catalog-listing
 description: Use when installing, browsing, remixing, updating, or submitting catalog listings (Apps, Cards, Fields, Skills, Themes) from a Boxel catalog realm. Includes the submission workflow that creates a SubmissionWorkflowCard and GitHub PR.
 boxel:
   kind: skill
-  commands:
+  tools:
     - codeRef:
         module: '@cardstack/catalog/commands/listing-create'
         name: default
@@ -21,7 +21,7 @@ boxel:
         name: default
         requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/commands/preview-format'
+        module: '@cardstack/boxel-host/tools/preview-format'
         name: default
         requiresApproval: false
 ---

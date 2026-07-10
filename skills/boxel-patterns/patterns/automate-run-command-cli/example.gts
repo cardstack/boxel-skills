@@ -11,7 +11,7 @@ import { Command } from 'https://cardstack.com/base/command';
 // Once a Command lives in a realm module, it becomes invokable from
 // the shell:
 //
-//   boxel run-command \
+//   npx boxel run-command \
 //     'https://<realm>/example::ReindexCommand' \
 //     --realm 'https://<realm>/' \
 //     --input '{ "targetRealm": "https://<realm>/" }' \

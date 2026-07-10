@@ -32,10 +32,10 @@ export class MyCommand extends Command<typeof MyInput, undefined> {
 **Never use `fetch` directly - always use host commands:**
 
 ```gts
-import SaveCardCommand from '@cardstack/boxel-host/commands/save-card';
-import GetCardCommand from '@cardstack/boxel-host/commands/get-card';
-import SendRequestViaProxyCommand from '@cardstack/boxel-host/commands/send-request-via-proxy';
-import { SearchCardsByQueryCommand } from '@cardstack/boxel-host/commands/search-cards';
+import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
+import GetCardCommand from '@cardstack/boxel-host/tools/get-card';
+import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
+import { SearchCardsByQueryCommand } from '@cardstack/boxel-host/tools/search-cards';
 
 // Save a card
 await new SaveCardCommand(this.commandContext).execute({
@@ -88,7 +88,7 @@ For image generation, use the `integrate-openrouter-image-generation` pattern in
 For generated images, audio, or other bytes, write a real realm file and then link it with FileDef/ImageDef/PngDef. Do not use deprecated image-card persistence.
 
 ```gts
-import WriteBinaryFileCommand from '@cardstack/boxel-host/commands/write-binary-file';
+import WriteBinaryFileCommand from '@cardstack/boxel-host/tools/write-binary-file';
 
 const result = await new WriteBinaryFileCommand(this.commandContext).execute({
   path: 'GeneratedImages/result.png',
@@ -102,7 +102,7 @@ const result = await new WriteBinaryFileCommand(this.commandContext).execute({
 ### Query Pattern in Commands
 
 ```gts
-import { SearchCardsByQueryCommand } from '@cardstack/boxel-host/commands/search-cards';
+import { SearchCardsByQueryCommand } from '@cardstack/boxel-host/tools/search-cards';
 
 const results = await new SearchCardsByQueryCommand(this.commandContext).execute({
   query: {
@@ -141,7 +141,7 @@ export class MyCommand extends Command<typeof Input, undefined> {
 For multi-step work, create a durable run card and update it optimistically instead of serially awaiting every progress save. This keeps the UI responsive while still producing a queryable execution trace.
 
 ```gts
-import SaveCardCommand from '@cardstack/boxel-host/commands/save-card';
+import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
 
 class OptimisticSave {
   pending: Array<Promise<any>> = [];

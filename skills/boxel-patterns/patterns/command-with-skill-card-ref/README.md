@@ -24,6 +24,6 @@ validated: source-proven
 
 **Source:** catalog-realm `commands/generate-daily-report.gts:97-111`, `commands/suggest-avatar.gts:27-48`. Current canonical use in `boxel-catalog/catalog-app/resources/helpers/listing-action-resolver.gts`.
 
-**Note on naming:** The host command lives at `@cardstack/boxel-host/commands/ai-assistant` (current, May 2026) — older docs may still reference `commands/use-ai-assistant`. The default-exported class is still `UseAiAssistantCommand` either way.
+**Note on naming:** The host command lives at `@cardstack/boxel-host/tools/ai-assistant` (current, May 2026) — older docs may still reference `commands/use-ai-assistant`. The default-exported class is still `UseAiAssistantCommand` either way.
 
 **See also:** `command-typed-with-progress` (for tracked progressStep), `integrate-openrouter-image-generation` (for generated image workflows).

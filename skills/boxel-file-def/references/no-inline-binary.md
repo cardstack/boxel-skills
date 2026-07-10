@@ -28,7 +28,7 @@ Use one of:
 For AI image APIs that return a `data:image/...;base64,...`, strip the `data:mime/type;base64,` prefix, write the base64 payload with:
 
 ```gts
-import WriteBinaryFileCommand from '@cardstack/boxel-host/commands/write-binary-file';
+import WriteBinaryFileCommand from '@cardstack/boxel-host/tools/write-binary-file';
 import { ImageDef, linksTo } from 'https://cardstack.com/base/card-api';
 
 @field generatedImage = linksTo(ImageDef);
@@ -50,7 +50,7 @@ card.generatedImage = new ImageDef({
 });
 ```
 
-This is the same host-command family used by `packages/host/app/commands/screenshot-card.ts`: write a PNG file to the card's realm, then link the file. A data URL is acceptable only as a command input or temporary `@tracked` preview while the file write is in flight.
+This is the same host-command family used by `packages/host/app/tools/screenshot-card.ts`: write a PNG file to the card's realm, then link the file. A data URL is acceptable only as a command input or temporary `@tracked` preview while the file write is in flight.
 
 ## A Million Dreams Example
 

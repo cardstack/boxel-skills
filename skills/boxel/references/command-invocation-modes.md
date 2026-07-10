@@ -17,7 +17,7 @@ _TODO: fill in the recommended use cases + worked snippets for each mode. The sk
 | **Optimistic run-card pipeline** — durable run card with steps + logs | _TODO_ Multi-step workflow (LLM call → file write → save → index) that needs an auditable history record. The card *is* the history. | `command-optimistic-pipeline` |
 | **One-shot AI processor** — wraps `OneShotLlmRequestCommand` | _TODO_ Single LLM call, no conversation. Classification, summarization, JSON extraction from a card. | `integrate-one-shot-llm` |
 | **Multi-turn AI assistant** — opens an AI room with a Skill card pre-loaded | _TODO_ User wants to *talk* to an AI about this card. The card provides framing (skill + attached cards), then steps out. | `command-with-skill-card-ref` |
-| **CLI script with history** — `boxel run-command <spec> --input '{}'` | _TODO_ Headless / batch invocation, ad-hoc scripting, scheduled jobs, "run this on every card matching X." | `automate-run-command-cli` |
+| **CLI script with history** — `npx boxel run-command <spec> --input '{}'` | _TODO_ Headless / batch invocation, ad-hoc scripting, scheduled jobs, "run this on every card matching X." | `automate-run-command-cli` |
 | **Atomic transactional install** — `PlanBuilder` + `ExecuteAtomicOperationsCommand` | _TODO_ The Command writes many things and they must all land or none of them. Catalog install/remix is the canonical case. | `command-atomic-install` |
 
 ## The same Command, five ways
@@ -48,7 +48,7 @@ _TODO: a single canonical `MyCommand` class shown wired up to each mode. This is
 
 **CLI script:**
 ```bash
-# _TODO: boxel run-command '<realm>/MyCommand' --realm <url> --input '{"foo":"bar"}'_
+# _TODO: npx boxel run-command '<realm>/MyCommand' --realm <url> --input '{"foo":"bar"}'_
 # _TODO: pipe --json output through jq for scripting_
 ```
 
@@ -73,7 +73,7 @@ _TODO: a short decision tree._
 _TODO: examples of the same Command exposed via multiple modes at once._
 
 - A Command can be **both** a menu item **and** CLI-invokable — the menu item passes input from the card's fields, the CLI passes input from a JSON string. The `execute()` body is identical.
-- A Command that writes a typed run card (`command-optimistic-pipeline`) is automatically CLI-friendly — `boxel run-command` returns the run card's URL, which any downstream script can query for the trace.
+- A Command that writes a typed run card (`command-optimistic-pipeline`) is automatically CLI-friendly — `npx boxel run-command` returns the run card's URL, which any downstream script can query for the trace.
 - A reactive `commandData<T>` resource in an `isolated` template + a menu item with the same Command class lets the user *see* the result live AND *trigger* a refresh manually.
 
 ## Anti-patterns
@@ -90,4 +90,4 @@ _TODO: capture the common confusions._
 - `boxel/references/command-development.md` — the run-time mechanics (input validation, host commands, OpenRouter, progress tracking).
 - `boxel-create-edit-cards/SKILL.md` — host-command combinations for card creation/editing flows.
 - `boxel-patterns/references/integration-surfaces.md` §3 — full host-command catalogue.
-- `boxel-patterns/references/integration-surfaces.md` §10 — `boxel run-command` CLI surface.
+- `boxel-patterns/references/integration-surfaces.md` §10 — `npx boxel run-command` CLI surface.

@@ -2,9 +2,9 @@
 //
 // Structural twin of the experiments-realm/screenshot-card-demo.gts (used by
 // `integrate-screenshot-card-format`), but invoking GenerateThumbnailCommand
-// instead of ScreenshotCardCommand. The call signature mirrors the proven
-// production caller in packages/host/app/commands/listing-create.ts
-// (autoGenerateThumbnail).
+// instead of ScreenshotCardCommand. The call signature mirrors the host's
+// former `autoGenerateThumbnail` caller (retired from the host in CS-11372
+// when listing commands moved to the catalog realm).
 //
 // Inputs the command accepts:
 //   - prompt                 (required) — text prompt for the AI
@@ -31,7 +31,7 @@ import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { on } from '@ember/modifier';
 
-import GenerateThumbnailCommand from '@cardstack/boxel-host/commands/generate-thumbnail';
+import GenerateThumbnailCommand from '@cardstack/boxel-host/tools/generate-thumbnail';
 import { Button } from '@cardstack/boxel-ui/components';
 
 class Isolated extends Component<typeof ThumbnailCardAiDemo> {

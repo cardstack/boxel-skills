@@ -85,7 +85,7 @@ Upstream targets the **in-host AI Assistant**, which runs as a card inside the l
 |---|---|
 | `import perform from 'ember-concurrency/helpers/perform';` + `(perform this.fooTask)` in templates | `startFoo = () => this.fooTask.perform();` + `{{on 'click' this.startFoo}}`. The `perform` helper subpath isn't fetchable in realms. See `skills/boxel/references/common-imports.md`. |
 | Referring to "the assistant" / "the user types" workflow language | Tone for an autonomous coding agent reading skill content offline; reduce the conversational framing. |
-| Host commands invoked as JSON `{name: "foo_xxxx", payload: {...}}` (in-app tool-call form) | Either the same JSON shape (when our reader is operating the live app via `/boxel-debug-runtime`) OR `npx boxel run-command @cardstack/boxel-host/commands/<name>/default --input '{...}'` (CLI invocation). Keep both forms if both are useful. |
+| Host commands invoked as JSON `{name: "foo_xxxx", payload: {...}}` (in-app tool-call form) | Either the same JSON shape (when our reader is operating the live app via `/boxel-debug-runtime`) OR `npx boxel run-command @cardstack/boxel-host/tools/<name>/default --input '{...}'` (CLI invocation). Keep both forms if both are useful. |
 | References to features we don't have here (in-app chat history, room state, attached-cards-from-room) | Drop or note "in-host only". |
 | Realm URLs hard-coded to staging.boxel / app.boxel | Replace with placeholders (`<realm-url>`) per the "Public-repo path hygiene" rule in `CLAUDE.md`. |
 

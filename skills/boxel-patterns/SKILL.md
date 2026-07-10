@@ -25,13 +25,13 @@ The **Planned Pattern Backlog** lists ideas without working code. **Do not chase
 
 Only promote a new realm discovery into Ready Patterns when it captures implementation details an agent is likely to miss: unusual imports, hard syntax, FileDef/host-command wiring, library lifecycle setup/cleanup, query traps, or Boxel-specific render mechanics. Do not add a pattern only because the demo is attractive or easy to recreate with ordinary web code.
 
-For any pattern or reference that imports `@cardstack/boxel-host/commands/<name>`, run the host-command audit before promoting it:
+For any pattern or reference that imports `@cardstack/boxel-host/tools/<name>`, run the host-command audit before promoting it:
 
 ```sh
 BOXEL_MONOREPO=/path/to/boxel node skills/boxel-patterns/scripts/audit-host-command-refs.mjs
 ```
 
-The audit compares skill-tree command imports with `packages/host/app/commands/index.ts` in the live monorepo. A missing command import is a blocker for Ready Patterns unless the monorepo has changed and the audit is refreshed.
+The audit compares skill-tree command imports with `packages/host/app/tools/index.ts` in the live monorepo. A missing command import is a blocker for Ready Patterns unless the monorepo has changed and the audit is refreshed.
 
 ---
 
@@ -107,12 +107,12 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 ### Make a Command
 
 - `command-data-resource` — Call a host Command reactively from a Glimmer component via `commandData<T>`. Replaces manual `restartableTask` + `@tracked` plumbing.
-- `command-with-skill-card-ref` — Card kicks off an AI conversation: skill-card URL via `import.meta.url`, attached cards, `UseAiAssistantCommand` from `@cardstack/boxel-host/commands/ai-assistant`.
+- `command-with-skill-card-ref` — Card kicks off an AI conversation: skill-card URL via `import.meta.url`, attached cards, `UseAiAssistantCommand` from `@cardstack/boxel-host/tools/ai-assistant`.
 - `command-typed-with-progress` — `Command<Input, Output>` with a typed `progressStep` state machine the invoking component reflects in UI.
 - `command-optimistic-pipeline` — One durable run card per invocation, mutated in place while `SaveCardCommand` writes are queued fire-and-forget. Use for LLM/image/import pipelines that need fast UI and queryable progress logs.
 - `command-atomic-install` — Transactional realm install with `PlanBuilder` + `planModuleInstall` + `planInstanceInstall` + `ExecuteAtomicOperationsCommand`. The canonical catalog-install pattern.
 - `link-command-menu-item` — Expose a Command as a card menu item via `[getCardMenuItems]`. The card-native way to surface card-scoped actions.
-- `automate-run-command-cli` — Invoke a Command from the shell via `boxel run-command <spec> --input '{}'`, pairing with a typed run card for queryable history. Batch jobs, cron, CI gates.
+- `automate-run-command-cli` — Invoke a Command from the shell via `npx boxel run-command <spec> --input '{}'`, pairing with a typed run card for queryable history. Batch jobs, cron, CI gates.
 
 For the wider taxonomy (direct call, reactive resource, menu, typed progress, optimistic pipeline, AI processor, multi-turn assistant, CLI script, atomic install) and a single Command class exposed via every mode, see [`boxel/references/command-invocation-modes.md`](../boxel/references/command-invocation-modes.md).
 

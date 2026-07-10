@@ -101,7 +101,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **`realmURL`** — A **Symbol** exported from `@cardstack/runtime-common` AND `https://cardstack.com/base/card-api`. **Don't write `Symbol.for('realmURL')`** — that creates a different Symbol. Read realm via `card[realmURL]?.href`.
 - **silent zero-rows traps** (memorize) — (1) `filter: { on: ref }` with no predicate. (2) Custom sort field without `on:`. (3) `Symbol.for('realmURL')` instead of the canonical Symbol import. (4) Bare `links.self` like `"Foo/bar"` instead of `"./Foo/bar"` — relationship deserialization throws and the parent card silently fails to index. (5) FileDef-typed relationships dropping the file extension (e.g. `"../guide"` instead of `"../guide.md"`) — file exists but parent card fails to type-filter. → `boxel/references/query-systems.md`, `boxel/references/card-references.md`
 - **verified query composition patterns** — Templates that have been confirmed against a live realm + indexer (not just inferred from source): `every: [{ type: ref }, { on: ref, eq: { … } }]`, `… in: { field: [values] } …`, `… range: { field: { gte: … } } …`, `… contains: { cardTitle: … } …`. Build a **validation lab card** in the realm with one `@context.searchResultsComponent` section per pattern you depend on; assert non-empty results in browser QA. → `boxel/references/query-systems.md`
-- **transient federated-search failures** — `boxel search` can briefly return `Realms not found` right after a new card landing while the realm-server settles. Read files back, `boxel realm wait-for-ready`, validate via `@context.searchResultsComponent`, then retry. → `boxel-environment/references/workflows-and-orchestration.md`
+- **transient federated-search failures** — `npx boxel search` can briefly return `Realms not found` right after a new card landing while the realm-server settles. Read files back, `npx boxel realm wait-for-ready`, validate via `@context.searchResultsComponent`, then retry. → `boxel-environment/references/workflows-and-orchestration.md`
 
 ## 6. Theme system
 
@@ -134,9 +134,9 @@ The 4-stage recommended process for any user-facing card:
 
 ## 8. Lint workflow
 
-- **`boxel file lint <path> --realm <url> --file <local-file>`** — Local lint before push. Use during development.
-- **`boxel lint <path> --realm <url>`** — Remote lint after push. Authoritative check.
-- **`boxel check`** — Sync-state report. **NOT a lint check.** Don't confuse the two.
+- **`npx boxel file lint <path> --realm <url> --file <local-file>`** — Local lint before push. Use during development.
+- **`npx boxel lint <path> --realm <url>`** — Remote lint after push. Authoritative check.
+- **`npx boxel check`** — Sync-state report. **NOT a lint check.** Don't confuse the two.
 - **Clean lint output** — `No lint issues found` (text) or `{ "messages": [] }` (JSON).
 - Lint is **mandatory** before declaring `.gts` work done. → `boxel/references/lint-workflow.md`
 
@@ -255,7 +255,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`ExecuteAtomicOperationsCommand`** — Apply a plan transactionally; all or nothing.
 - **`SubmissionWorkflowCard`** + **`create-and-open-submission-workflow-card`** + **`retry-submission-workflow`** — Catalog submission flow via workflow card → PR. → `catalog-listing`, `/boxel-submit-listing`
 
-## 18. Host commands (`@cardstack/boxel-host/commands/<name>`)
+## 18. Host commands (`@cardstack/boxel-host/tools/<name>`)
 
 Available only inside the running Boxel app. Each is a default-export `Command` subclass.
 
@@ -271,7 +271,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 → `boxel-patterns/references/integration-surfaces.md` §3 for the full annotated table.
 
-**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getCardMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
+**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getCardMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
 
 ## 19. Boxel UI (`@cardstack/boxel-ui`)
 
@@ -298,19 +298,19 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 ## 21. `boxel-cli` (the local CLI)
 
 - **`boxel profile <list|use|create|delete>`** — Profile / environment management.
-- **`boxel realm <create|list|remove|wait-for-ready|cancel-indexing>`** — Realm lifecycle.
-- **`boxel realm pull <realm-url> <local-dir>`** — Realm → local.
-- **`boxel realm push <local-dir> <realm-url>`** — Local → realm.
-- **`boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.)
-- **`boxel realm status <local-dir>`** — Classify local changes vs. manifest.
-- **`boxel realm history`** — List/restore/tag checkpoints.
-- **`boxel realm milestone`** — Tag checkpoints.
-- **`boxel realm watch <start|stop>`** — Auto-sync on file changes.
-- **`boxel file <read|write|list|touch|delete>`** — Per-file realm operations.
-- **`boxel file lint <path> --realm <url> --file <local-file>`** — Local lint.
-- **`boxel lint [path] --realm <url>`** — Remote lint (single file or whole realm).
-- **`boxel search '<query-json>' --realms <urls>`** — Federated search.
-- **`boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]`** — Execute a host command via the prerenderer. CLI invocation mode for Commands. → `automate-run-command-cli`
+- **`npx boxel realm <create|list|remove|wait-for-ready|cancel-indexing>`** — Realm lifecycle.
+- **`npx boxel realm pull <realm-url> <local-dir>`** — Realm → local.
+- **`npx boxel realm push <local-dir> <realm-url>`** — Local → realm.
+- **`npx boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.)
+- **`npx boxel realm status <local-dir>`** — Classify local changes vs. manifest.
+- **`npx boxel realm history`** — List/restore/tag checkpoints.
+- **`npx boxel realm milestone`** — Tag checkpoints.
+- **`npx boxel realm watch <start|stop>`** — Auto-sync on file changes.
+- **`npx boxel file <read|write|list|touch|delete>`** — Per-file realm operations.
+- **`npx boxel file lint <path> --realm <url> --file <local-file>`** — Local lint.
+- **`npx boxel lint [path] --realm <url>`** — Remote lint (single file or whole realm).
+- **`npx boxel search '<query-json>' --realms <urls>`** — Federated search.
+- **`npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]`** — Execute a host command via the prerenderer. CLI invocation mode for Commands. → `automate-run-command-cli`
 - **`boxel consolidate-workspaces`** — Merge multiple watched workspaces (interactive).
 
 → `boxel-patterns/references/integration-surfaces.md` §10
@@ -407,7 +407,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`automate-linked-to-me-lookup`** — Schema-level query-backed `linksToMany` (preferred) or component-level `getCards()`. For circular `linksTo` between two CardDefs, both sides use the `() => Class` thunk form to avoid cyclic-import errors.
 - **`resource-for-state`** — Wrap third-party library state in an ember-resources Resource.
 - **`automate-image-steering`** — Iteratively refine an image generation with initial prompt + steering input + first/current image lineage.
-- **`automate-run-command-cli`** — Invoke a host Command via `boxel run-command` shell + typed run card for history.
+- **`automate-run-command-cli`** — Invoke a host Command via `npx boxel run-command` shell + typed run card for history.
 
 ### Layout
 - **`layout-design-board`** — Parent card = layout shell composing many cards.

@@ -40,7 +40,7 @@ boxel:
 - [ ] Computed fields wrap field access in try/catch when crossing card boundaries.
 - [ ] No self-referencing computed fields.
 - [ ] Tracking marker `ⁿ` added on every changed line (if tracking mode is on).
-- [ ] Changed `.gts` files passed installed npm `boxel` lint (`boxel file lint ... --file <local-file>` before push and `boxel lint <path> --realm <url>` after push).
+- [ ] Changed `.gts` files passed installed npm `boxel` lint (`npx boxel file lint ... --file <local-file>` before push and `npx boxel lint <path> --realm <url>` after push).
 
 ## Failure Recovery
 
