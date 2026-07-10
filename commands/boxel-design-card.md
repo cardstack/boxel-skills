@@ -29,7 +29,7 @@ boxel:
 ## Procedure
 
 1. **Step 0 — Confirm the Theme.** Check whether `cardInfo.theme` is set on representative instances. If not, this is the first thing to fix — no amount of `<style scoped>` polish will land coherently without a Theme card to anchor it.
-   - **Reuse:** find an existing Theme card in the target realm via `boxel search` or `/boxel-search-cards`.
+   - **Reuse:** find an existing Theme card in the target realm via `npx boxel search` or `/boxel-search-cards`.
    - **Copy and edit:** copy an existing Theme, change `cssVariables` (the `:root` and `.dark` CSS blocks) and `cssImports` (Google Fonts URLs).
    - **Create:** new Theme card adopting from `https://cardstack.com/base/style-reference` (richer — has `visualDNA`, `inspirations`, structured `rootVariables`) or extending `Theme` directly (`cssVariables` + `cssImports`).
 
@@ -59,4 +59,4 @@ boxel:
 
 - "Looks the same after edit" → check that the instance has `cardInfo.theme` set; without it, the Theme's CSS variables aren't injected.
 - "Theme card not applying" → confirm the linked Theme exists at the URL in `cardInfo.theme.links.self`; confirm `cssVariables` includes `:root { ... }` selectors.
-- "Style changes work locally but not after sync" → the realm needs to re-index the Theme card after `cssVariables` updates. Use `/boxel-debug-runtime` or `boxel realm cancel-indexing` + manual re-trigger.
+- "Style changes work locally but not after sync" → the realm needs to re-index the Theme card after `cssVariables` updates. Use `/boxel-debug-runtime` or `npx boxel realm cancel-indexing` + manual re-trigger.

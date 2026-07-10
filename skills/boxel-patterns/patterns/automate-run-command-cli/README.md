@@ -2,13 +2,13 @@
 validated: source-proven
 ---
 
-# automate-run-command-cli — Invoke a Command from the shell via `boxel run-command`
+# automate-run-command-cli — Invoke a Command from the shell via `npx boxel run-command`
 
 **What this gives you:** A Command class you authored for your realm becomes invokable from the shell. When paired with a typed run card, every invocation leaves an auditable trace — a queryable card with steps, logs, progress, errors, and outputs — without writing a separate logging layer.
 
 **When to use:**
 - Batch jobs (reindex, regenerate thumbnails, sync from upstream) that you'd otherwise run by hand inside the host UI.
-- Cron / scheduled tasks — a CI job calls `boxel run-command` on a schedule.
+- Cron / scheduled tasks — a CI job calls `npx boxel run-command` on a schedule.
 - CI gates — a deploy script checks an exit code or parses the JSON output.
 - One-off realm migrations after a schema change (see `boxel-migrate-schema`).
 
@@ -17,7 +17,7 @@ validated: source-proven
 ## Invocation shape
 
 ```sh
-boxel run-command \
+npx boxel run-command \
   'https://<realm>/example::ReindexCommand' \
   --realm 'https://<realm>/' \
   --input '{ "targetRealm": "https://<realm>/" }' \

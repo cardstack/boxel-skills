@@ -92,4 +92,4 @@ The fitted view must render correctly in all 16 sizes above. For each row in the
 - [ ] No `auto` rows for body content (use `minmax(0, 1fr)` per the container-query guide).
 - [ ] No overflowing scrollbars or missing visual rhythm at any cell.
 
-Server-side validation: hit `/_search-prerendered` with `format=fitted` for the card; the response includes pre-rendered HTML for each of the 16 named sizes. Open the live app's format preview to walk through them visually. `boxel check` does not do this — it's sync-state only.
+Server-side validation: hit `/_search-prerendered` with `format=fitted` for the card; the response includes pre-rendered HTML for each of the 16 named sizes. Open the live app's format preview to walk through them visually. `npx boxel check` does not do this — it's sync-state only.

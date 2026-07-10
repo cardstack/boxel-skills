@@ -4,7 +4,7 @@ Linting is part of the core Boxel code workflow. Every `.gts` change needs a rea
 
 ## In the AI assistant (no shell) — use `checkCorrectness`
 
-The CLI sections below assume a shell. In the AI assistant there is no shell, so **do not** try to run `boxel file lint`. After every applied code patch the assistant automatically issues a `checkCorrectness` command against each patched file (and each affected card instance). It runs the same server-side ESLint + `ember-template-lint` gate and returns the result inline as a card with `correct` (boolean), `errors` (string array), and `warnings` (string array). Clean means `correct: true` with an empty `errors` array — the same bar as `No lint issues found` / `messages: []` below.
+The CLI sections below assume a shell. In the AI assistant there is no shell, so **do not** try to run `npx boxel file lint`. After every applied code patch the assistant automatically issues a `checkCorrectness` command against each patched file (and each affected card instance). It runs the same server-side ESLint + `ember-template-lint` gate and returns the result inline as a card with `correct` (boolean), `errors` (string array), and `warnings` (string array). Clean means `correct: true` with an empty `errors` array — the same bar as `No lint issues found` / `messages: []` below.
 
 The auto-fix loop is bounded (currently 3 attempts per target). Aim to emit clean code on the first pass rather than leaning on the retries — the recurring first-pass offenders (unused/duplicated imports, concatenated inline `style`, unlabeled inputs) are in the `SKILL.md` common-mistakes list. Everything under "What Lint Does NOT Catch" and "Completion Gate" applies to `checkCorrectness` too; the CLI-specific setup and command syntax do not.
 
@@ -34,26 +34,26 @@ If after these steps you still don't see `file lint`, log the CLI gap explicitly
 Before pushing, lint the local source file against its realm:
 
 ```sh
-boxel file lint <realm-relative-path> --realm <realm-url> --file <absolute-local-file>
+npx boxel file lint <realm-relative-path> --realm <realm-url> --file <absolute-local-file>
 ```
 
 After pushing, lint the remote file from the realm:
 
 ```sh
-boxel lint <realm-relative-path> --realm <realm-url>
+npx boxel lint <realm-relative-path> --realm <realm-url>
 ```
 
 For a broader pass, lint the whole realm:
 
 ```sh
-boxel lint --realm <realm-url>
+npx boxel lint --realm <realm-url>
 ```
 
 Useful JSON form:
 
 ```sh
-boxel file lint <realm-relative-path> --realm <realm-url> --file <absolute-local-file> --json
-boxel lint <realm-relative-path> --realm <realm-url> --json
+npx boxel file lint <realm-relative-path> --realm <realm-url> --file <absolute-local-file> --json
+npx boxel lint <realm-relative-path> --realm <realm-url> --json
 ```
 
 ## Interpreting Results
@@ -67,13 +67,13 @@ Do not treat transport success or `ok: true` as clean by itself. The lint endpoi
 
 ## What Does Not Count
 
-- `boxel check <file>` does not count. It reports sync state and can miss compile/lint failures.
+- `npx boxel check <file>` does not count. It reports sync state and can miss compile/lint failures.
 - `_search-prerendered` does not replace lint. It is a server render check for supported formats.
 - Opening the card in the app does not replace lint. It exercises runtime rendering, especially isolated format.
 
 ## What Lint Does NOT Catch
 
-`boxel file lint` clean is necessary but not sufficient. The realm-side lint endpoint is ESLint-style; it misses several runtime-only failure modes:
+`npx boxel file lint` clean is necessary but not sufficient. The realm-side lint endpoint is ESLint-style; it misses several runtime-only failure modes:
 
 - **Missing strict-mode template-helper imports.** `(get @fields.X i)` in a template compiles fine through the lint pass but crashes the realm-server's strict-mode template compiler with `Attempted to resolve a helper… but that value was not in scope`. Import every helper you use: `import { get, fn, hash, array, concat } from '@ember/helper';`. See `common-imports.md`.
 - **Schema/value type mismatches** — `contains(DateField)` with an ISO-datetime value, or `contains(DateTimeField)` with a date-only value. Lint passes; the file writes; the indexer accepts it; only at render time does `date-fns format()` throw `RangeError: Invalid time value`. See `base-field-catalog.md` "DateField vs DateTimeField — the schema-vs-value contract".
@@ -94,9 +94,9 @@ A clean instantiate-card result (`passed: true, error: null`) is much closer to 
 For `.gts` work, the minimum validation set is:
 
 1. Import preflight from `common-imports.md`.
-2. Local `boxel file lint ... --file <local-file>`.
+2. Local `npx boxel file lint ... --file <local-file>`.
 3. Push/sync/upload.
-4. Remote `boxel lint <path> --realm <realm-url>`.
+4. Remote `npx boxel lint <path> --realm <realm-url>`.
 5. Render validation for affected cards/formats when user-facing behavior changed.
 
 If the lint command is genuinely unavailable, say that explicitly, log the CLI gap, and run server-side render validation as a fallback. That fallback is not a clean lint.

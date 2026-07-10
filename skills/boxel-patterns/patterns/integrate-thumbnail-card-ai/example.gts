@@ -2,9 +2,9 @@
 //
 // Structural twin of the experiments-realm/screenshot-card-demo.gts (used by
 // `integrate-screenshot-card-format`), but invoking GenerateThumbnailCommand
-// instead of ScreenshotCardCommand. The call signature mirrors the proven
-// production caller in packages/host/app/commands/listing-create.ts
-// (autoGenerateThumbnail).
+// instead of ScreenshotCardCommand. The call signature mirrors the host's
+// former `autoGenerateThumbnail` caller (retired from the host in CS-11372
+// when listing commands moved to the catalog realm).
 //
 // Inputs the command accepts:
 //   - prompt                 (required) — text prompt for the AI

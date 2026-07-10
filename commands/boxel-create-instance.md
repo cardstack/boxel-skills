@@ -65,7 +65,7 @@ boxel:
 
 ## Verification after push
 
-`boxel file lint` does NOT confirm the instance is indexed. Run:
+`npx boxel file lint` does NOT confirm the instance is indexed. Run:
 
 ```sh
 npx boxel search --realm <url> \

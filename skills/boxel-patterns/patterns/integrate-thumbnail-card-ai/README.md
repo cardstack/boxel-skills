@@ -80,9 +80,11 @@ End-to-end flow (from `packages/host/app/tools/generate-thumbnail.ts`):
 9. If `targetCardId` is set, calls `PatchCardInstanceCommand` to write `cardInfo.cardThumbnail` → `{ links: { self: imageDefIdentifier } }`.
 10. Returns `{ imageDefIdentifier }`.
 
-## Canonical production usage
+## Reference call pattern
 
-From `packages/host/app/commands/listing-create.ts`:
+Adapted from the host's former `autoGenerateThumbnail` caller (in the
+since-retired `listing-create` command — CS-11372 moved listing commands to
+the catalog realm), preserved here as an illustrative caller:
 
 ```ts
 private async autoGenerateThumbnail(
@@ -175,7 +177,7 @@ class MyCard extends CardDef {
 ## Source
 
 - Host command: `@cardstack/boxel-host/tools/generate-thumbnail` — `packages/host/app/tools/generate-thumbnail.ts` in the boxel monorepo.
-- Production caller: `packages/host/app/commands/listing-create.ts` → `autoGenerateThumbnail`.
+- Former production caller: `autoGenerateThumbnail` in the host's `listing-create` command, retired in CS-11372 (listing commands now live in the catalog realm).
 - Catalog-realm re-export: `packages/catalog-realm/commands/generate-thumbnail-command.gts` (one-line `export { default as GenerateThumbnailCommand } from '...'`).
 - Default LLM constant: `@cardstack/runtime-common/matrix-constants` → `DEFAULT_IMAGE_GENERATION_LLM`.
 - Composes: `SendRequestViaProxyCommand`, `WriteBinaryFileCommand`, `PatchCardInstanceCommand`.

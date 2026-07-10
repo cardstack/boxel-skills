@@ -44,8 +44,8 @@ boxel:
 - [ ] Block-param names don't shadow HTML tags (no `as |s|`, `as |section|`, `as |option|`).
 - [ ] Theme variables only — `grep -E '#[0-9a-fA-F]{3,8}' <file>` returns no hard-coded colors (except where theme-scoped).
 - [ ] **For `fitted` edits**: the two-element `.cq` → `.fit` pattern from `container-query-fitted-layout.md` is in place; `.fit` declares `--type-base`, `--type-ratio`, and the `pow()`-derived role variables; body row uses `minmax(0, 1fr)`; every region has `overflow: hidden; min-height: 0`.
-- [ ] **For `fitted` edits**: every one of the **16 named sizes** renders cleanly — Small/Medium/Large Badge; Single/Double/Triple Strip + Double-Wide/Triple-Wide Strip; Small/Regular/CardsGrid/Tall/Large Tile; Compact/Full/Expanded Card. Walk the table in `boxel/references/fitted-formats.md`; no overflow, type hierarchy legible at every cell, sub-format routing (badge/strip/tile/card) hits correctly. Verify in the live app's format preview, not `boxel check`.
-- [ ] Changed `.gts` files passed installed npm `boxel` lint (`boxel file lint ... --file <local-file>` before push and `boxel lint <path> --realm <url>` after push).
+- [ ] **For `fitted` edits**: every one of the **16 named sizes** renders cleanly — Small/Medium/Large Badge; Single/Double/Triple Strip + Double-Wide/Triple-Wide Strip; Small/Regular/CardsGrid/Tall/Large Tile; Compact/Full/Expanded Card. Walk the table in `boxel/references/fitted-formats.md`; no overflow, type hierarchy legible at every cell, sub-format routing (badge/strip/tile/card) hits correctly. Verify in the live app's format preview, not `npx boxel check`.
+- [ ] Changed `.gts` files passed installed npm `boxel` lint (`npx boxel file lint ... --file <local-file>` before push and `npx boxel lint <path> --realm <url>` after push).
 
 ## Failure Recovery
 

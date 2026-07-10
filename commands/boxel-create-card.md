@@ -102,10 +102,10 @@ Create one or two `.json` instances when requested:
 
 ### Lint/compile verification
 
-- `boxel check <file>` is sync state only, NOT a compile or lint check.
+- `npx boxel check <file>` is sync state only, NOT a compile or lint check.
 - Use the installed npm `@cardstack/boxel-cli` 0.2.0+ lint surface:
-  - Before push: `boxel file lint <realm-relative-path> --realm <realm-url> --file <absolute-local-file>`.
-  - After push: `boxel lint <realm-relative-path> --realm <realm-url>`.
+  - Before push: `npx boxel file lint <realm-relative-path> --realm <realm-url> --file <absolute-local-file>`.
+  - After push: `npx boxel lint <realm-relative-path> --realm <realm-url>`.
 - Clean lint means `No lint issues found` or JSON `messages: []`; `ok: true` with lint messages is not clean.
 - Run server-side render validation after push too: hit `/_search-prerendered` for `embedded`/`fitted`/`atom`/`head` formats, and open the card in the live app to exercise `isolated`.
 
@@ -157,7 +157,7 @@ Require 200 before adding `static icon = X`. See `boxel/references/icons.md` "CD
 - [ ] Stage 2 theme was EXTRACTED from the mockup (rule of two — tokenize if used twice+), not picked from a generic shadcn palette before the design existed.
 - [ ] Stage 3 isolated is pixel-identical to stage 1 but uses `var(--*)` for every value that appears twice+.
 - [ ] Stage 4 fitted **features the card's media** if the card has any (hero image, illustration, brand mark, color swatch). Fitted is not a text-only metadata strip when imagery is available.
-- [ ] Fitted view **renders correctly at ALL 16 named sizes** (Small/Medium/Large Badge; Single/Double/Triple Strip; Double-Wide/Triple-Wide Strip; Small/Regular/CardsGrid/Tall/Large Tile; Compact/Full/Expanded Card). No content overflow, no clipped text, type hierarchy legible at every cell, sub-format routing (badge/strip/tile/card) hits correctly. Walk the table in `boxel/references/fitted-formats.md` and confirm each row. Verify via the live app's fitted preview — not by `boxel check`.
+- [ ] Fitted view **renders correctly at ALL 16 named sizes** (Small/Medium/Large Badge; Single/Double/Triple Strip; Double-Wide/Triple-Wide Strip; Small/Regular/CardsGrid/Tall/Large Tile; Compact/Full/Expanded Card). No content overflow, no clipped text, type hierarchy legible at every cell, sub-format routing (badge/strip/tile/card) hits correctly. Walk the table in `boxel/references/fitted-formats.md` and confirm each row. Verify via the live app's fitted preview — not by `npx boxel check`.
 
 **Chrome contract (every format):**
 - [ ] No format's outermost element decorates with `border-radius`, `border`, `box-shadow`, opaque `background`, or `overflow` — those belong to the host's CardContainer or the parent's `:deep()` override. Brand outer-treatment goes on the Theme card via `--radius` / `--background` / `--border`.
@@ -198,9 +198,9 @@ Require 200 before adding `static icon = X`. See `boxel/references/icons.md` "CD
 - [ ] Sample content matches the design's editorial voice — evocative, real-sounding, never Lorem ipsum.
 
 **Validation:**
-- [ ] Local lint was clean before push: `boxel file lint <path> --realm <realm-url> --file <local-file>`.
-- [ ] Remote lint was clean after push: `boxel lint <path> --realm <realm-url>`.
-- [ ] A real server-side render check was run (`_search-prerendered` for `embedded`/`fitted`/`atom`/`head` + open in app for `isolated`). `boxel check` alone does not satisfy this.
+- [ ] Local lint was clean before push: `npx boxel file lint <path> --realm <realm-url> --file <local-file>`.
+- [ ] Remote lint was clean after push: `npx boxel lint <path> --realm <realm-url>`.
+- [ ] A real server-side render check was run (`_search-prerendered` for `embedded`/`fitted`/`atom`/`head` + open in app for `isolated`). `npx boxel check` alone does not satisfy this.
 
 ## Failure Recovery
 

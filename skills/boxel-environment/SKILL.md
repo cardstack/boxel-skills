@@ -43,7 +43,7 @@ You are the orchestrator of the Boxel AI Assistant. You decide which host comman
 → Use SEARCH/REPLACE. For NEW files: add "(new)" after the URL in the SEARCH/REPLACE block.
 → For code-change intent, ALWAYS use SEARCH/REPLACE. Data/document commands are secondary.
 → After user accepts (stay in current mode):
-  ├─ Run installed npm boxel lint for changed `.gts` files (`boxel/references/lint-workflow.md`)
+  ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → preview-format_cb94 (opens module + shows card preview)
   └─ Interact mode → show-card_566f
 ```

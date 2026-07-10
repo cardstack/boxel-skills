@@ -124,7 +124,7 @@ OpenRouter calls go through `/_request-forward` to the external `https://openrou
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/_federated-search` | QUERY | Cross-realm search (used by `boxel search` + `SearchCardsByQueryCommand` when crossing realms). |
+| `/_federated-search` | QUERY | Cross-realm search (used by `npx boxel search` + `SearchCardsByQueryCommand` when crossing realms). |
 | `/_federated-search-prerendered` | QUERY | Same with prerendered card results. |
 | `/_federated-info` | GET | Cross-realm realm metadata. |
 | `/_federated-types` | GET | Cross-realm type info. |
@@ -132,7 +132,7 @@ OpenRouter calls go through `/_request-forward` to the external `https://openrou
 | `/_prerender-card`, `/_prerender-module`, `/_prerender-file-extract` | POST | Prerenderer entry points. |
 | `/_publish-realm`, `/_unpublish-realm` | POST | Realm publishing controls. |
 | `/_create-realm`, `/_delete-realm` | POST | Realm lifecycle. |
-| `/_run-command` | POST | Server-side host command execution (underlying `boxel run-command`). |
+| `/_run-command` | POST | Server-side host command execution (underlying `npx boxel run-command`). |
 | `/_realm-auth` | GET | Realm auth metadata. |
 | `/_queue-status` | GET | Indexing queue state. |
 | `/_catalog-realms` | GET | List of catalog realms. |
@@ -320,44 +320,44 @@ Local CLI for realm sync, watching, checkpoints, federated search, and scripted 
 ```
 boxel profile [list|use|create|delete] [name]               Profile / environment management
 
-boxel realm create <name> <display-name>                    Create a realm on the server
-boxel realm list [--all-accessible|--hidden] [--json]       List realms in current profile
-boxel realm remove <realm-url>                              Remove a realm (destructive)
-boxel realm wait-for-ready --realm <url> [--timeout <ms>]   Block until realm is reachable
-boxel realm cancel-indexing --realm <url> [--cancel-pending] Cancel indexing jobs
+npx boxel realm create <name> <display-name>                    Create a realm on the server
+npx boxel realm list [--all-accessible|--hidden] [--json]       List realms in current profile
+npx boxel realm remove <realm-url>                              Remove a realm (destructive)
+npx boxel realm wait-for-ready --realm <url> [--timeout <ms>]   Block until realm is reachable
+npx boxel realm cancel-indexing --realm <url> [--cancel-pending] Cancel indexing jobs
 
-boxel realm pull <realm-url> <local-dir>                    Realm → local
-boxel realm push <local-dir> <realm-url>                    Local → realm
-boxel realm sync <local-dir> <realm-url>                    Bidirectional
-boxel realm status <local-dir>                              Classify changes vs the manifest
+npx boxel realm pull <realm-url> <local-dir>                    Realm → local
+npx boxel realm push <local-dir> <realm-url>                    Local → realm
+npx boxel realm sync <local-dir> <realm-url>                    Bidirectional
+npx boxel realm status <local-dir>                              Classify changes vs the manifest
 
-boxel realm history <local-dir>                             List checkpoints
-boxel realm history <local-dir> --restore <id|hash>         Restore a checkpoint
-boxel realm history <local-dir> --message "<msg>"           Create a manual checkpoint
-boxel realm history <local-dir> --limit <n>                 Extend listing depth (default 100)
+npx boxel realm history <local-dir>                             List checkpoints
+npx boxel realm history <local-dir> --restore <id|hash>         Restore a checkpoint
+npx boxel realm history <local-dir> --message "<msg>"           Create a manual checkpoint
+npx boxel realm history <local-dir> --limit <n>                 Extend listing depth (default 100)
 
-boxel realm milestone <local-dir> --mark <id> --name <name> Mark a checkpoint as milestone
-boxel realm milestone <local-dir> --remove <id|hash>        Remove a milestone tag
+npx boxel realm milestone <local-dir> --mark <id> --name <name> Mark a checkpoint as milestone
+npx boxel realm milestone <local-dir> --remove <id|hash>        Remove a milestone tag
 
-boxel realm watch start <local-dir>                         Auto-sync on file changes (acquires lock)
-boxel realm watch stop                                      Stop the running watcher
+npx boxel realm watch start <local-dir>                         Auto-sync on file changes (acquires lock)
+npx boxel realm watch stop                                      Stop the running watcher
 
-boxel file read <path>                                       Read one file from a realm
-boxel file write <path> [< stdin]                            Write one file to a realm
-boxel file list <path>                                       List realm contents
-boxel file touch <path>                                      Re-index one file
-boxel file delete <path>                                     Delete one file
+npx boxel file read <path>                                       Read one file from a realm
+npx boxel file write <path> [< stdin]                            Write one file to a realm
+npx boxel file list <path>                                       List realm contents
+npx boxel file touch <path>                                      Re-index one file
+npx boxel file delete <path>                                     Delete one file
 
-boxel file lint <path> --realm <url> --file <local-file>     Lint a local file against a realm
-boxel lint [path] --realm <url>                              Lint one remote file or a whole realm
+npx boxel file lint <path> --realm <url> --file <local-file>     Lint a local file against a realm
+npx boxel lint [path] --realm <url>                              Lint one remote file or a whole realm
 
-# Do NOT use `boxel check <file>` for lint — that's a sync-state report only.
+# Do NOT use `npx boxel check <file>` for lint — that's a sync-state report only.
 # Clean lint means `No lint issues found` or JSON messages: [].
 
-boxel search '<query-json>' --realms <urls>                 Federated search across realms
+npx boxel search '<query-json>' --realms <urls>                 Federated search across realms
                                                             (hits /_federated-search)
 
-boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]
+npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]
                                                             Execute a host command via the prerenderer
 
 boxel consolidate-workspaces                                Merge multiple watched workspaces (interactive)
