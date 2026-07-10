@@ -3,7 +3,7 @@ name: indexing-operations
 description: Realm reindexing and indexing-job control commands.
 boxel:
   kind: skill
-  commands:
+  tools:
     - codeRef:
         module: '@cardstack/boxel-host/tools/invalidate-realm-identifiers'
         name: default

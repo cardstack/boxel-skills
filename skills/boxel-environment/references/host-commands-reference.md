@@ -3,7 +3,7 @@ name: host-commands-reference
 description: Full catalog of Boxel host commands — what each does and its approval rules.
 boxel:
   kind: skill
-  commands:
+  tools:
     - codeRef:
         module: '@cardstack/boxel-host/tools/switch-submode'
         name: default
