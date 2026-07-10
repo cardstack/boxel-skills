@@ -11,7 +11,7 @@
       "cardInfo": {
         "notes": null,
         "name": "File Editing",
-        "summary": "SEARCH/REPLACE patterns and tracking mode for code generation",
+        "summary": "Pointer to the Source Code Editing skill, which defines the SEARCH/REPLACE format and edit-tracking convention",
         "cardThumbnailURL": null
       },
       "commands": []

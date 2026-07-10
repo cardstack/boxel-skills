@@ -93,7 +93,7 @@ Core syntax and patterns (load when topic comes up):
 - `references/core-patterns.md` — Card definitions, computed title, field definitions, computed properties.
 - `references/prefers-wide-format.md` — When `static prefersWideFormat = true` is required (app-card homes, sectioned-record nav, 3D layouts, routed pages, dashboards, slide decks). Default is `false`; the most-forgotten static property. **Decide at CardDef creation time, not after the layout looks cramped.**
 - `references/template-syntax.md` — Field access, compound fields, `@fields` delegation, array handling, fallback values, and Glimmer syntax gotchas (the `{{#if (this.x)}}` parens trap, HTML-tag-shadowing block params).
-- `references/file-editing.md` — Edit tracking mode, SEARCH/REPLACE essentials, creating vs modifying files.
+- `references/file-editing.md` — Pointer to the `source-code-editing` skill, which defines the SEARCH/REPLACE format and edit-tracking convention.
 - `references/data-management.md` — File organization, JSON instance format, field value patterns, relationships.
 - `references/card-references.md` — `links.self` shapes: relative (`./Foo/bar` / `../Foo/bar`) vs absolute vs registered-prefix; FileDef-typed relationships need the file extension; `$REALM` and `@cardstack/...` rules; common silent-failure modes.
 - `references/defensive-programming.md` — Optional chaining, default values, try/catch, array validation.
