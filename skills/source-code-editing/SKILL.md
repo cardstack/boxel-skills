@@ -1,6 +1,6 @@
 ---
 name: source-code-editing
-description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, the .gts edit-tracking convention, and recovery from failed matches. Required before issuing any code edit.
+description: Use when editing existing .gts files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, the .gts edit-tracking convention, and recovery from failed matches. Required before issuing any .gts code edit.
 boxel:
   kind: skill
 ---
