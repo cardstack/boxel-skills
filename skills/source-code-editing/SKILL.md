@@ -145,7 +145,7 @@ Boxel `.gts` files carry an edit-tracking convention so changes stay visible in 
 
 When you create a new `.gts` file, this banner is the first line of your REPLACE section.
 
-**Mark every line you add or change** with a sequential superscript comment — `// ¹ description`, `// ²`, `// ³` … — continuing from the highest marker already present in the file. Keep existing markers intact when they appear in your SEARCH section (they also help make the match unique).
+**When editing an existing `.gts` file, mark every line you add or change** with a sequential superscript comment — `// ¹ description`, `// ²`, `// ³` … — continuing from the highest marker already present in the file. Keep existing markers intact when they appear in your SEARCH section (they also help make the match unique).
 
 Example creating a new file:
 
