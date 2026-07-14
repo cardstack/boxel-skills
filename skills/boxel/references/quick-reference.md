@@ -90,7 +90,7 @@ import { task, restartableTask, timeout } from 'ember-concurrency'; // timeout i
 
 // Import preflight: if a template uses (fn ...), {{on ...}},
 // concat/get/array/hash, Boxel UI predicates, or formatters, the import must
-// be present explicitly. See references/common-imports.md.
+// be present explicitly. See common-imports.md.
 
 // ⁶ TIMING RULE: NEVER use requestAnimationFrame
 // - DOM timing: Use Glimmer modifiers with cleanup

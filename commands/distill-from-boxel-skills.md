@@ -43,7 +43,7 @@ The naming convention is consistent enough that most files map mechanically:
 | `dev-core-concept.md` | `skills/boxel/references/core-concept.md` |
 | `dev-core-patterns.md` | `skills/boxel/references/core-patterns.md` |
 | `dev-quick-reference.md` | `skills/boxel/references/quick-reference.md` |
-| `dev-technical-rules.md` | `skills/boxel/references/technical-rules.md` (+ cardinal rules in `skills/boxel/SKILL.md`) |
+| `dev-technical-rules.md` | cardinal rules in `skills/boxel/SKILL.md` + schema-hygiene checklist in `skills/boxel/references/core-patterns.md` |
 | `dev-file-def.md` | `skills/boxel-file-def/SKILL.md` |
 | `dev-file-editing.md` | `skills/boxel/references/file-editing.md` (or `skills/source-code-editing/SKILL.md`) |
 | `dev-markdown-format.md` | `skills/boxel-markdown-format/SKILL.md` |

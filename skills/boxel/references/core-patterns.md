@@ -42,7 +42,7 @@ export class BlogPost extends CardDef {
   static icon = FileTextIcon; // ✅ CORRECT: Boxel icons for static card/field type icons
   // prefersWideFormat = true is RIGHT for blog posts (long-form reading + hero
   // imagery want viewport width). Default is `false` — see
-  // `references/prefers-wide-format.md` for the full when-to-set-it rule.
+  // `prefers-wide-format.md` for the full when-to-set-it rule.
   static prefersWideFormat = true;
   
   @field headline = contains(StringField);
@@ -110,6 +110,14 @@ export class AddressField extends FieldDef {
   };
 }
 ```
+
+### Schema hygiene (quick checklist)
+
+Beyond the cardinal rules in `SKILL.md` (contains vs linksTo, exports, three formats):
+
+- **Never use JS/TS reserved words as field names** (`class`, `new`, `default`, `static`, …).
+- **No duplicate field definitions** — one `@field name = ...` per name per class.
+- **Keep computed fields simple and unidirectional** — no self-reference or cycles (see next section); wrap cross-card access in try-catch.
 
 ### 3. Computed Properties with Safety
 
