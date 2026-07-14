@@ -1,6 +1,6 @@
 ---
 name: source-code-editing
-description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, and recovery from failed matches. Required before issuing any code edit.
+description: Use when editing existing .gts files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, the .gts edit-tracking convention, and recovery from failed matches. Required before issuing any .gts code edit.
 boxel:
   kind: skill
 ---
@@ -132,3 +132,47 @@ When you respond with a SEARCH/REPLACE block, do not refer to it as a SEARCH/REP
 After emitting one or more SEARCH/REPLACE blocks, the user will need to apply the changes. Therefore, end your response after emitting all your SEARCH/REPLACE blocks instead of summarizing. You will be notified when the blocks have been applied, and you can summarize the updates that have been made then.
 
 Never respond with '[Omitting previously suggested code change]', or '[Omitting previously suggested and applied code change]'. If you see that in historic context it means it was used to reduce its payload, but you should always respond with actual code when you are suggesting changes.
+
+## Edit tracking (Boxel `.gts` convention)
+
+Boxel `.gts` files carry an edit-tracking convention so changes stay visible in the source. It applies to `.gts` files only — never add tracking comments to `.json` files.
+
+**Line 1 of every `.gts` file is the tracking banner:**
+
+```gts
+// ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══
+```
+
+When you create a new `.gts` file, this banner is the first line of your REPLACE section.
+
+**When editing an existing `.gts` file, mark every line you add or change** with a sequential superscript comment — `// ¹ description`, `// ²`, `// ³` … — continuing from the highest marker already present in the file. Keep existing markers intact when they appear in your SEARCH section (they also help make the match unique).
+
+Example creating a new file:
+
+```gts
+http://realm/recipe-card.gts (new)
+╔═══ SEARCH ════╗
+╠═══════════════╣
+// ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══
+import { CardDef } from 'https://cardstack.com/base/card-api'; // ¹
+export class RecipeCard extends CardDef { // ²
+  static displayName = 'Recipe';
+}
+╚═══ REPLACE ═══╝
+```
+
+Example modifying an existing file:
+
+```gts
+https://example.com/recipe-card.gts
+╔═══ SEARCH ════╗
+export class RecipeCard extends CardDef {
+  static displayName = 'Recipe';
+  @field recipeName = contains(StringField);
+╠═══════════════╣
+export class RecipeCard extends CardDef {
+  static displayName = 'Recipe';
+  @field recipeName = contains(StringField);
+  @field servings = contains(NumberField); // ¹⁸ Added servings
+╚═══ REPLACE ═══╝
+```

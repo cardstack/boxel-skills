@@ -26,11 +26,11 @@
       },
       "instructionsSource": {
         "links": {
-          "self": "./source-code-editing.md"
+          "self": "../skills/source-code-editing/SKILL.md"
         },
         "data": {
           "type": "file",
-          "id": "./source-code-editing.md"
+          "id": "../skills/source-code-editing/SKILL.md"
         }
       }
     }
