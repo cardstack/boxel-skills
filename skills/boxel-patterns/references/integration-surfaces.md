@@ -318,13 +318,16 @@ Local CLI for realm sync, watching, checkpoints, federated search, and scripted 
 ### Full subcommand surface
 
 ```
-boxel profile [list|use|create|delete] [name]               Profile / environment management
+npx boxel profile [list|add|switch|remove|migrate]              Profile / environment management
 
 npx boxel realm create <name> <display-name>                    Create a realm on the server
 npx boxel realm list [--all-accessible|--hidden] [--json]       List realms in current profile
 npx boxel realm remove <realm-url>                              Remove a realm (destructive)
 npx boxel realm wait-for-ready --realm <url> [--timeout <ms>]   Block until realm is reachable
 npx boxel realm cancel-indexing --realm <url> [--cancel-pending] Cancel indexing jobs
+npx boxel realm publish <source-url> <published-url>             Publish a host-mode realm
+npx boxel realm unpublish <published-url>                        Remove a host-mode publication
+npx boxel realm indexing-errors --realm <url>                    List indexing failures (when supported)
 
 npx boxel realm pull <realm-url> <local-dir>                    Realm → local
 npx boxel realm push <local-dir> <realm-url>                    Local → realm
@@ -339,7 +342,7 @@ npx boxel realm history <local-dir> --limit <n>                 Extend listing d
 npx boxel realm milestone <local-dir> --mark <id> --name <name> Mark a checkpoint as milestone
 npx boxel realm milestone <local-dir> --remove <id|hash>        Remove a milestone tag
 
-npx boxel realm watch start <local-dir>                         Auto-sync on file changes (acquires lock)
+npx boxel realm watch start <local-dir>                         Pull server changes locally (acquires lock)
 npx boxel realm watch stop                                      Stop the running watcher
 
 npx boxel file read <path>                                       Read one file from a realm
@@ -350,8 +353,9 @@ npx boxel file delete <path>                                     Delete one file
 
 npx boxel file lint <path> --realm <url> --file <local-file>     Lint a local file against a realm
 npx boxel lint [path] --realm <url>                              Lint one remote file or a whole realm
+npx boxel parse [path]                                           Local Glint + JSON validation
 
-# Do NOT use `npx boxel check <file>` for lint — that's a sync-state report only.
+# The current monorepo CLI has no `npx boxel check`; use `npx boxel file lint` / `npx boxel lint`.
 # Clean lint means `No lint issues found` or JSON messages: [].
 
 npx boxel search '<query-json>' --realms <urls>                 Federated search across realms
@@ -360,7 +364,7 @@ npx boxel search '<query-json>' --realms <urls>                 Federated search
 npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]
                                                             Execute a host command via the prerenderer
 
-boxel consolidate-workspaces                                Merge multiple watched workspaces (interactive)
+npx boxel consolidate-workspaces                            Merge multiple watched workspaces (interactive)
 ```
 
 ### Common flags

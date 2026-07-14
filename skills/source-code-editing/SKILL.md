@@ -1,6 +1,6 @@
 ---
 name: source-code-editing
-description: Use when editing existing .gts files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, the .gts edit-tracking convention, and recovery from failed matches. Required before issuing any .gts code edit.
+description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, the .gts edit-tracking convention, and recovery from failed matches. Required before issuing any code edit.
 boxel:
   kind: skill
 ---
@@ -143,9 +143,9 @@ Boxel `.gts` files carry an edit-tracking convention so changes stay visible in 
 // ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══
 ```
 
-When you create a new `.gts` file, this banner is the first line of your REPLACE section.
+When you create a new Boxel `.gts` file, this banner is the first line of your REPLACE section (some earlier generic examples in this document omit tracking markers; for Boxel `.gts` files in this repo, always include the banner and markers described below).
 
-**When editing an existing `.gts` file, mark every line you add or change** with a sequential superscript comment — `// ¹ description`, `// ²`, `// ³` … — continuing from the highest marker already present in the file. Keep existing markers intact when they appear in your SEARCH section (they also help make the match unique).
+**Mark every line you add or change** with a sequential superscript comment — `// ¹ description`, `// ²`, `// ³` … — continuing from the highest marker already present in the file. Keep existing markers intact when they appear in your SEARCH section (they also help make the match unique).
 
 Example creating a new file:
 

@@ -51,12 +51,16 @@ You are the orchestrator of the Boxel AI Assistant. You decide which host comman
 ### Step 4 — Data task
 
 ```
+├─ New .json instance?                 → write-text-file (never for .gts)
+├─ Clone + modify?                     → copy-card → patch-fields
 ├─ Long markdown field (>500 chars)?  → ApplyMarkdownEditCommand_c112
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
 ├─ Bulk / malformed JSON?              → Code mode + SEARCH/REPLACE
 └─ After change                        → show-card_566f to verify
 ```
+
+Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
 
 > **⚠️ Streaming rule:** NEVER use `write-text-file` for `.gts` files. Tool calls don't stream — the whole payload must be generated before the user sees anything, so the UI looks frozen. SEARCH/REPLACE streams visibly. (`write-text-file` is OK for `.json` instances.)
 
@@ -119,6 +123,7 @@ Troubleshooting:
 
 Specialty:
 - `references/indexing-operations.md` — Realm reindexing commands.
+- `references/fresh-realm-push-integrity.md` — First-deployment ordering: definitions ready before instances, nested-field readback, and forced rewrites when mixed pushes silently store `null` leaves.
 - `references/diagnosing-broken-links.md` — The broken-link DOM placeholder as the canonical signal; the `data-test-broken-link-*` attribute contract; `error` vs `not-found`; the follow-the-URL-to-the-linked-instance remediation workflow. (Card-author side: `boxel/references/defensive-link-traversal.md`.)
 - `references/source-code-editing.md` — Cross-link to the SEARCH/REPLACE skill.
 
@@ -127,7 +132,7 @@ Specialty:
 - `boxel` — When the actual work is writing a CardDef/FieldDef/template/query.
 - `source-code-editing` — SEARCH/REPLACE block format.
 - `catalog-listing` — Catalog operations from inside the app.
-- `boxel-create-edit-cards` — Choosing the right host command combo for card creation.
+- (`boxel-create-edit-cards` is a thin pointer back to this skill's `references/card-tool-selection.md`.)
 
 ---
 
