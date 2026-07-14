@@ -7,59 +7,59 @@ boxel:
     - codeRef:
         module: '@cardstack/boxel-host/tools/switch-submode'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/show-card'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/transform-cards'
         name: default
-        requiresApproval: true
+      requiresApproval: true
     - codeRef:
         module: '@cardstack/boxel-host/tools/read-card-for-ai-assistant'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/read-file-for-ai-assistant'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/set-active-llm'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/open-workspace'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/preview-format'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/update-code-path-with-selection'
         name: default
-        requiresApproval: false
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/write-text-file'
         name: default
-        requiresApproval: true
+      requiresApproval: true
     - codeRef:
         module: '@cardstack/boxel-host/tools/copy-card'
         name: default
-        requiresApproval: true
+      requiresApproval: true
     - codeRef:
         module: '@cardstack/boxel-host/tools/copy-source'
         name: default
-        requiresApproval: true
+      requiresApproval: true
     - codeRef:
         module: '@cardstack/boxel-host/tools/patch-fields'
         name: default
-        requiresApproval: true
+      requiresApproval: true
     - codeRef:
         module: '@cardstack/boxel-host/tools/update-room-skills'
         name: default
-        requiresApproval: false
+      requiresApproval: false
 ---
 
 # Host Commands Reference
