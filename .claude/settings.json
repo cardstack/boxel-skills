@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "mcp__Linear__get_issue"
-    ]
-  }
-}
