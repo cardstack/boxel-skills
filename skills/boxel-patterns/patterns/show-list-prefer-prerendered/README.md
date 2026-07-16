@@ -63,7 +63,7 @@ The full worked contrast — the cheap default plus the commented "only when you
 - If you need one field per row in a *table* (cell-level access), that genuinely needs instances — use `getCards` and see `show-table-from-query`. A whole rendered card per row does not.
 - This is defense-in-depth guidance, not enforcement. It's a nudge toward the cheap path; nothing stops a card from hydrating a display list — which is exactly why the default has to be stated.
 
-**Source:** `boxel-catalog/components/card-list.gts`, `components/grid.gts` (the `@context.searchResultsComponent` list surface); the cost split follows the host's search-API contract documented in `boxel/references/query-systems.md`.
+**Source:** `boxel-catalog/components/card-list.gts`, `boxel-catalog/components/grid.gts` (the `@context.searchResultsComponent` list surface); the cost split follows the host's search-API contract documented in `boxel/references/query-systems.md`.
 
 ## See also
 
