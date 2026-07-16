@@ -20,7 +20,7 @@ boxel:
 
 ## Read
 
-1. `skills/boxel/SKILL.md` — cardinal rules 13-14 (external URLs in `links.self`, `linksToMany` indexed keys) plus `references/data-management.md` for the full JSON:API instance shapes (`containsMany` arrays, empty links, `adoptsFrom`).
+1. `skills/boxel/SKILL.md` — cardinal rules 12-13 (external URLs in `links.self`, `linksToMany` indexed keys) plus `references/data-management.md` for the full JSON:API instance shapes (`containsMany` arrays, empty links, `adoptsFrom`).
 2. `skills/boxel/references/card-references.md` — how every `links.self` resolves (`./` / `../` / absolute; bare paths throw). Also `references/core-concept.md` "Relationship path resolution" and "`adoptsFrom.module` — URL of the .gts, NOT including the export name".
 3. `skills/boxel/references/base-field-catalog.md` — DateField vs DateTimeField value contract; the image URL/ImageDef pair pattern.
 4. `skills/boxel-patterns/patterns/theme-first-workflow/README.md` — theme linking via `relationships["cardInfo.theme"]`, absolute URLs for nested folders, and why Theme cards omit the self-theme relationship.
@@ -29,7 +29,7 @@ boxel:
 
 ## Procedure
 
-1. Decide the tool: `write-text-file` (new instance, simple shape), `patch-fields` (existing instance, surgical), `patchCardInstance` (existing instance, full replace), or SEARCH/REPLACE (large or structural).
+1. Decide the tool: SEARCH/REPLACE with a `(new)` marker (new instance), `patch-fields` (existing instance, surgical), or `patchCardInstance` (existing instance, full replace).
 2. Compose the JSON: `"data"` envelope, `"type": "card"`, `meta.adoptsFrom` (module + name), `attributes`, `relationships` — shapes per the Read list above.
 3. Include `attributes.cardInfo` unless there's a specific reason not to (it's the user's edit surface); set `relationships["cardInfo.theme"]` when this instance should carry its own theme. Theme instances themselves omit that relationship.
 4. Match date string formats to the schema's field type (DateField vs DateTimeField); put external image URLs in the paired `*URL` attribute, never in a relationship.
@@ -39,10 +39,10 @@ boxel:
 
 - [ ] `"data"` envelope; `meta.adoptsFrom` has `module` (no export-name suffix) + `name`.
 - [ ] Every `links.self` starts with `./`, `../`, or `http` (see `card-references.md`).
-- [ ] `linksToMany` uses indexed keys, `containsMany` is an array in attributes, empty links use `"self": null` (cardinal rule 14 + `data-management.md`).
+- [ ] `linksToMany` uses indexed keys, `containsMany` is an array in attributes, empty links use `"self": null` (cardinal rule 13 + `data-management.md`).
 - [ ] `attributes` is an object (never a JSON string); `relationships` is its sibling, not nested inside it.
 - [ ] `attributes.cardInfo` present; theme linkage decided per `theme-first-workflow`; no self-theme on Theme instances.
-- [ ] Date values match field type; image URLs in the `*URL` attribute (cardinal rule 13 + `base-field-catalog.md`).
+- [ ] Date values match field type; image URLs in the `*URL` attribute (cardinal rule 12 + `base-field-catalog.md`).
 
 ## Verification after push
 

@@ -6,9 +6,9 @@ Choosing the right host-command combination for creating new cards or editing ex
 
 | Tool | Use When |
 |------|----------|
-| **SEARCH/REPLACE** | **Always use for .gts files** — new definitions, templates, any code file |
-| **write-text-file** | New .json card instances from scratch (structured data, typically small) |
+| **SEARCH/REPLACE** | **Always — any new file**, `.gts` definitions and `.json` instances alike (mark the URL line with `(new)`) |
 | **copy-card + patch-fields** | Clone existing card as template, then modify |
+| **write-text-file** | Avoid — use SEARCH/REPLACE instead (tool calls don't stream and skip the code-patch pipeline) |
 
 ## Editing Cards
 
@@ -23,10 +23,9 @@ Choosing the right host-command combination for creating new cards or editing ex
 
 ```
 Card doesn't exist yet?
-├─ New .gts file → SEARCH/REPLACE with (new) marker (ALWAYS — never write-text-file for .gts)
-├─ New .json instance → write-text-file
-├─ Clone + modify → copy-card → patch-fields
-└─ Code mode .json → SEARCH/REPLACE
+├─ New .gts file → SEARCH/REPLACE with (new) marker
+├─ New .json instance → SEARCH/REPLACE with (new) marker
+└─ Clone + modify → copy-card → patch-fields
 
 Card already exists?
 ├─ Update fields → patch-fields (preferred)

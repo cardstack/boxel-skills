@@ -31,7 +31,7 @@ boxel:
 ## Procedure
 
 1. Read the current template — confirm which format you're editing.
-2. SEARCH/REPLACE the template. Preserve `<style scoped>` blocks and tracking markers.
+2. SEARCH/REPLACE the template. Preserve `<style scoped>` blocks.
 3. **For `fitted`, follow `skills/boxel/references/container-query-fitted-layout.md` exactly.** Prefer `FittedCard` from `@cardstack/boxel-ui/components` for standard compositions (tune via `--fc-*` variables). When hand-rolling: single-root `.fit` grid querying the host's `fitted-card` container (no local container on the root), six height quanta, `pow()`-based typography, `minmax(0, 1fr)` body row, `min-height: 0` on grid children. Hand-rolling without these will overflow at edge sizes.
 4. For multi-card delegation, use `<@fields.x />` — don't iterate `@model` then try `<@fields.x />` inside the loop (see `template-syntax.md`).
 5. Use theme tokens per `boxel-ui-guidelines` — no hard-coded colors outside theme scope.

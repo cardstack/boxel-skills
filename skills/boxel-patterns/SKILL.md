@@ -46,7 +46,7 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 
 - `pick-rating` — Editable star-rating FieldDef with full/half/empty read display, atom + embedded formats, and `@set(new RatingsSummary(...))` writeback.
 - `pick-typed-sort` — `SortMenu` dropdown + typed `SortOption` interface + exported `Sort` constants. Replaces ad-hoc string sort keys.
-- `attach-remote-image` *(README-only)* — Image field accepting an uploaded ImageDef OR an external URL via the pair-of-fields convention (`linksTo(ImageDef)` + URL field). **Critical:** prevents the realm-bricking external-URL-in-`links.self` bug (Cardinal Rule 13). See `boxel/references/base-field-catalog.md` "Image fields — the URL/ImageDef pair pattern".
+- `attach-remote-image` *(README-only)* — Image field accepting an uploaded ImageDef OR an external URL via the pair-of-fields convention (`linksTo(ImageDef)` + URL field). **Critical:** prevents the realm-bricking external-URL-in-`links.self` bug (Cardinal Rule 12). See `boxel/references/base-field-catalog.md` "Image fields — the URL/ImageDef pair pattern".
 
 ### Build / Template
 

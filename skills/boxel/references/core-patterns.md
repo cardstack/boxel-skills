@@ -149,13 +149,11 @@ Beyond the cardinal rules in `SKILL.md` (contains vs linksTo, exports, three for
 
 ### 4. Templates with Proper Computation Patterns
 
-**Remember:** When implementing templates via SEARCH/REPLACE, track all major sections with ⁿ and include the post-block notation `╰ ⁿ⁻ᵐ`
-
 ```gts
-static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ Isolated format
+static isolated = class Isolated extends Component<typeof BlogPost> { // Isolated format
   @tracked showComments = false;
   
-  // ³¹ CRITICAL: Do ALL computation in functions, never in templates
+  // CRITICAL: Do ALL computation in functions, never in templates
   get safeTitle() {
     try {
       return this.args?.model?.title ?? 'Untitled Post';
@@ -181,7 +179,7 @@ static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ I
   }
   
   <template>
-    <!-- ³² Responsive surface that adapts from wide layouts down to mobile -->
+    <!-- Responsive surface that adapts from wide layouts down to mobile -->
     <article class="blog-post-surface">
       <header>
         <time>{{if @model.publishDate (formatDateTime @model.publishDate 'MMMM D, YYYY') "Date not set"}}</time>
@@ -204,7 +202,7 @@ static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ I
         {{/if}}
       </div>
       
-      <!-- ³³ Handle arrays with REQUIRED spacing -->
+      <!-- Handle arrays with REQUIRED spacing -->
       {{#if (gt @model.tags.length 0)}}
         <section class="tags-section">
           <h4>Tags</h4>
@@ -244,7 +242,7 @@ static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ I
       {{/if}}
     </article>
     
-    <style scoped> /* ³⁴ Component styles */
+    <style scoped> /* Component styles */
       .blog-post-surface {
         container-type: inline-size;
         width: 100%;
@@ -279,7 +277,7 @@ static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ I
         line-height: 1.25;
       }
       
-      /* ³⁵ CRITICAL: Always style buttons completely - never use unstyled */
+      /* CRITICAL: Always style buttons completely - never use unstyled */
       .comment-button {
         /* Style Boxel components to match your design */
         gap: var(--boxel-sp-2xs);
@@ -290,7 +288,7 @@ static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ I
         height: 1rem;
       }
       
-      /* ³⁶ CRITICAL: Spacing for containsMany collections */
+      /* CRITICAL: Spacing for containsMany collections */
       .tags-container > .containsMany-field {
         display: flex;
         flex-wrap: wrap;

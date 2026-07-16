@@ -51,7 +51,7 @@ You are the orchestrator of the Boxel AI Assistant. You decide which host comman
 ### Step 4 — Data task
 
 ```
-├─ New .json instance?                 → write-text-file (never for .gts)
+├─ New .json instance?                 → SEARCH/REPLACE with (new) marker
 ├─ Clone + modify?                     → copy-card → patch-fields
 ├─ Long markdown field (>500 chars)?  → ApplyMarkdownEditCommand_c112
 ├─ Small/targeted change?              → patch-fields_3e67
@@ -62,7 +62,7 @@ You are the orchestrator of the Boxel AI Assistant. You decide which host comman
 
 Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
 
-> **⚠️ Streaming rule:** NEVER use `write-text-file` for `.gts` files. Tool calls don't stream — the whole payload must be generated before the user sees anything, so the UI looks frozen. SEARCH/REPLACE streams visibly. (`write-text-file` is OK for `.json` instances.)
+> **⚠️ Streaming rule:** Create and edit files with SEARCH/REPLACE — avoid `write-text-file`. Tool calls don't stream — the whole payload must be generated before the user sees anything, so the UI looks frozen. SEARCH/REPLACE streams visibly for `.gts` and `.json` alike.
 
 ### Step 5 — Search / find
 
@@ -78,13 +78,13 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 ├─ INTERACT MODE:
 │   ├─ Display card                  → show-card_566f
 │   ├─ Create card / definition      → switch-submode_dd88 (submode: "code", createFile: true, codePath: realmUrl + filename), then SEARCH/REPLACE
-│   ├─ Switch to code                → switch-submode_dd88 (submode: "code")
-│   └─ Open workspace                → open-workspace_1696
+│   ├─ Switch to code                → switch-submode_dd88 (submode: "code"; pass codePath to target a specific realm — a bare switch stays in the current realm)
+│   └─ Open workspace                → open-workspace_1696 (lands in interact mode)
 ├─ CODE MODE:
 │   ├─ Preview card + module         → preview-format_cb94
 │   ├─ Open file in editor           → update-code-path-with-selection_f749
 │   ├─ Switch to interact            → switch-submode_dd88 (submode: "interact")
-│   └─ Open workspace                → open-workspace_1696
+│   └─ Open workspace                → open-workspace_1696 (⚠️ exits code mode — to change realm and stay in code mode, switch-submode with a codePath in that realm)
 └─ EITHER MODE:
     └─ Toggle mode                   → switch-submode_dd88
 ```
