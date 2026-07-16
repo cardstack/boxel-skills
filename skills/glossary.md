@@ -395,6 +395,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 ### Show
 - **`app-card-home-with-search`** — Home CardDef for any card family.
 - **`show-card-list-with-views`** — Generic CardsGrid with view names.
+- **`show-list-prefer-prerendered`** — Cost decision for list UIs: render the cheap prerendered `@context.searchResultsComponent` stream; reserve `getCards` / `getCardCollection` / `store.search` (which hydrate every row) for genuine read/mutate, scoped to the current realm.
 - **`show-count-tiles-from-query`** — Dashboard count tiles via `page: { size: 1 }` + `meta.page.total`.
 - **`show-table-from-query`** — Sortable rows from a query.
 - **`show-runtime-markdown-html`** — Render BFM/markdown at runtime in templates.
