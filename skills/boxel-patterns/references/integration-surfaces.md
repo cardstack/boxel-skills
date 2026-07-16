@@ -89,18 +89,18 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 | `patch-fields` | Surgical field updates on an instance (requires approval). |
 | `patch-card-instance` | Full-card replace (use sparingly). |
 | `apply-markdown-edit` | Targeted edits in long markdown fields (requires approval). |
-| `write-text-file` | Write a `.json` instance (requires approval). **Never use for `.gts`** — UI freezes. |
+| `write-text-file` | Avoid — create and edit files with SEARCH/REPLACE instead (tool calls don't stream; UI freezes). |
 | `copy-card`, `copy-source`, `copy-file-to-realm` | Duplicate a card, source file, or FileDef-backed asset (requires approval where applicable). |
 | `transform-cards` | Bulk command-applied transform (requires approval). |
 | `read-file-for-ai-assistant`, `read-card-for-ai-assistant` | Load file or card content into context. |
 | `search-cards` | `SearchCardsByQueryCommand` (advanced) and `SearchCardsByTypeAndTitleCommand` (simple). |
 | `search-google-images` | Google Custom Search image lookup through `send-request-via-proxy`; returns image/result metadata, not a stored realm file. |
 | `search-and-choose` | Search cards, ask the LLM to choose numbered options, and return selected ids/cards. Used by listing flows. |
-| `switch-submode` | Toggle interact/code modes, create-file mode. |
+| `switch-submode` | Toggle interact/code modes, create-file mode. Pass `codePath` to target a specific realm — a bare switch stays in the current realm. |
 | `show-card`, `show-file` | Display a card or source file in the current submode. |
 | `preview-format` | Open module + card preview side-by-side (code mode). |
 | `update-code-path-with-selection` | Navigate the code editor. |
-| `open-workspace` | Switch workspace by URL. |
+| `open-workspace` | Switch workspace by URL (lands in interact mode — exits code mode). |
 | `update-room-skills` | Activate / deactivate skills in the AI room. |
 | `execute-atomic-operations` | Run a transactional plan (used by listing-install). |
 | `fetch-card-json`, `get-card`, `read-source`, `serialize-card`, `validate-realm` | Realm-server primitives. |

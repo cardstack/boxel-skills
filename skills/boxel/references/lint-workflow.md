@@ -4,7 +4,7 @@ Linting is part of the core Boxel code workflow. Every `.gts` change needs a rea
 
 **Which context are you in?** Two execution contexts run this workflow, and they use different lint transports:
 
-- **Shell contexts** (Claude Code, a terminal, CI, any agent with Bash): use the `npx boxel` CLI commands below. This is what CLAUDE.md and `boxel/SKILL.md` Cardinal Rule 10 refer to.
+- **Shell contexts** (Claude Code, a terminal, CI, any agent with Bash): use the `npx boxel` CLI commands below. This is what CLAUDE.md and `boxel/SKILL.md` Cardinal Rule 9 refer to.
 - **The in-app Boxel AI assistant** (no shell): use `checkCorrectness` (next section). The CLI commands are unavailable there — do not attempt them.
 
 Both transports hit the same server-side lint gate; only the invocation differs.

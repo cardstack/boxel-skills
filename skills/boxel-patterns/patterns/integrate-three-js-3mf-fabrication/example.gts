@@ -1,17 +1,15 @@
-// ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══
-// @ts-expect-error Runtime ESM import is resolved by the realm. // ¹
+// @ts-expect-error Runtime ESM import is resolved by the realm.
 import * as THREE from "https://esm.sh/three@0.160.0";
-// ² Keep this import on one line so the TypeScript suppression stays attached.
+// Keep this import on one line so the TypeScript suppression stays attached.
 // prettier-ignore
 // @ts-expect-error Runtime ESM import is resolved by the realm.
 import { Brush, Evaluator, SUBTRACTION } from "https://esm.sh/three-bvh-csg@0.0.16?deps=three@0.160.0";
 
-// 🧩 PATTERN: prepare raised or flat/flush, manifold, color-mapped parts for 3MF export. // ³
+// 🧩 PATTERN: prepare raised or flat/flush, manifold, color-mapped parts for 3MF export.
 
-export type FabricationFinish = "raised" | "flush"; // ⁴
+export type FabricationFinish = "raised" | "flush";
 
 export interface FabricationSettings {
-  // ⁵
   finish: FabricationFinish;
   width: number;
   height: number;
@@ -22,7 +20,6 @@ export interface FabricationSettings {
 }
 
 export interface PrintablePart {
-  // ⁶
   name: string;
   color: string;
   mesh: THREE.Mesh;
@@ -30,29 +27,25 @@ export interface PrintablePart {
 }
 
 export interface WeldedMeshData {
-  // ⁷
   vertices: Array<readonly [number, number, number]>;
   triangles: Array<readonly [number, number, number]>;
 }
 
 export interface Prepared3MFPart extends WeldedMeshData {
-  // ⁸
   name: string;
   color: string;
   extruder: number;
 }
 
-const evaluator = new Evaluator(); // ⁹
+const evaluator = new Evaluator();
 
 function positive(value: number, label: string): void {
-  // ¹⁰
   if (!Number.isFinite(value) || value <= 0) {
     throw new Error(`${label} must be a positive finite number`);
   }
 }
 
 export function assertOrientationPreservingScale(mesh: THREE.Mesh): void {
-  // ¹¹
   mesh.updateMatrixWorld(true);
   if (mesh.matrixWorld.determinant() <= 0) {
     throw new Error(
@@ -61,7 +54,7 @@ export function assertOrientationPreservingScale(mesh: THREE.Mesh): void {
   }
 }
 
-function centeredBox( // ¹²
+function centeredBox(
   width: number,
   height: number,
   depth: number,
@@ -77,7 +70,7 @@ function centeredBox( // ¹²
  * Raised: the feature overlaps an uncut backing.
  * Flush: a deeper cutter removes the feature volume from the backing.
  */
-export function buildSampleAssembly( // ¹³
+export function buildSampleAssembly(
   settings: FabricationSettings
 ): PrintablePart[] {
   positive(settings.width, "width");
@@ -137,7 +130,7 @@ export function buildSampleAssembly( // ¹³
     surfaceZ - settings.featureDepth / 2
   );
 
-  const backingBrush = new Brush(backing.geometry); // ¹⁴
+  const backingBrush = new Brush(backing.geometry);
   backingBrush.position.copy(backing.position);
   backingBrush.updateMatrixWorld(true);
   const cutterBrush = new Brush(cutter.geometry);
@@ -163,13 +156,12 @@ export function buildSampleAssembly( // ¹³
 }
 
 function quantizedKey(point: THREE.Vector3, precision: number): string {
-  // ¹⁵
   return [point.x, point.y, point.z]
     .map((value) => Math.round(value / precision))
     .join(":");
 }
 
-export function weldedMeshData( // ¹⁶
+export function weldedMeshData(
   mesh: THREE.Mesh,
   precision = 1e-5
 ): WeldedMeshData {
@@ -225,7 +217,6 @@ export function weldedMeshData( // ¹⁶
 }
 
 export function topologyProblems(data: WeldedMeshData): string[] {
-  // ¹⁷
   const edgeUses = new Map<string, number>();
   for (const [a, b, c] of data.triangles) {
     for (const [from, to] of [
@@ -252,7 +243,7 @@ export function topologyProblems(data: WeldedMeshData): string[] {
   return problems;
 }
 
-export function assertZBounds( // ¹⁸
+export function assertZBounds(
   data: WeldedMeshData,
   expected: readonly [number, number],
   tolerance = 1e-4
@@ -272,13 +263,11 @@ export function assertZBounds( // ¹⁸
 }
 
 function normalizedColor(input: string): string {
-  // ¹⁹
   return `#${new THREE.Color(input).getHexString().toUpperCase()}`;
 }
 
 /** Return only validated data to the XML/ZIP layer. */
 export function prepare3MFInput(parts: PrintablePart[]): Prepared3MFPart[] {
-  // ²⁰
   const extruderByColor = new Map<string, number>();
 
   return parts.map((part) => {

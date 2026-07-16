@@ -1,6 +1,6 @@
 ---
 name: source-code-editing
-description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, the .gts edit-tracking convention, and recovery from failed matches. Required before issuing any code edit.
+description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, and recovery from failed matches. Required before issuing any code edit.
 boxel:
   kind: skill
 ---
@@ -16,9 +16,9 @@ boxel:
 ## Don't use for
 
 - Writing brand-new files where the schema is still undecided. Decide the schema with `boxel` first.
-- JSON instance data — `write-text-file` and `patch-fields` are often better for `.json` (this skill is mandatory for `.gts`).
+- Surgical field updates on an existing instance — `patch-fields` is often better than rewriting the `.json`.
 
-When you infer that the user wants to make changes to the attached files, which is usually a card definition, or create new files, you must use a SEARCH/REPLACE block. For .gts files, ALWAYS use SEARCH/REPLACE — never use write-text-file for .gts. SEARCH/REPLACE blocks stream as visible text (the user sees progress), while tool calls like write-text-file do NOT stream (the UI appears frozen with "Thinking" / "Preparing tool call" while generating the full file content).
+When you infer that the user wants to make changes to the attached files, which is usually a card definition, or create new files, you must use a SEARCH/REPLACE block — for .gts and .json files alike; never use write-text-file. SEARCH/REPLACE blocks stream as visible text (the user sees progress), while tool calls like write-text-file do NOT stream (the UI appears frozen with "Thinking" / "Preparing tool call" while generating the full file content).
 
 A SEARCH/REPLACE block has 2 sections: a section of code to search for, and the code to replace it with. All code within the SEARCH will be replaced. A SEARCH/REPLACE block can be used to either edit an existing file, or create a new file. 
 
@@ -132,47 +132,3 @@ When you respond with a SEARCH/REPLACE block, do not refer to it as a SEARCH/REP
 After emitting one or more SEARCH/REPLACE blocks, the user will need to apply the changes. Therefore, end your response after emitting all your SEARCH/REPLACE blocks instead of summarizing. You will be notified when the blocks have been applied, and you can summarize the updates that have been made then.
 
 Never respond with '[Omitting previously suggested code change]', or '[Omitting previously suggested and applied code change]'. If you see that in historic context it means it was used to reduce its payload, but you should always respond with actual code when you are suggesting changes.
-
-## Edit tracking (Boxel `.gts` convention)
-
-Boxel `.gts` files carry an edit-tracking convention so changes stay visible in the source. It applies to `.gts` files only — never add tracking comments to `.json` files.
-
-**Line 1 of every `.gts` file is the tracking banner:**
-
-```gts
-// ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══
-```
-
-When you create a new Boxel `.gts` file, this banner is the first line of your REPLACE section (some earlier generic examples in this document omit tracking markers; for Boxel `.gts` files in this repo, always include the banner and markers described below).
-
-**Mark every line you add or change** with a sequential superscript comment — `// ¹ description`, `// ²`, `// ³` … — continuing from the highest marker already present in the file. Keep existing markers intact when they appear in your SEARCH section (they also help make the match unique).
-
-Example creating a new file:
-
-```gts
-http://realm/recipe-card.gts (new)
-╔═══ SEARCH ════╗
-╠═══════════════╣
-// ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══
-import { CardDef } from 'https://cardstack.com/base/card-api'; // ¹
-export class RecipeCard extends CardDef { // ²
-  static displayName = 'Recipe';
-}
-╚═══ REPLACE ═══╝
-```
-
-Example modifying an existing file:
-
-```gts
-https://example.com/recipe-card.gts
-╔═══ SEARCH ════╗
-export class RecipeCard extends CardDef {
-  static displayName = 'Recipe';
-  @field recipeName = contains(StringField);
-╠═══════════════╣
-export class RecipeCard extends CardDef {
-  static displayName = 'Recipe';
-  @field recipeName = contains(StringField);
-  @field servings = contains(NumberField); // ¹⁸ Added servings
-╚═══ REPLACE ═══╝
-```

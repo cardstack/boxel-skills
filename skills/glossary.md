@@ -383,8 +383,8 @@ In rough priority order:
 - **Format choice = who owns the cell size.** `embedded` for lists; `fitted` for uniform tile grids.
 - **Every user-facing card goes through `design-playbook.md`.**
 - **Delegated render** — `<@fields.X />` injects host CardContainer chrome; override via `:deep()`, theme cascade, or `@displayContainer={{false}}`. → `boxel-ui-guidelines/references/delegated-render-control.md`
-- **Read before writing.** Many `.gts` files have edit-tracking markers; reading first preserves them.
-- **SEARCH/REPLACE for `.gts` edits.** Never `write-text-file` for `.gts` (UI freezes).
+- **Read before writing.** Fetch a file’s current contents before a SEARCH/REPLACE edit so the SEARCH block matches exactly.
+- **SEARCH/REPLACE for file creation and edits** — `.gts` and `.json` alike. Avoid `write-text-file` (UI freezes; skips the code-patch pipeline).
 - **One CardDef per file.** FieldDefs and helpers can co-locate.
 - **Three formats minimum.** Every CardDef ships `isolated`, `embedded`, AND `fitted`.
 

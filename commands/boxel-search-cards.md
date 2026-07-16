@@ -28,7 +28,7 @@ boxel:
 
 1. If the query is title-based and simple → `SearchCardsByTypeAndTitleCommand_a959`.
 2. If the query needs filters (`eq`, `gt`, `range`) → `SearchCardsByQueryCommand_847d`.
-3. Build the type reference as `{ module: <full URL>, name: <ClassName> }`. To match **all cards of a type**, use `filter: { type: ref }`. Use `on: ref` **only** to scope predicates (`eq`/`contains`/`range`) or a custom-field sort — a bare `{ on: ref }` with no predicate returns zero rows silently (Cardinal Rule 6, `boxel/references/query-systems.md`).
+3. Build the type reference as `{ module: <full URL>, name: <ClassName> }`. To match **all cards of a type**, use `filter: { type: ref }`. Use `on: ref` **only** to scope predicates (`eq`/`contains`/`range`) or a custom-field sort — a bare `{ on: ref }` with no predicate returns zero rows silently (Cardinal Rule 5, `boxel/references/query-systems.md`).
 4. Display results — use `show-card_566f` if the user wants to see one; just list otherwise.
 
 ## Done Criteria (self-verify)
