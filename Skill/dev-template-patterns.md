@@ -2,8 +2,8 @@
 
 **Field access patterns:**
 ```hbs
-{{@model.title}}                    <!-- Raw data -->
-<@fields.title />                   <!-- Field's template -->
+{{@model.cardTitle}}                <!-- Raw data -->
+<@fields.cardTitle />               <!-- Field's template -->
 <@fields.phone @format="atom" />    <!-- Compound field -->
 <@fields.items @format="embedded" /> <!-- Auto-collection -->
 ```
@@ -223,9 +223,9 @@ is a violation, not a fallback pattern.
   {{/if}}
 </div>
 
-{{#if @model.description}}
+{{#if @model.cardDescription}}
   <div class="description">
-    <@fields.description />
+    <@fields.cardDescription />
   </div>
 {{else}}
   <div class="empty-description">
