@@ -714,6 +714,7 @@ Before finalizing any card template, verify:
 - [ ] Card titles render `<@fields.cardTitle />` (or `@model.cardTitle`) — no `{{if @model.title @model.title 'Untitled Foo'}}` hand-rolled fallbacks. A domain `title` field (blog-post title, job title) is fine, but don't declare `title` just to name the card — that's `cardInfo.name`/`cardTitle`
 - [ ] Semantic HTML: headings for titles, `<p>` for prose, `<header>` for intro blocks, `role='toolbar'` + `aria-label` for control groups, `<output>` for readouts, `aria-label` on icon-only buttons, `aria-hidden` on decoration; divs only for pure layout geometry
 - [ ] `data-test-*` attributes are absolutely last on an element, after all other attributes and modifiers
+- [ ] DOM queries in interactions/animations are scoped to the component's own subtree (`element.closest('.boxel-card-container')` as query root), never the document — the same card can render in multiple stacks on one page; JS query hooks are dedicated data attributes, not class names and not `data-test-*` (tests only)
 - [ ] Prefers `<@fields.field />` for all simple field rendering; `@model.x` for conditionals, HTML attributes, context-specific fallback value, and JS getters
 - [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`

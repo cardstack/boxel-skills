@@ -431,3 +431,26 @@ Attribute ordering: `data-test-*` attributes go **absolutely last** on an elemen
 </div>
 <output class='count' data-test-count>{{this.count}}</output>
 ```
+
+### Assume the same card renders more than once per page
+
+The host renders cards without iframes, and the same card instance can be open in multiple workbench stacks side by side — producing duplicate `id`s and duplicate class trees in one document. Write all interaction, animation, scroll, and DOM-lookup code accordingly:
+
+- **Scope every DOM query to the component's own subtree.** Start from the event target or an element captured via modifier and use `element.closest('.boxel-card-container')` (falling back to `ownerDocument`) as the query root — never `document.getElementById` / `document.querySelectorAll('.some-card-class')`, which hit the *first* match, so code in the second stack's copy silently operates on the first stack's DOM.
+- Same rule for `querySelectorAll` in animation loops, `IntersectionObserver` targets, and anchor-scroll targets (native `#anchor` jumps are document-wide too).
+- **JS query hooks are data attributes, not class names.** Classes are for styling only; give the element a dedicated data attribute and select on that. `data-test-*` attributes are reserved for tests — never use them as runtime hooks.
+- Avoid global side effects for per-card behavior: no unscoped `<style>` injections, no `document`-level listeners keyed to one card's state.
+
+```gts
+// Avoid — document-wide lookup (hits the first stack's copy) on a styling class
+const target = document.querySelector('.timeline-row[data-year="2024"]');
+
+// Correct — scoped to this card's own container, data-attribute hook
+scrollToYear = (event: Event) => {
+  const root =
+    (event.target as HTMLElement).closest('.boxel-card-container') ??
+    (event.target as HTMLElement).ownerDocument;
+  const target = root.querySelector('[data-timeline-year="2024"]');
+  target?.scrollIntoView({ behavior: 'smooth' });
+};
+```
