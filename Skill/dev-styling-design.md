@@ -62,18 +62,22 @@ Dense professional layouts with thoughtful scaling:
 - Radius: match the aesthetic (sharp for technical, soft for friendly)
 - Shadows: subtle elevation for interactive elements; keep z-index conservative (<10)
 
-Implementation tip: Define CSS variables at component root and use fallbacks.
+Implementation tip: Define each token's fallback exactly once, on the component root, then use bare `var()` reads everywhere else. Never scatter per-use fallbacks (`var(--x, 1rem)` at each use site) — each site ends up carrying its own drifting default, which is hard to override or audit.
 
 ```css
 .component {
+  /* fallback stated once, at the root */
   --card-padding: var(--boxel-sp, 1rem);
   --card-radius: var(--boxel-border-radius-sm, 0.5rem);
   --card-shadow: var(--boxel-box-shadow, 0 2px 4px rgba(0,0,0,0.1));
+  /* bare reads from here on */
   padding: var(--card-padding);
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
 }
 ```
+
+The same hoisting applies to raw metric values that don't map to a theme token: hardcoded font-sizes, widths/heights, and border-radii belong in component-prefixed custom properties declared once on the component root (the `--fc-*` variables on `FittedCard` are the reference style), not scattered as literals through child selectors.
 
 ## Typography Guidance (Detailed)
 
