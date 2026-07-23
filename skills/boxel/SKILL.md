@@ -154,7 +154,7 @@ Sibling skills:
 - Run the import preflight from `references/common-imports.md` AND the lint gate from `references/lint-workflow.md` before reporting a `.gts` file as done.
 - Assign an icon to every CardDef and FieldDef.
 - Provide an `embedded` template for every FieldDef.
-- Compute `cardTitle` from the primary identifier field (never override `title` — the host reads `cardTitle`).
+- Compute `cardTitle` from the primary identifier field (a `title` field of your own is just data — the host reads `cardTitle` for the display name).
 - Provide empty states for arrays.
 - Use theme variables only; link a default theme on instances.
 - Store media as linked FileDef/ImageDef/PngDef; only small durable `http(s)` URLs belong in string fields.

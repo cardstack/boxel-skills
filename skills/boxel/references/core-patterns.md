@@ -1,8 +1,11 @@
 **Card with computed cardTitle:**
 
 A card's display name comes from `cardTitle` (a computed pass-through from
-`cardInfo.name`). To derive it from another field, override `cardTitle` — do
-NOT override the base `title` field; the host reads `cardTitle`, not `title`.
+`cardInfo.name`). To derive it from another field, override `cardTitle`.
+Declaring your own `@field title` does NOT set the display name — the host
+reads `cardTitle`, not `title`. A plain `title` field is just ordinary data;
+that's fine when it's the primary field a `cardTitle` override reads, but on
+its own it leaves the card showing "Untitled" everywhere.
 
 ```gts
 export class BlogPost extends CardDef {

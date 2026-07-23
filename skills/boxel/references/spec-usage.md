@@ -1,10 +1,12 @@
-# Catalog Spec card instances
+# Spec usage
+
+## Catalog Spec card instances
 
 For each top-level card definition, write a Catalog Spec card instance in the realm's `Spec/` folder. This makes the card discoverable in the Boxel catalog.
 
 Specs adopt from the `Spec` class exported by `https://cardstack.com/base/spec` — that module lives in the base realm, not your realm.
 
-## Required shape
+### Required shape
 
 ```json
 {
@@ -36,13 +38,13 @@ Key concepts:
 - `linkedExamples` — a `linksToMany` relationship pointing to sample card instances. Use dotted keys (`linkedExamples.0`, `linkedExamples.1`, …) — the array form is rejected by the indexer. Create at least one sample instance and link it here.
 - Don't try to validate a Spec by instantiating the `Spec` definition itself: its module lives in the base realm, and the prerender enforces same-origin module loads, so that always fails. Validate a Spec through its `linkedExamples` instances instead.
 
-## Sample card instances
+### Sample card instances
 
 Create at least one sample instance with realistic data for each top-level card. Sample instances serve as both catalog examples and test fixtures.
 
 Place sample instances in a folder named after the card type (e.g., `StickyNote/welcome-note.json`). The `linkedExamples` relationship in the Spec card points to these using a relative path without the `.json` suffix (e.g., `../StickyNote/welcome-note`).
 
-# Spec type usage patterns
+## Spec type usage patterns
 
 How each type of definition is imported and used in code.
 
