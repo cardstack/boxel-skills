@@ -1,32 +1,34 @@
 # Boxel Skills
 
-## Development
+The canonical source of official Boxel agent skills and slash commands. Everything here is authored directly in this repository — there is no upstream repo and no sync step.
 
-To develop core boxel skills, first install the [Boxel CLI](https://www.npmjs.com/package/@cardstack/boxel-cli):
+## Who consumes this repo
 
-    npm install -g @cardstack/boxel-cli
+- **The skills realm** — merges to `main` sync to the staging realm; published GitHub releases sync to production (`app.boxel.ai/skills/`). See `.github/workflows/sync-to-workspace.yml`.
+- **The boxel-cli Claude Code plugin** — `skills/` and `commands/` are copied verbatim from a pinned release tag into `packages/boxel-cli/plugin/` in the [boxel monorepo](https://github.com/cardstack/boxel), which distributes them to end users and to the Software Factory.
+- **Agent sessions authoring skills** — a checkout of this repo is itself a loadable Claude Code plugin (see below).
 
-And checkout this repository
+## Authoring workflow
+
+Clone and branch:
 
     git clone git@github.com:cardstack/boxel-skills.git
-
-First create a branch for your new work, on the CLI or in VSCode/Cursor 
-
+    cd boxel-skills
     git checkout -b my-change
 
-In this directory, push these files to one of your workspaces
+To iterate on a skill live, start Claude Code with the checkout as a plugin — edits to skill bodies are picked up on next use, and `/reload-plugins` refreshes the catalog after adding or renaming a skill:
 
-    MATRIX_URL=https://matrix.boxel.ai MATRIX_USERNAME=... MATRIX_PASSWORD=... workspace-push . https://app.boxel.ai/myuser/myworkspace
+    claude --plugin-dir /path/to/boxel-skills
 
-Make your changes, test things out in boxel and then pull the changed work back
+To test content changes against a real workspace, install the [Boxel CLI](https://www.npmjs.com/package/@cardstack/boxel-cli) (`npm install -g @cardstack/boxel-cli`, then `boxel profile add` once) and push to a workspace you own:
 
-    MATRIX_URL=https://matrix.boxel.ai MATRIX_USERNAME=... MATRIX_PASSWORD=... workspace-pull https://app.boxel.ai/myuser/myworkspace . 
+    boxel realm push . https://app.boxel.ai/myuser/myworkspace/
 
-Add and commit any changes
+Commit, push your branch, and raise a PR. Merged changes go to the staging realm; tagged releases go to production and become eligible for the plugin's version pin.
 
-    git add  *
-    git commit -m "change message"
-    git push --set-upstream origin my-change
+## Layout
 
-
-You can then raise a PR on github. Merged changes will go to staging, and tagged releases will go to production.
+- `skills/` — the skill trees (`<name>/SKILL.md` + `references/`), in the shape Claude Code consumes.
+- `commands/` — slash-command definitions, one `.md` per command.
+- `index.md` — the realm's entry document; `CLAUDE.md` and `AGENTS.md` are symlinks to it.
+- `.claude-plugin/plugin.json` — makes a checkout loadable via `claude --plugin-dir` for authoring. Not pushed to the realm (see `.boxelignore`).

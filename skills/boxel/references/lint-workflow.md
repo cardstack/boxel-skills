@@ -22,7 +22,7 @@ Use `@cardstack/boxel-cli` 0.2.0 or newer. Do not use a locally checked-out CLI 
 **One-time setup per workspace.** This repo doesn't ship a `package.json` (it's a skills repo, not a Node project). Install the CLI as a local dep once so `npx boxel` resolves cleanly:
 
 ```sh
-cd /path/to/boxel-workspaces
+cd /path/to/your-workspace
 npm install @cardstack/boxel-cli@latest
 ```
 

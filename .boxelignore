@@ -3,3 +3,4 @@ package-lock.json
 .boxelignore
 README.md
 LICENSE
+.claude-plugin/
