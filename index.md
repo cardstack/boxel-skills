@@ -68,11 +68,14 @@ Commands route to these supporting skills. They're documented in `skills/` and a
 ### Foundation
 
 - **`boxel/`** — Cardinal rules + 18 references for CardDef, FieldDef, templates, queries, formats, commands.
+- **`boxel-workspace-cardinal-rules/`** — Silent-failure trap checklist: rules that pass lint (and often indexing), then corrupt the realm index, crash at render, or drop data with no error. Check every card/field against it before finishing.
 - **`source-code-editing/`** — SEARCH/REPLACE block format. Required before any `.gts` edit.
+- **`ember-best-practices/`** — Ember.js performance + accessibility rules (59 rules across 10 categories) for writing, reviewing, or refactoring Ember code.
 
 ### UI & content
 
 - **`boxel-ui-guidelines/`** — Template UI rules: theme tokens, `@fields` vs `@model`, container queries, layout safety.
+- **`boxel-ui-component-discovery/`** — Mandatory catalog search for a boxel-ui component Spec before hand-rolling any UI primitive in a `.gts` template.
 - **`boxel-design/`** — Visual design language, mood, typography, asset direction.
 - **`boxel-file-def/`** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
 - **`boxel-flavored-markdown/`** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
