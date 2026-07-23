@@ -4,24 +4,22 @@ A structured repository for creating and maintaining Ember.js Best Practices opt
 
 ## Structure
 
-- `rules/` - Individual rule files (one per rule)
-  - `_sections.md` - Section metadata (titles, impacts, descriptions)
-  - `_template.md` - Template for creating new rules
-  - `area-description.md` - Individual rule files
-- `metadata.json` - Document metadata (version, organization, abstract)
-- __`AGENTS.md`__ - Compiled output (generated)
-- __`SKILL.md`__ - Skill definition for Claude Code
+- `rules/` - Individual rule files (one per rule), named `area-description.md`
+- __`SKILL.md`__ - Skill definition for Claude Code, with the categorized rule index
 
 ## Rule Categories
 
 Rules are organized by prefix:
 - `route-` for Route Loading and Data Fetching (Section 1)
 - `bundle-` for Build and Bundle Optimization (Section 2)
-- `component-` for Component and Reactivity (Section 3)
+- `component-` and `exports-` for Component and Reactivity (Section 3)
 - `a11y-` for Accessibility Best Practices (Section 4)
 - `service-` for Service and State Management (Section 5)
-- `template-` for Template Optimization (Section 6)
-- `advanced-` for Advanced Patterns (Section 7)
+- `template-` and `helper-` for Template Optimization (Section 6)
+- `performance-` for Performance Optimization (Section 7)
+- `testing-` for Testing Best Practices (Section 8)
+- `vscode-` for Tooling and Configuration (Section 9)
+- `advanced-` for Advanced Patterns (Section 10)
 
 ## Rule File Structure
 
@@ -58,11 +56,8 @@ Reference: [Link](https://example.com)
 
 ## File Naming Convention
 
-- Files starting with `_` are special (excluded from build)
 - Rule files: `area-description.md` (e.g., `route-parallel-model.md`)
-- Section is automatically inferred from filename prefix
-- Rules are sorted alphabetically by title within each section
-- IDs (e.g., 1.1, 1.2) are auto-generated during build
+- Section is inferred from the filename prefix
 
 ## Impact Levels
 
@@ -78,10 +73,10 @@ Reference: [Link](https://example.com)
 When adding or modifying rules:
 
 1. Use the correct filename prefix for your section
-2. Follow the `_template.md` structure
+2. Follow the rule file structure above
 3. Include clear bad/good examples with explanations
 4. Add appropriate tags
-5. Rules are automatically sorted by title - no need to manage numbers!
+5. Add the rule to SKILL.md's index under its category
 
 ## Accessibility Focus
 

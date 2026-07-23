@@ -47,17 +47,23 @@ of truth for what's available and what each component is called.
    ```sh
    boxel search --realm <catalog-realm-url> --query '{
      "filter": {
-       "item.on": { "module": "https://cardstack.com/base/spec", "name": "Spec" },
-       "eq":      { "item.specType": "component" }
+       "on": { "module": "https://cardstack.com/base/spec", "name": "Spec" },
+       "eq": { "specType": "component" }
      }
    }' --json
    ```
+
+   Write the filter card-rooted (`on`/`type` anchors, bare field names)
+   like every other card query — the CLI translates it to the search
+   endpoint's wire form itself; never hand-write `item.`-prefixed paths
+   in `--query`, they make the CLI throw.
 
    One broad query returns the full inventory (~50 specs). Match each
    item in your enumeration to a result by reading `attributes.cardTitle`
    and `attributes.cardDescription`. Narrow with `contains` on the title
    or `matches` (full-text over the readMe) if the inventory is large
-   enough to be noisy. See `boxel-api` for full query syntax.
+   enough to be noisy. See `boxel/references/query-systems.md` for full
+   query syntax.
 
 3. **Read each chosen spec's `attributes.readMe`** — it has the Import
    line, the API table (arg / type / required / default / options /

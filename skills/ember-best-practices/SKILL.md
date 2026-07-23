@@ -11,7 +11,7 @@ boxel:
 
 # Ember.js Best Practices
 
-Comprehensive performance optimization and accessibility guide for Ember.js applications. Contains 58 rules across 10 categories, prioritized by impact to guide automated refactoring and code generation.
+Comprehensive performance optimization and accessibility guide for Ember.js applications. Contains 59 rules across 10 categories, prioritized by impact to guide automated refactoring and code generation.
 
 ## When to Apply
 
@@ -73,7 +73,7 @@ Reference these guidelines when:
 - `component-avoid-constructors` - Avoid constructors in Glimmer components
 - `component-avoid-lifecycle-hooks` - Avoid legacy lifecycle hooks
 - `component-file-conventions` - Follow proper file naming conventions
-- `exports-named-only` - Use named exports only
+- `exports-named-with-default-fallback` - Prefer named exports, fall back to default for implicit template lookup
 
 ### 4. Accessibility Best Practices (HIGH)
 
@@ -116,6 +116,7 @@ Reference these guidelines when:
 - `testing-render-patterns` - Use correct render patterns for components
 - `testing-msw-setup` - Mock API requests with MSW
 - `testing-library-dom-abstraction` - Use Testing Library patterns
+- `testing-no-raf-for-state` - Avoid requestAnimationFrame for state changes
 
 ### 9. Tooling and Configuration (MEDIUM)
 
@@ -158,6 +159,3 @@ Ember has excellent accessibility support through community addons:
 
 These tools, combined with native web platform features, provide comprehensive a11y support with minimal configuration.
 
-## Full Compiled Document
-
-For the complete guide with all rules expanded: `AGENTS.md`
