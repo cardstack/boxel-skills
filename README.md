@@ -1,6 +1,6 @@
 # Boxel Skills
 
-The canonical source of official Boxel agent skills and slash commands. Everything here is authored directly in this repository — there is no upstream repo and no sync step.
+The canonical source of official Boxel agent skills and slash commands. Everything here is authored directly in this repository — there is no upstream authoring repo and no import step.
 
 ## Who consumes this repo
 
@@ -25,6 +25,11 @@ To test content changes against a real workspace, install the [Boxel CLI](https:
     boxel realm push . https://app.boxel.ai/myuser/myworkspace/
 
 Commit, push your branch, and raise a PR. Merged changes go to the staging realm; tagged releases go to production and become eligible for the plugin's version pin.
+
+Two invariants to keep by hand (nothing rewrites your files):
+
+- Self-references are realm-root-relative — `skills/<name>/…`, `commands/<name>.md` — never absolute `https://…/skills/` URLs, so the realm stays cloneable to other hosts.
+- Every shipped `SKILL.md` carries `boxel.kind: skill` frontmatter (command files also carry `name:`); the `boxel-skill-authoring` skill documents the full contract.
 
 ## Layout
 
