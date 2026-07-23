@@ -4,7 +4,7 @@ The canonical source of official Boxel agent skills and slash commands. Everythi
 
 ## Who consumes this repo
 
-- **The skills realm** — merges to `main` sync to the staging realm; published GitHub releases sync to production (`app.boxel.ai/skills/`). See `.github/workflows/sync-to-workspace.yml`.
+- **The skills realm** — merges to `main` sync to the staging realm; published GitHub releases sync to production (https://app.boxel.ai/skills/). See `.github/workflows/sync-to-workspace.yml`.
 - **The boxel-cli Claude Code plugin** — `skills/` and `commands/` are copied verbatim from a pinned release tag into `packages/boxel-cli/plugin/` in the [boxel monorepo](https://github.com/cardstack/boxel), which distributes them to end users and to the Software Factory.
 - **Agent sessions authoring skills** — a checkout of this repo is itself a loadable Claude Code plugin (see below).
 
