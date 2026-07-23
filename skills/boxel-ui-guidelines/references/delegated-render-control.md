@@ -516,6 +516,34 @@ If you set `--radius: 0` on the parent's theme, then in a `:deep()` override wri
 }
 ```
 
+### Embedded MarkdownDef — tune the bounded preview with custom properties
+
+The base `MarkdownDef` embedded format (`packages/base/markdown-file-def.gts`) renders a **bounded preview**: the content is clamped to a max height with a bottom fade mask, so a long document doesn't blow out the embedding card's layout. It exposes two custom properties for tuning that box:
+
+| Property | Default | What it controls |
+|---|---|---|
+| `--markdown-embedded-max-height` | `200px` | The clamp height of the preview |
+| `--markdown-embedded-mask` | a bottom fade | The fade-out mask applied at the clamp edge |
+
+Set them on **any ancestor of the embedded render** — they inherit across the embed boundary into the framework's markup:
+
+```css
+/* Taller bounded preview — still clamped + faded, just more of it visible */
+.doc-panel {
+  --markdown-embedded-max-height: 480px;
+}
+
+/* Full, unbounded content — you MUST clear both, together */
+.doc-panel {
+  --markdown-embedded-max-height: none;
+  --markdown-embedded-mask: none;
+}
+```
+
+Clearing only the height leaves the fade mask painting over the tail of the content; clearing only the mask leaves the height clamp cutting it off. For unbounded display, set both to `none`.
+
+**Why custom properties are the mechanism.** This embedded render is framework-driven — the host, not your template, instantiates the `MarkdownDef`'s embedded component. It takes no component args (`@maxHeight=…`), because the embedding context never calls the component; it only supplies the surrounding DOM. An **inherited custom property is the lever that crosses that boundary** — it rides the CSS cascade down into the framework's markup.
+
 ## Quick-reference cheat sheet
 
 | Need | Tool |
@@ -530,6 +558,8 @@ If you set `--radius: 0` on the parent's theme, then in a `:deep()` override wri
 | Let images bleed past corners | `:deep(.field-component-card.embedded-format) { overflow: visible; }` |
 | Target by format | `:deep([data-boxel-card-format="embedded"]) { ... }` |
 | Kill chrome entirely (atom) | `<@fields.X @format='atom' @displayContainer={{false}} />` |
+| Taller embedded MarkdownDef preview | set `--markdown-embedded-max-height: 480px` on an ancestor |
+| Full, unbounded embedded MarkdownDef | set `--markdown-embedded-max-height: none` AND `--markdown-embedded-mask: none` on an ancestor |
 | Atom visible on dark background | `@displayContainer={{false}}`, OR `:deep(.field-component-card.atom-format) { background: transparent; box-shadow: none; }` |
 | Atom baseline-align with prose | `:deep(.field-component-card.atom-format) { vertical-align: baseline; }` |
 | Atom padding match parent's chip | `:deep(.field-component-card.atom-format) { padding: 0; }` |

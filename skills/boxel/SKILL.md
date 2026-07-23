@@ -88,7 +88,7 @@ Core syntax and patterns (load when topic comes up):
 - `references/quick-reference.md` — Core imports, UI components, helpers, icons, file types.
 - `references/common-imports.md` — Common `.gts` imports and the import preflight for `fn`, task handlers, `on`, `concat`, `get`, helpers, formatters, tasks, and host commands. Load before generating or reviewing non-trivial templates.
 - `references/lint-workflow.md` — Mandatory installed npm `boxel` lint commands, local vs remote lint, clean-output interpretation, and fallback rules.
-- `references/core-patterns.md` — Card definitions, computed title, field definitions, computed properties.
+- `references/core-patterns.md` — Card definitions, computed cardTitle, field definitions, computed properties.
 - `references/prefers-wide-format.md` — When `static prefersWideFormat = true` is required (app-card homes, sectioned-record nav, 3D layouts, routed pages, dashboards, slide decks). Default is `false`; the most-forgotten static property. **Decide at CardDef creation time, not after the layout looks cramped.**
 - `references/template-syntax.md` — Field access, compound fields, `@fields` delegation, array handling, fallback values, and Glimmer syntax gotchas (the `{{#if (this.x)}}` parens trap, HTML-tag-shadowing block params).
 - `references/file-editing.md` — Pointer to the `source-code-editing` skill, which defines the SEARCH/REPLACE format.
@@ -115,6 +115,7 @@ Subsystems (load when used):
 - `references/enumerations.md` — `enumField` for constrained-value dropdowns, rich/dynamic options, helpers. Includes label-rendering pattern (const-map + `get` helper).
 - `references/date-math.md` — Date arithmetic idioms inside `computeVia` vs Component getters, `formatDateTime` boundary, streak/overdue patterns.
 - `references/base-field-catalog.md` — Every importable base field (`AddressField`, `DateRangeField`, `PercentageField`, `CodeRefField`, `ColorField`, `EmailField`, `PhoneNumberField`, `CoordinateField`, etc.) — reach past `StringField` when the value has a known shape.
+- `references/qunit-testing.md` — Writing co-located `.test.gts` card tests for `boxel test`: `runTests()` contract, `setupCardTest`, `renderCard`, shimmed modules, `data-test-*` conventions.
 - `references/icons.md` — `@cardstack/boxel-icons` naming convention (Lucide-style descriptor-first like `square-check` not `check-square`), common-use icon table, how to verify before importing.
 
 Specialty (load only when explicitly needed):
@@ -153,7 +154,7 @@ Sibling skills:
 - Run the import preflight from `references/common-imports.md` AND the lint gate from `references/lint-workflow.md` before reporting a `.gts` file as done.
 - Assign an icon to every CardDef and FieldDef.
 - Provide an `embedded` template for every FieldDef.
-- Compute `title` from the primary identifier field.
+- Compute `cardTitle` from the primary identifier field (a `title` field of your own is just data — the host reads `cardTitle` for the display name).
 - Provide empty states for arrays.
 - Use theme variables only; link a default theme on instances.
 - Store media as linked FileDef/ImageDef/PngDef; only small durable `http(s)` URLs belong in string fields.
