@@ -19,10 +19,10 @@ The auto-fix loop is bounded (currently 3 attempts per target). Aim to emit clea
 
 Use `@cardstack/boxel-cli` 0.2.0 or newer. Do not use a locally checked-out CLI unless the task is to debug CLI source.
 
-**One-time setup per workspace.** This repo doesn't ship a `package.json` (it's a skills repo, not a Node project). Install the CLI as a local dep once so `npx boxel` resolves cleanly:
+**One-time setup per workspace.** A card workspace typically has no `package.json` of its own. Install the CLI as a local dep once, in the directory you run Boxel card work from, so `npx boxel` resolves cleanly:
 
 ```sh
-cd /path/to/boxel-workspaces
+# run from the root of the workspace directory you do card work in:
 npm install @cardstack/boxel-cli@latest
 ```
 

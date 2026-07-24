@@ -5,9 +5,12 @@ on:
     # Skill cards are JSON files. Gate the workflow at the trigger so
     # PRs that only touch CI / docs / .gitignore (which produce no
     # changed-files matrix entries) don't fail the downstream
-    # post-diffs job on an empty matrix.
+    # post-diffs job on an empty matrix. The Claude Code plugin
+    # manifest is JSON but not a skill card — keep it out of the
+    # matrix.
     paths:
       - "**/*.json"
+      - "!.claude-plugin/**"
 
 permissions:
   contents: read
