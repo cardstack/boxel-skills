@@ -65,9 +65,13 @@ var(--sidebar-ring)        /* sidebar focus-ring color */
 
 - `--muted-foreground` must only be used on `--muted`, `--background`, or `--card` surfaces. Do not place it on `--primary`, `--accent`, or any other surface — contrast is not guaranteed.
 
-- Declare `background-color` and the corresponding `color` on a parent container. All children will inherit the color, so you don't need to repeat the color declaration unless you need to override the color.
+- A rule that sets a semantic `background-color` also sets the paired `--*-foreground` as `color` **in the same rule**, once, at that surface's root. All children inherit the color — never re-declare on descendants what they already inherit.
 
-- You would only redeclare background and color, if you make a special box that uses one of the special color pairings. For example: `background-color: var(--accent); color: var(--accent-foreground);`.
+- You would only redeclare background and color, if you make a nested surface that diverges from its parent — that is the sanctioned case for declaring both: `background-color: var(--card); color: var(--card-foreground);`, `--sidebar`/`--sidebar-foreground`, `--accent`/`--accent-foreground`, `--primary`/`--primary-foreground`, etc.
+
+- Exception: `color: var(--foreground)` on a `--muted` background is fine — theme generation must always guarantee that contrast pair (as it must for `--muted-foreground` on `--background`/`--card`).
+
+- Isolated-format roots do not repeat `background-color: var(--background); color: var(--foreground);` — `CardContainer` already provides that pairing.
 
 - Nested component layout example. This is just an example for how different color pairing can be used.
   - Outer parent: `background-color: var(--background); color: var(--foreground);`
@@ -131,6 +135,8 @@ As with spacing, you have the same three options for font sizes:
 3. **Semantic tokens** (`--boxel-heading-font-size` etc.) — scale with the theme and also carry role-based meaning.
 
 Choose based on whether you want the text to respond to the linked theme.
+
+**`font:` shorthand pitfall.** The composite `--boxel-font-*` tokens (`font: var(--boxel-font-sm);` etc.) bundle size/line-height *and* `--boxel-font-family` — the fixed IBM Plex stack. Using the shorthand therefore pins the Boxel family and stomps the theme's `--font-sans`. On themeable content, set the individual `font-size` / `font-weight` / `line-height` properties instead so the theme's family inherits. The shorthand stays valid where Boxel chrome styling is the intent — it's a deliberate theme opt-out, so judge each occurrence by intent, not mechanically.
 
 #### Semantic typography variables
 
@@ -215,7 +221,7 @@ var(--boxel-border-radius-xs) /* scales with theme */
 var(--boxel-border-radius-sm) /* scales with theme */
 var(--boxel-border-radius-lg) /* scales with theme */
 var(--boxel-border-radius-xl) /* scales with theme */
-var(--boxel-border-radius-xxl) /* scales with theme */
+var(--boxel-border-radius-2xl) /* scales with theme */
 ```
 
 ### Shadow & Effects Tokens
@@ -702,6 +708,13 @@ Before finalizing any card template, verify:
 - [ ] Responsive layout uses `@container` queries, not `@media` viewport queries or `vw`/`vh` units
 - [ ] Icons and SVGs never use hardcoded hex fills — use theme color tokens via CSS
 - [ ] No hardcoded fallback values scattered in `var()` calls — if fallbacks are needed, define them once on the parent container. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
+- [ ] No deprecated `xx*` token names — use the digit forms (`--boxel-sp-2xl` not `--boxel-sp-xxl`, `--boxel-border-radius-2xs` not `-xxs`, `--boxel-icon-2xs` not `-xxs`); check the `deprecated - Do Not Use` block in boxel-ui `variables.css` for the current list
+- [ ] No `font:` shorthand with composite `--boxel-font-*` tokens on themeable content — it pins the fixed Boxel family and stomps the theme's `--font-sans`; use individual `font-size`/`font-weight`/`line-height` (shorthand is fine where Boxel chrome styling is the intent)
+- [ ] Hardcoded metrics (raw font-sizes, widths/heights, border-radii) hoisted into component-prefixed custom properties on the component root, not scattered as literals
+- [ ] Card titles render `<@fields.cardTitle />` (or `@model.cardTitle`) — no `{{if @model.title @model.title 'Untitled Foo'}}` hand-rolled fallbacks. A domain `title` field (blog-post title, job title) is fine, but don't declare `title` just to name the card — that's `cardInfo.name`/`cardTitle`
+- [ ] Semantic HTML: headings for titles, `<p>` for prose, `<header>` for intro blocks, `role='toolbar'` + `aria-label` for control groups, `<output>` for readouts, `aria-label` on icon-only buttons, `aria-hidden` on decoration; divs only for pure layout geometry
+- [ ] `data-test-*` attributes are absolutely last on an element, after all other attributes and modifiers
+- [ ] DOM queries in interactions/animations are scoped to the component's own subtree (`element.closest('.boxel-card-container')` as query root), never the document — the same card can render in multiple stacks on one page; JS query hooks are dedicated data attributes, not class names and not `data-test-*` (tests only)
 - [ ] Prefers `<@fields.field />` for all simple field rendering; `@model.x` for conditionals, HTML attributes, context-specific fallback value, and JS getters
 - [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`

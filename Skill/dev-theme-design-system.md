@@ -44,7 +44,7 @@ A ThemeCard is an instance of a card definition that inherits from `https://card
 > **When creating a Theme card:** Prefer `DetailedStyleReference`. At minimum, fill in `rootVariables` and `typography`. Add font URLs to `cssImports` as a string array — no `@import` needed (the system handles imports).
 
 ### 3.2 Canonical Theme Variables
-Use the variables directly (do not wrap with `hsl(var(...))`). Pair backgrounds with their foregrounds for contrast.
+Use the variables directly (do not wrap with `hsl(var(...))`). Pair backgrounds with their foregrounds for contrast: a rule that sets a semantic background also sets the paired `--*-foreground` in the same rule, once at that surface's root — descendants inherit it (never re-declare what's already inherited). Nested surfaces that diverge (`--card`, `--sidebar`, `--accent`, `--primary`, …) are the sanctioned case for declaring both. Exceptions: `--foreground` over `--muted` is fine (theme generation must guarantee that pair), and isolated-format roots don't repeat `--background`/`--foreground` — `CardContainer` already provides them.
 
 Our design system is compatible with shadcn css variables.
 
@@ -106,13 +106,13 @@ Our design system is compatible with shadcn css variables.
 - Radius: (`border-radius`)
 ```css
 --radius
---boxel-border-radius-xxs
+--boxel-border-radius-2xs
 --boxel-border-radius-xs
 --boxel-border-radius-sm
 --boxel-border-radius
 --boxel-border-radius-lg
 --boxel-border-radius-xl
---boxel-border-radius-xxl
+--boxel-border-radius-2xl
 ```
 - Spacing:
 ```css

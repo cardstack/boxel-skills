@@ -1,8 +1,10 @@
 **Card with computed cardTitle:**
 
 A card's display name comes from `cardTitle` (a computed pass-through from
-`cardInfo.name`). To derive it from another field, override `cardTitle` — do
-NOT override the base `title` field; the host reads `cardTitle`, not `title`.
+`cardInfo.name`). To derive it from another field, override `cardTitle`. A
+`title` field is fine when it's real domain data (a blog post's title, a job
+title) — but don't declare one just to give the card its display name; the
+host reads `cardTitle`, not `title`, and the name belongs in `cardInfo.name`.
 
 ```gts
 export class BlogPost extends CardDef {
@@ -10,11 +12,18 @@ export class BlogPost extends CardDef {
   
   @field cardTitle = contains(StringField, {
     computeVia: function(this: BlogPost) {
-      return this.headline ?? 'Untitled Post';
+      // Respect a user-set cardInfo.name before deriving from headline
+      return this.cardInfo?.name ?? this.headline ?? 'Untitled Post';
     }
   });
 }
 ```
+
+In templates, render `<@fields.cardTitle />` (or read `@model.cardTitle` for a
+raw string). Never hand-roll the fallback — `{{if @model.title @model.title
+'Untitled Foo'}}` is a violation: the `Untitled <displayName>` fallback is
+already built into `cardTitle`. Instance JSON sets the name via
+`cardInfo.name`.
 
 **Field definition:**
 ```gts

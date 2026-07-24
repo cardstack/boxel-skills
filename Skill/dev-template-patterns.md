@@ -2,8 +2,8 @@
 
 **Field access patterns:**
 ```hbs
-{{@model.title}}                    <!-- Raw data -->
-<@fields.title />                   <!-- Field's template -->
+{{@model.cardTitle}}                <!-- Raw data -->
+<@fields.cardTitle />               <!-- Field's template -->
 <@fields.phone @format="atom" />    <!-- Compound field -->
 <@fields.items @format="embedded" /> <!-- Auto-collection -->
 ```
@@ -204,9 +204,14 @@ TypeError: Cannot read properties of null (reading 'manager')
 **1. Inline if/else (for simple display fallbacks):**
 ```hbs
 <span>{{if @model.eventTime (formatDateTime @model.eventTime "MMM D, h:mm A") "Event time to be announced"}}</span>
-<h2>{{if @model.title @model.title "Untitled Document"}}</h2>
 <p>Status: {{if @model.status @model.status "Status pending"}}</p>
 ```
+
+**Exception — card titles never need a hand-rolled fallback.** Render
+`<h2><@fields.cardTitle /></h2>` (or `@model.cardTitle` for a raw string);
+`cardTitle` computes from `cardInfo.name` and already falls back to
+`Untitled <displayName>`. `{{if @model.title @model.title "Untitled Document"}}`
+is a violation, not a fallback pattern.
 
 **2. Block-based if/else (for complex content):**
 ```hbs
@@ -218,9 +223,9 @@ TypeError: Cannot read properties of null (reading 'manager')
   {{/if}}
 </div>
 
-{{#if @model.description}}
+{{#if @model.cardDescription}}
   <div class="description">
-    <@fields.description />
+    <@fields.cardDescription />
   </div>
 {{else}}
   <div class="empty-description">
@@ -387,3 +392,65 @@ export class ShoppingList extends CardDef {
 
 **Performance Consideration:**
 The `get` helper is efficient for accessing specific indices. For complex filtering or transformation, consider using query patterns or computed properties instead.
+
+### Semantic, Accessible HTML
+
+Choose elements by meaning; reserve `<div>` for pure geometry/layout machinery:
+
+- Titles are headings (`<h1>`–`<h4>` at the level the surface calls for), never styled divs.
+- Prose goes in `<p>`, not bare text in divs.
+- Intro blocks (title + subtitle/description) are wrapped in `<header>`.
+- Groups of controls get `role='toolbar'` plus an `aria-label` describing the group.
+- Computed/live readouts (counters, results, status values) use `<output>`.
+- Icon-only buttons carry an `aria-label`; purely decorative elements (glyphs, ornaments, background shapes) get `aria-hidden='true'`.
+
+Attribute ordering: `data-test-*` attributes go **absolutely last** on an element — after all other attributes and after modifiers.
+
+```gts
+// Avoid — divs for everything, no accessible names
+<div class='title'>{{@model.cardTitle}}</div>
+<div class='controls'>
+  <button {{on 'click' this.zoomIn}}><PlusIcon /></button>
+</div>
+<div class='count'>{{this.count}}</div>
+
+// Correct — semantic elements, labels, data-test last
+<header class='intro'>
+  <h2><@fields.cardTitle /></h2>
+  <p class='subtitle'><@fields.cardDescription /></p>
+</header>
+<div class='controls' role='toolbar' aria-label='Zoom controls'>
+  <button
+    type='button'
+    aria-label='Zoom in'
+    {{on 'click' this.zoomIn}}
+    data-test-zoom-in
+  >
+    <PlusIcon width='16' height='16' aria-hidden='true' />
+  </button>
+</div>
+<output class='count' data-test-count>{{this.count}}</output>
+```
+
+### Assume the same card renders more than once per page
+
+The host renders cards without iframes, and the same card instance can be open in multiple workbench stacks side by side — producing duplicate `id`s and duplicate class trees in one document. Write all interaction, animation, scroll, and DOM-lookup code accordingly:
+
+- **Scope every DOM query to the component's own subtree.** Start from the event target or an element captured via modifier and use `element.closest('.boxel-card-container')` (falling back to `ownerDocument`) as the query root — never `document.getElementById` / `document.querySelectorAll('.some-card-class')`, which hit the *first* match, so code in the second stack's copy silently operates on the first stack's DOM.
+- Same rule for `querySelectorAll` in animation loops, `IntersectionObserver` targets, and anchor-scroll targets (native `#anchor` jumps are document-wide too).
+- **JS query hooks are data attributes, not class names.** Classes are for styling only; give the element a dedicated data attribute and select on that. `data-test-*` attributes are reserved for tests — never use them as runtime hooks.
+- Avoid global side effects for per-card behavior: no unscoped `<style>` injections, no `document`-level listeners keyed to one card's state.
+
+```gts
+// Avoid — document-wide lookup (hits the first stack's copy) on a styling class
+const target = document.querySelector('.timeline-row[data-year="2024"]');
+
+// Correct — scoped to this card's own container, data-attribute hook
+scrollToYear = (event: Event) => {
+  const root =
+    (event.target as HTMLElement).closest('.boxel-card-container') ??
+    (event.target as HTMLElement).ownerDocument;
+  const target = root.querySelector('[data-timeline-year="2024"]');
+  target?.scrollIntoView({ behavior: 'smooth' });
+};
+```
