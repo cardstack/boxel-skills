@@ -111,11 +111,13 @@ Each cancelling declaration is invisible coupling to the component's current int
 
 **Component args are not portable between components.** `@as` and `@href` are `Button`'s args. `Pill` has no `@as` — it takes `@tag` (a raw HTML tag name) and receives `href` as a plain attribute through `...attributes`. Never carry one component's arg names to another; check the signature.
 
-**Gotcha — an `<a>` with no `href` renders as *disabled*.** `Button` treats `a.boxel-button:not([href])`, `[href='']`, and `.disabled-link` as a disabled link: `opacity: 0.5`, disabled color, `pointer-events: none`. So `@as='anchor'` with a conditionally-empty `@href` silently produces a faded, disabled-looking element — and that fade often *looks* like a nice de-emphasis, so it survives review as if it were designed.
+### An optional `@href` is a decision, not a detail
 
-Never leave it implicit. Decide which case you're in, because they want different markup:
+`Button @as='anchor'` renders an `<a>`, and an `<a>` with no `href` is not a link — it isn't focusable and reads as generic text. `Button` also *styles* that state as disabled (`a.boxel-button:not([href])`, `[href='']`, `.disabled-link` → `opacity: 0.5`, disabled colour, `pointer-events: none`), so a conditionally-empty `@href` produces a faded element that looks deliberate and passes review as if it were designed.
 
-**Case 1 — the link is meant to exist but isn't available yet** (unpublished URL, gated resource, "coming soon"). A disabled link is exactly what this is, so say so. Pass `@disabled` explicitly, and add `aria-disabled` yourself — `Button`'s anchor branch only suppresses the `href`, it sets no `disabled` attribute and no `aria-disabled`, so without it the state is visual-only:
+So whenever a url-ish field is optional, decide which of these the **data model** intends. They look nearly identical on screen; the difference is what the markup claims is true.
+
+**Case 1 — the link is meant to exist but isn't available yet.** Unpublished URL, gated resource, "coming soon". A disabled link is precisely what this is, so say so with `@disabled` rather than letting an absent `href` imply it:
 
 ```gts
 <Button
@@ -125,13 +127,10 @@ Never leave it implicit. Decide which case you're in, because they want differen
   @size='extra-small'
   @href={{@model.url}}
   @disabled={{not @model.url.length}}
-  aria-disabled={{unless @model.url.length 'true'}}
 ><@fields.label /></Button>
 ```
 
-Note `@disabled={{true}}` on an anchor produces DOM identical to just omitting `href` — its whole value is that the template now states the intent instead of leaving a reader to infer it.
-
-**Case 2 — the field is optional and some items are plain labels.** Nothing is disabled; there is no action that could become available. Render a non-anchor element and state the de-emphasis directly, so the appearance isn't coupled to a control state that may get restyled later:
+**Case 2 — the field is optional and some items are plain labels.** Nothing is disabled; no action could ever become available. Render a non-anchor element and state the de-emphasis directly, so the appearance isn't coupled to a control state:
 
 ```gts
 {{#if @model.url.length}}
@@ -143,9 +142,11 @@ Note `@disabled={{true}}` on an anchor produces DOM identical to just omitting `
 {{/if}}
 ```
 
-When you branch like this, the non-component element does **not** inherit the component's `@size` metrics — declare shared `font-size`/`line-height` on the class both branches carry, or the two render at different sizes.
+When you branch like this the non-component element does **not** inherit the component's `@size` metrics — declare shared `font-size`/`line-height` on the class both branches carry, or the two render at different sizes.
 
-Ask which case the *data model* intends, not which looks better — they render nearly identically, so the only real difference is what the code claims is true.
+Getting this wrong is not cosmetic. Once `Button` announces its disabled links to assistive tech (below), a Case 2 item written as Case 1 stops being merely silent and starts telling screen-reader users that a plain label is an unavailable link.
+
+> **Version note (2026-07, [CS-12305](https://linear.app/cardstack/issue/CS-12305/upstream-portable-homepage-modules-to-boxel-ui)).** `Button`'s anchor branch currently suppresses the `href` and nothing else — it sets no `disabled` attribute and no `aria-disabled` — so the disabled state is **visual-only for every caller**, and `@disabled={{true}}` on an anchor yields DOM identical to just omitting `href`. Until CS-12305 lands, Case 1 should also pass `aria-disabled={{unless @model.url.length 'true'}}` by hand. Delete that argument once `Button` sets it itself, and delete this note with it.
 
 ### Drag/drop quality bar
 
