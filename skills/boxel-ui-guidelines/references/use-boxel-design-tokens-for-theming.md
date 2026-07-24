@@ -190,6 +190,8 @@ var(--boxel-caption-font-weight)
 var(--boxel-caption-line-height)
 ```
 
+**Take the whole role group, don't assemble one.** When text needs a size *and* a matching line-height, use the four tokens of its semantic role rather than reaching into the primitive ladder and hand-writing the pair — `font-size: var(--boxel-font-size-xs); line-height: calc(15 / 11);` should be `var(--boxel-caption-font-size)` + `var(--boxel-caption-line-height)`. The role group stays internally consistent and re-scales with the theme; a hand-computed `calc()` line-height silently stops matching the moment the theme's type scale changes.
+
 #### Low-level typography tokens
 
 Note: The font-family, font-sizes, spacing, radius will be recalculated based on the linked card in cardInfo.theme. Below values are defaults.
@@ -247,6 +249,8 @@ var(--boxel-transition)        /* 0.2s ease */
 ### Primitive Color Tokens — Do Not Use for Brand/Theme
 
 Do NOT use these for brand or theme colors — they are hardcoded and not theme-aware. Prefer semantic variables above. These exist only as low-level primitives:
+
+**Concrete failure mode — the grays as text color.** `color: var(--boxel-500)` for "muted" text looks correct in light mode and goes **illegible in dark mode**: the gray stays put while the surface flips dark, collapsing contrast. This is the most common way the primitives leak in, because a mid-gray reads as a safe, neutral choice. Muted text is always `var(--muted-foreground)` — it is defined per theme precisely so it moves with the surface. If you need de-emphasis *relative to whatever color is inherited*, derive it (`opacity`, or `color-mix(in oklab, currentColor 60%, transparent)`) rather than naming a fixed gray.
 
 ```css
 /* Grays */
