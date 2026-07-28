@@ -22,6 +22,8 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **Component** — Glimmer component associated with a CardDef format via `static isolated = class extends Component<typeof X> { <template>…</template> }`.
 - **instance** — A saved JSON `.json` document in a realm; one card instance per file.
 - **realm** — A filesystem + git repo serving cards over HTTP. Each is its own git repo via `.boxel-history/`.
+- **workspace** — The same thing as a realm, in the words users see. Prefer it in anything a card author reads; keep "realm" for the server-side and API surface (`realmURL`, `realm.json`, `/_search`).
+- **default index card** — The card at a workspace's root, `index.json`. Unless you replace it, it adopts `Workspace` from `@cardstack/base/workspace` (`workspace.gts`) and gives the workspace Home / Library / Activity views plus Cmd+K search. Workspaces created before that adopt `CardsGrid`, still supported. → `boxel/references/default-index-card.md`
 - **host mode** — The realm-server's public published-realm rendering path (`/index.html` + prerendered HTML). Distinct from operator/interact mode.
 - **operator mode / interact mode / code mode** — Three host UI modes. Interact = browse/edit cards; code = source view; operator = combined editor.
 - **prerendered HTML** — Cached server-side HTML for each card's format (isolated/embedded/fitted), used to bypass client-render latency.
@@ -71,7 +73,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 
 - **`isolated`** — Full-page card view. Usually `prefersWideFormat = true`.
 - **`embedded`** — Inline card view inside another card. Natural height; renders into the parent's flow.
-- **`fitted`** — Container-sized card view that fills a parent-controlled box. Used in CardsGrid, fitted-format frames. → `boxel/references/fitted-formats.md`, `boxel/references/container-query-fitted-layout.md`
+- **`fitted`** — Container-sized card view that fills a parent-controlled box. Used in the default index card's Library, fitted-format frames. → `boxel/references/fitted-formats.md`, `boxel/references/container-query-fitted-layout.md`
 - **`edit`** — Editor surface; only shown in operator/interact edit mode. Defaults to a field-stack.
 - **`atom`** — Inline atom view (chip/pill); used in dense lists and inside text.
 - **`markdown`** — Static markdown output format; the card's `static markdown = ...` template emits BFM. → `boxel-markdown-format`

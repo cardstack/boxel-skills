@@ -19,6 +19,10 @@ Boxel is a composable card-based system where information lives in self-containe
 
 - **Realm/Workspace:** Your project's root directory. All imports and paths are relative to this context
 
+- **Default index card:** The card at the workspace root, `index.json`. Unless replaced it adopts `Workspace` from `@cardstack/base/workspace` (`workspace.gts`), giving the workspace Home / Library / Activity views and Cmd+K search — the Library is the card list older workspaces got from `CardsGrid`, which is still supported
+  - **To feature a card on the root**, link it from the index card's `entryPoints` (`linksToMany(CardDef)`); it renders as a pinned tile on Home. Don't rely on card-list ordering — that isn't a promise
+  - **To replace the root entirely**, change `index.json`'s `adoptsFrom` to your own card; you then own everything the default index card was doing
+
 - **Formats:** Different visual representations of the same card:
   - `isolated`: Full detailed view (should be scrollable for long content)
   - `embedded`: Compact view for inclusion in other cards
