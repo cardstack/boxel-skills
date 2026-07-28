@@ -314,3 +314,21 @@ In Host mode, open dev tools, inspect a rendered tile. Look for an `<a href="htt
 - `searchEntryWireQueryFromQuery` / `SearchEntryWireQuery` — see `runtime-common/index.ts` in the boxel monorepo. Full treatment in `boxel/references/query-systems.md`.
 
 **See also:** [`show-card-list-with-views`](../show-card-list-with-views/) (the lower-level CardsGrid component), [`automate-linked-to-me-lookup`](../automate-linked-to-me-lookup/) (when you need models not just rendered HTML), [`boxel-ui-guidelines/references/delegated-render-control.md`](../../../boxel-ui-guidelines/references/delegated-render-control.md), [`boxel/references/query-systems.md`](../../../boxel/references/query-systems.md).
+
+## Advanced live-surface notes (from the factory-dashboard work, 2026-07-16)
+
+- **Counts without hydration:** KPI/funnel numbers via `page: { size: 1 }`
+  on the wire query + `results.meta.page.total` — one row of HTML, full
+  count.
+- **`@cached` the wire-query getters** so SearchResults keeps ONE live
+  subscription per section instead of resubscribing on every re-render.
+- **`@mode='none'`** keeps results on prerendered HTML (no hover
+  hydration) — right for dashboards; `@mode='hover'` for browsable grids.
+- **Tile clicks in monitor-style cards:** use
+  `this.args.viewCard(url, 'isolated', { openCardInRightMostStack: true })`
+  — never `<a href>` (full-page navigation drops the surface).
+- **Churn warning:** live sections re-run on EVERY realm index change. A
+  realm that is being written every few seconds (sync loops, log writers)
+  makes every section flash its loading state continuously — keep
+  high-frequency writers out of the realm the dashboard watches, and
+  prefer showing stale results over a loading state during revalidation.

@@ -286,3 +286,12 @@ import { array } from '@ember/helper';
 ```
 
 Use the block parameter in a `data-*` attribute so the key remains explicit. Keep persistent controls, progress, and navigation outside the keyed block: remounting intentionally resets focus and local DOM state inside it. Pair this with the visible resting-state rule above so reduced-motion and canceled animations remain usable.
+
+## BooleanField widens shared-component arg types
+
+A `contains(BooleanField)` model value types as `string | boolean |
+undefined`, so a shared component arg declared `showToggle?: boolean` fails
+glint ("Type 'string | boolean | undefined' is not assignable"). Declare
+shared-component boolean args as `boolean | string | null` (only truthiness
+is read). Same for args that receive a linked card purely for truthiness —
+type them `unknown`, not `boolean`.

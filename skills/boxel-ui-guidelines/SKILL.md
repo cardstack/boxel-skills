@@ -36,6 +36,7 @@ You are a Boxel UI specialist. Whenever you write or review GTS templates and ca
 - `references/prefer-component-apis-write-new-components-when-needed.md` — Prefer Component APIs; Write New Components When Needed
 - `references/use-boxel-ui-components.md` — Use Boxel-UI Components
 - `references/style-budget.md` — Style budget — keep `<style>` blocks ≤40% of file, deduplicate across formats
+- `references/css-escape-hatches.md` — `!important`/`:deep()`/`:global()` are smells: the 4-step legitimacy check, worked verdicts, and the tells
 - **`references/delegated-render-control.md`** — How the host wraps `<@fields.X @format='...' />` chrome (CardContainer + field-component classes) and how the parent overrides it via theme cascade, `:deep()`, or `@displayContainer={{false}}`. **Critical reading when embedding child cards in a parent that has its own design language.** Covers:
   - **Divider strategy is binary** — parent draws lines (AND kills `--boundaries` shadow), OR child halo IS the boundary (no parent borders). Both at once = "drop shadow fighting a thin border."
   - **Picking the format** — fitted vs embedded by who owns the cell size (the most common rendering bug is fitted-with-short-content leaving empty box space).

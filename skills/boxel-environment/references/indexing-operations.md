@@ -318,3 +318,101 @@ Some host commands require a browser context with a Matrix client to persist the
 - Any command whose docstring mentions "saves the card" or "uploads to realm" with a browser-only auth dependency.
 
 CLI-friendly commands (no browser dependency): `get-card-type-schema`, `full-reindex-realm`, `invalidate-realm-identifiers`, `search-cards`, `instantiate-card` for read-only schema introspection.
+
+## The `/_atomic?waitForIndex=true` FieldDef strip (2026-07-16, prod)
+
+Any card instance pushed through `POST /_atomic?waitForIndex=true` — the
+path `realm sync` / workspace-sync and the software factory use — comes
+back with **every `containsMany(<FieldDef>)` entry emptied to `{}`**:
+array length, top-level primitives, and indexed relationship keys survive;
+the compound field data is silently gone. Both `add` and `update` corrupt;
+the same content via `/_atomic` without `waitForIndex`, or via a plain
+`boxel file write`, is preserved byte-for-byte.
+
+- **Detect:** card renders rows/sections with all text blank;
+  `boxel file read` shows `"entries": [{}, {}]`. Every static gate stays
+  green — only the serialized instance (or a render) shows it.
+- **Heal:** re-write the instance raw (`boxel file write`) — full recovery.
+  Note the ping-pong: an out-of-band raw write makes the next sync see a
+  remote/local conflict and re-upload (re-strip) — so healing must happen
+  after EVERY sync, not once.
+- Platform bug, reported upstream: atomic `waitForIndex` strips `containsMany` FieldDef attributes.
+
+## Cross-module instances silently dropped — `touch` is NOT enough (CS-12171 extension)
+
+A new `.gts` type that imports a sibling realm module, plus instances of
+it, can index to NOTHING — no card entry, no file row, empty
+`indexing-errors` — while `get-card-type-schema` says ready and
+`instantiate-card` passes. Unlike the basic CS-12171 race, `boxel file
+touch` does NOT recover this case; file DELETES can re-trigger it for
+previously-indexed dependents. Recovery:
+`npx boxel run-command @cardstack/boxel-host/tools/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'`.
+Diagnose with a probe pair first (plain type indexes / sibling-importing
+type doesn't). Never `cancel-indexing`.
+
+## Failed module evaluation poisons the module URL (CS-12167)
+
+A module whose evaluation THREW keeps serving the stale error through
+`file write`, `file touch`, and even `full-reindex-realm` — long after the
+source is fixed. First try
+`run-command @cardstack/boxel-host/tools/invalidate-realm-identifiers/default
+--input '{"realmIdentifier":"<url>"}'` (singular key; the effect can lag
+one probe). If the poison survives delete + rewrite (observed), the only
+reliable cure is **renaming the module URL** (new basename, repoint
+`adoptsFrom`, delete the old file). Prove cache-vs-real by pushing the
+identical source under a fresh probe name.
+
+**Bisecting a broken import chain:** a probe module that imports the
+suspect modules with `import * as ns` and
+`throw new Error(Object.keys(ns).join(','))` at module level makes
+`get-card-type-schema` print the real export names — e.g. this exposed
+that staging's `ts-file-def`/`json-file-def` export ONLY named symbols
+(no default) while `image-file-def` has both.
+
+## Successful module schemas can ALSO stay stale (no error required)
+
+The poisoned-URL behavior above has a sibling: after a **structural field
+change** (e.g. a field rename), `get-card-type-schema` can keep returning the
+older *successful* schema even though remote source and lint show the new
+shape, and `invalidate-realm-identifiers` doesn't dislodge it. Same cure:
+move the corrected module to a **fresh URL**, update importers, and remove
+the superseded module only after the fresh URL probes ready. (Observed on
+prod: original URL omitted a renamed field after writes + invalidation; a
+fresh URL exposed it immediately; all 98 definitions then probed ready.)
+
+## Shared-module edits: rewrite consumers in dependency order
+
+Writing an imported shared `.gts` component can leave an already-indexed
+CardDef on its **previous compiled template** even though the new dependency
+source is present in the realm. Rewrite in dependency order:
+**shared component → importing CardDef → affected instance**, then
+close/reopen the card (or hard-refresh the current Boxel stack). Use
+unchanged `file write`, never `file touch`. The tell: production source
+contains your new markers while the user still sees the old surface.
+Platform bug, tracked as CS-12172 (indexed computeds stale after module change).
+
+## CLI quirks worth knowing (verified in production use)
+
+- **`boxel realm push` ignores `.boxel-sync.json`** — a push right after a
+  fresh pull still proposes uploading every file (169/169 in dry-run). For
+  scoped changes use per-file
+  `npx boxel file write <path> --realm <url> --file <path>`; this also
+  sidesteps the `/_atomic` containsMany-strip trap.
+- **`get-card-type-schema` via `npx boxel run-command` takes input key
+  `codeRef`**, not `cardTypeRef`:
+  `--input '{"codeRef":{"module":"<realm>path","name":"ClassName"}}'`.
+- **New staging realms are auth-gated to anonymous HTTP reads** (401
+  "Missing Authorization header") — don't use plain `curl` size checks;
+  `boxel file read` is byte-perfect for media extensions.
+- **`WriteBinaryFileCommand` works from the CLI** for zip-family files that
+  `file write` would mangle:
+  `npx boxel run-command @cardstack/boxel-host/tools/write-binary-file/default
+  --realm <realm> --input '{"path":"…","realm":"<realm>","base64Content":"…",
+  "contentType":"…","useNonConflictingFilename":false}'`
+  (input-key mistakes surface as "Failed to construct 'URL'").
+- **`_touched` residue sweep** — anything ever hit by the deprecated
+  `boxel file touch` carries a permanent `_touched` attribute that makes the
+  card report as diverged from git forever. Heal a git-tracked card by
+  re-writing the repo copy; sweep a realm with:
+  `npx boxel file list --realm "$R" | grep '\.json$' | while read -r f; do
+  [ "$(npx boxel file read "$f" --realm "$R" 2>/dev/null | grep -c _touched)" != 0 ] && echo "RESIDUE: $f"; done`.

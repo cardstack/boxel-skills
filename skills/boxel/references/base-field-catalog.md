@@ -160,6 +160,18 @@ The mismatch will surface in the result's `error` / `stackTrace` if it's present
 | `MarkdownField` | `'https://cardstack.com/base/markdown'` | Plain CommonMark string. Renders to HTML in non-edit; textarea editor. |
 | `RichMarkdownField` | `'https://cardstack.com/base/rich-markdown'` | BFM-aware authoring surface with toolbar + slash menu. Use for cards where the body is the primary content (blog posts, docs). |
 
+**RichMarkdownField is consume-not-build.** It already ships computed
+`cardReferenceUrls`/`fileReferenceUrls` (via `extractCardReferenceUrls` /
+`extractFileReferenceUrls` from `@cardstack/runtime-common`), query-based
+`linkedCards = linksToMany(CardDef, { query: { filter: { in: { id:
+'$this.cardReferenceUrls' }}}})` (+ `linkedFiles` matched on `url`),
+transclusion-capable embedded/atom rendering, a verbatim `markdown` format,
+and a compose/source edit mode. Never hand-build a BFM content FieldDef,
+serialize-projection hook, ref extractor, or insert-card chooser. The one
+gap: heading/TOC extraction — document-layer cards still need their own
+`extractHeadings`. Host companions: `markdown-embed-chooser`,
+`apply-markdown-edit`, `copy-card-as-markdown`, `html-to-markdown`.
+
 ## File-backed (linksTo only)
 
 These extend `FileDef` and must be used with `linksTo`, never `contains`. See `boxel-file-def/SKILL.md`.

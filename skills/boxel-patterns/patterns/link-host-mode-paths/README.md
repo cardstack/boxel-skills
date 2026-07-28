@@ -184,6 +184,29 @@ Host mode normally only applies on `*.boxel.host` (or whatever the deployment's 
 
 For end-to-end test coverage, see `packages/matrix/tests/host-mode.spec.ts` — the spec exercises the published-realm path with realm-json routes.
 
+## Production gotchas (verified 2026-07-20)
+
+- **Write `realm.json` with a raw `boxel file write`, never an atomic/batch
+  push.** `hostRoutingRules` is a `containsMany` FieldDef — exactly the shape
+  `POST /_atomic?waitForIndex=true` strips to `{}` on write. Push it as a
+  single raw file write and *read it back* before publishing.
+- **🔴 The bare path can 404 while the trailing-slash form serves** —
+  `/pricing` → 404, `/pricing/` → 200, same rule, correctly-built routing
+  map (bug report
+  `2026-07-20-host-routing-rule-404s-without-trailing-slash.md`).
+  Authoring consequence: **keep each routed instance at a realm-root id
+  matching its public path** (`pricing.json`, not `SomeDir/pricing.json`) —
+  the card-id fallback answers the bare path, the rule answers the slash
+  form. Declare the rules anyway (they document the path map), but don't
+  rely on them alone until the bug is fixed. Corollary: a routed site can
+  look like it works while its rules do nothing — to prove rules are
+  load-bearing, move an instance and confirm the path still resolves.
+- **Relative nav hrefs depend on the no-slash form.** Pages served at
+  `/pricing` (no trailing slash) make `./` resolve to the realm root — which
+  is what keeps `homeHref: "./"` portable between staging mounts and
+  production. If the canonical URL ever gains a trailing slash, every such
+  href silently retargets to the page itself and must become `../`.
+
 ## See also
 
 - [`app-card-home-with-search`](../app-card-home-with-search/README.md) — the Home card pattern that pairs naturally with a `/` route. Build your Home CardDef first, then add the routing rule.

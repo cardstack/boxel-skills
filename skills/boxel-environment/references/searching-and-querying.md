@@ -83,3 +83,25 @@ boxel:
   }
 }
 ```
+
+## CLI search gotchas (distilled 2026-07-17)
+
+Three traps when scripting `npx boxel search`:
+
+1. **`--json` output is a wrapper object, not a bare array.** The shape is
+   `{ "ok": ..., "status": ..., "data": [...] }` — the result count is
+   `len(data)` (`jq '.data | length'`). A bare `len(json.load(...))` returns
+   the wrapper's key count (3) for ANY result set, which reads as a
+   catastrophic index regression and has triggered unnecessary
+   `full-reindex-realm` calls.
+2. **Run from the workspace root.** With cwd outside the workspace tree
+   (e.g. a scratchpad dir), the CLI silently returns `0 total` for queries
+   that return real results from the root — same query, same realm, no
+   error. Check cwd before debugging the query; write output files to
+   absolute paths instead of `cd`-ing.
+3. **The raw wire grammar is deployment-dependent.** Some deployments accept
+   `filter: { type: ref }`, others demand the SearchEntry grammar
+   (`filter: { "item.on": ref }` + `item.`-prefixed field paths) — and it
+   has flipped within a day. Try `filter.type` first and READ the 400 error:
+   it names the accepted anchor. This applies only to raw CLI/endpoint
+   queries — never rewrite CardDef/GTS query code from a CLI 400.

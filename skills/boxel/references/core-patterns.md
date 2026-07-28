@@ -163,6 +163,18 @@ Beyond the cardinal rules in `SKILL.md` (contains vs linksTo, exports, three for
 });
 ```
 
+Three more `computeVia` traps, all silent (indexing stays green):
+
+- **Never spread a hydrated FieldDef** (`{ ...row }`) inside `computeVia` —
+  field values live as prototype getters, so the spread yields empty objects
+  and downstream logic sees `undefined` fields with no error. Copy fields
+  explicitly.
+- **Computed fields don't appear in `boxel file read` card JSON** — verify
+  them through `boxel search` docs, not the raw file.
+- **Date/time formatting runs on the indexer's clock** — `toLocaleTimeString`
+  etc. in `computeVia` render in server UTC unless you pass an explicit
+  `timeZone`.
+
 ### 4. Templates with Proper Computation Patterns
 
 ```gts

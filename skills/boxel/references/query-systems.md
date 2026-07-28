@@ -71,6 +71,97 @@ const realms = this.args.model?.[realmURL]
 
 Also: `realmURL` is a Symbol exported from `runtime-common` — import it directly. Don't write `Symbol.for('realmURL')`; that gives you a *different* Symbol that doesn't match what the host injected.
 
+### ⚠️ Raw-HTTP search uses the NEW `item.on` grammar — the legacy shapes 400
+
+The search-entry endpoints (`_federated-search` and the server-side
+search-entries engine; staging confirmed 2026-07-20/22) reject the legacy
+wire shapes: `filter: { type: ref }`, `filter: { on: ref }`, and
+`filter: { item: { on: ref } }` all return
+`HTTP 400: unknown filter member ... the type anchor is item.on`. The parser
+(`packages/runtime-common/search-entry.ts`, `translateFilterNode`) translates
+the new grammar into the legacy one internally:
+
+```jsonc
+// Pure card-type filter — the anchor is a TOP-LEVEL filter key:
+{ "filter": { "item.on": { "module": "<realm>/path/to/module", "name": "MyCard" } } }
+
+// Type + field predicate — field paths take the `item.` prefix INSIDE eq/contains/in/range:
+{ "filter": { "item.on": ref, "eq": { "item.status": "active" } } }
+
+// Sort — same anchor spelling, `by` uses the item. prefix:
+{ "sort": [{ "by": "item.title", "item.on": ref, "direction": "desc" }] }
+```
+
+**The silent trap:** `filter: { eq: { "item.on": ref } }` parses (HTTP 200)
+but treats `on` as a *field path* and matches nothing — the classic
+zero-rows failure, relocated. The anchor must sit at the top level of the
+filter node, never inside an operator.
+
+Notes:
+
+- **`npx boxel search --query '{"filter":{"type":...}}'` still works** — the
+  CLI rewrites the filter into the new shape. Do not infer from CLI success
+  that the same JSON works over raw HTTP, and do not read a raw-HTTP empty
+  result as "the card failed to index" without checking the shape first.
+- `<realm>/_search` does **not** exist (404). `<server>/_federated-search`
+  (QUERY method) requires `{"realms":[...]}` in the body.
+- The CLI has no `--type` flag — pass `--query` with a full filter.
+- The card-owned `Query` type used inside `.gts` (via `getCards` etc.) keeps
+  the legacy `filter: { type: ref }` shape documented above — this section is
+  about the raw HTTP wire format.
+- Fallback verification when a query returns a suspicious empty set:
+  directory listing + per-card fetch
+  (`GET <realm>/<Type>/` with `Accept: application/vnd.api+json`, then
+  `GET <realm>/<Type>/<slug>` with `Accept: application/vnd.card+json`) —
+  N+1 but fails loudly instead of silently returning zero rows.
+
+### Realm scope and server-side bounds are mandatory
+
+Every card-owned search declares both:
+
+1. A non-empty realm or realms list — normally the current card's realm.
+2. `page: { size: N }`, with `N <= 100` for general-purpose hydration.
+
+| Surface | Realm scope |
+|---|---|
+| `store.search(query, realms)` | Required second argument |
+| `getCards(parent, queryThunk, realmsThunk)` | Required third thunk |
+| `@context.searchResultsComponent` | `realms` inside `SearchEntryWireQuery` |
+| Query-backed relationship | `realm: '$REALM'` or explicit `realms` |
+
+Missing and empty realm arrays are not safe idle values. The current host normalizes either one to every available realm, turning a card render or live invalidation into a federated query. If the current realm is not known, return an undefined query or skip the call; do not pass `[]`.
+
+```ts
+import { realmURL, type Query } from '@cardstack/runtime-common';
+
+let realm = this.args.model?.[realmURL]?.href;
+if (!realm) return []; // do not call search with []
+
+return await this.args.context.store.search(
+  {
+    filter: { type: ref },
+    page: { size: 100 },
+  } satisfies Query,
+  [realm],
+);
+```
+
+For the unified result surface, keep the component idle until the realm exists:
+
+```ts
+get query(): SearchEntryWireQuery | undefined {
+  let realm = this.args.model?.[realmURL]?.href;
+  if (!realm) return undefined;
+  return {
+    ...searchEntryWireQueryFromQuery({
+      filter: { type: ref },
+      page: { size: 100 },
+    }),
+    realms: [realm],
+  };
+}
+```
+
 ### Path rule (.gts vs JSON)
 
 - **In .gts files (queries):** Use `./` — you're in the same directory as the module.

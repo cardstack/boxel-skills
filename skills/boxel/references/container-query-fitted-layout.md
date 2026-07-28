@@ -18,6 +18,12 @@ Matching the wrapper with `100%` sizing is the one sanctioned sizing declaration
 
 Plus: stable grid/flex tracks (no `auto` rows for body content — use `minmax(0, 1fr)`), explicit `overflow: hidden` on every region, and text clamps (`-webkit-line-clamp: N`, `display: -webkit-box`, `-webkit-box-orient: vertical`).
 
+**Columns too, not just rows:** a `.fit` grid that declares only
+`grid-template-rows` lets the *implicit column* size to its content
+min-width and overflow the tile. Always pair it with
+`grid-template-columns: minmax(0, 1fr)` (and `min-width: 0` on
+`white-space: nowrap` flex children).
+
 **Container-query units (`cqw`, `cqh`, `cqmin`, `cqmax`) only resolve relative to an actual container.** If you reach for them on a surface that *isn't* a container (e.g. an `isolated` template not yet wrapped), they silently fall back to the viewport — which is fine on a full-page card but catastrophic in split panes or narrow canvases. Establish a container on the owning surface with `container-type: inline-size` (or `size`) before using cq units inside.
 
 **Parent already drawing the framing?** Direct child embeds often need `@displayContainer={{false}}` on the `<@fields.X />` invocation, OR explicit parent-side chrome styling that kills the host's default `CardContainer` background / padding / boundaries. Otherwise you'll see double framing or cramped rows. See `boxel-ui-guidelines/references/delegated-render-control.md`.

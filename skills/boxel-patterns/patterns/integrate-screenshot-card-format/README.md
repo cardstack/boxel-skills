@@ -126,3 +126,17 @@ This gives every instance of `MyCard` two menu items that capture a settled PNG 
 - [`integrate-filedef-generated-image`](../integrate-filedef-generated-image/README.md) — the storage half of any generated-media workflow; explains how `WriteBinaryFileCommand` + `ImageDef` / `PngDef` compose with binary outputs.
 - [`integrate-openrouter-image-generation`](../integrate-openrouter-image-generation/README.md) — lower-level OpenRouter image primitive that `GenerateThumbnailCommand` is built on top of.
 - [`boxel/references/command-invocation-modes.md`](../../../boxel/references/command-invocation-modes.md) — the wider taxonomy of how to expose a Command.
+
+## Async domain renderers: `_screenshot-card` settlement is insufficient (2026-07-17)
+
+The endpoint can return `ready` while the PNG still shows
+`Loading 3D scene…` / `Rendering page…` — any renderer with its own async
+fetch/parse/paint (WebGL, PDF.js, MIDI/SVG, charts, maps, large images)
+outruns settlement. Do not treat `_screenshot-card` as the authoritative
+thumbnail source for those. Instead: register a capture provider only
+after the domain renderer paints, capture the mounted canvas/DOM on
+Extract, normalize to a bounded 1280×800 matte, persist as ImageDef with
+the source hash — and when no detailed renderer mounted, generate an
+honest file poster rather than caching a loading screen. (Platform bug,
+reported upstream: screenshot-card signals ready before the domain
+renderer paints.)

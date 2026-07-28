@@ -107,3 +107,24 @@ For `.gts` work, the minimum validation set is:
 5. Render validation for affected cards/formats when user-facing behavior changed.
 
 If the lint command is genuinely unavailable, say that explicitly, log the CLI gap, and run server-side render validation as a fallback. That fallback is not a clean lint.
+
+## `npx boxel parse` — the type gate lint doesn't run
+
+`boxel file lint` reported "No lint issues found" on a file that
+`npx boxel parse` (glint type-check + JSON document validation) flagged with
+a real type error. Lint is not the type gate — run
+`npx boxel parse --workspace .` before pushing. Usage notes:
+
+- It takes `--workspace <dir>`, not a bare directory argument (a directory
+  path errors with *"must end with one of .gts, .gjs, .ts, or .json"*).
+- On an established realm it reports a **noisy pre-existing baseline**
+  (UrlField→string assignment, missing `ember-modifier` types,
+  `typeof BaseDef` constraint errors). Diff against the baseline rather
+  than expecting zero: grep for your own files and check whether flagged
+  line numbers are ones you actually touched. Don't treat baseline errors
+  as regressions — the authoritative gates remain realm lint, the
+  module-load probe, typed search counts, and `realm indexing-errors`.
+
+One recurring remote-lint fix: `ember/no-empty-glimmer-component-classes`
+fires on template-only classes — convert to
+`const X: TemplateOnlyComponent<Sig> = <template>…</template>;`.

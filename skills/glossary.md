@@ -51,7 +51,11 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **`<@fields.x />`** — Render a field through its FieldDef's view for the current format. The host injects chrome (CardContainer wrapper) around the child.
 - **`@format='isolated'|'embedded'|'fitted'|'edit'|'atom'`** — Override the default format when delegating to a child via `<@fields.x @format='…' />`.
 - **`@model`** — The card/field instance accessed inside a Component. `@model.firstName`, `@model.body`, etc.
-- **`@context`** — Host context object exposing `commandContext`, `prerenderedCardSearchComponent`, `viewCard`, etc.
+- **`@context`** — Host context object (`CardContext`) exposing `toolContext`/`commandContext`, `searchResultsComponent`, `getCard(s)`, `store`, `cardComponentModifier`, and the runtime hints `mode` / `submode`. Note `viewCard` is **not** on `@context` — it arrives as a component arg (`this.args.viewCard`). → `boxel-card-interaction`
+- **`this.args.viewCard(cardOrURL, format, opts?)`** — The default way to open a card from your own button/handler. Pushes onto the stack in Interact **and** published Host mode with no page reload. Guard with `?.` (absent in prerender/freestyle). → `boxel-card-interaction`
+- **`@context.submode`** — `'interact' | 'code' | 'host'` (with `@context.mode`: `'operator' | 'host'`). The supported way to branch on runtime mode. Never branch on `cardComponentModifier` existence — a `NoOpModifier` default makes it always truthy. → `boxel-card-interaction`
+- **`@context.cardComponentModifier`** — Registers a rendered element with the host's card tracker so the stock hover chrome / card menu appears. Narrow purpose; no-op outside operator mode. Not a general click mechanism. → `boxel-card-interaction`
+- **card-URL `<a href>` (anti-pattern)** — An anchor pointing at a card URL causes a full document navigation that reboots the Boxel SPA, discarding the stack and in-flight edits — in Interact *and* on published Host sites. Use `viewCard`. → `boxel-card-interaction`
 - **`<style scoped>`** — Boxel's scoped-CSS block. Must be a direct child of `<template>`; doesn't propagate scope hash into inner GlimmerComponent classes.
 - **`:deep()`** — Pierce the scoped-CSS boundary to style inner host-injected wrappers (`.boxel-card-container`, `.plural-field`, etc.). → `boxel-ui-guidelines/references/delegated-render-control.md`
 - **plural-field wrapper** — `<@fields.X @format='…' />` for a `containsMany`/`linksToMany` injects `.plural-field` + per-item wrappers (`.containsMany-item`, `.linksToMany-itemContainer`) between your grid and the cards. Apply `display: contents` cascade. → `boxel-ui-guidelines/references/delegated-render-control.md`
@@ -103,6 +107,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **silent zero-rows traps** (memorize) — (1) `filter: { on: ref }` with no predicate. (2) Custom sort field without `on:`. (3) `Symbol.for('realmURL')` instead of the canonical Symbol import. (4) Bare `links.self` like `"Foo/bar"` instead of `"./Foo/bar"` — relationship deserialization throws and the parent card silently fails to index. (5) FileDef-typed relationships dropping the file extension (e.g. `"../guide"` instead of `"../guide.md"`) — file exists but parent card fails to type-filter. → `boxel/references/query-systems.md`, `boxel/references/card-references.md`
 - **verified query composition patterns** — Templates that have been confirmed against a live realm + indexer (not just inferred from source): `every: [{ type: ref }, { on: ref, eq: { … } }]`, `… in: { field: [values] } …`, `… range: { field: { gte: … } } …`, `… contains: { cardTitle: … } …`. Build a **validation lab card** in the realm with one `@context.searchResultsComponent` section per pattern you depend on; assert non-empty results in browser QA. → `boxel/references/query-systems.md`
 - **transient federated-search failures** — `npx boxel search` can briefly return `Realms not found` right after a new card landing while the realm-server settles. Read files back, `npx boxel realm wait-for-ready`, validate via `@context.searchResultsComponent`, then retry. → `boxel-environment/references/workflows-and-orchestration.md`
+- **`item.on` grammar (raw HTTP)** — The search-entry endpoints reject the legacy wire shapes; the type anchor is a top-level filter key (`{"filter":{"item.on":ref}}`), field paths take the `item.` prefix inside operators, and `eq:{"item.on":ref}` parses but silently matches nothing. The CLI still accepts `filter:{type}` and rewrites it. → `boxel/references/query-systems.md`
 
 ## 6. Theme system
 
@@ -194,7 +199,8 @@ The dialect Boxel reads and writes. See [bfm.boxel.site](https://bfm.boxel.site)
 - **`RoutingRuleField`** — FieldDef inside `RealmConfig.hostRoutingRules`. Each rule = `{ path: StringField, instance: linksTo(CardDef) }`.
 - **`hostRoutingRules`** — `containsMany(RoutingRuleField)` on `RealmConfig`. Maps clean paths (`/`, `/about`, `/blog`) to cards in the same realm.
 - **same-realm guard** — Defensive read-time filter that drops routing rules pointing at cards in *other* realms. Prevents private-realm card surfacing via a public realm's URL.
-- **published realm** — Realm reachable by anonymous visitors over HTTPS at a public domain.
+- **published realm** — Realm reachable by anonymous visitors over HTTPS at a public domain. A publish is a **point-in-time snapshot** — re-run `boxel realm publish` after source changes. Valid targets end in `boxel.space`/`boxel.site` only; never `--no-wait`. → `boxel-environment/references/publishing-host-mode.md`
+- **publishing-host-mode reference** — Publish workflow, snapshot semantics, the pre-publish relative-reference audit, index-card requirements, deep-link query params, Accept-header-gated raw file serving (incl. script-loading vendored UMD libs), and realm-to-realm porting. → `boxel-environment/references/publishing-host-mode.md`
 - **print and published-output hardening** — Unclip host wrappers in print media, use semantic SVG fill attributes, validate Chromium and Firefox print output, and reindex before checking published HTML. → `boxel-ui-guidelines/references/print-and-published-output.md`
 - **`/_search-prerendered`** — Deployment-specific realm-server endpoint for prerendered HTML. Where exposed, call it with HTTP `QUERY`, not `GET`; otherwise use `npx boxel search --json` and inspect `relationships.html`.
 - **`.boxel-history/`** — Per-realm git repo for change history; managed by `boxel-cli`.
@@ -266,6 +272,11 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 
 Available only inside the running Boxel app. Each is a default-export `Command` subclass.
 
+> ⚠️ The path is `tools/` — the pre-rename `@cardstack/boxel-host/commands/…`
+> no longer exists and fails ONLY at runtime (every static gate passes).
+> Correct `commands/` to `tools/` on sight. →
+> `boxel-patterns/references/libraries.md`.
+
 - **AI** — `ai-assistant`, `create-ai-assistant-room`, `open-ai-assistant-room`, `send-ai-assistant-message`, `one-shot-llm-request`, `set-active-llm`, `sync-openrouter-models`, `update-room-skills`.
 - **HTTP / generic** — `send-request-via-proxy`, `authed-fetch`, `search-google-images`.
 - **Card I/O** — `save-card`, `patch-fields`, `patch-card-instance`, `apply-markdown-edit`, `write-text-file`, `copy-card`, `copy-source`, `copy-file-to-realm`, `transform-cards`, `read-file-for-ai-assistant`, `read-card-for-ai-assistant`, `fetch-card-json`, `get-card`, `read-source`, `serialize-card`.
@@ -274,7 +285,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`.
 - **Store** — `store-add`.
 - **Catalog** — `listing-create`, `listing-install`, `listing-remix`, `listing-use`, `listing-generate-example`, `listing-update-specs`, `create-and-open-submission-workflow-card`, `retry-submission-workflow`, `execute-atomic-operations`.
-- **Code-introspection** — `get-card-type-schema`.
+- **Code-introspection** — `get-card-type-schema`. CLI input shape is `{"codeRef":{"module":…,"name":…}}` (not `cardTypeModule`/`cardTypeName`); success returns a schema document — treat "schema returned" as ready.
 
 → `boxel-patterns/references/integration-surfaces.md` §3 for the full annotated table.
 
@@ -318,10 +329,10 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`npx boxel realm history`** — List/restore/tag checkpoints.
 - **`npx boxel realm milestone`** — Tag checkpoints.
 - **`npx boxel realm watch <start|stop>`** — Pull server-side realm changes into the local workspace; not a local auto-push loop.
-- **`npx boxel file <read|write|list|touch|delete>`** — Per-file realm operations.
+- **`npx boxel file <read|write|list|delete>`** — Per-file realm operations. To force a reindex, re-write the unchanged file with `file write`; **`file touch` is deprecated here** — it persists a `_touched` key into the card's attributes (residue sweep recipe: `boxel-environment/references/indexing-operations.md`).
 - **`npx boxel file lint <path> --realm <url> --file <local-file>`** — Local lint.
 - **`npx boxel lint [path] --realm <url>`** — Remote lint (single file or whole realm).
-- **`npx boxel parse [path]`** — Local Glint type-check plus JSON document validation.
+- **`npx boxel parse [path]`** — Local Glint type-check plus JSON document validation; catches type errors `file lint` passes. `--workspace <dir>`; diff against the noisy baseline. → `boxel/references/lint-workflow.md`
 - **`npx boxel test`** — Run co-located `.test.gts` QUnit card tests against the local workspace (or `--realm <url>` for cards already on a remote realm). Test-file contract (`runTests()`, `setupCardTest`, `renderCard`, shimmed modules): → `boxel/references/qunit-testing.md`
 - **`npx boxel search '<query-json>' --realms <urls>`** — Federated search.
 - **`npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]`** — Execute a host command via the prerenderer. CLI invocation mode for Commands. → `automate-run-command-cli`
@@ -361,6 +372,8 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-markdown-format`** — Static `markdown` template output format.
 - **`boxel-create-edit-cards`** — Thin pointer skill; content lives at `boxel-environment/references/card-tool-selection.md` (create/edit tool tables, file naming, path rules).
 - **`boxel-skill-authoring`** — SKILL.md format contract for user-authored skills: `boxel.kind: skill` frontmatter, tool declarations, verify loop.
+- **`boxel-card-interaction`** — One decision tree for "what happens when a user clicks a rendered card": `viewCard` vs `cardComponentModifier` vs anchor, the Interact/Host click inversion, child-owned pointer events, and `@mode` hydration. Empirically verified in a live interaction-lab harness.
+- **`memory-leak`** — Near-completion lifecycle and hot-loop allocation audit for Boxel builds using timers, media, canvas/WebGL, observers, object URLs, fetches, workers, or subscriptions; load on suspected leaks, not every turn. → `memory-leak/SKILL.md`
 - **`boxel-workspace-cardinal-rules`** — Silent-failure trap checklist (DateField vs DateTimeField formats, external URLs in relationship links, `linksToMany` indexed keys, …); partially overlaps the `boxel` skill's cardinal rules under its own numbering.
 - **`boxel-ui-component-discovery`** — Mandatory catalog Spec search before hand-rolling UI primitives; enumerate → one broad `boxel search` query → read `attributes.readMe` → self-audit.
 - **`ember-best-practices`** — Ember.js performance + accessibility rules, 59 `rules/*.md` files across 10 prefix-keyed categories, indexed in its SKILL.md.
@@ -473,6 +486,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`organize-recursive-fielddef`** — Self-referencing FieldDef shape (story → branches → branches).
 - **`organize-sensitive-stub-pair`** — Full sensitive record + safe operational stub kept in sync via a `Sync<X>StubCommand`. `syncIssues` getter surfaces drift; one-way `full → stub` link direction preserves the privacy boundary.
 - **`organize-typed-activity-feed`** — Base `FeedEntry` CardDef + N specialized subclasses. Mixed-type queries hit the base; filtered queries hit a subclass. Replaces single-Entry-with-enum + conditional rendering.
+- **`live-activity-feed-card`** — "More alive" live log/feed card: append-only containsMany + column-reverse (stable `entries.N.*` relationship keys), status-gated motion, ticking clocks with registerDestructor, one linksTo rendered as embed/fitted/atom per moment. Proven by the factory run-log live blog.
 
 ### Planned (no `example.gts` yet — do not chase; fall back to source realms or core skills)
 
@@ -488,6 +502,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`commands/`** — Slash commands (action layer).
 - **`skills/`** — Portable skill tree (this file's home).
 - **`.claude/learnings/`** — Session scratchpad; `/distill-learnings` folds into skill tree.
+- **`.claude/bug-reports/`** — Platform defect/enhancement tickets with repros (minimal repro, expected/actual, workaround, suggested fix). Never distilled; filed upstream instead. `INDEX.md` lists all reports.
 
 ## 27. Acronyms
 

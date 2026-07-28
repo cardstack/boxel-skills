@@ -89,3 +89,14 @@ Hide entirely when the action doesn't apply. Use `disabled: true` + a tooltip on
 
 - `boxel/references/command-invocation-modes.md` — the menu mode in the wider invocation taxonomy.
 - `command-typed-with-progress` — pair this when the action takes more than a moment.
+
+## Deployment caveat (2026-07-15, realms-staging)
+
+The `[getCardMenuItems]` hook does NOT work on current realms-staging:
+`https://cardstack.com/base/card-menu-items` doesn't exist there, and
+`card-api`'s apparent `getCardMenuItems` export lazily re-exports from a
+`runtime-common` that lacks it — the missing-import Proxy throws only when
+the binding is ACCESSED, so a probe module that merely imports the name
+loads `ready` and lies. UI-invocable commands on that deployment go
+through a **skill card with `boxel.tools` codeRef declarations** instead.
+Verify the hook exists on your target deployment before using this pattern.
