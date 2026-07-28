@@ -14,6 +14,8 @@ export class MyCard extends CardDef {
 
 This is **one of the most-forgotten static properties.** The symptom is always the same: the card looks cramped, the user posts "why is my card so narrow?", and the fix is a one-line addition. Front-load the decision when you create the CardDef.
 
+**🚨 It must be `static`.** Written as an instance field (`prefersWideFormat = true;` without `static`) it is **silently ignored** — the flag is read off the class, nothing errors, and lint does not catch it. Same for the sibling class-level display flags (`displayName`, `icon`, `headerColor`). If a card that should be wide renders narrow, check for a missing `static` before touching CSS.
+
 ---
 
 ## Decision rule

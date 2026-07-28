@@ -87,6 +87,13 @@ Kanban helpers in `@cardstack/boxel-ui/components`: `KanbanPlane`, `KanbanDragMa
 
 ### `@cardstack/boxel-host` — host-side commands (only available inside the running app)
 
+> **Path rule:** host tool imports are `@cardstack/boxel-host/tools/<kebab-name>`.
+> The pre-rename `@cardstack/boxel-host/commands/…` path NO LONGER EXISTS —
+> imports of it pass every static gate (lint, schema probe, evaluate,
+> indexing) and fail only when a user triggers the code path in the
+> browser. LLMs trained before the rename write `commands/` — correct it
+> on sight.
+
 ```ts
 import UseAiAssistantCommand    from '@cardstack/boxel-host/tools/ai-assistant';
 import SetActiveLLMCommand      from '@cardstack/boxel-host/tools/set-active-llm';

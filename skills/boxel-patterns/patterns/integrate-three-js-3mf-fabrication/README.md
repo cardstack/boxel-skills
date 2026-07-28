@@ -73,3 +73,20 @@ The accompanying `example.gts` implements the finish distinction, cavity overtra
 **Source:** Anonymized extraction from a live Boxel fabrication tool; identifying source details intentionally omitted.
 
 **See also:** `integrate-three-js-via-cdn` for WebGL lifecycle and cleanup, and `boxel/references/external-libraries.md` for pinned ESM imports.
+
+## Production-extension packages (Bambu) need a fallback loader (2026-07-16)
+
+Three.js `ThreeMFLoader` (0.160) handles core 3MF and same-document
+components but **ignores the production extension's `p:path` on
+`<component>`**. Bambu-style packages keep the build object in
+`3D/3dmodel.model` and the real meshes in `3D/Objects/object_1.model` —
+the stock loader looks up component IDs in the wrong document and throws
+while reading `mesh`. Keep the stock loader as the fast path and fall back
+to a bounded package loader: inflate every `.model` part, scope
+object/material IDs by part path, resolve `p:path`, apply 3MF 3×4
+transforms, reconstruct indexed geometry, preserve base-material colors —
+and frame the camera only after the assembled graph exists. Metadata
+extraction must aggregate every `.model` part and read
+`Metadata/model_settings.config` (named parts, face counts, plates,
+extruders). A successful ZIP parse is NOT proof the stock loader can
+render the package.

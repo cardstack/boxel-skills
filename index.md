@@ -75,6 +75,7 @@ Commands route to these supporting skills. They're documented in `skills/` and a
 ### UI & content
 
 - **`boxel-ui-guidelines/`** — Template UI rules: theme tokens, `@fields` vs `@model`, container queries, layout safety.
+- **`boxel-card-interaction/`** — Decision tree for clicks on rendered child cards: `viewCard` vs `cardComponentModifier` vs anchor, the Interact/Host click inversion, child-owned pointer events, `@mode` hydration.
 - **`boxel-ui-component-discovery/`** — Mandatory catalog search for a boxel-ui component Spec before hand-rolling any UI primitive in a `.gts` template.
 - **`boxel-design/`** — Visual design language, mood, typography, asset direction.
 - **`boxel-file-def/`** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
@@ -87,6 +88,7 @@ Commands route to these supporting skills. They're documented in `skills/` and a
 - **`boxel-environment/`** — Driving the live Boxel app: switch-submode, host commands, search-cards, indexing.
 - **`catalog-listing/`** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
 - **`boxel-create-edit-cards/`** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (host-command combos for card create/edit).
+- **`memory-leak/`** — Near-completion lifecycle/allocation audit for builds using timers, media, canvas/WebGL, observers, object URLs, or subscriptions; load on suspected leaks, not every turn.
 
 ### Patterns
 

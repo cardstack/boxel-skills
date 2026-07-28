@@ -67,3 +67,4 @@ Need to reference an image / document / file asset?
 - `references/markdowndef-vs-markdownfield.md` — MarkdownDef vs MarkdownField
 - `references/filedef-vs-base64imagefield.md` — FileDef vs Base64ImageField
 - `references/no-inline-binary.md` — Mandatory no-inline-media rule, generated image workflow, and A Million Dreams MP3 FileDef example
+- `references/parser-output-ground-truth.md` — Measured parser output: contentTypes, hashes, epoch timestamps, extension-dependent binary safety, typed-entry coverage

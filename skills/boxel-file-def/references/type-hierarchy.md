@@ -21,3 +21,14 @@ FileDef                          → any file
 **This set is not extensible by Boxel users (currently).** The Boxel project provides these types and only new releases of boxel can add new ones. This may change in the future.
 
 ---
+
+## The linksTo trap — file links need FileDef-typed fields
+
+FileDef is a **separate hierarchy from CardDef**. A generic
+`@field x = linksTo(() => CardDef)` pointed at a file's card presence
+**passes lint, `get-card-type-schema`, and indexing** — then fails at
+render/instantiate with
+`field validation error: tried set PngDef as field 'x' but it is not an instance of CardDef`.
+Type the field `linksTo(() => FileDef)` (import default from
+`https://cardstack.com/base/file-api`) or a specific subtype. A render
+smoke test is the ONLY gate that catches this class of error.

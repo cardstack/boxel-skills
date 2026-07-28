@@ -238,6 +238,51 @@ The command returns `fileIdentifier`; assign a new `ImageDef` / `PngDef` with `i
 
 Underlying primitive for any API. Pattern: `integrate-send-request-via-proxy`. Use when OneShot or a specific API recipe does not cover your shape.
 
+**Import path matters:** for AI calls made from a CardDef or a typed realm
+Command, import from `@cardstack/boxel-host/commands/send-request-via-proxy`
+— NOT the similarly named `tools/send-request-via-proxy` path, which is the
+wrong integration boundary for user-facing flows (verified: the Command path
+passes module + runtime gates where the tool path did not).
+
+### Parsing LLM JSON output — staged, never fail-first
+
+Do not turn the first `JSON.parse` failure into an "AI unavailable"
+fallback — malformed JSON is *degraded output* (usually a completion budget
+running out), not proof interpretation was unavailable. Parse in stages:
+strict JSON → structural repair (unterminated strings/arrays/objects,
+trailing commas) → recovery of complete or final-partial records → only then
+a deterministic fallback. Record the recovery mode in the durable Job
+receipt: a completed Job that used fallback is degraded, not fully
+successful, and must stay eligible for rerun from its preserved typed
+inputs.
+
+### Sending private realm images to a provider
+
+External providers can't authenticate to a private realm (401 on ImageDef
+URLs). With explicit user consent, read the bytes via
+`ReadBinaryFileCommand` and send a transient `data:` part — never persisted.
+Details: `boxel-file-def/references/using-filedef-in-cards.md`.
+
+### Web crawl/retrieval is provider-backed userland, not a platform primitive
+
+The inspected Boxel checkout has no Firecrawl (or other crawler) adapter by
+name. Classify web retrieval like image generation: Boxel supplies generic
+authenticated HTTP transport (`SendRequestViaProxy`), an external provider
+performs retrieval, and a reusable userland command supplies typed
+input/output CardDefs plus a durable Job that freezes parameters and
+results. Until a live catalog module is verified (CodeRef, typed IO,
+fixture run, failure behavior, cost receipt), "crawl" is an explicit reuse
+*assumption* — a generic HTTP tool alone does not satisfy a reuse claim.
+
+### Host-mode guest writes — URL-less typed command drafts
+
+Published host-mode cards must not depend on `@saveCard`, a persisted card
+ID, or guest CRUD authority. A guest deserializes the use-case's Command
+input CardDef into the current CardStore with a `lid` and no `id`, edits
+that local card reactively, and passes the typed instance to the domain
+Command — the Command is the only outbound mutation. Applies to anonymous
+forms, purchases, games, chat, RSVP on published sites.
+
 ---
 
 ## 8. ESM CDN libraries

@@ -438,6 +438,37 @@ If the `Event` card's `static embedded` is designed as a one-line list row (icon
 
 When in doubt, read the child's `static embedded` and `static fitted` source — they advertise their intended sizes.
 
+### The default when you pass no `@format` is asymmetric
+
+A bare `<@fields.x />` inside isolated/embedded/fitted renders a **CardDef
+child as `fitted`** and a FieldDef child as `embedded`; `edit` on a linked
+CardDef/FileDef is rewritten to `fitted` (the "pill" in edit forms). If the
+child should own its own height, say `@format='embedded'` explicitly. Full
+table and the click-tracking consequence: `boxel-card-interaction/SKILL.md`.
+
+### Content budgets follow the format contract
+
+`fitted` is a bounded collection format — commonly prerendered for many
+instances into a small parent-owned cell. Apply a type-appropriate
+byte/line/item budget to the source projection **before** turning it into
+HTML; CSS clipping alone is not truncation — the hidden source still
+inflates prerender payloads, DOM size, and render work. `embedded` and
+`isolated` are document-flow formats and must receive the **complete**
+content by default (grow with the document, or scroll inside an explicitly
+bounded viewer) — never reuse the fitted budget there. A fitted preview
+should signal truncation and let the user open embedded/isolated for the
+rest.
+
+### Relationship-rendered components must guard an undefined model
+
+Any `Component<typeof this>` rendered through a `linksTo`/`linksToMany`
+field can run while `@model` is still `undefined` (the lazy-hydration
+window). Guard the whole template with `{{#if @model}}`, optional-chain
+every getter (`this.args.model?.…`), and filter unresolved plural entries
+before traversing. Source lint and realm indexing both pass on the broken
+version — treat a browser render smoke test as required for these
+components.
+
 ## Format-specific recipes
 
 ### Embedded — for grids of related cards (Row & Rail listings, performers, venues)
