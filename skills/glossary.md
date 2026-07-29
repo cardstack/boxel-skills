@@ -443,6 +443,9 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`link-host-mode-paths`** — `realm.json` `hostRoutingRules` to route `/`, `/about`, `/blog` to cards.
 - **`link-command-menu-item`** — Expose a Command as a card menu item via `[getCardMenuItems]`.
 
+### Collaborate
+- **`collab-yjs-shared-document`** — Real-time co-editing over a Yjs websocket relay: everyone syncs, one committer peer with a realm JWT materializes settled content into the official card. Y.Text and Y.Map variants; contested state stays with ordered commands.
+
 ### Make a Command
 - **`command-data-resource`** — `commandData<T>(this, MyCommand)` reactive resource.
 - **`command-with-skill-card-ref`** — Card kicks off an AI conversation with a Skill card pre-loaded.
