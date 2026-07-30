@@ -94,6 +94,14 @@ through the realm server), or read an existing instance of that card already in 
 target realm. Same rule for any published `*.boxel.site` / `*.boxel.build` URL: those
 are Webflow-published sites, not realms — never point realm operations at them.
 
+Also: many base cards are **default exports**, so the schema ref is `name: "default"`,
+NOT the class name. The base **Theme** card is the default export of
+`https://cardstack.com/base/theme` (the module is `export default Theme`) — query it as
+module `https://cardstack.com/base/theme`, name `default` (querying `#Theme` fails).
+`StructuredTheme` is likewise the default export of `base/structured-theme`. When a
+`get_card_schema` call fails with "named export is a CardDef", retry with `name:
+"default"` before assuming the card is unreachable — do NOT fall back to curling the URL.
+
 ## 9. Never call `serializeCard(model)` from a render getter
 
 Serializing the card's own model inside a template-facing getter (isolated/embedded
@@ -104,11 +112,3 @@ IDResolver error `conflicting instance id in store` — the serialize path re-re
 the instance under a conflicting local id. When a template needs a JSON:API-shaped
 view of the card, reconstruct the shape from `@model` fields instead of calling
 `serializeCard`.
-
-Also: many base cards are **default exports**, so the schema ref is `name: "default"`,
-NOT the class name. The base **Theme** card is the default export of
-`https://cardstack.com/base/theme` (the module is `export default Theme`) — query it as
-module `https://cardstack.com/base/theme`, name `default` (querying `#Theme` fails).
-`StructuredTheme` is likewise the default export of `base/structured-theme`. When a
-`get_card_schema` call fails with "named export is a CardDef", retry with `name:
-"default"` before assuming the card is unreachable — do NOT fall back to curling the URL.

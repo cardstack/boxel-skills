@@ -45,4 +45,4 @@ Load-bearing details:
 
 - `resource-for-state` — wrapping stateful third-party library objects in a Resource.
 - `integrate-three-js-via-cdn` — the renderer side of the Y.Map scene demo.
-- `boxel/references/lint-workflow.md` — the lint gate, including the `no-raf-for-state` escape hatch.
+- `boxel/references/lint-workflow.md` — the lint gate to run before declaring the card done.
