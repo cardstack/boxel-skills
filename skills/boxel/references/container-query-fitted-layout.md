@@ -2,7 +2,7 @@
 
 ## Fitted means the parent owns the cell size
 
-A `fitted` child card must **not** impose its own intrinsic minimum height or rely on its content to size the surface. The parent (a grid, a filmstrip, a CardsGrid) decides the cell envelope; the child fills it.
+A `fitted` child card must **not** impose its own intrinsic minimum height or rely on its content to size the surface. The parent (a grid, a filmstrip, the default index card's Library) decides the cell envelope; the child fills it.
 
 **The host establishes a size container named `fitted-card` around every fitted template — query it; never create your own container on the root.** The host wrapper (`.field-component-card.fitted-format`) already sets `width: 100%; height: 100%; overflow: hidden; container-type: size; container-name: fitted-card` (see `boxel-ui-guidelines/references/delegated-render-control.md`). Your template's root is a single `.fit` grid that fills that wrapper:
 
