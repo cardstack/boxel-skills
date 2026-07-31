@@ -134,20 +134,19 @@ export class MyCommand extends Command<typeof Input, undefined> {
 ### Menu Integration
 
 ```gts
-import { getCardMenuItems } from '@cardstack/runtime-common';
+import { getMenuItems } from '@cardstack/runtime-common';
 
-[getCardMenuItems](params: GetCardMenuItemParams): MenuItemOptions[] {
+[getMenuItems](params: GetMenuItemParams): MenuItemOptions[] {
   return [{
     label: 'My Action',
     icon: MyIcon,
     action: async () => {
-      await new MyCommand(params.commandContext).execute({
-        cardId: this.id,
-        realm: params.realmURL
+      await new MyCommand(params.toolContext).execute({
+        cardId: this.id
       });
-      await params.saveCard(this);
+      params.cardCrudFunctions.saveCard?.(this.id!);
     }
-  }, ...super[getCardMenuItems](params)];
+  }, ...super[getMenuItems](params)];
 }
 ```
 

@@ -103,7 +103,7 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 - `command-typed-with-progress` — `Command<Input, Output>` with a typed `progressStep` state machine the invoking component reflects in UI.
 - `command-optimistic-pipeline` — One durable run card per invocation, mutated in place while `SaveCardCommand` writes are queued fire-and-forget. Use for LLM/image/import pipelines that need fast UI and queryable progress logs.
 - `command-atomic-install` — Transactional realm install with `PlanBuilder` + `planModuleInstall` + `planInstanceInstall` + `ExecuteAtomicOperationsCommand`. The canonical catalog-install pattern.
-- `link-command-menu-item` — Expose a Command as a card menu item via `[getCardMenuItems]`. The card-native way to surface card-scoped actions.
+- `link-command-menu-item` — Expose a Command as a card menu item via `[getMenuItems]`. The card-native way to surface card-scoped actions.
 - `automate-run-command-cli` — Invoke a Command from the shell via `npx boxel run-command <spec> --input '{}'`, pairing with a typed run card for queryable history. Batch jobs, cron, CI gates.
 
 For the wider taxonomy (direct call, reactive resource, menu, typed progress, optimistic pipeline, AI processor, multi-turn assistant, CLI script, atomic install) and a single Command class exposed via every mode, see [`boxel/references/command-invocation-modes.md`](../boxel/references/command-invocation-modes.md).

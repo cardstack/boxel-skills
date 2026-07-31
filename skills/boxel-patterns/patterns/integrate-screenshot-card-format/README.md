@@ -68,18 +68,20 @@ You don't see any of this from the consumer side — `await new ScreenshotCardCo
 To make "Screenshot this card" a right-click affordance on every CardDef, compose with the [`link-command-menu-item`](../link-command-menu-item/README.md) pattern. The action body calls `ScreenshotCardCommand` with `this` as the card and a fixed format (or branches on a sub-menu):
 
 ```ts
-import { getCardMenuItems, type GetCardMenuItemParams, type MenuItemOptions } from '@cardstack/runtime-common';
+import { getMenuItems } from '@cardstack/runtime-common';
+import { type GetMenuItemParams } from 'https://cardstack.com/base/menu-items';
+import { type MenuItemOptions } from '@cardstack/boxel-ui/helpers';
 import ScreenshotCardCommand from '@cardstack/boxel-host/tools/screenshot-card';
 import CameraIcon from '@cardstack/boxel-icons/camera';
 
 class MyCard extends CardDef {
-  [getCardMenuItems](params: GetCardMenuItemParams): MenuItemOptions[] {
+  [getMenuItems](params: GetMenuItemParams): MenuItemOptions[] {
     return [
       {
         label: 'Screenshot isolated',
         icon: CameraIcon,
         action: async () => {
-          let result = await new ScreenshotCardCommand(params.commandContext)
+          let result = await new ScreenshotCardCommand(params.toolContext)
             .execute({ card: this as any, format: 'isolated' });
           // Optionally show toast with result.imageDefUrl
         },
@@ -88,11 +90,11 @@ class MyCard extends CardDef {
         label: 'Screenshot embedded',
         icon: CameraIcon,
         action: async () => {
-          await new ScreenshotCardCommand(params.commandContext)
+          await new ScreenshotCardCommand(params.toolContext)
             .execute({ card: this as any, format: 'embedded' });
         },
       },
-      ...super[getCardMenuItems](params),
+      ...super[getMenuItems](params),
     ];
   }
 }
@@ -107,7 +109,7 @@ This gives every instance of `MyCard` two menu items that capture a settled PNG 
 - **Permission check is strict.** The command saves to the target card's realm. If the current user can't write there, it fails fast — no silent fallback to the user's home realm.
 - **Output lands in `Screenshots/` of the target's realm, not the caller's.** If you screenshot a third-party realm's card and you have write access, the PNG lives over there.
 - **Filenames are slug + uuid.** `<lowercased-last-url-segment>-<8-char-uuid>.png`. Stable for known cards, unique on collisions.
-- **Long renders block the request.** The realm-server polls the job until completion (Puppeteer needs to settle the page). On a slow card or under load, expect a few seconds. Wrap in `@tracked isRunning` / show a spinner; don't `await` inside `getCardMenuItems` without surfacing progress.
+- **Long renders block the request.** The realm-server polls the job until completion (Puppeteer needs to settle the page). On a slow card or under load, expect a few seconds. Wrap in `@tracked isRunning` / show a spinner; don't `await` inside `getMenuItems` without surfacing progress.
 - **commandContext must exist.** Only available in host interact mode — the prerenderer / SSR context doesn't have a live host. Feature-detect with `this.args.context?.commandContext` before calling.
 - **`listing-create` does not use this command.** The catalog's listing-creation flow uses `GenerateThumbnailCommand` (AI-generated stylized icon, not a real screenshot). Use `ScreenshotCardCommand` when you want the actual rendered card, not an interpretation.
 
