@@ -7,7 +7,7 @@ The full index of terms, concepts, libraries, components, helpers, conventions, 
 > - When you add a new pattern under `boxel-patterns/patterns/`, add a one-line entry under [Patterns](#patterns).
 > - When you add a new reference under `boxel/references/` or a sibling skill, add a one-liner under the relevant topical section + cross-link.
 > - When a term changes name (e.g. JQXL → bxl) or a deprecated path is removed, update the entries here and add a "(formerly *X*)" only if back-compat surface still exists; otherwise drop the old term entirely.
-> - When `/distill-learnings` folds a learning into a skill reference, add or update the entry here so the consolidated term is findable.
+> - When a learning is folded into a skill reference, add or update the entry here so the consolidated term is findable.
 
 Entry shape: `**Term** — one-sentence definition + (optional) where it's covered: → \`skill/path/reference.md\`, → `pattern-slug`, or → external URL.`
 
@@ -349,8 +349,6 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`ember-best-practices`** — Ember.js performance + accessibility rules, 59 `rules/*.md` files across 10 prefix-keyed categories, indexed in its SKILL.md.
 - **`catalog-listing`** — Catalog operations + submission via `SubmissionWorkflowCard`.
 - **`source-code-editing`** — Canonical SEARCH/REPLACE edit transport.
-- **`boxel-sync-workspace`** — Pull / push / sync a realm to a local directory via `boxel-cli`; `.boxel-sync.json` manifest, `.boxel-history` checkpoints and milestones.
-- **`distill-learnings`** — Consolidate a workspace's learnings scratchpad into workspace docs or an upstream boxel-skills PR, then archive what was consumed.
 
 ## 23. Cardinal rules / conventions
 
@@ -474,7 +472,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`AGENTS.md`** — Same content for non-Claude agents (Codex, Cursor, Aider, Gemini CLI, Factory Droid).
 - **`README.md`** — Human-facing setup guide.
 - **`skills/`** — Portable skill tree (this file's home).
-- **`.claude/learnings/`** — Session scratchpad; the `distill-learnings` skill folds entries into the skill tree.
+- **`.claude/learnings/`** — Session scratchpad; consumed entries are archived by hand.
 
 ## 26. Acronyms
 

@@ -18,7 +18,7 @@ Boxel is a card-based development platform. The unit of construction is the **ca
 - **AI-powered cards** — cards that kick off AI assistant conversations (`command-with-skill-card-ref`), perform one-shot LLM requests (`integrate-one-shot-llm`), generate images through OpenRouter (`integrate-openrouter-image-generation`, with Gemini image as the default and ChatGPT/OpenAI image models when requested), or batch-process via on-the-fly commands.
 - **Catalog assets** — installable listings (apps, cards, fields, skills, themes) shipped through the catalog with atomic install/remix flows.
 - **Rich markdown content** — BFM-authored content with card-embed directives, fenced renderers (mermaid, math, csv, kanban, excalidraw), and `static markdown` template output.
-- **Local synced development** — pull a realm to a local directory, edit `.gts` files in your IDE, sync changes back. The `boxel-cli` provides bidirectional sync with conflict resolution. See [`skills/boxel-sync-workspace/`](skills/boxel-sync-workspace/SKILL.md).
+- **Local synced development** — pull a realm to a local directory, edit `.gts` files in your IDE, sync changes back. The `boxel-cli` provides bidirectional sync with conflict resolution.
 
 The skill catalog below covers the workflows that produce these deliverables.
 
@@ -56,8 +56,6 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **`boxel-environment/`** — Driving the live Boxel app: switch-submode, host commands, search-cards, indexing.
 - **`catalog-listing/`** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
 - **`boxel-create-edit-cards/`** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (host-command combos for card create/edit).
-- **`boxel-sync-workspace/`** — Pull / push / sync a realm to a local directory via `boxel-cli`; manage `.boxel-sync.json` + `.boxel-history` checkpoints and milestones.
-- **`distill-learnings/`** — Consolidate a workspace's accumulated learnings: workspace-specific ones into workspace docs, generally-useful ones into a boxel-skills PR, then archive what was consumed.
 
 ### Patterns
 
