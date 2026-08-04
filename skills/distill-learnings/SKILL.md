@@ -5,7 +5,7 @@ boxel:
   kind: skill
 ---
 
-# /distill-learnings
+# distill-learnings
 
 ## Use When
 

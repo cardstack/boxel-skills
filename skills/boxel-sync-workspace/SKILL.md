@@ -5,7 +5,7 @@ boxel:
   kind: skill
 ---
 
-# /boxel-sync-workspace
+# boxel-sync-workspace
 
 ## Use When
 
@@ -34,7 +34,7 @@ boxel:
 
 ## Procedure
 
-> **Note on versions.** If `/usr/local/bin/boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's a stale install. The full set below comes from the source at `~/Projects/boxel/packages/boxel-cli`. Rebuild + relink to get all commands.
+> **Note on versions.** If `/usr/local/bin/boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's a stale install. The full set below comes from the source at `/path/to/boxel/packages/boxel-cli`. Rebuild + relink to get all commands.
 
 ### A. Pull a realm down
 
@@ -170,7 +170,7 @@ Clean lint is the human output `No lint issues found` or JSON with an empty `mes
 > ⚠️ **Lint plus render.** Lint catches compile/syntax/import/template-scope problems; render validation still matters after a push:
 >
 > 1. **After push** of a `.gts` change, run a typed `npx boxel search --json` and inspect its HTML relationships to confirm the realm successfully prerendered the supported formats. Use direct `/_search-prerendered` only when that deployment exposes it.
-> 2. **For isolated format**, prerender doesn't cover it — open the card in the live app (`/boxel-preview-card`) or render via a `run-command` invocation. Isolated-only errors won't show up in `_search-prerendered`.
+> 2. **For isolated format**, prerender doesn't cover it — open the card in the live app (see `skills/boxel-environment/SKILL.md`) or render via a `run-command` invocation. Isolated-only errors won't show up in `_search-prerendered`.
 > 3. If the lint command is genuinely unavailable, record the CLI gap and use render validation as a fallback. That fallback is not a clean lint.
 
 ### Escape hatch when `npx boxel realm push` hangs
@@ -255,7 +255,7 @@ If a saved profile has credentials but no Matrix access token, re-run `profile a
 
 ## Hand-off
 
-- After a successful pull/sync, the next step is usually `/boxel-preview-card` to confirm the live app renders correctly.
-- After push, `/boxel-preview-card` confirms the realm server indexed the change.
-- If a push surfaced a runtime error, switch to `/boxel-debug-runtime`.
-- For federated cross-realm search, `npx boxel search` is also reachable via host command `SearchCardsByQueryCommand` from inside the app (see `/boxel-search-cards`).
+- After a successful pull/sync, the next step is usually previewing the card to confirm the live app renders correctly.
+- After push, previewing the card confirms the realm server indexed the change.
+- If a push surfaced a runtime error, switch to `skills/boxel-environment/SKILL.md` for diagnosis.
+- For federated cross-realm search, `npx boxel search` is also reachable via host command `SearchCardsByQueryCommand` from inside the app.
