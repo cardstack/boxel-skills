@@ -211,6 +211,19 @@ Now the grid sees `.field-component-card` instances as its direct children and l
 
 ⚠️ **Targeting only `.containsMany-field` is the most common bug.** Older patterns (and the host's own legacy class) sometimes show only that class — but `linksToMany` ships with `.linksToMany-field`, which never matches `:deep(> .containsMany-field)`. Use `.plural-field` for the outer wrapper.
 
+### First, check the nesting is real — the wrapper may be yours to delete
+
+The collapse above is for wrappers **the host generates**, which you cannot remove. Before reaching for it, confirm the level you're flattening isn't a FieldDef *you* introduced. Two signals that it isn't real:
+
+- The instance data shows a `containsMany` of wrapper fields that each hold exactly **one** item. That's not a group, it's indirection.
+- You are reaching **across a scoped-style boundary** — writing a selector in the parent's `<style scoped>` that targets a class defined in a child FieldDef's own template. Scoped styles exist to prevent that; needing it means the split is in the wrong place.
+
+In that case delete the wrapper FieldDef and point the parent's `containsMany` at the leaf field directly, migrating the instance JSON to match. A real example: a `linkStrip = containsMany(LinkGroupField)` where every `LinkGroupField` held one `LinkField` collapsed to `containsMany(LinkField)` — and that single change removed a `:deep(.containsMany-item) { display: contents }` rule, a `:deep(.compound-field.embedded-format)` rule, the wrapper's own flex block, and a cross-scope `gap` override, with no behavior change.
+
+Also prefer `@displayContainer={{false}}` on the field render over hand-written `display: contents` when all you want is chrome removal, and don't add a wrapper `<div>` whose only job is to carry a margin — put the margin on the element that already exists.
+
+Rule of thumb: `:deep()` and `display: contents` are for host-generated DOM you don't control. If you control it, fix the structure instead.
+
 ### Staggered animations through `display: contents` wrappers
 
 `:nth-child` resolves against the DOM, not the visual flow — so `.field-component-card:nth-child(N)` matches whatever sits inside the per-item wrapper (always the only child of its parent → always `:nth-child(1)`). Staggered delays applied directly to the cards collapse to a single delay value.

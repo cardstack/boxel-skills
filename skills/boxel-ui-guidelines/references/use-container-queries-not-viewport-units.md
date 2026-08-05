@@ -23,4 +23,36 @@ The host-provided named containers:
 
 For isolated templates, the parent does not provide a named container — declare `container-type: inline-size` with a name on your own root element and use that name in `@container` rules.
 
+### Override tokens in the query, not the rules
+
+When a value changes at a breakpoint, declare it once as a custom property on the composition root and have the `@container` block reassign only the property. Do not re-declare the rule that consumes it.
+
+**Wrong** — the same value lives in two rule blocks per breakpoint, and every consuming rule has to be repeated:
+```css
+.meta-strip { gap: 1.25rem 2.5rem; }
+@container hero (inline-size <= 500px) {
+  .meta-strip { gap: 1.125rem 1.5rem; }   /* duplicated selector + property */
+}
+```
+
+**Right** — the breakpoint block is a short list of value changes:
+```css
+.hero-inner {
+  --meta-strip-gap: 1.25rem 2.5rem;
+  --meta-strip-margin-top: 4.5rem;
+}
+.meta-strip {
+  gap: var(--meta-strip-gap);
+  margin-top: var(--meta-strip-margin-top);
+}
+@container hero (inline-size <= 500px) {
+  .hero-inner {
+    --meta-strip-gap: 1.125rem 1.5rem;
+    --meta-strip-margin-top: 3.5rem;
+  }
+}
+```
+
+This keeps each responsive value in one place, makes the breakpoint block readable as "what changes at this size," and scales without duplicating selectors as breakpoints accumulate. Declare the defaults on the root per the fallback rule in `use-boxel-design-tokens-for-theming.md` — bare `var()` reads below, no inline fallbacks.
+
 **Named containers are safer in nested situations.** An anonymous `@container` matches the nearest ancestor with any `container-type`, which could be an unintended intermediate container. `@container fitted-card (...)` skips anonymous containers and always resolves to the nearest ancestor with that specific name — so nested fitted cards each correctly target their own wrapper.

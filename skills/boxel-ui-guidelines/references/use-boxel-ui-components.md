@@ -43,7 +43,7 @@ import {
 - `DateRangePicker` — date range selection
 
 **Buttons & Actions:**
-- `Button` — primary action button (use `@kind` for primary/secondary/muted/destructive/text-only; use `@size` for `auto, base, extra-small, small, tall, touch)
+- `Button` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
 - `IconButton` — icon-only button (use `@variant` for primary/secondary/muted/destructive/text-only, `@size` for `auto, base, extra-small, small, tall, touch)
 - `ContextButton` — contextual action button (`@icon` for add, edit, close, delete, context-menu, context-menu-vertical; `@variant` for highlight, highlight-icon, ghost, destructive, destructive-icon)
 - `CopyButton` — copy-to-clipboard
@@ -73,6 +73,80 @@ import {
 - `Message` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `KanbanPlane` — preferred drag-and-drop interface for boards. Do not hand-roll pointer drag in card templates unless no boxel-ui component exists for the interaction.
+
+### Don't neutralize a component — pick the variant
+
+If styling a boxel-ui component requires cancelling its own defaults, you picked the wrong component or the wrong variant. The tell is a `<style scoped>` block that zeroes out what the component brought:
+
+**Wrong** — `Pill` stripped down to plain text, then re-styled from scratch:
+```gts
+<Pill class='meta-link' @tag={{if @model.url.length 'a'}} href={{@model.url}}>
+  <:default><@fields.label /></:default>
+</Pill>
+<style scoped>
+  .meta-link {
+    padding: 0;          /* fighting the component */
+    background: none;    /* fighting the component */
+    border: none;        /* fighting the component */
+    color: var(--boxel-500);
+    font-size: 0.75rem;
+  }
+</style>
+```
+
+**Right** — a variant that already has no chrome, leaving only genuinely bespoke declarations:
+```gts
+<Button class='meta-link' @as='anchor' @kind='link-muted' @size='extra-small' @href={{@model.url}}>
+  <@fields.label />
+</Button>
+<style scoped>
+  .meta-link {
+    font-family: var(--font-mono);
+    text-transform: uppercase;   /* nothing the component already provides */
+  }
+</style>
+```
+
+Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's API first (see the top of this file) and look through `@kind` / `@variant` / `@size` before writing a single override.
+
+**Component args are not portable between components.** `@as` and `@href` are `Button`'s args. `Pill` has no `@as` — it takes `@tag` (a raw HTML tag name) and receives `href` as a plain attribute through `...attributes`. Never carry one component's arg names to another; check the signature.
+
+### An optional `@href` is a decision, not a detail
+
+`Button @as='anchor'` renders an `<a>`, and an `<a>` with no `href` is not a link — it isn't focusable and reads as generic text. `Button` also *styles* that state as disabled (`a.boxel-button:not([href])`, `[href='']`, `.disabled-link` → `opacity: 0.5`, disabled colour, `pointer-events: none`), so a conditionally-empty `@href` produces a faded element that looks deliberate and passes review as if it were designed.
+
+So whenever a url-ish field is optional, decide which of these the **data model** intends. They look nearly identical on screen; the difference is what the markup claims is true.
+
+**Case 1 — the link is meant to exist but isn't available yet.** Unpublished URL, gated resource, "coming soon". A disabled link is precisely what this is, so say so with `@disabled` rather than letting an absent `href` imply it:
+
+```gts
+<Button
+  class='meta-link'
+  @as='anchor'
+  @kind='link-muted'
+  @size='extra-small'
+  @href={{@model.url}}
+  @disabled={{not @model.url.length}}
+><@fields.label /></Button>
+```
+
+**Case 2 — the field is optional and some items are plain labels.** Nothing is disabled; no action could ever become available. Render a non-anchor element and state the de-emphasis directly, so the appearance isn't coupled to a control state:
+
+```gts
+{{#if @model.url.length}}
+  <Button class='meta-link' @as='anchor' @kind='link-muted' @size='extra-small' @href={{@model.url}}>
+    <@fields.label />
+  </Button>
+{{else}}
+  <span class='meta-link meta-link--static'><@fields.label /></span>
+{{/if}}
+```
+
+When you branch like this the non-component element does **not** inherit the component's `@size` metrics — declare shared `font-size`/`line-height` on the class both branches carry, or the two render at different sizes.
+
+Getting this wrong is not cosmetic. Once `Button` announces its disabled links to assistive tech (below), a Case 2 item written as Case 1 stops being merely silent and starts telling screen-reader users that a plain label is an unavailable link.
+
+> **Version note (2026-07, [CS-12305](https://linear.app/cardstack/issue/CS-12305/upstream-portable-homepage-modules-to-boxel-ui)).** `Button`'s anchor branch currently suppresses the `href` and nothing else — it sets no `disabled` attribute and no `aria-disabled` — so the disabled state is **visual-only for every caller**, and `@disabled={{true}}` on an anchor yields DOM identical to just omitting `href`. Until CS-12305 lands, Case 1 should also pass `aria-disabled={{unless @model.url.length 'true'}}` by hand. Delete that argument once `Button` sets it itself, and delete this note with it.
 
 ### Drag/drop quality bar
 
