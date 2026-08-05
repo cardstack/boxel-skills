@@ -1,13 +1,13 @@
 # Boxel Skill-Tree Glossary
 
-The full index of terms, concepts, libraries, components, helpers, conventions, patterns, and slash commands covered across the skill tree. Treat as the "back-of-the-book" reference — scan a section to find what you need, then jump to the deeper file for the full treatment.
+The full index of terms, concepts, libraries, components, helpers, conventions, and patterns covered across the skill tree. Treat as the "back-of-the-book" reference — scan a section to find what you need, then jump to the deeper file for the full treatment.
 
 > **Maintenance contract**: keep this file current whenever a skill, reference, pattern, extension, or convention is added, renamed, or removed.
 >
 > - When you add a new pattern under `boxel-patterns/patterns/`, add a one-line entry under [Patterns](#patterns).
 > - When you add a new reference under `boxel/references/` or a sibling skill, add a one-liner under the relevant topical section + cross-link.
 > - When a term changes name (e.g. JQXL → bxl) or a deprecated path is removed, update the entries here and add a "(formerly *X*)" only if back-compat surface still exists; otherwise drop the old term entirely.
-> - When `/distill-learnings` folds a learning into a skill reference, add or update the entry here so the consolidated term is findable.
+> - When a learning is folded into a skill reference, add or update the entry here so the consolidated term is findable.
 
 Entry shape: `**Term** — one-sentence definition + (optional) where it's covered: → \`skill/path/reference.md\`, → `pattern-slug`, or → external URL.`
 
@@ -262,7 +262,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`listing-create`** / **`listing-install`** / **`listing-remix`** / **`listing-use`** / **`listing-generate-example`** / **`listing-update-specs`** — Host commands for catalog operations.
 - **`PlanBuilder`** + **`planModuleInstall`** + **`planInstanceInstall`** — Build atomic install plans. → `command-atomic-install`
 - **`ExecuteAtomicOperationsCommand`** — Apply a plan transactionally; all or nothing.
-- **`SubmissionWorkflowCard`** + **`create-and-open-submission-workflow-card`** + **`retry-submission-workflow`** — Catalog submission flow via workflow card → PR. → `catalog-listing`, `/boxel-submit-listing`
+- **`SubmissionWorkflowCard`** + **`create-and-open-submission-workflow-card`** + **`retry-submission-workflow`** — Catalog submission flow via workflow card → PR. → `catalog-listing`
 
 ## 18. Host commands (`@cardstack/boxel-host/tools/<name>`)
 
@@ -331,26 +331,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 → `boxel-patterns/references/integration-surfaces.md` §10
 
-## 22. Slash commands (`commands/<name>.md`)
-
-- **`/boxel-create-card`** — New CardDef / FieldDef / small card family.
-- **`/boxel-add-field`** — Add or change schema fields, computed fields, relationships.
-- **`/boxel-add-file-field`** — File-backed (image/document/CSV/markdown) fields.
-- **`/boxel-create-instance`** — New JSON card instances or updates.
-- **`/boxel-edit-template`** — `isolated`/`embedded`/`fitted`/`edit`/`atom`/`markdown` template edits.
-- **`/boxel-design-card`** — Visual design + theme work.
-- **`/boxel-develop-theme`** — Create / convert / audit / patch Theme, Style Reference, Detailed Style Reference, or Brand Guide artifacts.
-- **`/boxel-build-from-pattern`** — Start from a ready working pattern by outcome.
-- **`/boxel-search-cards`** — Find cards in a realm.
-- **`/boxel-preview-card`** — Preview module / card / format in the live app.
-- **`/boxel-migrate-schema`** — Find + update instances after schema changes.
-- **`/boxel-install-listing`** — Use / install / remix / update a catalog listing.
-- **`/boxel-submit-listing`** — Submit a catalog listing through the workflow-card PR flow.
-- **`/boxel-debug-runtime`** — Diagnose runtime / indexing / command / mode issues.
-- **`/boxel-sync-workspace`** — Pull / push / sync a realm; manage `.boxel-sync.json` + `.boxel-history`.
-- **`/distill-learnings`** — Consolidate `.claude/learnings/` entries into skill refs / patterns.
-
-## 23. Skill catalog
+## 22. Skill catalog
 
 - **`boxel`** — Core framework rules. 18+ references (`core-concept.md`, `query-systems.md`, `fitted-formats.md`, `design-playbook.md`, `lint-workflow.md`, `command-development.md`, `command-invocation-modes.md`, `container-query-fitted-layout.md`, `delegated-rendering.md`, `theme-design-system.md`, `styling-design.md`, `formatters.md`, `enumerations.md`, `date-math.md`, `base-field-catalog.md`, `imagedef.md`, `external-libraries.md`, `template-syntax.md`, `data-management.md`, `defensive-programming.md`, `common-imports.md`, `core-patterns.md`, `file-editing.md`, `icons.md`, `quick-reference.md`, `spec-usage.md`).
 - **`boxel-patterns`** — Outcome-indexed catalogue of 50+ working patterns + `integration-surfaces.md` (capability cheatsheet) + `libraries.md` (import-path catalogue) + `ai-image-models.md` (verified model IDs for image generation) + `pattern-authoring.md` (README template, naming conventions, `validated:` ladder, promotion bar) + `pattern-backlog.md` (reserved-but-unextracted slugs — do not chase).
@@ -369,7 +350,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`catalog-listing`** — Catalog operations + submission via `SubmissionWorkflowCard`.
 - **`source-code-editing`** — Canonical SEARCH/REPLACE edit transport.
 
-## 24. Cardinal rules / conventions
+## 23. Cardinal rules / conventions
 
 In rough priority order:
 
@@ -395,7 +376,7 @@ In rough priority order:
 - **One CardDef per file.** FieldDefs and helpers can co-locate.
 - **Three formats minimum.** Every CardDef ships `isolated`, `embedded`, AND `fitted`.
 
-## 25. Patterns
+## 24. Patterns
 
 Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`. Indexed by outcome.
 
@@ -485,16 +466,15 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`show-kanban-from-query`** — Status-grouped column view with one `@context.searchResultsComponent` per column. Lower-friction `layout-kanban-drag-drop` alternative when DnD isn't needed.
 - **`polymorphic-card-subclass`** — CardDef hierarchy where `adoptsFrom` discriminates the subclass per instance. Differs from `polymorphic-field-subclass` (FieldDef runtime swap).
 
-## 26. `.claude/` directory layout
+## 25. `.claude/` directory layout
 
 - **`CLAUDE.md`** — Claude Code's cardinal doc (always loaded).
 - **`AGENTS.md`** — Same content for non-Claude agents (Codex, Cursor, Aider, Gemini CLI, Factory Droid).
 - **`README.md`** — Human-facing setup guide.
-- **`commands/`** — Slash commands (action layer).
 - **`skills/`** — Portable skill tree (this file's home).
-- **`.claude/learnings/`** — Session scratchpad; `/distill-learnings` folds into skill tree.
+- **`.claude/learnings/`** — Session scratchpad; consumed entries are archived by hand.
 
-## 27. Acronyms
+## 26. Acronyms
 
 - **BFM** — Boxel Flavored Markdown.
 - **bxl** — The workspace's unified computation runtime (jq-flavored query + Excel formulas).

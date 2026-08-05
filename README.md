@@ -1,11 +1,11 @@
 # Boxel Skills
 
-The canonical source of official Boxel agent skills and slash commands. Everything here is authored directly in this repository — there is no upstream authoring repo and no import step.
+The canonical source of official Boxel agent skills. Everything here is authored directly in this repository — there is no upstream authoring repo and no import step.
 
 ## Who consumes this repo
 
 - **The skills realm** — merges to `main` sync to the staging realm; published GitHub releases sync to production (https://app.boxel.ai/skills/). See `.github/workflows/sync-to-workspace.yml`.
-- **The boxel-cli Claude Code plugin** — `skills/` and `commands/` are copied verbatim from a pinned release tag into `packages/boxel-cli/plugin/` in the [boxel monorepo](https://github.com/cardstack/boxel), which distributes them to end users and to the Software Factory.
+- **The boxel-cli plugin** — `skills/` is copied verbatim from a pinned release tag into `packages/boxel-cli/plugin/` in the [boxel monorepo](https://github.com/cardstack/boxel), which distributes it to end users and to the Software Factory. Skills are the only surface: Codex plugins have no commands slot, and Claude Code reads them from `skills/` too.
 - **Agent sessions authoring skills** — a checkout of this repo is itself a loadable Claude Code plugin (see below).
 
 ## Authoring workflow
@@ -28,14 +28,13 @@ Commit, push your branch, and raise a PR. Merged changes go to the staging realm
 
 Three invariants to keep by hand (nothing rewrites your files):
 
-- Self-references are realm-root-relative — `skills/<name>/…`, `commands/<name>.md` — never absolute `https://…/skills/` URLs, so the realm stays cloneable to other hosts.
-- Every shipped `SKILL.md` carries `boxel.kind: skill` frontmatter (command files also carry `name:`); the `boxel-skill-authoring` skill documents the full contract.
+- Self-references are realm-root-relative — `skills/<name>/…` — never absolute `https://…/skills/` URLs, so the realm stays cloneable to other hosts.
+- Every shipped `SKILL.md` carries `boxel.kind: skill` frontmatter; the `boxel-skill-authoring` skill documents the full contract.
 - **Author guidance into both `skills/` and `Skill/`.** The same conventions live in two hand-maintained trees — `skills/` (Claude Code plugin + boxel-cli) and `Skill/` (the in-app AI assistant's cards) — and nothing syncs them. Update only one and the two harnesses drift. This double-authoring is interim: it goes away once the assistant consumes skill markdown files directly ([CS-11809](https://linear.app/cardstack/issue/CS-11809)).
 
 ## Layout
 
 - `skills/` — the skill trees (`<name>/SKILL.md` + `references/`), in the shape Claude Code consumes.
 - `Skill/` — legacy SkillPlusMarkdown cards (`<name>.json` + `<name>.md`) loaded by the **in-app AI assistant**. Overlaps in content with `skills/`, but nothing syncs the two — see the double-authoring invariant above.
-- `commands/` — slash-command definitions, one `.md` per command.
 - `index.md` — the realm's entry document; `CLAUDE.md` and `AGENTS.md` are symlinks to it.
 - `.claude-plugin/plugin.json` — makes a checkout loadable via `claude --plugin-dir` for authoring. Not pushed to the realm (see `.boxelignore`).

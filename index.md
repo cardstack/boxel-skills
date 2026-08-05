@@ -18,52 +18,21 @@ Boxel is a card-based development platform. The unit of construction is the **ca
 - **AI-powered cards** — cards that kick off AI assistant conversations (`command-with-skill-card-ref`), perform one-shot LLM requests (`integrate-one-shot-llm`), generate images through OpenRouter (`integrate-openrouter-image-generation`, with Gemini image as the default and ChatGPT/OpenAI image models when requested), or batch-process via on-the-fly commands.
 - **Catalog assets** — installable listings (apps, cards, fields, skills, themes) shipped through the catalog with atomic install/remix flows.
 - **Rich markdown content** — BFM-authored content with card-embed directives, fenced renderers (mermaid, math, csv, kanban, excalidraw), and `static markdown` template output.
-- **Local synced development** — pull a realm to a local directory, edit `.gts` files in your IDE, sync changes back. The `boxel-cli` provides bidirectional sync with conflict resolution. See `/boxel-sync-workspace`.
+- **Local synced development** — pull a realm to a local directory, edit `.gts` files in your IDE, sync changes back. The `boxel-cli` provides bidirectional sync with conflict resolution.
 
-The slash commands below map user intents to the workflows that produce these deliverables.
+The skill catalog below covers the workflows that produce these deliverables.
 
 ## Pre-flight
 
-If the user's intent is clear, route to the matching command below. If unsure which command applies, list the candidates with one-line summaries and ask the user to pick — don't barrel forward on a guess.
-
-## Common Actions (slash commands)
-
-The action layer lives in `commands/`. Pick the one that matches the user's outcome:
-
-### Schema & code
-
-- **[`/boxel-create-card`](commands/boxel-create-card.md)** — Create a new CardDef, FieldDef, or small card family with all required formats.
-- **[`/boxel-add-field`](commands/boxel-add-field.md)** — Add, rename, retype, or remove fields on an existing CardDef/FieldDef.
-- **[`/boxel-add-file-field`](commands/boxel-add-file-field.md)** — Add a file-backed field (FileDef / ImageDef / MarkdownDef / CsvFileDef).
-- **[`/boxel-edit-template`](commands/boxel-edit-template.md)** — Change `isolated` / `embedded` / `fitted` / `edit` / `atom` / `markdown` templates.
-
-### Data & instances
-
-- **[`/boxel-create-instance`](commands/boxel-create-instance.md)** — Create new JSON card instances or update existing ones.
-- **[`/boxel-migrate-schema`](commands/boxel-migrate-schema.md)** — Find and update instances after a schema change (batched, with confirmation).
-
-### Discovery & design
-
-- **[`/boxel-build-from-pattern`](commands/boxel-build-from-pattern.md)** — Start from a working pattern matching the user's outcome (Show / Pick / Build / Automate / Lay out / Link / Use a library / Make a Command / Theme).
-- **[`/boxel-design-card`](commands/boxel-design-card.md)** — Improve visual design — colors, typography, theme tokens, asset direction.
-- **[`/boxel-develop-theme`](commands/boxel-develop-theme.md)** — Create, convert, audit, or patch a Theme, Style Reference, Detailed Style Reference, or Brand Guide.
-- **[`/boxel-search-cards`](commands/boxel-search-cards.md)** — Find cards in a realm by type, title, or query filter.
-- **[`/boxel-preview-card`](commands/boxel-preview-card.md)** — Preview a card / module / format in the live Boxel app.
-
-### Catalog & runtime
-
-- **[`/boxel-install-listing`](commands/boxel-install-listing.md)** — Use, install, remix, or update a catalog listing.
-- **[`/boxel-submit-listing`](commands/boxel-submit-listing.md)** — Submit a catalog listing through the workflow-card PR flow.
-- **[`/boxel-debug-runtime`](commands/boxel-debug-runtime.md)** — Diagnose runtime, indexing, command, or mode issues.
-- **[`/boxel-sync-workspace`](commands/boxel-sync-workspace.md)** — Pull / push / sync a realm to a local directory via `boxel-cli`; manage `.boxel-sync.json` + `.boxel-history`.
+Match the user's intent to a skill in the catalog below and read it before starting. If several could apply, list the candidates with one-line summaries and ask the user to pick — don't barrel forward on a guess.
 
 ## Skill-tree glossary
 
-[`skills/glossary.md`](skills/glossary.md) is the back-of-the-book reference — every term, concept, library, helper, host command, pattern, slash command, convention, and acronym used across the skills, with a one-line definition and a pointer to the deeper file. Scan it when you're not sure what a term means or where it's documented. **Update this file whenever a skill, reference, pattern, extension, or convention is added, renamed, or removed.**
+[`skills/glossary.md`](skills/glossary.md) is the back-of-the-book reference — every term, concept, library, helper, host command, pattern, convention, and acronym used across the skills, with a one-line definition and a pointer to the deeper file. Scan it when you're not sure what a term means or where it's documented. **Update this file whenever a skill, reference, pattern, extension, or convention is added, renamed, or removed.**
 
 ## Skill catalog
 
-Commands route to these supporting skills. They're documented in `skills/` and auto-activate on description triggers — you don't load them all upfront.
+Every skill lives in `skills/` and auto-activates on its description triggers — you don't load them all upfront.
 
 ### Foundation
 
