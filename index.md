@@ -36,32 +36,32 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 
 ### Foundation
 
-- **`boxel/`** — Cardinal rules + 18 references for CardDef, FieldDef, templates, queries, formats, commands.
-- **`boxel-workspace-cardinal-rules/`** — Silent-failure trap checklist: rules that pass lint (and often indexing), then corrupt the realm index, crash at render, or drop data with no error. Check every card/field against it before finishing.
-- **`source-code-editing/`** — SEARCH/REPLACE block format. Required before any `.gts` edit.
-- **`ember-best-practices/`** — Ember.js performance + accessibility rules (59 rules across 10 categories) for writing, reviewing, or refactoring Ember code.
+- **[`boxel/`](skills/boxel/SKILL.md)** — Cardinal rules + 18 references for CardDef, FieldDef, templates, queries, formats, commands.
+- **[`boxel-workspace-cardinal-rules/`](skills/boxel-workspace-cardinal-rules/SKILL.md)** — Silent-failure trap checklist: rules that pass lint (and often indexing), then corrupt the realm index, crash at render, or drop data with no error. Check every card/field against it before finishing.
+- **[`source-code-editing/`](skills/source-code-editing/SKILL.md)** — SEARCH/REPLACE block format. Required before any `.gts` edit.
+- **[`ember-best-practices/`](skills/ember-best-practices/SKILL.md)** — Ember.js performance + accessibility rules (59 rules across 10 categories) for writing, reviewing, or refactoring Ember code.
 
 ### UI & content
 
-- **`boxel-ui-guidelines/`** — Template UI rules: theme tokens, `@fields` vs `@model`, container queries, layout safety.
-- **`boxel-ui-component-discovery/`** — Mandatory catalog search for a boxel-ui component Spec before hand-rolling any UI primitive in a `.gts` template.
-- **`boxel-design/`** — Visual design language, mood, typography, asset direction.
-- **`boxel-file-def/`** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
-- **`boxel-flavored-markdown/`** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
-- **`boxel-markdown-format/`** — Static `markdown` template format with `markdownEscape` and helpers.
-- **`boxel-skill-authoring/`** — Writing user-authored skills: the SKILL.md format contract (`boxel.kind: skill` frontmatter), tool declarations, placement, and the verify loop.
+- **[`boxel-ui-guidelines/`](skills/boxel-ui-guidelines/SKILL.md)** — Template UI rules: theme tokens, `@fields` vs `@model`, container queries, layout safety.
+- **[`boxel-ui-component-discovery/`](skills/boxel-ui-component-discovery/SKILL.md)** — Mandatory catalog search for a boxel-ui component Spec before hand-rolling any UI primitive in a `.gts` template.
+- **[`boxel-design/`](skills/boxel-design/SKILL.md)** — Visual design language, mood, typography, asset direction.
+- **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
+- **[`boxel-flavored-markdown/`](skills/boxel-flavored-markdown/SKILL.md)** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
+- **[`boxel-markdown-format/`](skills/boxel-markdown-format/SKILL.md)** — Static `markdown` template format with `markdownEscape` and helpers.
+- **[`boxel-skill-authoring/`](skills/boxel-skill-authoring/SKILL.md)** — Writing user-authored skills: the SKILL.md format contract (`boxel.kind: skill` frontmatter), tool declarations, placement, and the verify loop.
 
 ### Runtime
 
-- **`boxel-environment/`** — Driving the live Boxel app: switch-submode, host commands, search-cards, indexing.
-- **`catalog-listing/`** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
-- **`boxel-create-edit-cards/`** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (host-command combos for card create/edit).
+- **[`boxel-environment/`](skills/boxel-environment/SKILL.md)** — Driving the live Boxel app: switch-submode, host commands, search-cards, indexing.
+- **[`catalog-listing/`](skills/catalog-listing/SKILL.md)** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
+- **[`boxel-create-edit-cards/`](skills/boxel-create-edit-cards/SKILL.md)** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (host-command combos for card create/edit).
 
 ### Patterns
 
-- **`boxel-patterns/`** — Outcome-indexed catalogue of working examples. Ready patterns and planned backlog are kept separate. Two reference docs at this level:
-  - `references/integration-surfaces.md` — capability cheatsheet (what cards can reach for: base APIs, host commands, AI services, BFM, boxel-cli, etc.).
-  - `references/libraries.md` — import-path catalogue (where each symbol comes from).
+- **[`boxel-patterns/`](skills/boxel-patterns/SKILL.md)** — Outcome-indexed catalogue of working examples. Ready patterns and planned backlog are kept separate. Two reference docs at this level:
+  - [`references/integration-surfaces.md`](skills/boxel-patterns/references/integration-surfaces.md) — capability cheatsheet (what cards can reach for: base APIs, host commands, AI services, BFM, boxel-cli, etc.).
+  - [`references/libraries.md`](skills/boxel-patterns/references/libraries.md) — import-path catalogue (where each symbol comes from).
 
 ## Conventions
 
