@@ -26,6 +26,10 @@ The skill catalog below covers the workflows that produce these deliverables.
 
 Match the user's intent to a skill in the catalog below and read it before starting. If several could apply, list the candidates with one-line summaries and ask the user to pick — don't barrel forward on a guess.
 
+**Acting on the app takes one more read.** This index carries no host commands, and neither does any skill page: the commands live in [`skills/boxel-environment/references/host-commands-reference.md`](skills/boxel-environment/references/host-commands-reference.md), and reading that file is what makes `switch-submode`, `show-card`, `search-cards`, and the rest callable. Anything beyond answering in prose — creating a card, editing a file, switching mode, searching a realm — needs it, so read it alongside the skill you picked.
+
+Read it before you plan out loud. Describing a plan you have no tools to carry out, or asking the user to switch modes by hand, means this step was skipped.
+
 ## Skill-tree glossary
 
 [`skills/glossary.md`](skills/glossary.md) is the back-of-the-book reference — every term, concept, library, helper, host command, pattern, convention, and acronym used across the skills, with a one-line definition and a pointer to the deeper file. Scan it when you're not sure what a term means or where it's documented. **Update this file whenever a skill, reference, pattern, extension, or convention is added, renamed, or removed.**
