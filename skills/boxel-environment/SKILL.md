@@ -47,6 +47,7 @@ So read it as your first action, before you plan the work or tell the user what 
   └─ NO → activate via update-room-skills_3875
 → Need file content? read-file-for-ai-assistant
 → Use SEARCH/REPLACE. For NEW files: add "(new)" after the URL in the SEARCH/REPLACE block.
+→ Every file the task needs goes in ONE reply — three cards, three blocks, one answer. Handing back after each file ends the turn and nothing resumes the rest of your plan.
 → For code-change intent, ALWAYS use SEARCH/REPLACE. Data/document commands are secondary.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
