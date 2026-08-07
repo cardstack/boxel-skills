@@ -37,6 +37,7 @@ Boxel is a composable card-based system where information lives in self-containe
 Needs own identity? → CardDef with linksTo
 Referenced from multiple places? → CardDef with linksTo
 Referencing a file (image, doc, etc.)? → FileDef subtype with linksTo
+A card showing many others? → linksToMany if it owns the set; a query if it shows everything of that type in the realm
 Just compound data? → FieldDef with contains
 ```
 

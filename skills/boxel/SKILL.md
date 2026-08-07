@@ -44,7 +44,11 @@ Generated/uploaded media payload?                    → Write bytes with WriteB
 Compound data only AND list of ~1–3 items?           → FieldDef + containsMany
 Compound data, list grows past 3 items?              → CardDef + linksToMany (perf — see below)
 Compound data, exactly one item?                     → FieldDef + contains
+Card aggregating many others: owns a chosen set?     → CardDef + linksToMany
+Card aggregating many others: everything of a type?  → query (no relationship field)
 ```
+
+**Query vs `linksToMany` — who owns the set.** A card showing *everything of a type in the realm* can query for it. A card owning a *particular* set — one the user curates, reorders, or would want more than one of — declares `linksToMany` and holds the links. Ask whether the user could reasonably want two of these over the same data: "2026 races" and "training runs" as separate dashboards means the set is owned, so `linksToMany`; one dashboard that is simply "everything I logged" can query. Querying is not the safe default. It looks tidier because nothing has to be linked, but membership becomes implicit and unbounded — nothing can be left out, there can be no second collection, and nothing in the JSON records that the cards belong together.
 
 ⚠️ **The `containsMany` edit-form perf trap.** The host's default edit template renders an inline editor for every field on every contained item. A FieldDef with 6 fields × 5 items = 30 inline editor components in the parent's edit form. Each keystroke re-renders all of them, producing ~1s/keystroke at this scale (measured against Swimmer + PersonalBest, 5/21/26).
 
