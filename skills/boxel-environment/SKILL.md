@@ -68,7 +68,7 @@ So read it as your first action, before you plan the work or tell the user what 
 
 Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
 
-> **⚠️ Streaming rule:** Create and edit files with SEARCH/REPLACE — avoid `write-text-file`. Tool calls don't stream — the whole payload must be generated before the user sees anything, so the UI looks frozen. SEARCH/REPLACE streams visibly for `.gts` and `.json` alike.
+> **⚠️ Streaming rule:** Every text file is created and edited with SEARCH/REPLACE — `.gts`, `.json`, `.md`, `README`, all of them — adding `(new)` after the URL to create one. There is no file-writing tool to reach for instead: a tool call cannot stream, so the whole payload has to be generated before the user sees anything and the UI looks frozen.
 
 ### Step 5 — Search / find
 
