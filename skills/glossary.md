@@ -280,7 +280,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 → `boxel-patterns/references/integration-surfaces.md` §3 for the full annotated table.
 
-**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getCardMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
+**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
 
 ## 19. Boxel UI (`@cardstack/boxel-ui`)
 
@@ -424,7 +424,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`link-view-transition`** — `document.startViewTransition` + `view-transition-name`.
 - **`link-flip-card`** — CSS-only front/back flip primitive.
 - **`link-host-mode-paths`** — `realm.json` `hostRoutingRules` to route `/`, `/about`, `/blog` to cards.
-- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getCardMenuItems]`.
+- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getMenuItems]`.
 
 ### Collaborate
 - **`collab-yjs-shared-document`** — Real-time co-editing over a Yjs websocket relay: everyone syncs, one committer peer with a realm JWT materializes settled content into the official card. Y.Text and Y.Map variants; contested state stays with ordered commands.

@@ -133,20 +133,22 @@ Vary by:
 Pair with [`link-command-menu-item`](../link-command-menu-item/README.md) to make "Regenerate thumbnail" a right-click on any card:
 
 ```ts
-import { getCardMenuItems, type GetCardMenuItemParams, type MenuItemOptions } from '@cardstack/runtime-common';
+import { getMenuItems } from '@cardstack/runtime-common';
+import { type GetMenuItemParams } from 'https://cardstack.com/base/menu-items';
+import { type MenuItemOptions } from '@cardstack/boxel-ui/helpers';
 import GenerateThumbnailCommand from '@cardstack/boxel-host/tools/generate-thumbnail';
 import { realmURL } from 'https://cardstack.com/base/card-api';
 import WandIcon from '@cardstack/boxel-icons/wand';
 
 class MyCard extends CardDef {
-  [getCardMenuItems](params: GetCardMenuItemParams): MenuItemOptions[] {
+  [getMenuItems](params: GetMenuItemParams): MenuItemOptions[] {
     return [
       {
         label: 'Generate AI thumbnail',
         icon: WandIcon,
         action: async () => {
           let prompt = /* derive from this.title, theme, or a fixed template */;
-          await new GenerateThumbnailCommand(params.commandContext).execute({
+          await new GenerateThumbnailCommand(params.toolContext).execute({
             prompt,
             targetRealmIdentifier: this[realmURL]!.href,
             targetPath: 'Thumbnails',
@@ -157,7 +159,7 @@ class MyCard extends CardDef {
           // chrome updates next render — no manual saveCard needed here.
         },
       },
-      ...super[getCardMenuItems](params),
+      ...super[getMenuItems](params),
     ];
   }
 }
