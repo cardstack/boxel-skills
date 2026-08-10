@@ -372,7 +372,7 @@ In rough priority order:
 - **Every user-facing card goes through `design-playbook.md`.**
 - **Delegated render** — `<@fields.X />` injects host CardContainer chrome; override via `:deep()`, theme cascade, or `@displayContainer={{false}}`. → `boxel-ui-guidelines/references/delegated-render-control.md`
 - **Read before writing.** Fetch a file’s current contents before a SEARCH/REPLACE edit so the SEARCH block matches exactly.
-- **SEARCH/REPLACE for file creation and edits** — `.gts` and `.json` alike. Avoid `write-text-file` (UI freezes; skips the code-patch pipeline).
+- **SEARCH/REPLACE for file creation and edits** — every text file, `.gts`, `.json`, `.md` and `README` alike. There is no file-writing tool (a tool call cannot stream, and skips the code-patch pipeline).
 - **One CardDef per file.** FieldDefs and helpers can co-locate.
 - **Three formats minimum.** Every CardDef ships `isolated`, `embedded`, AND `fitted`.
 

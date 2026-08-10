@@ -86,7 +86,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **Format choice = who owns the cell size, not what the cell looks like.** `@format='embedded'` lets the child decide its height — use for lists, feeds, roster rows. `@format='fitted'` makes the child fill a parent-controlled box — use for uniform tile grids (portraits, calendar cells). Picking fitted for a list with short content leaves empty boxes below each row. The fix is the format choice, upstream of any CSS. See "Picking the format" in [`delegated-render-control.md`](skills/boxel-ui-guidelines/references/delegated-render-control.md).
 - **Include `attributes.cardInfo` on instances when practical.** Even with all null values, the `cardInfo` object lets the user edit name/summary/theme later through the UI. It's required when the CardDef uses the default `cardTheme` pass-through AND you want a theme set per-instance.
 - Read before writing. Fetch a file’s current contents before a SEARCH/REPLACE edit so the SEARCH block matches exactly.
-- Use SEARCH/REPLACE for `.gts` edits. `write-text-file` is forbidden for `.gts` (UI freezes; tool calls don't stream).
+- Write every text file with SEARCH/REPLACE — `.gts`, `.json`, `.md`, `README` alike — adding `(new)` after the URL to create one. There is no file-writing tool; a tool call cannot stream, so the UI freezes through a long generation.
 - One CardDef per file. FieldDefs and helpers can co-locate.
 - Theme variables only — no hard-coded colors in templates. All colors live in the Theme card's `cssVariables`.
 - Three formats minimum: every CardDef needs `isolated`, `embedded`, AND `fitted`.
