@@ -349,21 +349,21 @@ The instance never indexes. Lint doesn't catch it.
 ```json
 "meta": {
   "adoptsFrom": {
-    "module": "https://cardstack.com/base/brand-guide",   ← no `/default`
+    "module": "@cardstack/base/brand-guide",   ← no `/default`
     "name": "default"                                       ← the export name lives here
   }
 }
 ```
 
-The `module` field is the URL the realm-server fetches. The `name` field is the named export within that module. For `export default class Foo`, `name` is `"default"`. For `export class Foo`, `name` is `"Foo"`. Conflating them — `"module": "https://cardstack.com/base/brand-guide/default"` — turns the export name into a non-existent path segment and the realm returns a 404 for the module URL.
+The `module` field is the URL the realm-server fetches. The `name` field is the named export within that module. For `export default class Foo`, `name` is `"default"`. For `export class Foo`, `name` is `"Foo"`. Conflating them — `"module": "@cardstack/base/brand-guide/default"` — turns the export name into a non-existent path segment and the realm returns a 404 for the module URL.
 
 #### Theme card structure
 
-`https://cardstack.com/base/theme` is the root Theme class. The current base realm layers richer theme cards on top:
+`@cardstack/base/theme` is the root Theme class. The current base realm layers richer theme cards on top:
 
-- `StructuredTheme` (`https://cardstack.com/base/structured-theme`) adds structured `rootVariables`, `darkModeVariables`, `typography`, and `version`, then computes `cssVariables`.
-- `StyleReference` (`https://cardstack.com/base/style-reference`) adds `styleName`, `visualDNA`, `inspirations`, and `wallpaperImages`.
-- `DetailedStyleReference` (`https://cardstack.com/base/detailed-style-reference`) adds long-form style guidance for palette, typography, composition, motion, component vocabulary, voice, technical specs, quality standards, and design mindset.
-- `BrandGuide` (`https://cardstack.com/base/brand-guide`) adds `brandColorPalette`, `functionalPalette`, `typography`, and `markUsage` for logo/mark material.
+- `StructuredTheme` (`@cardstack/base/structured-theme`) adds structured `rootVariables`, `darkModeVariables`, `typography`, and `version`, then computes `cssVariables`.
+- `StyleReference` (`@cardstack/base/style-reference`) adds `styleName`, `visualDNA`, `inspirations`, and `wallpaperImages`.
+- `DetailedStyleReference` (`@cardstack/base/detailed-style-reference`) adds long-form style guidance for palette, typography, composition, motion, component vocabulary, voice, technical specs, quality standards, and design mindset.
+- `BrandGuide` (`@cardstack/base/brand-guide`) adds `brandColorPalette`, `functionalPalette`, `typography`, and `markUsage` for logo/mark material.
 
-Both minimal raw-CSS Themes and rich structured themes can work. Prefer preserving the richest existing structure instead of flattening a `BrandGuide` or `StyleReference` down to a raw `cssVariables` string. For Boxel built-in features, use the built-in Boxel Brand Guide at `https://cardstack.com/base/Theme/boxel-brand-guide`.
+Both minimal raw-CSS Themes and rich structured themes can work. Prefer preserving the richest existing structure instead of flattening a `BrandGuide` or `StyleReference` down to a raw `cssVariables` string. For Boxel built-in features, use the built-in Boxel Brand Guide at `@cardstack/base/Theme/boxel-brand-guide`.

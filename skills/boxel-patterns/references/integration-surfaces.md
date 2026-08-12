@@ -6,9 +6,9 @@ Every place a Boxel card can reach for capability. Use this as a lookup when pla
 
 ---
 
-## 1. Base Card APIs (URL-pinned)
+## 1. Base Card APIs
 
-The Boxel base realm. Always available. Imports live at `https://cardstack.com/base/<name>`.
+The Boxel base realm. Always available. Imports live at `@cardstack/base/<name>`.
 
 | Module | Provides | Use for |
 |---|---|---|
