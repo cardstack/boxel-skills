@@ -12,6 +12,11 @@ often passes indexing too, then breaks silently — corrupting the realm's index
 crashing at render, or dropping data with no error. Check every card/field you write
 against this list before finishing an issue.
 
+The numbers below are local to this file. The `boxel` skill carries a separate Cardinal
+Rules table with its own numbering, and that is the one a bare "Cardinal Rule N"
+citation in `index.md`, `CLAUDE.md`, or `AGENTS.md` refers to — several of those numbers
+are past the end of this list and do not name a rule here.
+
 ## 1. DateField vs DateTimeField value format
 
 `DateField` values are `YYYY-MM-DD` (no `T`). `DateTimeField` values are full ISO
