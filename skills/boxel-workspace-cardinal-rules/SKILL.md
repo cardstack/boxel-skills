@@ -115,3 +115,13 @@ IDResolver error `conflicting instance id in store` — the serialize path re-re
 the instance under a conflicting local id. When a template needs a JSON:API-shaped
 view of the card, reconstruct the shape from `@model` fields instead of calling
 `serializeCard`.
+
+## 10. `linksTo` fields never appear in `attributes` — not even as `null`
+
+A `linksTo` field is serialized under `relationships`, keyed by its field path — for a
+linksTo nested inside a contained field, a dotted key: `"cardInfo.theme": { "links":
+{ "self": "../Theme/foo" } }`. An empty link is `{ "links": { "self": null } }`, or
+omit the key entirely. Writing `"cardInfo": { "theme": null }` (or any value for the
+link) into `attributes` passes lint and writes successfully — then **every read of the
+instance throws** `linkTo field 'theme' cannot deserialize non-relationship value null`
+until the raw JSON is repaired by hand.
