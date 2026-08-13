@@ -8,7 +8,7 @@ Boxel cards (`.gts` files) can import from three portable tiers of source. Use t
 
 ## Tier 1 — Boxel base (host-provided)
 
-URL-pinned imports from the Boxel base realm. Always available, no install.
+Imports from the Boxel base realm. Always available, no install.
 
 ```ts
 // Core API — CardDef, FieldDef, field decorators, Component, contains, linksTo
@@ -16,27 +16,27 @@ import {
   CardDef, FieldDef,
   field, contains, containsMany, linksTo, linksToMany,
   Component, Box,
-} from 'https://cardstack.com/base/card-api';
+} from '@cardstack/base/card-api';
 
 // Built-in field types — each in its own module
-import StringField    from 'https://cardstack.com/base/string';
-import NumberField    from 'https://cardstack.com/base/number';
-import BooleanField   from 'https://cardstack.com/base/boolean';
-import DateField      from 'https://cardstack.com/base/date';
-import DatetimeField  from 'https://cardstack.com/base/datetime';
-import MarkdownField  from 'https://cardstack.com/base/markdown';
+import StringField    from '@cardstack/base/string';
+import NumberField    from '@cardstack/base/number';
+import BooleanField   from '@cardstack/base/boolean';
+import DateField      from '@cardstack/base/date';
+import DatetimeField  from '@cardstack/base/datetime';
+import MarkdownField  from '@cardstack/base/markdown';
 
 // Code reference field (for codeRef-typed values)
-import { CodeRefField } from 'https://cardstack.com/base/code-ref';
-import { AbsoluteCodeRefField } from 'https://cardstack.com/base/code-ref';
+import { CodeRefField } from '@cardstack/base/code-ref';
+import { AbsoluteCodeRefField } from '@cardstack/base/code-ref';
 
 // Shared state across components
-import { sharedState } from 'https://cardstack.com/base/shared-state';
+import { sharedState } from '@cardstack/base/shared-state';
 
 // Skill / SkillSet / SkillPlusMarkdown
-import { Skill, SkillReference } from 'https://cardstack.com/base/skill';
-import { SkillPlusMarkdown } from 'https://cardstack.com/base/skill-plus';
-import { SkillSet } from 'https://cardstack.com/base/skill-set';
+import { Skill, SkillReference } from '@cardstack/base/skill';
+import { SkillPlusMarkdown } from '@cardstack/base/skill-plus';
+import { SkillSet } from '@cardstack/base/skill-set';
 ```
 
 ---
@@ -168,8 +168,8 @@ Audio cards can also reach for the browser's built-in `AudioContext` directly �
 
 | I want to use… | Tier | Import |
 |---|---|---|
-| `CardDef`, `FieldDef`, `Component` | 1 | `https://cardstack.com/base/card-api` |
-| `StringField`, `NumberField`, etc. | 1 | `https://cardstack.com/base/<type>` |
+| `CardDef`, `FieldDef`, `Component` | 1 | `@cardstack/base/card-api` |
+| `StringField`, `NumberField`, etc. | 1 | `@cardstack/base/<type>` |
 | `getCards`, `Command` | 2 | `@cardstack/runtime-common` |
 | `Button`, `Pill`, helpers, icons | 2 | `@cardstack/boxel-ui/{components,helpers,icons/*}` |
 | `KanbanPlane`, `KanbanPlacement`, drag/drop board helpers | 2 | `@cardstack/boxel-ui/components` |

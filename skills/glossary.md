@@ -16,7 +16,7 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 ## 1. Core framework concepts
 
 - **Card** — A typed schema + reactive Glimmer Component + JSON instance, all colocated in a `.gts` file. The unit of construction in Boxel. → `boxel/references/core-concept.md`
-- **CardDef** — Base class for cards (full-document things — Project, Person, BlogPost). Extends from `https://cardstack.com/base/card-api`. Has `static isolated`/`embedded`/`fitted` Components.
+- **CardDef** — Base class for cards (full-document things — Project, Person, BlogPost). Extends from `@cardstack/base/card-api`. Has `static isolated`/`embedded`/`fitted` Components.
 - **FieldDef** — Base class for fields (compound or single-value building blocks reused across cards — Address, DateRange, ContactPoint). Co-located in the same file as the CardDef that owns them, or shared in their own module.
 - **Box** — The base for all values, both `CardDef` and `FieldDef` extend it; rarely referenced directly.
 - **Component** — Glimmer component associated with a CardDef format via `static isolated = class extends Component<typeof X> { <template>…</template> }`.
@@ -101,7 +101,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **filter predicates** — `eq`, `contains`, `range`, plus `every: [...]` / `any: [...]` for composition. Predicates require an `on:` scope.
 - **`sort`** — Array of `{ by, direction }` entries. Custom sort fields require `on: ref` inside the sort entry. Only `lastModified`, `createdAt`, `cardURL` are generalSortFields (no `on:` required).
 - **`codeRef(here, path, name)`** — Build a `ResolvedCodeRef` for use in queries. Imported from `@cardstack/runtime-common`. → `boxel/references/query-systems.md`
-- **`realmURL`** — A **Symbol** exported from `@cardstack/runtime-common` AND `https://cardstack.com/base/card-api`. **Don't write `Symbol.for('realmURL')`** — that creates a different Symbol. Read realm via `card[realmURL]?.href`.
+- **`realmURL`** — A **Symbol** exported from `@cardstack/runtime-common` AND `@cardstack/base/card-api`. **Don't write `Symbol.for('realmURL')`** — that creates a different Symbol. Read realm via `card[realmURL]?.href`.
 - **silent zero-rows traps** (memorize) — (1) `filter: { on: ref }` with no predicate. (2) Custom sort field without `on:`. (3) `Symbol.for('realmURL')` instead of the canonical Symbol import. (4) Bare `links.self` like `"Foo/bar"` instead of `"./Foo/bar"` — relationship deserialization throws and the parent card silently fails to index. (5) FileDef-typed relationships dropping the file extension (e.g. `"../guide"` instead of `"../guide.md"`) — file exists but parent card fails to type-filter. → `boxel/references/query-systems.md`, `boxel/references/card-references.md`
 - **verified query composition patterns** — Templates that have been confirmed against a live realm + indexer (not just inferred from source): `every: [{ type: ref }, { on: ref, eq: { … } }]`, `… in: { field: [values] } …`, `… range: { field: { gte: … } } …`, `… contains: { cardTitle: … } …`. Build a **validation lab card** in the realm with one `@context.searchResultsComponent` section per pattern you depend on; assert non-empty results in browser QA. → `boxel/references/query-systems.md`
 - **transient federated-search failures** — `npx boxel search` can briefly return `Realms not found` right after a new card landing while the realm-server settles. Read files back, `npx boxel realm wait-for-ready`, validate via `@context.searchResultsComponent`, then retry. → `boxel-environment/references/workflows-and-orchestration.md`
@@ -113,7 +113,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **Style Reference** — `StructuredTheme` subclass that adds `styleName`, `inspirations`, `visualDNA`, and `wallpaperImages`. Use when the visual language needs to be documented.
 - **Detailed Style Reference** — `StyleReference` subclass with long-form design guidance: context, palette, typography, geometry, material, composition, motion, component vocabulary, voice, technical specs, application scenarios, quality standards, and design mindset.
 - **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, and `markUsage`. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
-- **Boxel Brand Guide** — Built-in Brand Guide at `https://cardstack.com/base/Theme/boxel-brand-guide`. Source of truth for Boxel built-in feature styling, base cards, host-facing Boxel UI, and Boxel-branded catalog material.
+- **Boxel Brand Guide** — Built-in Brand Guide at `@cardstack/base/Theme/boxel-brand-guide`. Source of truth for Boxel built-in feature styling, base cards, host-facing Boxel UI, and Boxel-branded catalog material.
 - **Functional Palette** — Brand Guide field mapping brand intent to variables: `--brand-primary`, `--brand-secondary`, `--brand-accent`, `--brand-light`, and `--brand-dark`; Brand Guide maps these into semantic theme tokens when needed.
 - **Mark Usage / BrandLogo** — Brand Guide field for primary/secondary marks, greyscale marks, social profile icon, minimum heights, and clearance ratios. Emits `--brand-*-mark` variables for templates.
 - **`cardInfo.theme`** — Per-instance theme override (`linksTo(Theme)`). Wins over any computed `cardTheme`.
@@ -191,7 +191,7 @@ The dialect Boxel reads and writes. See [bfm.boxel.site](https://bfm.boxel.site)
 
 ## 12. Realm system + routing + permissions
 
-- **`realm.json`** — Card instance of `https://cardstack.com/base/realm-config` `RealmConfig` at the realm root. Holds `backgroundURL`, `iconURL`, `hostRoutingRules`, etc.
+- **`realm.json`** — Card instance of `@cardstack/base/realm-config` `RealmConfig` at the realm root. Holds `backgroundURL`, `iconURL`, `hostRoutingRules`, etc.
 - **`RealmConfig`** — Base CardDef for the realm-level config card.
 - **`RoutingRuleField`** — FieldDef inside `RealmConfig.hostRoutingRules`. Each rule = `{ path: StringField, instance: linksTo(CardDef) }`.
 - **`hostRoutingRules`** — `containsMany(RoutingRuleField)` on `RealmConfig`. Maps clean paths (`/`, `/about`, `/blog`) to cards in the same realm.
@@ -254,7 +254,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`GenerateThumbnailCommand`** — Composes OpenRouter image-gen + `WriteBinaryFileCommand` + optional `PatchCardInstanceCommand` to patch `cardInfo.cardThumbnail`. → `integrate-thumbnail-card-ai`
 - **`ScreenshotCardCommand`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). → `integrate-screenshot-card-format`
 - **Steerable image generation** — Multi-step iterative refinement using initial prompt + steering input + first/current image lineage. → `automate-image-steering`
-- **Skill cards** — Cards typed as `Skill` from `https://cardstack.com/base/skill` that pre-load into AI rooms with their description as system context.
+- **Skill cards** — Cards typed as `Skill` from `@cardstack/base/skill` that pre-load into AI rooms with their description as system context.
 
 ## 17. Catalog system
 
@@ -355,7 +355,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 In rough priority order:
 
 - **Theme first.** Decide theme strategy before writing the card. Templates use `var(--*)` tokens, never hard-coded colors. → `theme-first-workflow`
-- **Boxel built-in feature work uses the Boxel Brand Guide.** Base cards, host-facing Boxel UI, and Boxel-branded catalog material use `https://cardstack.com/base/Theme/boxel-brand-guide` as the style source.
+- **Boxel built-in feature work uses the Boxel Brand Guide.** Base cards, host-facing Boxel UI, and Boxel-branded catalog material use `@cardstack/base/Theme/boxel-brand-guide` as the style source.
 - **`cardInfo.theme` is the per-instance override** (wins over computed `cardTheme`).
 - **Override `cardTitle` when there's a primary field.** Respect `cardInfo.name` first.
 - **Build a Home app whenever you ship 2+ related CardDefs.** `prefersWideFormat = true` + one `@context.searchResultsComponent` section per CardDef in the family. → `app-card-home-with-search`
@@ -366,7 +366,7 @@ In rough priority order:
 - **Never inline media/binary in card JSON.** Use FileDef subtypes; `WriteBinaryFileCommand` for generated bytes. → `boxel-file-def/references/no-inline-binary.md`
 - **Query traps** — `filter: { type: ref }` (not `on`); custom sort fields need `on`; `codeRef(here, …)` + `realmURL` Symbol from `@cardstack/runtime-common`. → `boxel/references/query-systems.md`
 - **🔴 DateField vs DateTimeField — silent-renders-then-crashes trap.** `contains(DateField)` value MUST be `YYYY-MM-DD`; `contains(DateTimeField)` value MUST include `T`. Mismatches pass lint + write + index, then crash at render as `RangeError: Invalid time value`. `*At` → DateTimeField; `*Date`/`*On`/`hireDate`/`dob` → DateField. → `boxel/references/base-field-catalog.md`
-- **🚨 Image URLs in relationship links BRICK the realm.** External URLs (`https://images.unsplash.com/...`) in `relationships.<field>.links.self` cause `JSON.parse` to throw on the fetched JPEG bytes; the error message's NULL byte poisons the postgres JSONB write; the entire indexing transaction rolls back. Use the `cardInfo` pair pattern: `heroImage = linksTo(ImageDef)` + `heroImageURL = contains(UrlField)` (UrlField from `https://cardstack.com/base/url`, not MaybeBase64Field, not StringField); external URLs go on the attribute side. → `boxel/references/base-field-catalog.md` "Image fields — the URL/ImageDef pair pattern"
+- **🚨 Image URLs in relationship links BRICK the realm.** External URLs (`https://images.unsplash.com/...`) in `relationships.<field>.links.self` cause `JSON.parse` to throw on the fetched JPEG bytes; the error message's NULL byte poisons the postgres JSONB write; the entire indexing transaction rolls back. Use the `cardInfo` pair pattern: `heroImage = linksTo(ImageDef)` + `heroImageURL = contains(UrlField)` (UrlField from `@cardstack/base/url`, not MaybeBase64Field, not StringField); external URLs go on the attribute side. → `boxel/references/base-field-catalog.md` "Image fields — the URL/ImageDef pair pattern"
 - **🚨 `linksToMany` JSON shape uses INDEXED KEYS, never an array.** Each item is its own top-level relationship: `"activityFeed.0": { "links": { "self": "..." } }`, not `"activityFeed": { "links": { "self": ["...", "..."] } }`. Array-in-self causes "not a card resource document".
 - **🚨 `linksTo` never in `attributes`.** Links live under `relationships`, keyed by field path (dotted keys for nested fields: `"cardInfo.theme"`); an empty link is `{ "links": { "self": null } }` or the key is omitted. A `null` attribute writes fine, then every read of the instance throws `cannot deserialize non-relationship value`.
 - **Format choice = who owns the cell size.** `embedded` for lists; `fitted` for uniform tile grids.

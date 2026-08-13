@@ -79,7 +79,7 @@ const query = {
 Declare an `entry`-rooted query and render the yielded entries. Each `entry.component` renders itself — prerendered HTML inert (hydrated lazily on interaction) or a live card — so the card never decides which:
 
 ```gts
-import { CardDef, Component } from 'https://cardstack.com/base/card-api';
+import { CardDef, Component } from '@cardstack/base/card-api';
 import {
   searchEntryWireQueryFromQuery,
   type SearchEntryWireQuery,

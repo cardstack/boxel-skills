@@ -24,7 +24,7 @@ Define an explicit `static markdown` only when:
 It's a format slot like `static isolated`, but emits **plain text**, not HTML. Glimmer HTML-escapes the string in the DOM; the prerender pipeline decodes those entities when it captures `textContent`, so the markdown parser downstream sees the literal characters you emitted.
 
 ```gts
-import { CardDef, Component } from 'https://cardstack.com/base/card-api';
+import { CardDef, Component } from '@cardstack/base/card-api';
 import { markdownEscape } from '@cardstack/boxel-ui/helpers';
 
 export class Note extends CardDef {
@@ -57,7 +57,7 @@ Escapes every CommonMark/GFM metacharacter (`\`, `` ` ``, `*`, `_`, `[`, `]`, `(
 
 ## The `markdown-helpers` toolkit
 
-Module: `https://cardstack.com/base/markdown-helpers`
+Module: `@cardstack/base/markdown-helpers`
 
 ```gts
 import {
@@ -71,7 +71,7 @@ import {
   markdownLinksForCards,
   markdownEmbedForCard,
   markdownEmbedsForCards,
-} from 'https://cardstack.com/base/markdown-helpers';
+} from '@cardstack/base/markdown-helpers';
 ```
 
 All helpers return pre-escaped strings — safe to interpolate directly.
@@ -177,11 +177,11 @@ The format resolver uses bracket-notation lookup, so `static markdown` on a subc
 ## Worked example: `Note` card with custom markdown
 
 ```gts
-import { CardDef, field, contains, linksTo, Component } from 'https://cardstack.com/base/card-api';
-import StringField from 'https://cardstack.com/base/string';
-import MarkdownField from 'https://cardstack.com/base/markdown';
+import { CardDef, field, contains, linksTo, Component } from '@cardstack/base/card-api';
+import StringField from '@cardstack/base/string';
+import MarkdownField from '@cardstack/base/markdown';
 import { markdownEscape } from '@cardstack/boxel-ui/helpers';
-import { markdownLinkForCard, formatDateTimeForMarkdown } from 'https://cardstack.com/base/markdown-helpers';
+import { markdownLinkForCard, formatDateTimeForMarkdown } from '@cardstack/base/markdown-helpers';
 import { Author } from './author';
 
 export class Note extends CardDef {
