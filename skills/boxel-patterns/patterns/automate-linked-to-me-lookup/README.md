@@ -164,7 +164,7 @@ Mark each kit-internal link in the DataModelPlan with a ● in a "thunk" column.
 `cardOrThunk was undefined` is a general "this binding is undefined at thunk-deref time" error. Common causes besides cycles:
 
 - **Named-import of a default-only export.** `import { DateField } from '@cardstack/base/date'` resolves `DateField` to undefined; `contains(DateField)` then fails. Probe with `get-card-type-schema --input '{"codeRef":{"module":"@cardstack/base/date","name":"DateField"}}'` — `Export "X" not found in module "Y"` means you need the default import (`import DateField from '...'`).
-- **Default-import from a module whose default is a DIFFERENT class.** `import ImageDef from '@cardstack/base/image'` actually gets `ImageCard` (the deprecated default of that module). Use `/base/image-file-def` or `import { ImageDef } from '/base/card-api'` (both work).
+- **Default-import from a module whose default is a DIFFERENT class.** `import ImageDef from '@cardstack/base/image'` actually gets `ImageCard` (the deprecated default of that module). Use `@cardstack/base/image-file-def` or `import { ImageDef } from '@cardstack/base/card-api'` (both work).
 - **Bare `linksTo(X)` without thunk** when X is a kit-local class with any back-edge — see above.
 
 **Source:**
