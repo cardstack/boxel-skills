@@ -1,6 +1,6 @@
 # Base field catalog — what ships in `@cardstack/base/*`
 
-Every field listed here is importable from a stable URL and ready to use without code. Reach for the specific type instead of `StringField` whenever the value has a known shape — you get validation, a tailored editor, formatting, and queryability for free.
+Every field listed here is importable from a stable specifier and ready to use without code. Reach for the specific type instead of `StringField` whenever the value has a known shape — you get validation, a tailored editor, formatting, and queryability for free.
 
 ## Primitives & string variants
 
