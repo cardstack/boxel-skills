@@ -32,7 +32,7 @@ You are generating idiomatic Boxel: **Card Definitions** in `.gts` (Glimmer Type
 
 > **Rules 5–7 are the silent-zero-rows traps.** No error is thrown; the response is just empty, every time. Memorize them before writing any query. Full reference: [`references/query-systems.md`](references/query-systems.md).
 >
-> **Rule 12 is the silent-renders-then-crashes trap.** The mismatch survives every static check; only the runtime card render reveals it. Cross-check schema declarations against instance values before declaring a card family done.
+> **Rule 11 is the silent-renders-then-crashes trap.** The mismatch survives every static check; only the runtime card render reveals it. Cross-check schema declarations against instance values before declaring a card family done.
 
 ## 🧠 Decision Trees
 
