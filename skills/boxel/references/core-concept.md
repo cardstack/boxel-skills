@@ -355,7 +355,7 @@ The instance never indexes. Lint doesn't catch it.
 }
 ```
 
-The `module` field is the URL the realm-server fetches. The `name` field is the named export within that module. For `export default class Foo`, `name` is `"default"`. For `export class Foo`, `name` is `"Foo"`. Conflating them — `"module": "@cardstack/base/brand-guide/default"` — turns the export name into a non-existent path segment and the realm returns a 404 for the module URL.
+The `module` field is the specifier the realm-server resolves. The `name` field is the named export within that module. For `export default class Foo`, `name` is `"default"`. For `export class Foo`, `name` is `"Foo"`. Conflating them — `"module": "@cardstack/base/brand-guide/default"` — turns the export name into a non-existent path segment and the module fails to resolve.
 
 #### Theme card structure
 
