@@ -4,10 +4,6 @@ Use this before writing or finalizing `.gts` files. Missing imports compile late
 
 Research note: a May 2026 scan of active `boxel-workspaces` realm/source `.gts` files found the most common modules were `https://cardstack.com/base/card-api`, base fields, `@cardstack/boxel-ui/helpers`, `@glimmer/tracking`, `@ember/modifier`, `@cardstack/boxel-ui/components`, `@ember/helper`, `@ember/object`, `ember-modifier`, and `ember-concurrency`. The common missing-import failures are template helpers/modifiers: `{{on ...}}`, `(fn ...)`, `concat`, `get`, `array`, `hash`, and Boxel helper predicates/formatters. `perform` is not a safe template helper in strict-mode realm GTS: do not import `ember-concurrency/helpers/perform`, and do not write `(perform this.someTask)`.
 
-## The `@cardstack/base` trap
-
-Base card modules resolve by URL, not by package name. `import StringField from '@cardstack/base/string'` looks like every other npm import and is always wrong in a realm — the module never resolves, the card fails to load, and the correctness check bounces the file back for a repair turn. Everything under the base realm imports as `https://cardstack.com/base/<module>`: `card-api`, `string`, `number`, `boolean`, `date`, `datetime`, `text-area`, `url`, `markdown`, and the rest. The `@cardstack/*` scope is only correct for the packages listed in this file: `@cardstack/boxel-ui/*`, `@cardstack/boxel-icons/*`, `@cardstack/runtime-common`.
-
 ## Import Preflight
 
 After writing a template, scan every non-builtin name used in mustaches/modifiers and verify a matching import or local class property exists.
