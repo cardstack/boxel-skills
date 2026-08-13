@@ -42,7 +42,7 @@ For an instance that should use the Boxel Brand Guide:
 
 A ThemeCard is an instance of a card definition that inherits from `@cardstack/base/theme` or from one of its subclasses.
 
-| Type | URL | Description |
+| Type | Module | Description |
 |------|-----|-------------|
 | Base Theme | `@cardstack/base/theme` | Root base class |
 | Structured Theme | `@cardstack/base/structured-theme` | Structured token theme. Adds `typography`, `rootVariables`, `darkModeVariables`, `version`, and computed `cssVariables`. Use for pure token systems with no brand assets. |
