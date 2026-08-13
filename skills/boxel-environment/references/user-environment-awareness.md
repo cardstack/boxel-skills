@@ -18,11 +18,11 @@ const openCardStack = [
 ];
 
 const currentCard = openCardStack[openCardStack.length - 1];
-const navigationPath = openCardStack.map(url => url.split('/').pop());
+const navigationPath = openCardStack.map(id => id.split('/').pop());
 // → ['BlogApp', '1', 'jane']
 ```
 
-Use stack URLs to fetch card details and understand user's exploration path.
+Use stack ids to fetch card details and understand user's exploration path.
 
 
 ## Location Parsing
