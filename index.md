@@ -53,6 +53,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
 - **[`boxel-flavored-markdown/`](skills/boxel-flavored-markdown/SKILL.md)** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
 - **[`boxel-markdown-format/`](skills/boxel-markdown-format/SKILL.md)** — Static `markdown` template format with `markdownEscape` and helpers.
+- **[`rich-markdown-reports/`](skills/rich-markdown-reports/SKILL.md)** — When you'd write a plain `.md` file (report, summary, briefing, write-up), author it as rich BFM instead: embed the cards/files it's about and reference real data rather than restating it.
 - **[`boxel-skill-authoring/`](skills/boxel-skill-authoring/SKILL.md)** — Writing user-authored skills: the SKILL.md format contract (`boxel.kind: skill` frontmatter), tool declarations, placement, and the verify loop.
 
 ### Runtime
