@@ -30,6 +30,8 @@ Match the user's intent to a skill in the catalog below and read it before start
 
 Read it before you plan out loud. Describing a plan you have no tools to carry out, or asking the user to switch modes by hand, means this step was skipped.
 
+**Writing a `.md` file takes one more read.** The moment a task will produce a `.md` file in a realm — a report, summary, notes, or doc — read [`skills/rich-markdown-reports/SKILL.md`](skills/rich-markdown-reports/SKILL.md) first and author it as rich BFM with embedded cards/files, not plain prose. This applies whenever you're about to write markdown, even if the user never said the word "rich".
+
 ## Skill-tree glossary
 
 [`skills/glossary.md`](skills/glossary.md) is the back-of-the-book reference — every term, concept, library, helper, host command, pattern, convention, and acronym used across the skills, with a one-line definition and a pointer to the deeper file. Scan it when you're not sure what a term means or where it's documented. **Update this file whenever a skill, reference, pattern, extension, or convention is added, renamed, or removed.**
@@ -53,7 +55,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
 - **[`boxel-flavored-markdown/`](skills/boxel-flavored-markdown/SKILL.md)** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
 - **[`boxel-markdown-format/`](skills/boxel-markdown-format/SKILL.md)** — Static `markdown` template format with `markdownEscape` and helpers.
-- **[`rich-markdown-reports/`](skills/rich-markdown-reports/SKILL.md)** — When you'd write a plain `.md` file (report, summary, briefing, write-up), author it as rich BFM instead: embed the cards/files it's about and reference real data rather than restating it.
+- **[`rich-markdown-reports/`](skills/rich-markdown-reports/SKILL.md)** — **Read before writing any `.md` file to a realm** (report, summary, notes, briefing, doc): author it as rich BFM with embedded cards/files, never plain prose.
 - **[`boxel-skill-authoring/`](skills/boxel-skill-authoring/SKILL.md)** — Writing user-authored skills: the SKILL.md format contract (`boxel.kind: skill` frontmatter), tool declarations, placement, and the verify loop.
 
 ### Runtime

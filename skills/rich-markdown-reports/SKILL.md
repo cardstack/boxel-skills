@@ -1,6 +1,6 @@
 ---
 name: rich-markdown-reports
-description: Use when you're about to create a .md file — author it as a rich Boxel markdown file with embedded cards and files instead of plain text. Activates whenever a request would produce a report, summary, briefing, or document saved to a realm.
+description: Read before writing or editing any .md file in a realm (report, summary, notes, briefing, doc). Author it as a rich Boxel markdown file with embedded cards and files instead of plain text — applies whenever a task will produce a markdown file, even if the user never said "rich".
 boxel:
   kind: skill
 ---
