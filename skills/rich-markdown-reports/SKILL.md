@@ -19,15 +19,12 @@ Whenever you are about to create a markdown file — a report, summary, meeting 
 - Reference real data rather than copying values into the text, so the report stays current as the cards change.
 - Structure it with headings so it's navigable.
 
-**Write it as a `.md` file in a realm — do not paste it into the chat.** The card and file embeds only render as live cards when the markdown lives as a file in a realm; the same BFM typed into a chat reply stays raw text and the embeds don't resolve. Save it to a realm the user can write to, and follow the `source-code-editing` skill for how to create and write the file. A report that never becomes a realm file hasn't used this skill.
+**Write it as a `.md` file in a realm — do not paste it into the chat.** The card and file embeds only render as live cards when the markdown lives as a file in a realm; the same BFM typed into a chat reply stays raw text and the embeds don't resolve. Save it to a realm the user can write to — see **Pair with** below for how to create the file. A report that never becomes a realm file hasn't used this skill.
 
-## Embedding cards and files
+## Pair with
 
-See the `boxel-flavored-markdown` skill for the full grammar. In short:
-
-- Inline, flowing within a sentence: `:card[<url>]` (renders as an atom by default).
-- Block, alone on its own line: `::card[<url> | embedded]`, `::card[<url> | fitted 400x200]`, `::file[<url> | embedded]`.
-- Choose the format to fit the report: `atom` for a passing mention, `embedded` / `fitted` to show the card in place, `isolated` for a full spotlight.
+- **`boxel-flavored-markdown`** — the directive grammar your embeds use (`:card` / `::card` / `::file`, embed formats, fenced renderers). Pick the format that fits the report.
+- **`source-code-editing`** — how to create and write the `.md` file.
 
 ## Don't use for
 
