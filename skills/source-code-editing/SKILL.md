@@ -1,6 +1,6 @@
 ---
 name: source-code-editing
-description: Use when editing existing .gts or .json files via SEARCH/REPLACE blocks. Defines exact block format, matching rules, and recovery from failed matches. Required before issuing any code edit.
+description: Use when creating or editing any text file in a realm — .gts, .json, .md, README, anything — via SEARCH/REPLACE blocks. Defines the exact block format, matching rules, and recovery from failed matches. Required before writing any file.
 boxel:
   kind: skill
 ---
