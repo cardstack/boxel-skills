@@ -24,7 +24,7 @@ Whenever you are about to create a markdown file — a report, summary, meeting 
 ## Pair with
 
 - **`boxel-flavored-markdown`** — the directive grammar your embeds use (`:card` / `::card` / `::file`, embed formats, fenced renderers). Pick the format that fits the report.
-- **`source-code-editing`** — how to create and write the `.md` file.
+- **`source-code-editing`** — the SEARCH/REPLACE block format used to write the file to the realm. The block format is the same for a `.md` file as for code, so reuse it here even though a report isn't source code.
 
 ## Don't use for
 
