@@ -19,7 +19,7 @@ Whenever you are about to create a markdown file — a report, summary, meeting 
 - Reference real data rather than copying values into the text, so the report stays current as the cards change.
 - Structure it with headings so it's navigable.
 
-Save it with the file-writing tools you already have, into a realm the user can write to.
+**Write it as a `.md` file in a realm — do not paste it into the chat.** The card and file embeds only render as live cards when the markdown lives as a file in a realm (the realm renders the directives). The same BFM typed into a chat reply stays raw text — the embeds don't resolve. So always save the report to a realm the user can write to with your file-writing tools; a report that never becomes a realm file hasn't used this skill.
 
 ## Embedding cards and files
 
