@@ -62,17 +62,24 @@ computation and cannot use call TODAY: volatile calls are not stable write-time
 derivations.
 ```
 
-Refused: volatile calls (`TODAY`, `NOW`, `RAND`, `RANDBETWEEN`) · request,
-actor and mutation context (`@User`, `@Env`, `$new`, `$old`) · user-defined
-`def` helpers · jq `try` / `catch` · `error` · `label` / `break` · assignment
-(`=`, `|=`) · recursive descent (`..`) · format filters (`@csv`) · control and
-side-effect calls (`debug`, `env`, `input`, `stderr`, `halt`) · runtime metadata
+Refused: volatile calls (`TODAY`, `NOW`, `RAND`, `RANDBETWEEN`, and the two
+clock-reading validator helpers `isAfter` / `isBefore`) · request, actor and
+mutation context (`@User`, `@Env`, `$new`, `$old`) · user-defined `def` helpers ·
+jq `try` / `catch` · `error` · `label` / `break` · assignment (`=`, `|=`) ·
+recursive descent (`..`) · format filters (`@csv`) · control and side-effect
+calls (`debug`, `env`, `input`, `stderr`, `halt`) · runtime metadata
 (`builtins`).
 
 Allowed and useful: `IFERROR` / `IFNA` · optional access (`.a?`) · aggregates
-(`SUM`, `AVERAGE`, `COUNT`, `NPV`) · validator helpers (`isEmail`) · `LET` ·
-bindings (`. as $x | …`) · explicit folds (`reduce`, `foreach`) · structural ops
-(`keys`, `to_entries`, `group_by`, `unique`, `tojson`).
+(`SUM`, `AVERAGE`, `COUNT`, `NPV`) · validator helpers (`isEmail`, `isDate`) ·
+`LET` · bindings (`. as $x | …`) · explicit folds (`reduce`, `foreach`) ·
+structural ops (`keys`, `to_entries`, `group_by`, `unique`, `tojson`).
+
+`isAfter` and `isBefore` are the surprise on that list: they sit among the
+validator helpers, they look like ordinary date comparisons, and they default
+their second argument to the current time — so the profile classes them with
+`NOW`. Compare two stored dates with the operators instead
+(`` fx`StartDate < EndDate` ``), which is deterministic and needs no helper.
 
 The boundary is determinism: a derived value comes from the record snapshot, not
 from the clock, the viewer, or the request. It is computed once server-side and
@@ -259,7 +266,9 @@ arithmetic and explicit Y/M/D construction are the safe idioms.
 
 `TODAY` and `NOW` are not available in a computed at all — the `derive` profile
 refuses them, because an indexed value computed once from the clock is wrong for
-every later read. So:
+every later read. Nor are `isAfter` / `isBefore`, which look like plain date
+comparisons but default their second argument to the current time; compare
+stored dates with the operators (`` fx`StartDate < EndDate` ``). So:
 
 - Compute the **fact**: a due-date serial, a span between two stored dates, a
   boolean over stored dates.
