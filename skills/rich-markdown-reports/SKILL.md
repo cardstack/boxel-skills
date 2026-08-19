@@ -19,7 +19,9 @@ Whenever you are about to create a markdown file — a report, summary, meeting 
 - Reference real data rather than copying values into the text, so the report stays current as the cards change.
 - Structure it with headings so it's navigable.
 
-**Write it as a `.md` file in a realm — do not paste it into the chat.** The card and file embeds only render as live cards when the markdown lives as a file in a realm (the realm renders the directives). The same BFM typed into a chat reply stays raw text — the embeds don't resolve. So always save the report to a realm the user can write to with your file-writing tools; a report that never becomes a realm file hasn't used this skill.
+**Write it as a `.md` file in a realm — do not paste it into the chat.** The card and file embeds only render as live cards when the markdown lives as a file in a realm (the realm renders the directives). The same BFM typed into a chat reply stays raw text — the embeds don't resolve.
+
+Create the file with a **SEARCH/REPLACE block** — read `source-code-editing` for the exact format; it applies to `.md` files just as it does to `.gts`/`.json`. First line is the new file's URL followed by ` (new)`, then an empty SEARCH section, then your BFM in the REPLACE section. Use Boxel's box markers **exactly** — `╔═══ SEARCH ════╗`, `╠═══════════════╣`, `╚═══ REPLACE ═══╝` — never git-style `<<<<<<<` / `=======` / `>>>>>>>`, and put nothing after the closing marker. If the markers are wrong the host writes them into the file as literal text instead of applying the edit. Don't use `write-text-file` (it doesn't stream, so the UI freezes). A report that never becomes a realm file hasn't used this skill.
 
 ## Embedding cards and files
 
