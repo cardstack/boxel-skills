@@ -134,6 +134,19 @@ import { Resource, resource, use } from 'ember-resources';
 import { modifier } from 'ember-modifier';
 ```
 
+### `@cardstack/bxl` — expression language for computed fields
+
+```ts
+import { expression, fx, jq } from '@cardstack/bxl';
+```
+
+The host serves this to card code, so the bare specifier is the import and
+nothing needs hosting in the workspace. `expression()` returns a function shaped
+for `computeVia`; `fx` and `jq` are the two source tags. Only the package root
+is card-facing. Writing the expressions themselves — tag choice, what the
+`derive` profile refuses, aggregation over linked collections, and the traps
+that yield a plausible wrong value — is `bxl-authoring`.
+
 ### Utility
 
 ```ts
@@ -174,6 +187,7 @@ Audio cards can also reach for the browser's built-in `AudioContext` directly �
 | `Button`, `Pill`, helpers, icons | 2 | `@cardstack/boxel-ui/{components,helpers,icons/*}` |
 | `KanbanPlane`, `KanbanPlacement`, drag/drop board helpers | 2 | `@cardstack/boxel-ui/components` |
 | Any host command (`ai-assistant`, `switch-submode`, etc.) | 2 | `@cardstack/boxel-host/tools/<name>` |
+| `expression`, `fx`, `jq` for a `computeVia` formula | 2 | `@cardstack/bxl` |
 | `restartableTask` | 2 | `ember-concurrency` |
 | `Resource`, `resource()` | 2 | `ember-resources` |
 | `modifier()` | 2 | `ember-modifier` |
