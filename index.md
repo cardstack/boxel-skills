@@ -28,6 +28,8 @@ Match the user's intent to a skill in the catalog below and read it before start
 
 **Acting on the app takes one more read.** This index carries no host commands, and neither does any skill page: the commands live in [`skills/boxel-environment/references/host-commands-reference.md`](skills/boxel-environment/references/host-commands-reference.md), and reading that file is what makes `switch-submode`, `show-card`, `search-cards`, and the rest callable. Anything beyond answering in prose — creating a card, editing a file, switching mode, searching a realm — needs it, so read it alongside the skill you picked.
 
+**Card work takes one more read too.** Before writing or editing any card definition (`.gts`) or instance JSON, read [`skills/boxel-workspace-cardinal-rules/SKILL.md`](skills/boxel-workspace-cardinal-rules/SKILL.md) — the checklist of silent-failure traps. Every rule on it passes lint and usually passes the correctness check, then breaks later where you cannot see it: corrupting the realm index, dropping data, crashing at render, or freezing the entire application. The inline highlights further down this index and the `boxel` skill's own Cardinal Rules table cover the most common traps, but neither list is complete — the checklist is the full set, and checking your work against it before finishing is what catches the rest.
+
 Read it before you plan out loud. Describing a plan you have no tools to carry out, or asking the user to switch modes by hand, means this step was skipped.
 
 ## Skill-tree glossary
@@ -41,7 +43,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 ### Foundation
 
 - **[`boxel/`](skills/boxel/SKILL.md)** — Cardinal rules + 18 references for CardDef, FieldDef, templates, queries, formats, commands.
-- **[`boxel-workspace-cardinal-rules/`](skills/boxel-workspace-cardinal-rules/SKILL.md)** — Silent-failure trap checklist: rules that pass lint (and often indexing), then corrupt the realm index, crash at render, or drop data with no error. Check every card/field against it before finishing.
+- **[`boxel-workspace-cardinal-rules/`](skills/boxel-workspace-cardinal-rules/SKILL.md)** — Silent-failure trap checklist: rules that pass lint (and often indexing), then corrupt the realm index, crash at render, or drop data with no error. Mandatory pre-flight read for any card work (see Pre-flight above); check every card/field against it before finishing.
 - **[`bxl-authoring/`](skills/bxl-authoring/SKILL.md)** — Writing BXL in a card's `computeVia`: which of the three call-site forms to reach for, what the `derive` profile refuses, aggregating over linked and query-backed collections, and the traps that produce a plausible wrong value instead of an error.
 - **[`source-code-editing/`](skills/source-code-editing/SKILL.md)** — SEARCH/REPLACE block format. Required before any `.gts` edit.
 - **[`ember-best-practices/`](skills/ember-best-practices/SKILL.md)** — Ember.js performance + accessibility rules (59 rules across 10 categories) for writing, reviewing, or refactoring Ember code.
