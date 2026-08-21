@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "notes": null,
+        "name": "BXL Authoring",
+        "summary": "Writing BXL in a card's computeVia — which of the three call-site forms to reach for, what the derive profile refuses, aggregating over linked and query-backed collections, and the traps that produce a plausible wrong value instead of an error",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/bxl-authoring/SKILL.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/bxl-authoring/SKILL.md"
+        }
+      }
+    }
+  }
+}

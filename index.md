@@ -44,6 +44,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 
 - **[`boxel/`](skills/boxel/SKILL.md)** — Cardinal rules + 18 references for CardDef, FieldDef, templates, queries, formats, commands.
 - **[`boxel-workspace-cardinal-rules/`](skills/boxel-workspace-cardinal-rules/SKILL.md)** — Silent-failure trap checklist: rules that pass lint (and often indexing), then corrupt the realm index, crash at render, or drop data with no error. Mandatory pre-flight read for any card work (see Pre-flight above); check every card/field against it before finishing.
+- **[`bxl-authoring/`](skills/bxl-authoring/SKILL.md)** — Writing BXL in a card's `computeVia`: which of the three call-site forms to reach for, what the `derive` profile refuses, aggregating over linked and query-backed collections, and the traps that produce a plausible wrong value instead of an error.
 - **[`source-code-editing/`](skills/source-code-editing/SKILL.md)** — SEARCH/REPLACE block format. Required before any `.gts` edit.
 - **[`ember-best-practices/`](skills/ember-best-practices/SKILL.md)** — Ember.js performance + accessibility rules (59 rules across 10 categories) for writing, reviewing, or refactoring Ember code.
 
