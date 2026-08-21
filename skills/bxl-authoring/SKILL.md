@@ -22,10 +22,9 @@ export class Claim extends CardDef {
 }
 ```
 
-`@cardstack/bxl` is a platform module — the host serves it to card code, so the
-bare specifier is the import. Only the package root is card-facing. `expression`
-is the factory (`bxl` and `expr` are aliases); it compiles the source once when
-the class body runs, then evaluates it against the card instance on each read.
+`expression` is the factory (`bxl` and `expr` are aliases); it compiles the
+source once when the class body runs, then evaluates it against the card
+instance on each read.
 
 The rest of this skill is the decision layer and the trap list. For the full
 syntax surface — labels, row selectors, predicates, the Excel function matrix —
