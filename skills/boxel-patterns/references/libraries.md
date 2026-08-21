@@ -140,12 +140,11 @@ import { modifier } from 'ember-modifier';
 import { expression, fx, jq } from '@cardstack/bxl';
 ```
 
-The host serves this to card code, so the bare specifier is the import and
-nothing needs hosting in the workspace. `expression()` returns a function shaped
-for `computeVia`; `fx` and `jq` are the two source tags. Only the package root
-is card-facing. Writing the expressions themselves — tag choice, what the
-`derive` profile refuses, aggregation over linked collections, and the traps
-that yield a plausible wrong value — is `bxl-authoring`.
+Nothing needs hosting in the workspace. `expression()` returns a function shaped
+for `computeVia`; `fx` and `jq` are the two source tags. Writing the expressions
+themselves — tag choice, what the `derive` profile refuses, aggregation over
+linked collections, and the traps that yield a plausible wrong value — is
+`bxl-authoring`.
 
 ### Utility
 
