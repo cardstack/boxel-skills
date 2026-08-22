@@ -30,6 +30,8 @@ Match the user's intent to a skill in the catalog below and read it before start
 
 Read it before you plan out loud. Describing a plan you have no tools to carry out, or asking the user to switch modes by hand, means this step was skipped.
 
+**Reports go in Rich Markdown, not a new card.** When a task asks for a report, summary, briefing, or dashboard-style document, read [`skills/rich-markdown-reports/SKILL.md`](skills/rich-markdown-reports/SKILL.md) before deciding how to build it — the default is a Rich Markdown `.md` file that embeds existing cards (custom or off-the-shelf), not a bespoke card definition authored just to present the report.
+
 ## Skill-tree glossary
 
 [`skills/glossary.md`](skills/glossary.md) is the back-of-the-book reference — every term, concept, library, helper, host command, pattern, convention, and acronym used across the skills, with a one-line definition and a pointer to the deeper file. Scan it when you're not sure what a term means or where it's documented. **Update this file whenever a skill, reference, pattern, extension, or convention is added, renamed, or removed.**
@@ -54,6 +56,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
 - **[`boxel-flavored-markdown/`](skills/boxel-flavored-markdown/SKILL.md)** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
 - **[`boxel-markdown-format/`](skills/boxel-markdown-format/SKILL.md)** — Static `markdown` template format with `markdownEscape` and helpers.
+- **[`rich-markdown-reports/`](skills/rich-markdown-reports/SKILL.md)** — **For a report/summary/dashboard, compose Rich Markdown that embeds existing cards** rather than authoring a bespoke card definition to present it. Read when a document-style deliverable is requested.
 - **[`boxel-skill-authoring/`](skills/boxel-skill-authoring/SKILL.md)** — Writing user-authored skills: the SKILL.md format contract (`boxel.kind: skill` frontmatter), tool declarations, placement, and the verify loop.
 
 ### Runtime

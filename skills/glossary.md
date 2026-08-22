@@ -342,6 +342,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-file-def`** — File-backed fields (`FileDef`, `ImageDef`, etc.).
 - **`boxel-flavored-markdown`** — BFM authoring with directives + fenced renderers.
 - **`boxel-markdown-format`** — Static `markdown` template output format.
+- **`rich-markdown-reports`** — For reports/summaries/dashboards, compose a Rich Markdown `.md` that embeds existing cards (custom or off-the-shelf) instead of authoring a bespoke CardDef to present it.
 - **`boxel-create-edit-cards`** — Thin pointer skill; content lives at `boxel-environment/references/card-tool-selection.md` (create/edit tool tables, file naming, path rules).
 - **`boxel-skill-authoring`** — SKILL.md format contract for user-authored skills: `boxel.kind: skill` frontmatter, tool declarations, verify loop.
 - **`boxel-workspace-cardinal-rules`** — Silent-failure trap checklist (DateField vs DateTimeField formats, external URLs in relationship links, `linksToMany` indexed keys, …); partially overlaps the `boxel` skill's cardinal rules under its own numbering.
