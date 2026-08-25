@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "notes": null,
+        "name": "Boxel Workspace Cardinal Rules",
+        "summary": "Silent-failure traps in Boxel card authoring — rules that pass lint and often indexing, then corrupt the realm index, crash at render, freeze the whole app, or drop data with no error. Check every card and field against this list before finishing",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/boxel-workspace-cardinal-rules/SKILL.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/boxel-workspace-cardinal-rules/SKILL.md"
+        }
+      }
+    }
+  }
+}

@@ -131,11 +131,11 @@ link) into `attributes` passes lint and writes successfully — then **every rea
 instance throws** `linkTo field 'theme' cannot deserialize non-relationship value null`
 until the raw JSON is repaired by hand.
 
-## 11. Anything a template invokes must be an arrow-function property, never a class method
+## 11. Any function a template *calls* must be an arrow-function property, never a class method
 
 When a template calls a component function — as a helper (`{{if (this.isActive
 note) ...}}`) or via `{{fn}}` — Glimmer invokes the plain function **without
-binding `this`**. Card modules run in strict mode, so inside a class *method*
+binding `this`**. A class body is always strict mode, so inside a class *method*
 `this` is `undefined` and the first property access throws — **during render**,
 which poisons Ember's renderer beyond recovery: the whole application freezes
 and only a page reload brings it back. The code passes lint, often passes
@@ -150,3 +150,9 @@ isActive(note: string) { return this.activeNotes.has(note); }
 // right
 isActive = (note: string) => this.activeNotes.has(note);
 ```
+
+Getters are safe: the template reads them off `this` (`{{this.safeTitle}}`,
+`{{#if this.showComments}}`), so they never lose their receiver — the trap is
+only functions the template detaches and calls. `@action` methods also bind
+correctly and are safe in call position; arrow properties are the convention
+in this repo.
