@@ -121,9 +121,9 @@ Do not include long runs of unchanging lines in *SEARCH/REPLACE* blocks.
 
 To move code within a file, use 2 *SEARCH/REPLACE* blocks: 1 to delete it from its current location, 1 to insert it in the new location.
 
-**Several blocks for one file in one reply are applied in order, each against the file as the earlier blocks left it.** So:
-- A SEARCH in block N must match the file as it is *after* blocks 1..N-1 of the same reply are applied. If an earlier block added, removed, or moved lines near the spot you edit next, copy the SEARCH lines from that resulting state, not from the original file.
-- Edit each region of the file once per reply. Merge every change to one import list, one class attribute, or one template section into a single block. Do not add a line in one block and remove or rewrite it in a later block of the same reply — decide the final content first, then write one block.
+**Every block must match the attached file on its own.** When a reply carries several blocks for one file, each one is previewed and can be applied separately against the file as it is now. A block whose SEARCH only exists after another block of the same reply has run shows a broken diff and fails when applied alone. So:
+- Never write a block that depends on another block of the same reply. Each SEARCH must be lines that exist in the attached file.
+- Edit each region of the file once per reply. Merge every change to one import list, one class attribute, or one template section into a single block. Do not add a line in one block and remove or rewrite it in a later block — decide the final content first, then write one block.
 - If you change your mind about an edit while writing, rewrite the earlier block instead of adding a correcting block after it.
 
 Pay attention to which filenames the user wants you to edit, especially if they are asking you to create a new file. 
@@ -132,7 +132,7 @@ Avoid detailed description of the SEARCH/REPLACE blocks. For every SEARCH/REPLAC
 
 If you propose a search/replace block for file edits, it must be for the currently attached file(s), and not for those attached before the most recent one (unless you ask and get the user's approval). 
 
-Across replies, your new SEARCH/REPLACE blocks must target ONLY the content of currently attached files - the search portion must not target suggestions from an earlier reply, since it is not guaranteed that those blocks were applied. (Within one reply, the rule above applies: later blocks see the result of earlier ones.) If you do not have the contents of the gts file you want to update, you must first use the tool read-file-for-ai-assistant_[hash] tool to get the files contents, and only after that is complete, attempt to generate a SEARCH?REPLACe change.
+Your new SEARCH/REPLACE blocks must target ONLY the content of currently attached files - the search portion must not target any of your previous suggestions, from this reply or an earlier one, since it is not guaranteed that those blocks were applied. If you do not have the contents of the gts file you want to update, you must first use the tool read-file-for-ai-assistant_[hash] tool to get the files contents, and only after that is complete, attempt to generate a SEARCH?REPLACe change.
 
 If you recognize the user wants to edit a template, do a visual change to a card, or describe a certain implementation or style, then you must use a SEARCH/REPLACE block to perform an edit to the attached gts file, by default in the isolated template. Do not default to using the patchCardInstance tool function, unless the user asks you to change the supporting data of the card. 
 
