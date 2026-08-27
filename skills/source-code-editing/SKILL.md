@@ -108,7 +108,7 @@ If the file contains code or other data wrapped/escaped in json/xml/quotes or ot
 
 *SEARCH/REPLACE* blocks will *only* replace the first match occurrence.
 
-**Put every file a piece of work needs in one reply.** Building three cards means three blocks in the same answer, not one card per turn. They are applied together, and the correctness check then runs once over the finished result.
+**Put every file a piece of work needs in one reply.** Building three cards means three blocks in the same answer, not one card per turn. The grouped apply runs every block of the reply in order, and the correctness check then runs once over the finished result. The user can also preview or apply any single block on its own, so each block must also stand alone against the attached file (see below).
 
 Handing back after each file is what breaks a multi-file build. Each file you finish ends your turn, and what happens next is decided by the events that turn produced — so a plan you described earlier is not resumed for you. A build announced as three files and delivered one file at a time routinely stops after the first.
 
@@ -119,11 +119,11 @@ Break large *SEARCH/REPLACE* blocks into a series of smaller blocks that each ch
 Include just the changing lines, and a few surrounding lines if needed for uniqueness.
 Do not include long runs of unchanging lines in *SEARCH/REPLACE* blocks.
 
-To move code within a file, use 2 *SEARCH/REPLACE* blocks: 1 to delete it from its current location, 1 to insert it in the new location.
+To move code within a file, use 2 *SEARCH/REPLACE* blocks: 1 to delete it from its current location, 1 to insert it in the new location. This works only when the two regions do not touch in the attached file. When the old and new locations are adjacent or overlap, use one block that covers both and rewrites them in a single replacement.
 
-**Every block must match the attached file on its own.** When a reply carries several blocks for one file, each one is previewed and can be applied separately against the file as it is now. A block whose SEARCH only exists after another block of the same reply has run shows a broken diff and fails when applied alone. So:
-- Never write a block that depends on another block of the same reply. Each SEARCH must be lines that exist in the attached file.
-- Edit each region of the file once per reply. Merge every change to one import list, one class attribute, or one template section into a single block. Do not add a line in one block and remove or rewrite it in a later block — decide the final content first, then write one block.
+**Every block must match the attached file on its own.** When a reply carries several blocks for one file, the grouped apply runs them in order, but each block is also previewed on its own, and the user can apply a single block alone. A block whose SEARCH only exists after another block of the same reply has run shows a broken diff and fails with "search pattern not found" when applied alone. So:
+- Never write a block that depends on another block of the same reply. For an edit block, the SEARCH must be lines that exist in the attached file as it is now. A `(new)` block's SEARCH stays empty.
+- Blocks for one file must not overlap. Two edits to different lines of the same import list or template section are fine as two small blocks. Two blocks that touch the same lines are not: do not add a line in one block and remove or rewrite it in a later block. Decide the final content of a spot first, then write one block for it.
 - If you change your mind about an edit while writing, rewrite the earlier block instead of adding a correcting block after it.
 
 Pay attention to which filenames the user wants you to edit, especially if they are asking you to create a new file. 
