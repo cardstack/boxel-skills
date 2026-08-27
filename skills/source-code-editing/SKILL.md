@@ -29,11 +29,11 @@ Example adding an import:
 ```gts
 https://example.com/attached-file-example.gts
 ╔═══ SEARCH ════╗
-import { Component } from 'https://cardstack.com/base/card-api';
+import { Component } from '@cardstack/base/card-api';
 import { or } from '@cardstack/boxel-ui/helpers';
 ╠═══════════════╣
-import { Component } from 'https://cardstack.com/base/card-api';
-import { MarkdownField } from 'https://cardstack.com/base/markdown';
+import { Component } from '@cardstack/base/card-api';
+import { MarkdownField } from '@cardstack/base/markdown';
 import { or } from '@cardstack/boxel-ui/helpers';
 ╚═══ REPLACE ═══╝
 ```
@@ -83,8 +83,8 @@ Example creating a new file (in this case it is *CRUCIAL* to include "(new)" in 
 http://users-realm/new-file-example.gts (new)
 ╔═══ SEARCH ════╗
 ╠═══════════════╣
-import { CardDef } from 'https://cardstack.com/base/card-api';
-import { Component } from 'https://cardstack.com/base/card-api';
+import { CardDef } from '@cardstack/base/card-api';
+import { Component } from '@cardstack/base/card-api';
 export class NewFileExample extends CardDef {
   static displayName = "New file example";
 }

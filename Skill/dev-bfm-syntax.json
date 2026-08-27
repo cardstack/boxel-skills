@@ -15,13 +15,13 @@
     "meta": {
       "adoptsFrom": {
         "name": "SkillPlusMarkdown",
-        "module": "https://cardstack.com/base/skill-plus"
+        "module": "@cardstack/base/skill-plus"
       }
     },
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "https://cardstack.com/base/Theme/cardstack-brand-guide"
+          "self": "@cardstack/base/Theme/cardstack-brand-guide"
         }
       },
       "instructionsSource": {
