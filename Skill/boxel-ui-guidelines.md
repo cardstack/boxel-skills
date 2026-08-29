@@ -181,6 +181,8 @@ var(--boxel-caption-font-weight)
 var(--boxel-caption-line-height)
 ```
 
+**Take the whole role group, don't assemble one.** When text needs a size *and* a matching line-height, use the four tokens of its semantic role rather than reaching into the primitive ladder and hand-writing the pair — `font-size: var(--boxel-font-size-xs); line-height: calc(15 / 11);` should be `var(--boxel-caption-font-size)` + `var(--boxel-caption-line-height)`. The role group stays internally consistent and re-scales with the theme; a hand-computed `calc()` line-height silently stops matching the moment the theme's type scale changes.
+
 #### Low-level typography tokens
 
 Note: The font-family, font-sizes, spacing, radius will be recalculated based on the linked card in cardInfo.theme. Below values are defaults.
@@ -238,6 +240,8 @@ var(--boxel-transition)        /* 0.2s ease */
 ### Primitive Color Tokens — Do Not Use for Brand/Theme
 
 Do NOT use these for brand or theme colors — they are hardcoded and not theme-aware. Prefer semantic variables above. These exist only as low-level primitives:
+
+**Concrete failure mode — the grays as text color.** `color: var(--boxel-500)` for "muted" text looks correct in light mode and goes **illegible in dark mode**: the gray stays put while the surface flips dark, collapsing contrast. This is the most common way the primitives leak in, because a mid-gray reads as a safe, neutral choice. Muted text is always `var(--muted-foreground)` — it is defined per theme precisely so it moves with the surface. If you need de-emphasis *relative to whatever color is inherited*, derive it (`opacity`, or `color-mix(in oklab, currentColor 60%, transparent)`) rather than naming a fixed gray.
 
 ```css
 /* Grays */
@@ -572,6 +576,38 @@ The base `field-component` provides named containers automatically — you do no
 
 For isolated templates, the parent does not provide a named container — declare `container-type: inline-size` with a name on your own root element and use that name in `@container` rules.
 
+### Override tokens in the query, not the rules
+
+When a value changes at a breakpoint, declare it once as a custom property on the composition root and have the `@container` block reassign only the property. Do not re-declare the rule that consumes it.
+
+**Wrong** — the same value lives in two rule blocks per breakpoint, and every consuming rule has to be repeated:
+```css
+.meta-strip { gap: 1.25rem 2.5rem; }
+@container hero (inline-size <= 500px) {
+  .meta-strip { gap: 1.125rem 1.5rem; }   /* duplicated selector + property */
+}
+```
+
+**Right** — the breakpoint block is a short list of value changes:
+```css
+.hero-inner {
+  --meta-strip-gap: 1.25rem 2.5rem;
+  --meta-strip-margin-top: 4.5rem;
+}
+.meta-strip {
+  gap: var(--meta-strip-gap);
+  margin-top: var(--meta-strip-margin-top);
+}
+@container hero (inline-size <= 500px) {
+  .hero-inner {
+    --meta-strip-gap: 1.125rem 1.5rem;
+    --meta-strip-margin-top: 3.5rem;
+  }
+}
+```
+
+This keeps each responsive value in one place, makes the breakpoint block readable as "what changes at this size," and scales without duplicating selectors as breakpoints accumulate. Declare the defaults on the root per the fallback rule above — bare `var()` reads below, no inline fallbacks.
+
 **Named containers are safer in nested situations.** An anonymous `@container` matches the nearest ancestor with any `container-type`, which could be an unintended intermediate container. `@container fitted-card (...)` skips anonymous containers and always resolves to the nearest ancestor with that specific name — so nested fitted cards each correctly target their own wrapper.
 
 ## Prevent Content Overflow
@@ -649,7 +685,7 @@ import {
 - `DateRangePicker` — date range selection
 
 **Buttons & Actions:**
-- `Button` — primary action button (use `@kind` for primary/secondary/muted/destructive/text-only; use `@size` for `auto, base, extra-small, small, tall, touch)
+- `Button` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
 - `IconButton` — icon-only button (use `@variant` for primary/secondary/muted/destructive/text-only, `@size` for `auto, base, extra-small, small, tall, touch)
 - `ContextButton` — contextual action button (`@icon` for add, edit, close, delete, context-menu, context-menu-vertical; `@variant` for highlight, highlight-icon, ghost, destructive, destructive-icon)
 - `CopyButton` — copy-to-clipboard
@@ -679,6 +715,91 @@ import {
 - `Message` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `DragAndDrop` — drag-and-drop interface
+
+### Don't neutralize a component — pick the variant
+
+If styling a boxel-ui component requires cancelling its own defaults, you picked the wrong component or the wrong variant. The tell is a `<style scoped>` block that zeroes out what the component brought:
+
+**Wrong** — `Pill` stripped down to plain text, then re-styled from scratch:
+```gts
+<Pill class='meta-link' @tag={{if @model.url.length 'a'}} href={{@model.url}}>
+  <:default><@fields.label /></:default>
+</Pill>
+<style scoped>
+  .meta-link {
+    padding: 0;          /* fighting the component */
+    background: none;    /* fighting the component */
+    border: none;        /* fighting the component */
+    color: var(--boxel-500);
+    font-size: 0.75rem;
+  }
+</style>
+```
+
+**Right** — a variant that already has no chrome, leaving only genuinely bespoke declarations:
+```gts
+<Button class='meta-link' @as='anchor' @kind='link-muted' @size='extra-small' @href={{@model.url}}>
+  <@fields.label />
+</Button>
+<style scoped>
+  .meta-link {
+    font-family: var(--font-mono);
+    text-transform: uppercase;   /* nothing the component already provides */
+  }
+</style>
+```
+
+Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's API first and look through `@kind` / `@variant` / `@size` before writing a single override.
+
+**Component args are not portable between components.** `@as` and `@href` are `Button`'s args. `Pill` has no `@as` — it takes `@tag` (a raw HTML tag name) and receives `href` as a plain attribute through `...attributes`. Never carry one component's arg names to another; check the signature.
+
+### An optional `@href` is a decision, not a detail
+
+`Button @as='anchor'` renders an `<a>`, and an `<a>` with no `href` is not a link — it isn't focusable and reads as generic text. `Button` also *styles* that state as disabled (`a.boxel-button:not([href])`, `[href='']`, `.disabled-link` → `opacity: 0.5`, disabled colour, `pointer-events: none`), so a conditionally-empty `@href` produces a faded element that looks deliberate and passes review as if it were designed.
+
+So whenever a url-ish field is optional, decide which of these the **data model** intends. They look nearly identical on screen; the difference is what the markup claims is true.
+
+**Case 1 — the link is meant to exist but isn't available yet.** Unpublished URL, gated resource, "coming soon". A disabled link is precisely what this is, so say so with `@disabled` rather than letting an absent `href` imply it:
+
+```gts
+<Button
+  class='meta-link'
+  @as='anchor'
+  @kind='link-muted'
+  @size='extra-small'
+  @href={{@model.url}}
+  @disabled={{not @model.url.length}}
+><@fields.label /></Button>
+```
+
+**Case 2 — the field is optional and some items are plain labels.** Nothing is disabled; no action could ever become available. Render a non-anchor element and state the de-emphasis directly, so the appearance isn't coupled to a control state:
+
+```gts
+{{#if @model.url.length}}
+  <Button class='meta-link' @as='anchor' @kind='link-muted' @size='extra-small' @href={{@model.url}}>
+    <@fields.label />
+  </Button>
+{{else}}
+  <span class='meta-link meta-link--static'><@fields.label /></span>
+{{/if}}
+```
+
+When you branch like this the non-component element does **not** inherit the component's `@size` metrics — declare shared `font-size`/`line-height` on the class both branches carry, or the two render at different sizes.
+
+Getting this wrong is not cosmetic. Once `Button` announces its disabled links to assistive tech (below), a Case 2 item written as Case 1 stops being merely silent and starts telling screen-reader users that a plain label is an unavailable link.
+
+> **Version note (2026-07, [CS-12305](https://linear.app/cardstack/issue/CS-12305/upstream-portable-homepage-modules-to-boxel-ui)).** `Button`'s anchor branch currently suppresses the `href` and nothing else — it sets no `disabled` attribute and no `aria-disabled` — so the disabled state is **visual-only for every caller**, and `@disabled={{true}}` on an anchor yields DOM identical to just omitting `href`. Until CS-12305 lands, Case 1 should also pass `aria-disabled={{unless @model.url.length 'true'}}` by hand. Delete that argument once `Button` sets it itself, and delete this note with it.
+
+### Collapse wrapper FieldDefs instead of flattening them with `:deep()`
+
+`:deep()` and `display: contents` are for **host-generated** DOM you cannot remove. If the wrapper is a FieldDef *you* introduced, delete it instead. Two signals it isn't a real grouping level:
+
+- The instance data shows a `containsMany` of wrapper fields that each hold exactly **one** item. That's not a group, it's indirection.
+- You are reaching **across a scoped-style boundary** — a selector in the parent's `<style scoped>` targeting a class defined in a child FieldDef's own template. Scoped styles exist to prevent that; needing it means the split is in the wrong place.
+
+Point the parent's `containsMany` at the leaf field directly and migrate the instance JSON to match. A real example: `linkStrip = containsMany(LinkGroupField)` where every `LinkGroupField` held one `LinkField` collapsed to `containsMany(LinkField)` — removing a `:deep(.containsMany-item) { display: contents }` rule, a `:deep(.compound-field.embedded-format)` rule, the wrapper's own flex block, and a cross-scope `gap` override, with no behavior change.
+
+Also prefer `@displayContainer={{false}}` on the field render over hand-written `display: contents` when all you want is chrome removal, and don't add a wrapper `<div>` whose only job is to carry a margin — put the margin on the element that already exists.
 
 ### When a component is missing from boxel-ui
 
@@ -717,4 +838,9 @@ Before finalizing any card template, verify:
 - [ ] DOM queries in interactions/animations are scoped to the component's own subtree (`element.closest('.boxel-card-container')` as query root), never the document — the same card can render in multiple stacks on one page; JS query hooks are dedicated data attributes, not class names and not `data-test-*` (tests only)
 - [ ] Prefers `<@fields.field />` for all simple field rendering; `@model.x` for conditionals, HTML attributes, context-specific fallback value, and JS getters
 - [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
+- [ ] No overrides that cancel a boxel-ui component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Pill`/`Button`) — pick the `@kind`/`@variant`/`@size` that already has no chrome (e.g. `Button @kind='link-muted'`) and keep only genuinely bespoke declarations
+- [ ] An optional `@href` on `Button @as='anchor'` is resolved deliberately, not left to imply itself — either the link genuinely exists but is unavailable (pass `@disabled`) or the item is a plain label (render a non-anchor element, with shared `font-size`/`line-height` so both branches match). A hrefless `<a>` is not a link and is styled as disabled either way, so silence here misstates the item
+- [ ] Primitive grays (`--boxel-100`…`--boxel-700`) not used as text color — they don't flip with dark mode and go illegible; muted text is `var(--muted-foreground)`, relative de-emphasis is `opacity` or `color-mix(… currentColor …)`
+- [ ] `:deep()` / `display: contents` used only on host-generated field DOM — a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
+- [ ] Responsive values overridden as custom properties on the composition root inside `@container`, not by re-declaring the consuming rule at each breakpoint
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`
