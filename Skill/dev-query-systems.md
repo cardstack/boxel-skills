@@ -67,6 +67,29 @@ const query = {
 });
 ```
 
+**Where a query-backed field is current, and where it is not:**
+
+A query-backed relationship resolves when its owner card is loaded and re-resolves when a realm event reports a matching card changed, so it is correct on every surface that loads the card — a rendered card, a hydrated search row, anything reading the field in JS.
+
+The **indexed document** is the exception. A card is reindexed when something it depends on changes, and a card the query merely *matched* is deliberately not a dependency of the card holding the query — making it one would turn every write in a realm into an invalidation of every card whose query might match it. So a query-backed relationship, and anything computed from one, is not refreshed in the index when matching cards change.
+
+That lands on the single most natural thing to write with this feature:
+
+```ts
+@field itemCount = contains(NumberField, {
+  computeVia: function (this: Board) {
+    return this.items?.length ?? 0;
+  },
+});
+```
+
+`itemCount` is correct whenever the card is loaded. In the indexed document it holds the value from the last time the card itself was written — adding or removing a matching card does not move it. A count seeded at `0` before any match existed is the worst version of this, since `0` is also a real answer.
+
+So:
+
+- **Read the number from a loaded card**, and gate on `getRelationshipMembershipState(this, 'items').isLoaded` before trusting it — see the **Relationship Loading State** skill.
+- **When a number must be correct in the index** — because another card reduces over it, or an assistant reads it out of the search doc without loading the card — hold the links explicitly and annotate them: `linksToMany(Item, { searchable: true })` with the `computeVia` over that. An explicit annotated link is a real dependency, so writing a linked card reindexes the holder.
+
 **When to use what to query cards:**
 - Display a list of results (cards or files) → render with `@context.searchResultsComponent` (the `<SearchResults>` component). It prefers fast prerendered HTML and falls back to a live card per result — you never branch on which.
 - Need the instances in JS (read / manipulate) → `getCards` (reactive) or `@context.store.search` (imperative, returns instances)
