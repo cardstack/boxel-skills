@@ -156,3 +156,16 @@ Getters are safe: the template reads them off `this` (`{{this.safeTitle}}`,
 only functions the template detaches and calls. `@action` methods also bind
 correctly and are safe in call position; arrow properties are the convention
 in this repo.
+
+## 12. A URL pointing at a realm resource is never a StringField/UrlField
+
+The complement of rule 2. If a field's value is the URL of a card instance or a
+realm file — an absolute realm URL, a relative path like `../Theme/foo`, or any
+URL a realm serves — model it as `linksTo` / `linksToMany` (a `FileDef` subtype
+for files), never as a `StringField` or `UrlField` attribute. The string version
+writes fine, indexes fine, and even renders as a clickable link — then rots
+silently: the index never invalidates the referrer when the target changes,
+broken-link diagnostics can't see it, `<@fields.X />` can't render the target,
+and queries can't traverse it. When the target moves or is deleted, nothing
+reports the dangling reference. `UrlField` is for external (non-realm) URLs
+only; realm-resource references always go through a relationship.
