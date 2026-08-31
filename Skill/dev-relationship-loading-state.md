@@ -20,15 +20,17 @@ import { getRelationshipMembershipState } from '@cardstack/base/card-api';
 
 ### Why there are two booleans
 
-A query-backed field that nothing has resolved reports `isLoading: false` and no membership, which reads exactly like a settled empty result. `isLoaded` separates them, so the three states are:
+A query-backed field that nothing has resolved reports `isLoading: false` and no membership, which reads exactly like a settled empty result. `isLoaded` separates them. For a **query-backed** field the three states are:
 
 | | `isLoading` | `isLoaded` |
 | -- | -- | -- |
-| a fetch or search is running | `true` | `false` |
+| a search is running | `true` | `false` |
 | nothing has resolved this field | `false` | `false` |
 | membership is final (possibly empty) | `false` | `true` |
 
 Bind `isLoading` to a spinner; branch on `isLoaded` before treating `field.length` or a `computeVia` reduction over the field as an answer.
+
+A **declared** link has no middle state: its membership is the reference list in the card's own document, known the moment the owner deserializes, so `isLoaded` is true from then on. It says the reference list is final — **not** that the targets are loaded. Whether an individual target is resident is `membership[i].kind`, covered in the **Defensive Link Traversal** skill.
 
 ## Driving a spinner from a template
 
@@ -67,7 +69,15 @@ While the search runs, `matchesLoading` is `true` and the spinner shows; when re
 
 `getRelationshipMembershipState` **only monitors**; it never starts a load. What that means depends on the kind of field.
 
-A **query-backed** field resolves as soon as its owner card is loaded, so its status is meaningful whether or not anything renders the field.
+A **query-backed** field resolves with its owner card in the interactive app, so its status is meaningful there whether or not anything renders the field. During indexing and prerender it resolves lazily, exactly like a declared link — so **never make reading the field conditional on its own status**:
+
+```hbs
+{{!-- ❌ BROKEN in prerendered HTML — nothing reads `items`, so during indexing
+      the search never starts, isLoaded stays false, and the count is absent --}}
+{{#if @model.itemsLoaded}}{{@model.itemCount}}{{/if}}
+```
+
+Read the field unconditionally and let the status choose how to *present* it, not whether to touch it.
 
 A **declared** `linksTo` / `linksToMany` loads its targets lazily, and **the thing that kicks off that load is reading the field itself**. A template that shows a spinner for a declared link must also render the link. Bind `isLoading` but never touch the field and the load never starts, so `isLoading` stays `false` and the spinner never appears.
 
@@ -89,7 +99,7 @@ A query-backed field resolves with its owner by default. Pass `eager: false` whe
 
 ```ts
 @field everyActivity = linksToMany(() => Activity, {
-  query: { filter: { eq: { classroom.id: '$this.id' } } },
+  query: { filter: { eq: { 'classroom.id': '$this.id' } } },
   eager: false,
 });
 ```

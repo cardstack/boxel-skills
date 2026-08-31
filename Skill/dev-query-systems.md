@@ -69,9 +69,9 @@ const query = {
 
 **Where a query-backed field is current, and where it is not:**
 
-A query-backed relationship resolves when its owner card is loaded and re-resolves when a realm event reports a matching card changed, so it is correct on every surface that loads the card — a rendered card, a hydrated search row, anything reading the field in JS.
+A query-backed relationship resolves when its owner card is loaded and re-resolves when a realm event reports a matching card changed, so it is correct on every surface that loads the card — a live card, a hydrated search row, anything reading the field in JS.
 
-The **indexed document** is the exception. A card is reindexed when something it depends on changes, and a card the query merely *matched* is deliberately not a dependency of the card holding the query — making it one would turn every write in a realm into an invalidation of every card whose query might match it. So a query-backed relationship, and anything computed from one, is not refreshed in the index when matching cards change.
+Anything produced at **index time** is the exception — the indexed document, and the prerendered HTML built from it. (A search row is prerendered HTML until it hydrates, so it shows the index-time value until then.) A card is reindexed when something it depends on changes, and a card the query merely *matched* is deliberately not a dependency of the card holding the query — making it one would turn every write in a realm into an invalidation of every card whose query might match it. So a query-backed relationship, and anything computed from one, is not refreshed in the index when matching cards change.
 
 That lands on the single most natural thing to write with this feature:
 
@@ -83,12 +83,15 @@ That lands on the single most natural thing to write with this feature:
 });
 ```
 
-`itemCount` is correct whenever the card is loaded. In the indexed document it holds the value from the last time the card itself was written — adding or removing a matching card does not move it. A count seeded at `0` before any match existed is the worst version of this, since `0` is also a real answer.
+On a loaded card `itemCount` counts what the field holds. In the indexed document it holds the value as of the last time the card was indexed — adding or removing a matching card does not move it. A count indexed as `0` before any match existed is the worst version of this, since `0` is also a real answer.
+
+**A query-backed field holds one page of results, not the whole match set.** `length` therefore saturates at the field's declared `page.size`, and at the server's ceiling when the query declares none — so it is a page count, not a match count. For a true total, run the query with `getCards` in a component and read `meta.page.total`, which is not page-bounded.
 
 So:
 
-- **Read the number from a loaded card**, and gate on `getRelationshipMembershipState(this, 'items').isLoaded` before trusting it — see the **Relationship Loading State** skill.
-- **When a number must be correct in the index** — because another card reduces over it, or an assistant reads it out of the search doc without loading the card — hold the links explicitly and annotate them: `linksToMany(Item, { searchable: true })` with the `computeVia` over that. An explicit annotated link is a real dependency, so writing a linked card reindexes the holder.
+- **Read the number from a loaded card**, and gate on `getRelationshipMembershipState(this, 'items').isLoaded` before trusting it — see the **Relationship Loading State** skill. Read the field unconditionally and let the status decide how to present the number; making the read itself conditional means it never resolves during indexing.
+- **When a number must be correct in the index** — because another card reduces over it, or an assistant reads it out of the search doc without loading the card — hold the links explicitly: `linksToMany(Item)`, with the `computeVia` over that. Membership then lives in the card's own document, so adding or removing an item rewrites that card and reindexes it.
+- **Add `searchable: true` only when the rollup reads fields *of* the targets** (summing `item.price` rather than counting items). That is what puts target data in the search doc, and it is also what makes each target a dependency — which is the fan-out described above, now paid deliberately for one field.
 
 **When to use what to query cards:**
 - Display a list of results (cards or files) → render with `@context.searchResultsComponent` (the `<SearchResults>` component). It prefers fast prerendered HTML and falls back to a live card per result — you never branch on which.
