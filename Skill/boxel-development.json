@@ -124,7 +124,7 @@
         },
         {
           "inclusionMode": "full",
-          "contentSummary": "linksTo / linksToMany slots read as Card | undefined during the lazy-load window and on broken links; guard patterns for computeds, templates, and helpers (optional chaining, == null skips, ?. in maps, filter before render); getRelationship for structured per-slot state",
+          "contentSummary": "linksTo / linksToMany slots read as Card | undefined during the lazy-load window and on broken links; guard patterns for computeds, templates, and helpers (optional chaining, == null skips, ?. in maps, filter before render); getRelationshipMembershipState for structured per-slot state",
           "alternateTitle": "Defensive Link Traversal"
         },
         {

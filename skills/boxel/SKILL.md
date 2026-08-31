@@ -102,7 +102,7 @@ Core syntax and patterns (load when topic comes up):
 - `references/data-management.md` — File organization, JSON instance format, field value patterns, relationships.
 - `references/card-references.md` — `links.self` shapes: relative (`./Foo/bar` / `../Foo/bar`) vs absolute vs registered-prefix; FileDef-typed relationships need the file extension; `$REALM` and `@cardstack/...` rules; common silent-failure modes.
 - `references/defensive-programming.md` — Optional chaining, default values, try/catch, array validation.
-- `references/defensive-link-traversal.md` — Reading `linksTo`/`linksToMany` is not like `contains`: a linked slot reads `undefined` while loading and forever if broken. The per-slot contract, `linksToMany` `undefined` holes (`arr.length` unchanged), `.filter(Boolean)` before count/render, and `getRelationship`/`RelationshipState` for distinguishing loading vs broken.
+- `references/defensive-link-traversal.md` — Reading `linksTo`/`linksToMany` is not like `contains`: a linked slot reads `undefined` while loading and forever if broken. The per-slot contract, `linksToMany` `undefined` holes (`arr.length` unchanged), `.filter(Boolean)` before count/render, and `getRelationshipMembershipState`/`RelationshipState` for distinguishing loading vs broken.
 - `references/relationship-loading-state.md` — `getRelationshipMembershipState(this, 'field').isLoading`: a live, tracked per-field boolean for driving a spinner (flagship: query-backed `linksToMany`). Observe-only — the template must also read the field or the load never starts.
 
 Subsystems (load when used):
