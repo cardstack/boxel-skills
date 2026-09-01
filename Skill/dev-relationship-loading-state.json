@@ -11,7 +11,7 @@
       "cardInfo": {
         "notes": null,
         "name": "Relationship Loading State",
-        "summary": "Render a live progress indicator for query-backed linksToMany (and any linksTo / linksToMany) via getRelationshipMembershipState().isLoading",
+        "summary": "Read relationship status via getRelationshipMembershipState() — isLoading to drive a progress indicator, isLoaded to know a count or reduction over the field can be trusted; plus the eager option on a query-backed field",
         "cardThumbnailURL": null
       },
       "commands": []

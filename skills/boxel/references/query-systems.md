@@ -168,6 +168,30 @@ const query: Query = {
 });
 ```
 
+**Where a query-backed field is current, and where it is not:**
+
+A query-backed relationship resolves when its owner card is loaded and re-resolves when a realm event reports a matching card changed, so it is correct on every surface that loads the card. Anything produced at **index time** is the exception — the indexed document, and the prerendered HTML built from it. A card the query merely *matched* is deliberately not a dependency of the card holding the query (making it one would turn every write in a realm into an invalidation of every card whose query might match it), so a query-backed relationship, and anything computed from one, is not refreshed in the index when matching cards change.
+
+That lands on the most natural thing to write with this feature:
+
+```ts
+@field itemCount = contains(NumberField, {
+  computeVia: function (this: Board) {
+    return this.items?.length ?? 0;
+  },
+});
+```
+
+On a loaded card this counts what the field holds. In the indexed document it holds the value as of the last time the card was indexed. A count indexed as `0` before any match existed is the worst version, since `0` is also a real answer.
+
+**A query-backed field holds one page of results, not the whole match set** — on a loaded card a query with no `page` is clamped to the server ceiling, and one declaring a `page.size` above that ceiling is rejected with a 400 rather than trimmed. The bound applies to live reads; it is not applied during indexing. For a true total, run the query with `getCards` and read `meta.page.total`.
+
+So:
+
+- Read the number from a loaded card, gated on `getRelationshipMembershipState(this, 'items').isLoaded`. Read the field unconditionally — gating the read itself means it never resolves during indexing.
+- When a number must be correct in the index, hold the links explicitly (`linksToMany(Item)`) and compute over that: membership lives in the card's own document, so adding or removing an item rewrites and reindexes it.
+- Add `searchable: true` to that declared link only when the rollup reads fields *of* the targets (summing `item.price`, not counting items) — that is what puts target data in the doc, and what makes each target a dependency.
+
 **When to use what to query cards:**
 - Efficient display-only → `@context.searchResultsComponent` (the newer `<SearchResults>` surface; older builds used `PrerenderedCardSearch`)
 - Need data manipulation → `getCards`
