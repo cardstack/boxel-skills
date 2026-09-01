@@ -82,13 +82,18 @@ let { membership, isLoading, isLoaded, totalMatchCount, isPartial } =
   getRelationshipMembershipState(this, "everyActivity");
 ```
 
-|                   | means                                                      |
-| ----------------- | ---------------------------------------------------------- |
-| `membership`      | the rows the field is holding (`undefined` until resolved) |
-| `isLoading`       | a fetch or search is in flight — bind this to a spinner    |
-| `isLoaded`        | membership is settled                                      |
-| `totalMatchCount` | how many instances the query **matches**, page or no page  |
-| `isPartial`       | `true` when membership falls short of that count           |
+|                   | means                                                                       |
+| ----------------- | --------------------------------------------------------------------------- |
+| `membership`      | one `RelationshipState` per row the field holds (`undefined` until resolved) |
+| `isLoading`       | a fetch or search is in flight — bind this to a spinner                     |
+| `isLoaded`        | membership is settled                                                       |
+| `totalMatchCount` | how many instances the query **matches**, page or no page                   |
+| `isPartial`       | `true` when membership falls short of that count                            |
+
+`membership` is per-slot resolution state, not the cards themselves — read
+`this.everyActivity` for those. Each entry says whether its slot resolved, and
+to what; the states and how to traverse them safely are in
+[`boxel/references/defensive-link-traversal.md`](../boxel/references/defensive-link-traversal.md).
 
 Two traps in that table:
 
