@@ -15,6 +15,7 @@ import { getRelationshipMembershipState } from '@cardstack/base/card-api';
 ```
 
 - **`isLoading`** — a whole-field boolean, `true` while the field's data is actually being fetched (a declared link still loading, or a query field's search running). It is **live**: backed by tracked state, so a template bound to it re-renders the instant the load settles.
+- **`isLoaded`** — a whole-field boolean, `true` once membership is known and nothing is in flight. This is the one to gate on before reading a rollup over the field and trusting the number.
 - **`membership`** — the per-element resolution(s). For the loading-indicator use case you read `isLoading`; the per-slot states in `membership` are covered in [`defensive-link-traversal.md`](defensive-link-traversal.md).
 
 ### Why there are two booleans
@@ -33,7 +34,7 @@ For a **declared** link, `isLoaded` means nothing is being fetched right now: ev
 
 ## Deferring an expensive query with `eager: false`
 
-A query-backed field resolves with its owner by default. Pass `eager: false` when a field's query is expensive or rarely read, and its search runs on first access instead.
+A query-backed field resolves with its owner by default. Pass `eager: false` when a field's query is expensive or rarely read, and its search runs on first access instead; the declared-link rule above then applies to it too.
 
 ```ts
 @field everyActivity = linksToMany(() => Activity, {
@@ -114,12 +115,11 @@ A query-backed field is **live**: when its inputs change (here, `cardTitle`) the
 
 ## Key principles
 
-- `getRelationshipMembershipState(this, 'field').isLoading` is a **live, tracked boolean** — bind it in a template to show a progress indicator that updates on its own.
-- It is **observe-only**: reading the status never starts a load. Always read the field itself (`{{#each @model.field}}` / `{{@model.field}}`) alongside the spinner, or the load never begins and `isLoading` stays `false`.
-- **Never gate the read on the status.** A query-backed field resolves with its owner in the interactive app but lazily during indexing, so `{{#if @model.itemsLoaded}}{{@model.itemCount}}{{/if}}` renders nothing in prerendered HTML — the field is never read, so its search never starts.
-- `isLoaded` says membership is final; for a declared link that means the reference list, not the targets.
-- `eager: false` defers an expensive query-backed field to first access; the rule above then applies to it too.
+- `getRelationshipMembershipState(this, 'field')` returns **live, tracked booleans** — bind them in a template and the UI updates on its own.
+- `isLoading` drives a spinner; `isLoaded` says nothing is in flight, which is what to gate on before trusting a count or a reduction over the field. For a declared link every slot is then terminal (`error` and `not-found` included), and it is `false` while any target load is running.
+- It is **observe-only**: reading the status never starts a load. **Always render the field alongside its status, and never gate the read on it** — a query-backed field usually resolves with its owner, but not during indexing or prerender, not on a query field declared on a contained `FieldDef`, not on a card with no id yet, and not under `eager: false`.
 - The flagship use case is a **query-backed `linksToMany`** (a search-driven list): show a spinner while the search runs.
 - A declared `linksToMany` reports `isLoading: true` until **every** element settles.
 - A live query **re-enters** loading on each re-run; the spinner reappears for free.
+- `eager: false` defers an expensive query-backed field to first access; the rule above then applies to it too.
 - To read per-element state (present / loading / broken), see [`defensive-link-traversal.md`](defensive-link-traversal.md) — `membership` and `RelationshipState` are covered there.

@@ -128,10 +128,10 @@ A query-backed field is **live**: when its inputs change (here, `cardTitle`) the
 ## Key principles
 
 - `getRelationshipMembershipState(this, 'field')` returns **live, tracked booleans** — bind them in a template and the UI updates on its own.
-- `isLoading` drives a spinner; `isLoaded` says membership is final, which is what to gate on before trusting a count or a reduction over the field.
-- It is **observe-only**: reading the status never starts a load. A query-backed field resolves with its owner, so its status stands alone; a declared link needs the template to render the field (`{{#each @model.field}}` / `{{@model.field}}`) or its lazy load never begins.
+- `isLoading` drives a spinner; `isLoaded` says nothing is in flight, which is what to gate on before trusting a count or a reduction over the field. For a declared link every slot is then terminal (`error` and `not-found` included), and it is `false` while any target load is running.
+- It is **observe-only**: reading the status never starts a load. **Always render the field alongside its status, and never gate the read on it** — a query-backed field usually resolves with its owner, but not during indexing or prerender, not on a query field declared on a contained `FieldDef`, not on a card with no id yet, and not under `eager: false`.
 - The flagship use case is a **query-backed `linksToMany`** (a search-driven list): show a spinner while the search runs.
 - A declared `linksToMany` reports `isLoading: true` until **every** element settles.
 - A live query **re-enters** loading on each re-run; the spinner reappears for free.
-- `eager: false` defers an expensive query-backed field to first access.
+- `eager: false` defers an expensive query-backed field to first access; the rule above then applies to it too.
 - To read per-element state (present / loading / broken), see the **Defensive Link Traversal** skill — `membership` and `RelationshipState` are covered there.

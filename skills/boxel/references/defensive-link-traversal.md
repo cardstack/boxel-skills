@@ -179,7 +179,7 @@ Each `RelationshipState` carries:
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `'present'` \| `'not-loaded'` \| `'error'` \| `'not-found'` \| `'not-set'` |
+| `kind` | `'present'` \| `'not-loaded'` \| `'error'` \| `'not-found'` \| `'not-set'` — the single discriminator; branch on it |
 | `value` | the `Card` when `'present'`, else `undefined` |
 | `reference` | the target URL/id (absent for `'not-set'`) |
 | `errorDoc` | the upstream error, present on `'error'` / `'not-found'` |
