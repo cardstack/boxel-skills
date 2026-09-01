@@ -32,17 +32,6 @@ Bind `isLoading` to a spinner; branch on `isLoaded` before treating `field.lengt
 
 For a **declared** link, `isLoaded` means nothing is being fetched right now: every slot has reached a terminal state — `present`, but also `error`, `not-found` and `not-set`. It is `false` while any target load is in flight. Which slots hold a card is `membership[i].kind`.
 
-## Deferring an expensive query with `eager: false`
-
-A query-backed field resolves with its owner by default. Pass `eager: false` when a field's query is expensive or rarely read, and its search runs on first access instead; the declared-link rule above then applies to it too.
-
-```ts
-@field everyActivity = linksToMany(() => Activity, {
-  query: { filter: { eq: { 'classroom.id': '$this.id' } } },
-  eager: false,
-});
-```
-
 ## Driving a spinner from a template
 
 Expose `isLoading` through a getter and bind it. The flagship case is a **query-backed `linksToMany`**, which runs a search to resolve:
@@ -91,6 +80,17 @@ Read the field unconditionally and let the status choose how to *present* it, no
 A query-backed field usually resolves with its owner card, which is why its status is normally meaningful before anything renders the field. But that resolution is skipped in several ordinary situations — during indexing and prerender, on a query field declared on a contained `FieldDef`, on a card created before it has an id, and on any field marked `eager: false`. In each of those the field sits unresolved until something reads it, so the rule above is the one to follow everywhere.
 
 A **declared** `linksTo` / `linksToMany` always loads its targets lazily: bind `isLoading` but never touch the field and the load never starts, so `isLoading` stays `false` and the spinner never appears.
+
+## Deferring an expensive query with `eager: false`
+
+A query-backed field resolves with its owner by default. Pass `eager: false` when a field's query is expensive or rarely read, and its search runs on first access instead; the declared-link rule above then applies to it too.
+
+```ts
+@field everyActivity = linksToMany(() => Activity, {
+  query: { filter: { eq: { 'classroom.id': '$this.id' } } },
+  eager: false,
+});
+```
 
 ## Works the same for declared `linksTo` / `linksToMany`
 

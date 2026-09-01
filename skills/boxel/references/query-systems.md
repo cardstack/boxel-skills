@@ -184,7 +184,7 @@ That lands on the most natural thing to write with this feature:
 
 On a loaded card this counts what the field holds. In the indexed document it holds the value as of the last time the card was indexed. A count indexed as `0` before any match existed is the worst version, since `0` is also a real answer.
 
-**A query-backed field holds one page of results, not the whole match set** — on a loaded card a query with no `page` is clamped to the server ceiling, and one declaring a `page.size` above that ceiling is rejected with a 400 rather than trimmed. For a true total, run the query with `getCards` and read `meta.page.total`.
+**A query-backed field holds one page of results, not the whole match set** — on a loaded card a query with no `page` is clamped to the server ceiling, and one declaring a `page.size` above that ceiling is rejected with a 400 rather than trimmed. The bound applies to live reads; it is not applied during indexing. For a true total, run the query with `getCards` and read `meta.page.total`.
 
 So:
 
