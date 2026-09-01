@@ -27,7 +27,7 @@ convention to follow when picking the field type: a `*At` suffix (`createdAt`,
 `publishedAt`) means `DateTimeField`; a `*Date`/`*On` suffix or bare `dob` means
 `DateField`.
 
-## 2. Never put an external URL in `relationships.<field>.links.self`
+## 2. Never put an external URL in `relationships.<field>.links.self` — and never a realm URL in a string field
 
 If a `linksTo`/`linksToMany` field's JSON `links.self` points at a URL the indexer
 can't parse as a card (an external website, an image CDN URL, anything not a card
@@ -37,6 +37,22 @@ index too, with no error pointing at the actual bad file. For an external image/
 use the pair pattern instead: `linksTo(ImageDef)` (or a similar file/media field) +
 `contains(UrlField)` as two separate fields, never one relationship pointing straight
 at an external URL.
+
+**The rule cuts both ways.** If a field's value is the URL of a card instance or a
+realm file — an absolute realm URL, a relative path like `../Theme/foo`, or any URL
+a realm serves — model it as `linksTo` / `linksToMany` (a `FileDef` subtype for
+files), never as a `StringField` or `UrlField` attribute. The string version writes
+fine, indexes fine, and even renders as a clickable link — then rots silently: the
+index never invalidates the referrer when the target changes, broken-link
+diagnostics can't see it, `<@fields.X />` can't render the target, and queries can't
+traverse it. When the target moves or is deleted, nothing reports the dangling
+reference. Two carve-outs where a string is correct: a `FileDef` subtype's own
+`id`/`url`/`sourceUrl` descriptor fields hold the realm file URL as strings by
+design, and a curated public path routed via `hostRoutingRules` (a nav target like
+`/about`) is a routed path, not a resource identifier. Everything else `UrlField`
+holds should be an external (non-realm) URL. Details:
+`boxel/references/base-field-catalog.md` "Realm-resource URLs — always a
+relationship, never a string".
 
 ## 3. `linksToMany` JSON uses indexed top-level keys, never an array
 
