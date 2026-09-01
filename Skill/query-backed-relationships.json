@@ -1,0 +1,38 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardTitle": "Query-Backed Relationships",
+      "cardInfo": {
+        "notes": null,
+        "name": "Query-Backed Relationships",
+        "summary": "Declaring and sizing a query-backed linksTo/linksToMany: the bounded page it actually holds, reading totalMatchCount instead of counting rows, opting into a larger page, and when to reach for a search component instead.",
+        "cardThumbnailURL": null
+      },
+      "commands": [],
+      "cardDescription": "Declaring and sizing a query-backed linksTo/linksToMany: the bounded page it actually holds, reading totalMatchCount instead of counting rows, opting into a larger page, and when to reach for a search component instead."
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/query-backed-relationships/SKILL.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/query-backed-relationships/SKILL.md"
+        }
+      }
+    }
+  }
+}
