@@ -54,16 +54,22 @@ import { getRelationshipMembershipState } from '@cardstack/base/card-api';
       this,
       'everyActivity',
     );
-    return totalMatchCount ?? 0;
+    // Returned as-is. `undefined` means the count is unknown (see below), and
+    // leaving the field empty says that; `?? 0` would render a confident nought
+    // over a set nobody counted.
+    return totalMatchCount;
   },
 });
 ```
 
 The ceiling then stops mattering for this field entirely — no rows are held to
-count. Same for "are there any?": `totalMatchCount > 0`, not
-`this.everyActivity.length > 0`, which is right only by luck.
+count. Same for "are there any?": `(totalMatchCount ?? 0) > 0` reads a genuine
+zero and an unknown alike as "none", so where that difference matters, branch on
+`totalMatchCount === undefined` first. Either way it beats
+`this.everyActivity.length > 0`, which is right only by luck once the field is
+truncated.
 
-Any *other* aggregate — a sum, an average, a max over a field of the matches —
+Any _other_ aggregate — a sum, an average, a max over a field of the matches —
 genuinely needs the rows, so it needs a page big enough to hold them **and**
 should check `isPartial` before publishing a number. See
 [`bxl-authoring`](../bxl-authoring/SKILL.md) §7 for aggregating over an inverse
@@ -73,16 +79,16 @@ in BXL.
 
 ```ts
 let { membership, isLoading, isLoaded, totalMatchCount, isPartial } =
-  getRelationshipMembershipState(this, 'everyActivity');
+  getRelationshipMembershipState(this, "everyActivity");
 ```
 
-| | means |
-| --- | --- |
-| `membership` | the rows the field is holding (`undefined` until resolved) |
-| `isLoading` | a fetch or search is in flight — bind this to a spinner |
-| `isLoaded` | membership is settled |
-| `totalMatchCount` | how many instances the query **matches**, page or no page |
-| `isPartial` | `true` when membership falls short of that count |
+|                   | means                                                      |
+| ----------------- | ---------------------------------------------------------- |
+| `membership`      | the rows the field is holding (`undefined` until resolved) |
+| `isLoading`       | a fetch or search is in flight — bind this to a spinner    |
+| `isLoaded`        | membership is settled                                      |
+| `totalMatchCount` | how many instances the query **matches**, page or no page  |
+| `isPartial`       | `true` when membership falls short of that count           |
 
 Two traps in that table:
 
@@ -93,7 +99,7 @@ Two traps in that table:
   count with it. A genuine empty match reports `0`. Don't let `?? 0` collapse
   those two into one answer where the difference matters.
 
-For the spinner pattern and the observe-only rule (`isLoading` never *starts*
+For the spinner pattern and the observe-only rule (`isLoading` never _starts_
 the load — the template must render the field too), see
 [`boxel/references/relationship-loading-state.md`](../boxel/references/relationship-loading-state.md).
 
@@ -122,7 +128,7 @@ never make the card unindexable.
 
 **Ask for what you need, not for the maximum.** The page is a cost paid on every
 resolution of every instance: the rows are serialized into the owner's document,
-and each one's *own* query fields resolve in the next layer of the same pass. A
+and each one's _own_ query fields resolve in the next layer of the same pass. A
 field sized 2000 "just in case" pays for 2000 every time it resolves.
 
 ## When the field is the wrong tool
@@ -141,7 +147,7 @@ you. See the count-tile and table patterns in
 [`boxel-patterns`](../boxel-patterns/SKILL.md).
 
 > **Rule of thumb:** a query-backed field is for a relationship the card
-> *reasons over*; a search component is for a list the card *renders*.
+> _reasons over_; a search component is for a list the card _renders_.
 
 ## `eager: false`
 
@@ -192,7 +198,7 @@ may simply not resolve at runtime.
 ## Things that will bite you
 
 - **A query field is not an index dependency.** A card the query merely
-  *matches* is deliberately not a dependency of the card holding the query —
+  _matches_ is deliberately not a dependency of the card holding the query —
   making it one would turn every write in a workspace into an invalidation of
   every card whose query might match it. So the index never refreshes a rollup
   over a query field: the app is where the number is right, and a consumer

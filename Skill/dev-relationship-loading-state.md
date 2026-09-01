@@ -3,7 +3,7 @@
 A `linksTo` / `linksToMany` field loads its linked card(s) lazily, and a **query-backed** `linksToMany` resolves by running a search. Until that load or search finishes, the field has no data to show. `getRelationshipMembershipState` lets a card author render a live progress indicator for that window — a spinner that appears while the field is in flight and clears the moment it resolves.
 
 ```ts
-import { getRelationshipMembershipState } from '@cardstack/base/card-api';
+import { getRelationshipMembershipState } from "@cardstack/base/card-api";
 ```
 
 ## The shape
@@ -11,11 +11,19 @@ import { getRelationshipMembershipState } from '@cardstack/base/card-api';
 `getRelationshipMembershipState(instance, fieldName)` returns one object for **every** `linksTo` / `linksToMany` field — query-backed or not:
 
 ```ts
-{ isLoading: boolean; membership: RelationshipState[] | undefined }
+{
+  isLoading: boolean;
+  isLoaded: boolean;
+  membership: RelationshipState[] | undefined;
+  totalMatchCount: number | undefined;
+  isPartial: boolean;
+}
 ```
 
 - **`isLoading`** — a whole-field boolean, `true` while the field's data is actually being fetched (a declared link still loading, or a query field's search running). It is **live**: backed by tracked state, so a template bound to it re-renders the instant the load settles.
+- **`isLoaded`** — membership is settled. It is the pair `isLoading` needs: a query-backed field nothing has resolved reports `isLoading: false` with no membership, which `isLoading` alone can't tell from a settled empty result.
 - **`membership`** — the per-element resolution(s). For the loading-indicator use case you read `isLoading`; the per-slot states in `membership` are covered in the **Defensive Link Traversal** skill.
+- **`totalMatchCount` / `isPartial`** — query-backed fields only. A query field holds a _bounded page_ of its query, so a settled membership can still be a prefix: `totalMatchCount` is what the query matches and `isPartial` says the rows fall short of it. `isLoaded` alone is therefore not permission to reduce over the rows. Sizing a field, and reading a count without holding the rows, are covered in the **Query-Backed Relationships** skill; a declared link reports `totalMatchCount: undefined` / `isPartial: false`.
 
 ## Driving a spinner from a template
 
@@ -57,8 +65,8 @@ This is the one rule that trips people up. `getRelationshipMembershipState` **on
 So a template that shows a spinner **must also render the field**. If you bind `isLoading` but never touch the field, the load never starts and **`isLoading` stays `false` forever** — the spinner never appears.
 
 ```hbs
-{{!-- ❌ BROKEN — nothing reads `matches`, so the search never runs
-      and `matchesLoading` is always false --}}
+{{! ❌ BROKEN — nothing reads `matches`, so the search never runs
+      and `matchesLoading` is always false }}
 {{#if @model.matchesLoading}}<Spinner />{{/if}}
 
 {{!-- ✅ the {{#each}} reads the field, which triggers the search;
@@ -84,7 +92,7 @@ get petLoading() {
 <span>{{@model.pet.firstName}}</span>
 ```
 
-For a declared `linksToMany`, **`isLoading` stays `true` until *every* element has settled** — a half-loaded list still reports loading.
+For a declared `linksToMany`, **`isLoading` stays `true` until _every_ element has settled** — a half-loaded list still reports loading.
 
 ## Live queries re-enter the loading state
 
@@ -96,5 +104,6 @@ A query-backed field is **live**: when its inputs change (here, `cardTitle`) the
 - It is **observe-only**: reading `isLoading` never starts the load. Always render the field itself (`{{#each @model.field}}` / `{{@model.field}}`) alongside the spinner, or the load never begins and `isLoading` stays `false`.
 - The flagship use case is a **query-backed `linksToMany`** (a search-driven list): show a spinner while the search runs.
 - A declared `linksToMany` reports `isLoading: true` until **every** element settles.
+- `isLoaded` means settled, not complete — a query-backed field truncated by its page ceiling is settled too. Check `isPartial`, and read `totalMatchCount` for a count. See the **Query-Backed Relationships** skill.
 - A live query **re-enters** loading on each re-run; the spinner reappears for free.
 - To read per-element state (present / loading / broken), see the **Defensive Link Traversal** skill — `membership` and `RelationshipState` are covered there.
