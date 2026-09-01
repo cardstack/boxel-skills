@@ -59,7 +59,7 @@ import ColorField from '@cardstack/base/color';
 import EmailField from '@cardstack/base/email';
 import PercentageField from '@cardstack/base/percentage';
 import PhoneNumberField from '@cardstack/base/phone-number';
-import UrlField from '@cardstack/base/url';
+import UrlField from '@cardstack/base/url';                // external URLs only — a URL pointing at a card or realm file is a linksTo, never a UrlField
 import AddressField from '@cardstack/base/address';
 
 // ⚠️ EXTENDING BASE FIELDS: To customize a base field, import it and extend:
