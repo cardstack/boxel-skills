@@ -142,7 +142,7 @@ This is **schema-level** and resolves against the index, so it reflects any card
 |---|---|
 | Aggregate a number/string/bool from other fields | `computeVia` |
 | Walk a relationship to read its primitive fields | `computeVia` |
-| Pick one card or many from a Query at index time | `linksTo` / `linksToMany` with `query:` |
+| Pick one card or many from a Query, resolved when the card loads | `linksTo` / `linksToMany` with `query:` |
 | Live-tracked search inside a Component | `this.args.context?.getCards(this, () => query, () => realms, { isLive: true })` (see `automate-linked-to-me-lookup`). Returns a SearchResource with `.instances`. |
 
 **⚠️ `getCards` is NOT a free import.** It's exported only as a *type* from `card-api`. Importing `{ getCards }` as a value compiles cleanly and then crashes at runtime with `getCards is not a function`. The host injects the working function via `this.args.context.getCards`.

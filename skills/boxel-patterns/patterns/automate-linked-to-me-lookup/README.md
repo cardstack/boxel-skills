@@ -12,7 +12,7 @@ validated: source-proven
 
 ### Option A — Schema-level query-backed `linksToMany` (preferred for most "show my children" cases)
 
-Declare the relationship directly on the CardDef with a `query:` option. The runtime executes the search at index time and populates the field. No component code needed.
+Declare the relationship directly on the CardDef with a `query:` option. The field resolves by running its search when the card is loaded, and re-resolves when a realm event reports a matching card changed. No component code needed.
 
 ```gts
 @field tasks = linksToMany(Task, {
@@ -24,7 +24,9 @@ Declare the relationship directly on the CardDef with a `query:` option. The run
   },
 });
 
-// Now anything that walks tasks works as normal:
+// Rollups over a query-backed field are correct on a loaded card, and hold the
+// value as of the last index in the indexed document — see the freshness
+// section in `query-systems.md` before relying on one off-card.
 @field taskCount = contains(NumberField, {
   computeVia: function() { return (this.tasks ?? []).length; },
 });
@@ -46,8 +48,8 @@ Declare the relationship directly on the CardDef with a `query:` option. The run
 
 Use this form when:
 - You want the relationship reflected in the schema (visible in code-mode, queryable from outside)
-- You want index-time reactivity (the relationship updates automatically when source cards change)
-- You want `computeVia` aggregates (counts, percentages, sums) on top of the relationship
+- You want the relationship to track matching cards without hand-listing them (it re-resolves on a loaded card when they change)
+- You want `computeVia` aggregates (counts, percentages, sums) read from a loaded card — when the number must also be right in the indexed document, hold the links explicitly instead (`query-systems.md`)
 - You don't need live updates while the user is staring at the card
 
 ### Option B — Component-level via `this.args.context?.getCards(...)`

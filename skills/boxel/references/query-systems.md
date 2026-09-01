@@ -184,13 +184,13 @@ That lands on the most natural thing to write with this feature:
 
 On a loaded card this counts what the field holds. In the indexed document it holds the value as of the last time the card was indexed. A count indexed as `0` before any match existed is the worst version, since `0` is also a real answer.
 
-**A query-backed field holds one page of results, not the whole match set** — `length` saturates at the declared `page.size`, and at the server ceiling when none is declared. For a true total, run the query with `getCards` and read `meta.page.total`.
+**A query-backed field holds one page of results, not the whole match set** — on a loaded card a query with no `page` is clamped to the server ceiling, and one declaring a `page.size` above that ceiling is rejected with a 400 rather than trimmed. For a true total, run the query with `getCards` and read `meta.page.total`.
 
 So:
 
 - Read the number from a loaded card, gated on `getRelationshipMembershipState(this, 'items').isLoaded`. Read the field unconditionally — gating the read itself means it never resolves during indexing.
 - When a number must be correct in the index, hold the links explicitly (`linksToMany(Item)`) and compute over that: membership lives in the card's own document, so adding or removing an item rewrites and reindexes it.
-- Add `searchable: true` only when the rollup reads fields *of* the targets (summing `item.price`, not counting items) — that is what puts target data in the doc, and what makes each target a dependency.
+- Add `searchable: true` to that declared link only when the rollup reads fields *of* the targets (summing `item.price`, not counting items) — that is what puts target data in the doc, and what makes each target a dependency.
 
 **When to use what to query cards:**
 - Efficient display-only → `@context.searchResultsComponent` (the newer `<SearchResults>` surface; older builds used `PrerenderedCardSearch`)

@@ -163,7 +163,7 @@ Never feed a possibly-`undefined` slot straight into a helper that dereferences 
 
 ## Reading structured failure state — `getRelationshipMembershipState`
 
-Plain reads collapse every non-present state to `undefined`. When you genuinely need to distinguish *still loading* from *not-found* from *errored* — e.g. to show a tailored message — use `getRelationshipMembershipState` from `@cardstack/runtime-common` / card-api. It is a pure read (it never re-triggers the loader) and reports each slot's true state:
+Plain reads collapse every non-present state to `undefined`. When you genuinely need to distinguish *still loading* from *not-found* from *errored* — e.g. to show a tailored message — use `getRelationshipMembershipState` from `@cardstack/base/card-api`. It is a pure read (it never re-triggers the loader) and reports each slot's true state:
 
 ```ts
 import { getRelationshipMembershipState } from '@cardstack/base/card-api';
@@ -189,7 +189,7 @@ Use it to branch on intent rather than guessing from `undefined`:
 ```ts
 let s = getRelationshipMembershipState(this, 'manager');
 if (s.kind === 'not-loaded') return 'Loading…';
-if (s.isError) return 'Manager link is broken';
+if (s.kind === 'error' || s.kind === 'not-found') return 'Manager link is broken';
 return s.value?.name ?? 'Unassigned';
 ```
 

@@ -30,7 +30,7 @@ A query-backed field that nothing has resolved reports `isLoading: false` and no
 
 Bind `isLoading` to a spinner; branch on `isLoaded` before treating `field.length` or a `computeVia` reduction over the field as an answer.
 
-A **declared** link has no middle state: its membership is the reference list in the card's own document, known the moment the owner deserializes, so `isLoaded` is true from then on. It says the reference list is final — **not** that the targets are loaded. Whether an individual target is resident is `membership[i].kind`, covered in the **Defensive Link Traversal** skill.
+For a **declared** link, `isLoaded` means nothing is being fetched right now: every slot has reached a terminal state — `present`, but also `error`, `not-found` and `not-set`. So it is weaker than "the targets loaded" and stronger than "the reference list is final", and it is `false` while any target load is still in flight. Which slots actually hold a card is `membership[i].kind`, covered in the **Defensive Link Traversal** skill.
 
 ## Driving a spinner from a template
 
@@ -65,21 +65,21 @@ class Matchmaker extends CardDef {
 
 While the search runs, `matchesLoading` is `true` and the spinner shows; when results arrive it flips to `false` and the spinner clears — automatically, because the field is tracked.
 
-## `isLoading` is observe-only — for a declared link, the template must read the field
+## Observe-only — always render the field alongside its status
 
-`getRelationshipMembershipState` **only monitors**; it never starts a load. What that means depends on the kind of field.
-
-A **query-backed** field resolves with its owner card in the interactive app, so its status is meaningful there whether or not anything renders the field. During indexing and prerender it resolves lazily, exactly like a declared link — so **never make reading the field conditional on its own status**:
+`getRelationshipMembershipState` **only monitors**; it never starts a load. **The thing that starts one is reading the field itself.** So a template that shows a spinner must also render the field, and **must never gate the read on the status**:
 
 ```hbs
-{{!-- ❌ BROKEN in prerendered HTML — nothing reads `items`, so during indexing
-      the search never starts, isLoaded stays false, and the count is absent --}}
+{{!-- ❌ BROKEN — nothing reads `items`, so nothing resolves it, so isLoaded
+      never becomes true and the count is never shown --}}
 {{#if @model.itemsLoaded}}{{@model.itemCount}}{{/if}}
 ```
 
 Read the field unconditionally and let the status choose how to *present* it, not whether to touch it.
 
-A **declared** `linksTo` / `linksToMany` loads its targets lazily, and **the thing that kicks off that load is reading the field itself**. A template that shows a spinner for a declared link must also render the link. Bind `isLoading` but never touch the field and the load never starts, so `isLoading` stays `false` and the spinner never appears.
+A query-backed field usually resolves with its owner card, which is why its status is normally meaningful before anything renders the field. But that resolution is skipped in several ordinary situations — during indexing and prerender, on a query field declared on a contained `FieldDef` (which receives its realm from its parent only after its own deserialization), on a card created before it has an id, and on any field marked `eager: false`. In each of those the field sits unresolved until something reads it, so the rule above is the one to follow everywhere.
+
+A **declared** `linksTo` / `linksToMany` always loads its targets lazily: bind `isLoading` but never touch the field and the load never starts, so `isLoading` stays `false` and the spinner never appears.
 
 ```hbs
 {{!-- ❌ BROKEN for a declared link — nothing reads `pet`, so its lazy load
