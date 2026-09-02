@@ -11,7 +11,7 @@
       "cardInfo": {
         "notes": null,
         "name": "Relationship Loading State",
-        "summary": "Read relationship status via getRelationshipMembershipState() — isLoading to drive a progress indicator, isLoaded to know a count or reduction over the field can be trusted; plus the eager option on a query-backed field",
+        "summary": "Read relationship status via getRelationshipMembershipState() — isLoading to drive a progress indicator, isLoaded to know membership is settled, and the totalMatchCount / isPartial that say whether a query-backed field holds its whole result set or only a bounded page; plus the eager option on a query-backed field",
         "cardThumbnailURL": null
       },
       "commands": []
