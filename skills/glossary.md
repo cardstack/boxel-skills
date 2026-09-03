@@ -351,6 +351,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`bxl-authoring`** — Writing BXL in a card's `computeVia`: tag choice (plain string / `fx` / `jq`), what the `derive` profile refuses at field-definition time, collecting an aggregate's iterating argument, blank-input and error-value behavior, query-backed aggregation staleness, cyclic graphs, dates, memoization, `{ as: FieldDef }` materialization.
 - **`query-backed-relationships`** — Declaring and sizing the `{ query }` form of `linksTo`/`linksToMany`: the bounded page it holds, `totalMatchCount` vs counting rows, declaring a larger page, `eager: false`, singular-`linksTo` arity, and when a search component is the right tool instead.
 - **`boxel-ui-component-discovery`** — Mandatory catalog Spec search before hand-rolling UI primitives; enumerate → one broad `boxel search` query → read `attributes.readMe` → self-audit.
+- **`catalog-card-field-reuse`** — Mandatory catalog `Spec` search (`specType: card|field`) before authoring a new CardDef/FieldDef; reference as-is by default → remix only to modify → build new only when nothing matches (record the gap). One level up from `boxel-ui-component-discovery`.
 - **`ember-best-practices`** — Ember.js performance + accessibility rules, 59 `rules/*.md` files across 10 prefix-keyed categories, indexed in its SKILL.md.
 - **`catalog-listing`** — Catalog operations + submission via `SubmissionWorkflowCard`.
 - **`source-code-editing`** — Canonical SEARCH/REPLACE edit transport.
