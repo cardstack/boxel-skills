@@ -55,7 +55,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 
 - **[`boxel-ui-guidelines/`](skills/boxel-ui-guidelines/SKILL.md)** — Template UI rules: theme tokens, `@fields` vs `@model`, container queries, layout safety.
 - **[`boxel-ui-component-discovery/`](skills/boxel-ui-component-discovery/SKILL.md)** — Mandatory catalog search for a boxel-ui component Spec before hand-rolling any UI primitive in a `.gts` template.
-- **[`catalog-card-field-reuse/`](skills/catalog-card-field-reuse/SKILL.md)** — Mandatory catalog `Spec` search for a reusable card/field before authoring a new CardDef/FieldDef; reference as-is by default, remix only to modify, build new only when nothing matches.
+- **[`catalog-reuse/`](skills/catalog-reuse/SKILL.md)** — Mandatory catalog search for an existing definition or asset (card / field / component / command Spec, app Listing, or file/theme instance) before building a new one; reference as-is by default, remix only to modify, build new only when nothing matches. The general form of `boxel-ui-component-discovery`.
 - **[`boxel-design/`](skills/boxel-design/SKILL.md)** — Visual design language, mood, typography, asset direction.
 - **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
 - **[`boxel-flavored-markdown/`](skills/boxel-flavored-markdown/SKILL.md)** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.

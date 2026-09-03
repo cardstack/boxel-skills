@@ -84,3 +84,11 @@ this if I were writing it from scratch? If yes, did I? Replace any raw
 HTML primitive that has a spec'd equivalent, re-run lint/parse, and
 only then call it done. Raw `<input>` / `<select>` / `<details>` lint
 and parse clean — only this audit catches them.
+
+## Related
+
+- `catalog-reuse` — the general form of this discipline: search the
+  catalog for an existing card, field, command, app, or asset before
+  building one. This skill is the specialized front-end for UI
+  primitives in a `.gts` template; reach for it whenever the task is
+  writing template UI.
