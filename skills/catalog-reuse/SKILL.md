@@ -1,6 +1,6 @@
 ---
 name: catalog-reuse
-description: MANDATORY before authoring a new card, field, or command, before building an app, or before adding an image/font/icon/theme — search the catalog for an existing definition or asset and reuse it. Reference it as-is (default), remix only when you must modify it, build new only when nothing matches (and record the gap). For UI primitives inside a `.gts` template, boxel-ui-component-discovery has the sharper procedure.
+description: MANDATORY before building a card, field, command, app, or asset (image, font, icon, theme) — search the catalog and reuse what's there: reference as-is by default, remix only to modify, build new only when nothing matches. For UI primitives in a `.gts` template, use boxel-ui-component-discovery instead.
 boxel:
   kind: skill
 ---
@@ -39,39 +39,52 @@ presentation, or remix if the schema itself must change.
    hero image"). The partial-compliance failure mode is "agent reuses
    one thing, hand-builds the rest" — enumerating up front prevents it.
 
-2. **Query the catalog once, broadly.** Use the catalog realm for the
+2. **Query per enumerated need.** Use the catalog realm for the
    environment you are working against — take it from your context if
-   one is provided, otherwise check `boxel realm ls` or ask; do not
-   invent a host.
+   one is provided, otherwise list the realms available to your session
+   (`boxel realm ls` from a CLI session) or ask; do not invent a host.
 
-   ```sh
-   boxel search --realm <catalog-realm-url> --query '{
+   For each enumerated item, run one narrowed query: anchor on `Spec`,
+   constrain to the matching `specType` — `card`, `field`, `component`,
+   or `command`, the specTypes the catalog actually publishes (whole
+   apps are not `Spec`s; reuse them as Listings, see below) — and add a
+   text key built from the need's plain-language name:
+
+   ```json
+   {
      "filter": {
        "on": { "module": "@cardstack/base/spec", "name": "Spec" },
-       "any": [
-         { "eq": { "specType": "card" } },
+       "every": [
          { "eq": { "specType": "field" } },
-         { "eq": { "specType": "component" } },
-         { "eq": { "specType": "command" } }
+         { "matches": "address" }
        ]
      }
-   }' --json
+   }
    ```
 
-   The `any` list is deliberate: those are the `specType`s the catalog
-   actually publishes as searchable `Spec`s. Whole apps are not `Spec`s
-   — reuse them as Listings (see below). Write the filter card-rooted
-   (`on` anchor, bare field names) like every other card query — the
-   CLI translates it to the search endpoint's wire form itself; never
-   hand-write `item.`-prefixed paths in `--query`, they make the CLI
-   throw. Narrow a large inventory with `contains` on the title or
-   `matches` (full-text over the readMe) per enumerated need. See
+   Prefer `matches` (full-text over the readMe) — it survives the
+   vocabulary gap between your phrasing and the catalog's ("send-email
+   command" still finds a Spec titled "Email Dispatch"). Switch to
+   `contains` on the title when `matches` is too noisy. If a need
+   returns nothing, broaden once before concluding a gap: drop the
+   text key and sweep that one `specType`'s full inventory. "Build
+   new" is only legitimate after that sweep — a single `matches` miss
+   is not evidence of a gap.
+
+   Run the filter through whatever search transport your session has —
+   the card-search tool in an assistant room, or
+   `boxel search --realm <catalog-realm-url> --query '<filter-json>' --json`
+   from a CLI session; the filter is identical either way. Write it
+   card-rooted (`on` anchor, bare field names) like every other card
+   query — the transport translates it to the search endpoint's wire
+   form itself; never hand-write `item.`-prefixed paths. See
    `boxel/references/query-systems.md` for full query syntax and
    `boxel/references/spec-usage.md` for the `Spec` model.
 
 3. **Read each hit's `attributes.specType`, `attributes.cardTitle`,
-   `attributes.cardDescription`, and `attributes.readMe`.** Match each
-   item in your enumeration to a result. The readMe is the source of
+   `attributes.cardDescription`, and `attributes.readMe`.** Confirm
+   each hit answers the need that prompted its query — a text match is
+   a candidate, not a decision. The readMe is the source of
    truth for what it is, what it carries, and how to use it; it rides on
    the search response, so no follow-up fetch is needed.
 
@@ -86,7 +99,7 @@ presentation, or remix if the schema itself must change.
    | `card` | `adoptsFrom` the catalog card to reuse its schema, or `linksTo` / `linksToMany` an existing catalog instance |
    | `field` | import the FieldDef from the catalog module and use `contains` / `containsMany` (fields are never `linksTo` — Cardinal Rule 1) |
    | `component` | import it into the template's markup — see `boxel-ui-component-discovery` for the enumerate/self-audit discipline |
-   | `command` | import and invoke it, or drive it through `run-command` |
+   | `command` | import and invoke it in code, or invoke it through your session's command mechanism (`run-command` from a CLI session) |
 
 ## Beyond Specs — Listings and assets
 
