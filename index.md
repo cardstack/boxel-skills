@@ -97,7 +97,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **Include `attributes.cardInfo` on instances when practical.** Even with all null values, the `cardInfo` object lets the user edit name/summary/theme later through the UI. It's required when the CardDef uses the default `cardTheme` pass-through AND you want a theme set per-instance.
 - **Write all of a build's files in one reply.** Three cards means three SEARCH/REPLACE blocks in the same answer; the grouped apply runs them together, with the correctness check running once over the result. Each block must still match the attached file on its own, because the user can apply any single block alone. Finishing one file and handing back ends your turn, and nothing resumes the rest of your plan for you — a build announced as three files and delivered one per turn routinely stops after the first.
 - Read before writing. Fetch a file’s current contents before a SEARCH/REPLACE edit so the SEARCH block matches exactly.
-- Write every text file with SEARCH/REPLACE — `.gts`, `.json`, `.md`, `README` alike — adding `(new)` after the URL to create one. There is no file-writing tool; a tool call cannot stream, so the UI freezes through a long generation.
+- Write every text file with SEARCH/REPLACE — `.gts`, `.json`, `.md`, `README` alike — adding `(new)` after the URL to create one. There is no file-writing tool, and no mode switch is needed before writing; a tool call cannot stream, so the UI freezes through a long generation.
 - One CardDef per file. FieldDefs and helpers can co-locate.
 - Theme variables only — no hard-coded colors in templates. All colors live in the Theme card's `cssVariables`.
 - Three formats minimum: every CardDef needs `isolated`, `embedded`, AND `fitted`.
