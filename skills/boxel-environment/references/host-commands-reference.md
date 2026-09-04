@@ -80,8 +80,8 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 ## Navigation
 
-- `switch-submode_dd88` — Toggle interact/code modes. A bare `submode: "code"` opens code mode in whatever realm the UI last showed — when the task targets a specific realm, always pass `codePath` with a file URL in that realm (add `createFile: true` when the file doesn't exist yet).
-- `show-card_566f` — Display card in current mode.
+- `switch-submode_dd88` — Toggle interact/code modes. Navigation only: it never writes, and it is not a step of creating or editing a file (SEARCH/REPLACE does that; `(new)` creates). Call it at most once per task, and never when the tab is already in code mode on that file — the last tool result's `context.submode` and `context.codeMode.currentFile` tell you where you are. A bare `submode: "code"` opens code mode in whatever realm the UI last showed — when the task targets a specific realm, pass `codePath` with a plain file URL in that realm (never append `(new)` to it; add `createFile: true` only when the file doesn't exist yet).
+- `show-card_566f` — Display a card instance in the current mode. `cardId` is the instance id: its URL without the `.json` extension. A `.gts` path is a definition, not a card — passing one opens the definition's own module in the base realm, which is never what you want. To open a file in the editor, use `switch-submode_dd88` with `codePath`.
 - `preview-format_cb94` — Open module + preview card (code mode; use after edits).
 - `update-code-path-with-selection_f749` — Open file in code editor.
 - `open-workspace_1696` — Navigate to a workspace by URL. Lands in **interact mode** — it exits code mode. To work on a specific realm in code mode, use `switch-submode` with a `codePath` in that realm instead.
