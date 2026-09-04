@@ -91,35 +91,30 @@ restyle, or remix if the schema itself must change.
          { "eq": { "specType": "field" } },
          { "matches": "address" }
        ]
-     }
+     },
+     "sort": [{ "by": "_matchRelevance", "direction": "desc" }]
    }
    ```
 
    The searchable specTypes are `card`, `field`, `component`, `command`,
    and `app` (an app is a CardDef that extends `AppCard` — its Spec is
    referenced like a card's). Prefer `matches` (bare-string full-text
-   over the readMe) — it survives the vocabulary gap between your
-   phrasing and the catalog's ("send-email command" still finds a Spec
-   titled "Email Dispatch"). Switch to `contains` on the title when
-   `matches` is too noisy. If a need returns nothing, broaden once — drop
-   the text key and sweep that `specType`'s full inventory — before
-   concluding a gap. "Build new" is only legitimate after that sweep; a
-   single `matches` miss is not a gap.
+   over the Spec's rendered content) — it survives the vocabulary gap
+   between your phrasing and the catalog's ("send-email command" still
+   finds a Spec titled "Email Dispatch"). **Sort by `_matchRelevance`**
+   (as in the query above) and read `entry.meta._matchRelevance` — a 0–1
+   relevance score, best first — to rank and threshold the hits. Fall
+   back to `contains` on the title only if a query is still too noisy. If
+   a need returns nothing, broaden once — drop the text key and sweep
+   that `specType`'s full inventory — before concluding a gap. "Build
+   new" is only legitimate after that sweep; a single `matches` miss is
+   not a gap.
 
-   > **Relevance ranking — coming in a separate engine change; not live
-   > yet.** A forthcoming change to the search engine adds an opt-in
-   > `_matchRelevance` sort to the `matches` path: a `ts_rank_cd`
-   > relevance score (0–1, best = highest) returned on the wire as
-   > `entry.meta._matchRelevance`, computed only when you sort by it (so
-   > it needs at least one positive `matches` term in the filter). **Once
-   > it ships**, add `sort: [{ "by": "_matchRelevance", "direction":
-   > "desc" }]` to each per-need query and read `entry.meta._matchRelevance`
-   > to rank and threshold hits (best match first) — which replaces the
-   > `contains`/sweep fallbacks above with "best match first," and note
-   > that `matches` ranks the Spec's whole rendered content, not just its
-   > readMe. **Until it ships, do not sort by `_matchRelevance`** — the
-   > engine rejects an unknown sort key; use the `matches` / `contains` /
-   > sweep flow described above.
+   > **Note:** `_matchRelevance` is provided by a separate, in-flight
+   > engine change to the full-text `matches` path (a `ts_rank_cd` score
+   > surfaced as `entry.meta._matchRelevance`). It is an opt-in sort, so
+   > the filter must carry at least one positive `matches` term for it to
+   > apply.
 
    Run the filter through whatever search transport your session has —
    the card-search tool in an assistant room, or
