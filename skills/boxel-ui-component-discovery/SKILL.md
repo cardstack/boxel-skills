@@ -42,7 +42,7 @@ of truth for what's available and what each component is called.
 2. **Query the catalog once, broadly.** Use the catalog realm for the
    environment you are working against — take it from your context if
    one is provided, otherwise list the realms available to your session
-   (`boxel realm ls` from a CLI session) or ask; do not invent a host.
+   (`npx boxel realm ls` from a CLI session) or ask; do not invent a host.
 
    ```json
    {
@@ -55,7 +55,7 @@ of truth for what's available and what each component is called.
 
    Run the filter through whatever search transport your session has —
    the card-search tool in an assistant room, or
-   `boxel search --realm <catalog-realm-url> --query '<filter-json>' --json`
+   `npx boxel search --realm <catalog-realm-url> --query '<filter-json>' --json`
    from a CLI session; the filter is identical either way. Write it
    card-rooted (`on`/`type` anchors, bare field names) like every other
    card query — the transport translates it to the search endpoint's
