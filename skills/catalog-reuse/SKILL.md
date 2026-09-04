@@ -106,6 +106,21 @@ restyle, or remix if the schema itself must change.
    concluding a gap. "Build new" is only legitimate after that sweep; a
    single `matches` miss is not a gap.
 
+   > **Relevance ranking — coming in a separate engine change; not live
+   > yet.** A forthcoming change to the search engine adds an opt-in
+   > `_matchRelevance` sort to the `matches` path: a `ts_rank_cd`
+   > relevance score (0–1, best = highest) returned on the wire as
+   > `entry.meta._matchRelevance`, computed only when you sort by it (so
+   > it needs at least one positive `matches` term in the filter). **Once
+   > it ships**, add `sort: [{ "by": "_matchRelevance", "direction":
+   > "desc" }]` to each per-need query and read `entry.meta._matchRelevance`
+   > to rank and threshold hits (best match first) — which replaces the
+   > `contains`/sweep fallbacks above with "best match first," and note
+   > that `matches` ranks the Spec's whole rendered content, not just its
+   > readMe. **Until it ships, do not sort by `_matchRelevance`** — the
+   > engine rejects an unknown sort key; use the `matches` / `contains` /
+   > sweep flow described above.
+
    Run the filter through whatever search transport your session has —
    the card-search tool in an assistant room, or
    `npx boxel search --realm <catalog-realm-url> --query '<filter-json>' --json`
