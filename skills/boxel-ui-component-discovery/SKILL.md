@@ -41,22 +41,25 @@ of truth for what's available and what each component is called.
 
 2. **Query the catalog once, broadly.** Use the catalog realm for the
    environment you are working against — take it from your context if
-   one is provided, otherwise check `boxel realm ls` or ask; do not
-   invent a host.
+   one is provided, otherwise list the realms available to your session
+   (`npx boxel realm ls` from a CLI session) or ask; do not invent a host.
 
-   ```sh
-   boxel search --realm <catalog-realm-url> --query '{
+   ```json
+   {
      "filter": {
        "on": { "module": "@cardstack/base/spec", "name": "Spec" },
        "eq": { "specType": "component" }
      }
-   }' --json
+   }
    ```
 
-   Write the filter card-rooted (`on`/`type` anchors, bare field names)
-   like every other card query — the CLI translates it to the search
-   endpoint's wire form itself; never hand-write `item.`-prefixed paths
-   in `--query`, they make the CLI throw.
+   Run the filter through whatever search transport your session has —
+   the card-search tool in an assistant room, or
+   `npx boxel search --realm <catalog-realm-url> --query '<filter-json>' --json`
+   from a CLI session; the filter is identical either way. Write it
+   card-rooted (`on`/`type` anchors, bare field names) like every other
+   card query — the transport translates it to the search endpoint's
+   wire form itself; never hand-write `item.`-prefixed paths.
 
    One broad query returns the full inventory (~50 specs). Match each
    item in your enumeration to a result by reading `attributes.cardTitle`
@@ -84,3 +87,11 @@ this if I were writing it from scratch? If yes, did I? Replace any raw
 HTML primitive that has a spec'd equivalent, re-run lint/parse, and
 only then call it done. Raw `<input>` / `<select>` / `<details>` lint
 and parse clean — only this audit catches them.
+
+## Related
+
+- `catalog-reuse` — the general form of this discipline: search the
+  catalog for an existing card, field, command, app, or asset before
+  building one. This skill is the specialized front-end for UI
+  primitives in a `.gts` template; reach for it whenever the task is
+  writing template UI.
