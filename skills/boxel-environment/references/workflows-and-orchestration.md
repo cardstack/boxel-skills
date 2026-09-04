@@ -55,19 +55,12 @@ Prompt "debug this error: ..."
 → Prompt "debug this error: ..."
 
 ### Code Generation
-```json
-`read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to "https://[domain]/user/card.gts"
-→ Emit a code patch search/replace block
-→ (offer refresh)
-```
-Switching to code mode is optional navigation for the user's benefit — at most once per task, with `switch-submode_dd88` (`attributes.submode` "code", `attributes.codePath` the file URL), and only when the tab is not already in code mode on that file. It is never a step of writing.
+Two replies at most. First reply: `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to the file, so the SEARCH block matches its current content (skip this when you already have the content). Second reply, right after the result: one line of prose, then the SEARCH/REPLACE block(s), then — if the user should see the result — a `show-card_566f` call for the instance, all in that same reply.
+
+Switching to code mode is optional navigation for the user's benefit — at most once per task, with `switch-submode_dd88` (`attributes.submode` "code", `attributes.codePath` the file URL), and only when the tab is not already in code mode on that file. It is never a step of writing, and it never needs a reply of its own.
 
 ### Card Creation
-```json
-Emit a code patch search/replace block with `(new)` after the file URL — this creates the file
-→ `show-card_566f` with `attributes.cardId` set to the url of the new file
-```
-No mode switch is needed to create a file. If you do switch first so the user can watch, do it once; do not switch again before each file.
+One reply: a SEARCH/REPLACE block per file with `(new)` after each file URL — the definition and every instance together — plus, if wanted, a `show-card_566f` call with `attributes.cardId` set to an instance's URL (the `.json` path without the extension). The blocks create the files; no mode switch and no placeholder call comes first. If you switch to code mode so the user can watch, do it once, before the reply that carries the blocks.
 
 ### Search & Modify
 ```json

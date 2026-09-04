@@ -24,6 +24,7 @@ So read it as your first action, before you plan the work or tell the user what 
 ```
 ├─ Loop detected (same commands repeating)?  → STOP. Alert: "Detected potential loop."
 ├─ No workspace in context?                  → Ask user to navigate, open a card, reply 'continue'
+├─ Already where the task needs you?          → The last tool result's context.submode / codeMode.currentFile say so. Do the work; no navigation call
 └─ Workspace found                            → Continue to Step 2
 ```
 
