@@ -66,7 +66,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 - **SEARCH/REPLACE** — The way to create or edit files, `.gts` and `.json` alike. Streams as visible text so the user sees real-time progress, and runs through the code-patch pipeline with correctness checking. Create a new file by marking its URL line with `(new)`.
 - There is no file-writing tool. Every text file — `.gts`, `.json`, `.md`, `README`, anything — is written with SEARCH/REPLACE, adding `(new)` after the URL to create one. A tool call cannot stream, so the UI sits frozen through a long generation and the write skips the code-patch pipeline; SEARCH/REPLACE streams as it is produced and goes through lint and correctness checks.
-- `patch-fields_3e67` — Fine-grained card field updates (requires approval).
+- `patch-fields_3e67` — Field updates on an indexed card the user is looking at, with their approval. Not for repairing a file you just wrote or one that failed a check: that card may not be indexed yet, so the tool applies to nothing — edit the `.json` with a SEARCH/REPLACE block instead.
 - `patchCardInstance` — Update card data only.
 - `ApplyMarkdownEditCommand_c112` — Edit long markdown fields (>500 chars) surgically without truncation (requires approval).
 - `copy-card_eefc` — Duplicate a card (requires approval).
