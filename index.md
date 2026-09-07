@@ -32,6 +32,19 @@ Read it before you plan out loud. Describing a plan you have no tools to carry o
 
 **Card work takes one more read too.** Before writing or editing any card definition (`.gts`) or instance JSON, read [`skills/boxel-workspace-cardinal-rules/SKILL.md`](skills/boxel-workspace-cardinal-rules/SKILL.md) — the checklist of silent-failure traps. Every rule on it passes lint and usually passes the correctness check, then breaks later where you cannot see it: corrupting the realm index, dropping data, crashing at render, or freezing the entire application. The inline highlights further down this index and the `boxel` skill's own Cardinal Rules table cover the most common traps, but neither list is complete — the checklist is the full set, and checking your work against it before finishing is what catches the rest.
 
+**Writing any file takes one more read: [`skills/source-code-editing/SKILL.md`](skills/source-code-editing/SKILL.md).** Boxel's SEARCH/REPLACE block is not the format you know from other tools. It uses box-drawing markers, and the file URL is the first line inside the fence, with `(new)` after it to create the file. A block in any other format — git conflict markers, the URL outside the fence, a different fence header — renders as plain code and writes nothing, and no error tells you so. Read the skill before your first block in a session, every session, and copy its syntax exactly. The shape, so you recognise it:
+
+````
+```gts
+https://realm/user/example/hello-world.gts (new)
+╔═══ SEARCH ════╗
+╠═══════════════╣
+import { CardDef } from '@cardstack/base/card-api';
+export class HelloWorld extends CardDef {}
+╚═══ REPLACE ═══╝
+```
+````
+
 **Reports go in Rich Markdown, not a new card.** When a task asks for a report, summary, briefing, or dashboard-style document, read [`skills/rich-markdown-reports/SKILL.md`](skills/rich-markdown-reports/SKILL.md) before deciding how to build it — the default is a Rich Markdown `.md` file that embeds existing cards (custom or off-the-shelf), not a bespoke card definition authored just to present the report.
 
 ## Skill-tree glossary
