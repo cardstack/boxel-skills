@@ -74,10 +74,15 @@ restyle, or remix if the schema itself must change.
    image"). The partial-compliance failure mode is "agent reuses one
    thing, hand-builds the rest" — enumerating up front prevents it.
 
-2. **Query per enumerated need.** Use the catalog realm for your
-   environment — take it from your context, otherwise list the realms
-   available to your session (`npx boxel realm ls` from a CLI session)
-   or ask; do not invent a host.
+2. **Query per enumerated need.** How you name the catalog depends on
+   your session, and in an assistant room you do **not** need a realm
+   URL at all — the card-search tool takes only a query and already
+   searches every realm available to you, the catalog included. What
+   selects catalog content is the filter's `Spec` anchor, not a host. So
+   do not go looking for a catalog realm URL there, and do not block on
+   not having one. From a CLI session, where the realm *is* an argument,
+   take it from your context or list what is available
+   (`npx boxel realm ls`); do not invent a host.
 
    For each need, run one narrowed query: anchor on `Spec`, constrain to
    the matching `specType`, and add a full-text key from the need's
@@ -116,19 +121,43 @@ restyle, or remix if the schema itself must change.
    > the filter must carry at least one positive `matches` term for it to
    > apply.
 
-   Run the filter through whatever search transport your session has —
-   the card-search tool in an assistant room, or
-   `npx boxel search --realm <catalog-realm-url> --query '<filter-json>' --json`
-   from a CLI session; the filter is identical either way. Write it
-   card-rooted (`on` anchor, bare field names); never hand-write
-   `item.`-prefixed paths. See `boxel/references/query-systems.md` and
+   Run the filter through your session's search transport. The filter is
+   identical either way, but the transport is not interchangeable:
+
+   - **In an assistant room, use the query-based card-search tool**
+     (`SearchCardsByQueryCommand`), which takes a `query`. Its
+     title-based sibling (`SearchCardsByTypeAndTitleCommand`) accepts
+     only a card title and type, so it **cannot express `specType` or
+     `matches`** — it will never find a Spec this way. Substituting it is
+     a defect, not a shortcut.
+   - **From a CLI session**, `npx boxel search --realm <catalog-realm-url>
+     --query '<filter-json>' --json`.
+
+   **A search of the realm you are building in does not satisfy this
+   step.** Checking what already exists in the current workspace is
+   useful, and it is a different search: same tool, different realm, and
+   it answers "have I already built this?" not "has the catalog already
+   built this?" Do both if you like, but the catalog query is the one
+   this skill requires.
+
+   Write the filter card-rooted (`on` anchor, bare field names); never
+   hand-write `item.`-prefixed paths. See
+   `boxel/references/query-systems.md` and
    `boxel/references/spec-usage.md`.
 
 3. **Read each hit's `attributes.specType`, `attributes.cardTitle`,
    `attributes.cardDescription`, and `attributes.readMe`.** Confirm each
    hit actually answers the need — a text match is a candidate, not a
-   decision. The readMe is the source of truth and rides on the search
-   response.
+   decision. The readMe is the source of truth.
+
+   **Whether those fields arrive with the search results depends on the
+   transport, so check before you judge.** A CLI `--json` search returns
+   the full Spec attributes. An assistant room's card-search result may
+   carry only ids and titles — if that is what you got, **read the
+   candidate Spec cards themselves** before deciding. Judging a hit on
+   its title alone is how a Spec that answered the need gets discarded;
+   a Spec whose `cardDescription` is empty is common, so the `readMe` and
+   `ref` are often the only things that actually settle it.
 
 4. **Decide per hit with the rubric above** — reference, remix, or build.
 
