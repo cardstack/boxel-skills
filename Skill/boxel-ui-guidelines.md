@@ -27,6 +27,8 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
 
 ### Color Pairing Rules
 
+- `--primary`, `--secondary`, `--accent`, `--destructive`, `--muted`, `--sidebar-primary`, and `--sidebar-accent` are surface/action/state tokens, not foreground colors. They fail in both directions: Boxel's primary may be a bright brand teal, so `color: var(--primary)` washes out on light backgrounds, while `--muted` is a near-white surface that all but vanishes as `color` on `--background` or `--card`. Each names a background and only pairs with its own `--*-foreground`. This covers **every** foreground role, not just body text — icon `color`/`stroke`/`fill`, borders, rules, and underlines all inherit the same problem. Use `--foreground` for body text, `--muted-foreground` for secondary text and de-emphasized marks, or the paired `--*-foreground` when the element sits on the matching surface.
+
 - The status tokens follow the same contract: `--success`, `--warning`, `--info`, `--attention`, and `--destructive` are fills, each paired with its own `--*-foreground`. A status *word* or *icon* on a neutral surface takes the hue's `--*-ink` token instead (see below), never the fill.
 
 - The neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) have no `-foreground` of their own by design: the theme guarantees `--foreground` reads on every one of them, so a rule that sets one of them as `background-color` pairs it with `color: var(--foreground)` (or inherits it). `--tooltip` is the exception — it is the inverted surface and pairs with `--tooltip-foreground`.
@@ -52,6 +54,30 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
     - `background-color: var(--secondary); color: var(--secondary-foreground);`
 
 **Hue as ink.** When a word or mark must read *as* a hue on a neutral surface — a status label, a link, a colored icon — use the hue's ink token (`color: var(--success-ink)`, `color: var(--primary-ink)`) rather than the fill. Every fill has one (`--primary-ink`, `--secondary-ink`, `--accent-ink`, `--destructive-ink`, `--success-ink`, `--warning-ink`, `--info-ink`, `--attention-ink`). The default is the hue mixed 60% toward `--foreground`, so it darkens on light surfaces and lightens on dark ones, and a theme that sets only `--success` still gets a readable `--success-ink`. Ink tokens belong on `--background`, `--card`, and `--muted`; on a hue's own fill use its `--*-foreground`.
+
+### Guaranteed Contrast Pairings
+
+The theme owes you these pairings and nothing else. Stay inside them and no contrast check is needed:
+
+- Every surface token with its own `--*-foreground`: `--background`/`--foreground`, `--card`/`--card-foreground`, `--popover`, `--primary`, `--secondary`, `--accent`, `--muted`, `--destructive`, `--success`, `--warning`, `--info`, `--attention`, `--tooltip`, and the `--sidebar-*` family.
+- `--foreground` on any neutral surface: `--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`, and `--muted`.
+- `--muted-foreground` on `--background`, `--card`, or `--muted`.
+- Each `--*-ink` token on `--background`, `--card`, or `--muted`.
+
+A pair outside this list — an accent token used as ink, a hand-picked combination, a `color-mix()` result, a foreground placed on a surface it was not paired with — has no guarantee behind it, and the theme is free to break it. Prefer restructuring onto a guaranteed pair over keeping the combination.
+
+### `background-color`, Not `background`, for a Plain Color
+
+When a rule sets only a color, write `background-color: var(--card)`, never `background: var(--card)`.
+
+`background` is a shorthand for eight properties. Writing a bare color through it resets the other seven (`background-image`, `-size`, `-position`, `-repeat`, `-origin`, `-clip`, `-attachment`) to their initial values in the same declaration. That is rarely what a color change means, and the damage is silent: a hover rule that says `background: var(--hover)` wipes a gradient or a wallpaper image the resting state set; a parent's `:deep()` override that says `background: var(--card)` erases a child's `background-image`; a theme that later adds a texture to `--canvas` never shows through. It also blurs the pairing rule — the rule for a surface is "set the background color and its `-foreground` together", and `background-color` says exactly that.
+
+Exceptions, where the shorthand is the right tool because you mean more than the color:
+
+- You are setting an image or gradient: `background: linear-gradient(180deg, var(--muted), var(--accent));`, `background: url(...) center / cover no-repeat;`. Tokens still apply inside the gradient stops.
+- You are setting several sub-properties at once and want them read as one declaration.
+- You intend the reset: `background: none;` or `background: transparent;` to clear an inherited image *and* color together. Say so in a comment, because the next reader will assume it was a plain color.
+- Inline `style=` attributes and JS style objects follow the same rule (`backgroundColor` in `Object.assign(el.style, …)`).
 
 ### Semi-transparent Colors on Themed Surfaces
 
@@ -89,6 +115,8 @@ As with spacing, you have the same three options for font sizes:
 Choose based on whether you want the text to respond to the linked theme.
 
 **`font:` shorthand pitfall.** The composite `--boxel-font-*` tokens (`font: var(--boxel-font-sm);` etc.) bundle size/line-height *and* `--boxel-font-family` — the fixed IBM Plex stack. Using the shorthand therefore pins the Boxel family and stomps the theme's `--font-sans`. On themeable content, set the individual `font-size` / `font-weight` / `line-height` properties instead so the theme's family inherits. The shorthand stays valid where Boxel chrome styling is the intent — it's a deliberate theme opt-out, so judge each occurrence by intent, not mechanically.
+
+**`--boxel-font-*` is not a size.** `font-size: var(--boxel-font-sm);` is invalid CSS and the declaration is dropped: `--boxel-font-sm` expands to `<size> / <line-height> <family>`, a value only the `font` shorthand accepts. The two correct forms are `font-size: var(--boxel-font-size-sm);` for themeable content, where the theme's family and line-height inherit, or `font: var(--boxel-font-sm);` where Boxel chrome styling is the intent. Never mix the two names.
 
 #### Semantic typography variables
 
@@ -402,7 +430,9 @@ Wrap inputs with `FieldContainer` for consistent label + input layout. Use compo
 
 **Always set explicit `width` and `height` attributes on an icon component** — never size an icon through CSS (`.glyph { width: 1.5rem }`) alone. The attributes give the SVG an intrinsic size, which is required for it to render at the right dimensions during prerender where the scoped CSS may not have applied yet; CSS-only sizing collapses or mis-sizes the glyph in those passes. Use CSS on the icon only for color. This is the one place plain numeric (px-equivalent) sizing is expected — the rem-over-px preference does not apply to icon `width`/`height` attributes.
 
-Icons and SVGs must not use hardcoded hex fills — use theme color tokens via CSS:
+Icons and SVGs must not use hardcoded hex fills — use theme color tokens via CSS. "Theme token" is not the whole rule, though: **icon color obeys the same pairing rules as text.** Legal values are `--muted-foreground`, `--foreground`, or the `--*-foreground` paired with the surface the icon sits on. An action/surface token (`--primary`, `--accent`, …) is not a foreground and is not guaranteed to hold contrast on paper. This is a common miss precisely because "don't hardcode hex, use a token" reads as satisfied by *any* token.
+
+Best of all is often no color rule at all: an incidental mark that inherits `currentColor` tracks whatever surface it lands on for free.
 
 ```gts
 // Avoid — hardcoded hex fills
@@ -415,9 +445,13 @@ Icons and SVGs must not use hardcoded hex fills — use theme color tokens via C
 
 // Correct — explicit width/height attributes, CSS for color only
 <ChefHat width='12' height='12' class='chef-hat-icon' />
+
+// Also correct — no class; the glyph inherits currentColor from its context
+<ChefHat width='12' height='12' aria-hidden='true' />
 ```
 
 ```css
+/* Correct — a foreground token */
 .chef-hat-icon {
   color: var(--muted-foreground);
 }
@@ -469,7 +503,7 @@ Always reach for existing boxel-ui components before writing custom HTML + CSS. 
     align-items: center;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    background: var(--muted);
+    background-color: var(--muted);
     font-size: var(--boxel-font-size-xs);
   }
 </style>
@@ -523,7 +557,7 @@ import {
 - `DateRangePicker` — date range selection
 
 **Buttons & Actions:**
-- `Button` — primary action button (use `@kind` for primary/secondary/muted/destructive/text-only; use `@size` for `auto, base, extra-small, small, tall, touch)
+- `Button` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
 - `IconButton` — icon-only button (use `@variant` for primary/secondary/muted/destructive/text-only, `@size` for `auto, base, extra-small, small, tall, touch)
 - `ContextButton` — contextual action button (`@icon` for add, edit, close, delete, context-menu, context-menu-vertical; `@variant` for highlight, highlight-icon, ghost, destructive, destructive-icon)
 - `CopyButton` — copy-to-clipboard
@@ -554,6 +588,54 @@ import {
 - `ColorPalette` / `ColorPicker` — color selection
 - `DragAndDrop` — drag-and-drop interface
 
+### Don't neutralize a component — pick the variant
+
+If styling a boxel-ui component requires cancelling its own defaults, you picked the wrong component or the wrong variant. The tell is a `<style scoped>` block that zeroes out what the component brought:
+
+**Wrong** — `Pill` stripped down to plain text, then re-styled from scratch:
+```gts
+<Pill class='meta-link' @tag={{if @model.url.length 'a'}} href={{@model.url}}>
+  <:default><@fields.label /></:default>
+</Pill>
+<style scoped>
+  .meta-link {
+    padding: 0;          /* fighting the component */
+    background: none;    /* fighting the component */
+    border: none;        /* fighting the component */
+    color: var(--boxel-500);
+    font-size: 0.75rem;
+  }
+</style>
+```
+
+**Right** — a variant that already has no chrome, leaving only genuinely bespoke declarations:
+```gts
+<Button class='meta-link' @as='anchor' @kind='link-muted' @size='extra-small' @href={{@model.url}}>
+  <@fields.label />
+</Button>
+<style scoped>
+  .meta-link {
+    font-family: var(--font-mono);
+    text-transform: uppercase;   /* nothing the component already provides */
+  }
+</style>
+```
+
+Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's API first (see the top of this file) and look through `@kind` / `@variant` / `@size` before writing a single override.
+
+**Component args are not portable between components.** `@as` and `@href` are `Button`'s args. `Pill` has no `@as` — it takes `@tag` (a raw HTML tag name) and receives `href` as a plain attribute through `...attributes`. Never carry one component's arg names to another; check the signature.
+
+### Collapse wrapper FieldDefs instead of flattening them with `:deep()`
+
+`:deep()` and `display: contents` are for **host-generated** DOM you cannot remove. If the wrapper is a FieldDef *you* introduced, delete it instead. Two signals it isn't a real grouping level:
+
+- The instance data shows a `containsMany` of wrapper fields that each hold exactly **one** item. That's not a group, it's indirection.
+- You are reaching **across a scoped-style boundary** — a selector in the parent's `<style scoped>` targeting a class defined in a child FieldDef's own template. Scoped styles exist to prevent that; needing it means the split is in the wrong place.
+
+Point the parent's `containsMany` at the leaf field directly and migrate the instance JSON to match. A real example: `linkStrip = containsMany(LinkGroupField)` where every `LinkGroupField` held one `LinkField` collapsed to `containsMany(LinkField)` — removing a `:deep(.containsMany-item) { display: contents }` rule, a `:deep(.compound-field.embedded-format)` rule, the wrapper's own flex block, and a cross-scope `gap` override, with no behavior change.
+
+Also prefer `@displayContainer={{false}}` on the field render over hand-written `display: contents` when all you want is chrome removal, and don't add a wrapper `<div>` whose only job is to carry a margin — put the margin on the element that already exists.
+
 ### When a component is missing from boxel-ui
 
 If no existing component satisfies your need, write a self-contained Glimmer component in the same file (or a co-located file) that is structured so it could be contributed to the boxel-ui library later:
@@ -580,7 +662,11 @@ Before finalizing any card template, verify:
 - [ ] Semi-transparent colors use `color-mix(in oklch, ...)` not `rgba()`
 - [ ] No fixed widths that ignore available space — use relative units or `max-width`
 - [ ] Responsive layout uses `@container` queries, not `@media` viewport queries or `vw`/`vh` units
-- [ ] Icons and SVGs never use hardcoded hex fills — use theme color tokens via CSS
+- [ ] Icons and SVGs never use hardcoded hex fills — color them with a foreground token (`--muted-foreground`, `--foreground`, or the `--*-foreground` paired with their surface), or leave them uncolored to inherit `currentColor`
+- [ ] No action/surface token (`--primary`, `--secondary`, `--accent`, `--destructive`, `--muted`) used as a foreground — checked for text and equally for icon `color`/`stroke`/`fill`, borders, and rules. Each token paints; its `--*-foreground` writes
+- [ ] Every text/icon color sits on a surface the theme guarantees it against — the `--*`/`--*-foreground` pairs, `--foreground` on the neutral surfaces, `--muted-foreground` and the `--*-ink` tokens on `--background`/`--card`/`--muted`; anything else is unguaranteed and should be restructured onto a guaranteed pair
+- [ ] `font-size` takes `--boxel-font-size-*`; the composite `--boxel-font-*` goes only in the `font:` shorthand, and only for Boxel chrome
+- [ ] `background-color` for plain colors; the `background` shorthand only for images, gradients, multi-property sets, or an intended full reset
 - [ ] No hardcoded fallback values scattered in `var()` calls — if fallbacks are needed, define them once on the parent container. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
 - [ ] No deprecated `xx*` token names — use the digit forms (`--boxel-sp-2xl` not `--boxel-sp-xxl`, `--boxel-border-radius-2xs` not `-xxs`, `--boxel-icon-2xs` not `-xxs`); check the `deprecated - Do Not Use` block in boxel-ui `variables.css` for the current list
 - [ ] No `font:` shorthand with composite `--boxel-font-*` tokens on themeable content — it pins the fixed Boxel family and stomps the theme's `--font-sans`; use individual `font-size`/`font-weight`/`line-height` (shorthand is fine where Boxel chrome styling is the intent)
@@ -591,4 +677,6 @@ Before finalizing any card template, verify:
 - [ ] DOM queries in interactions/animations are scoped to the component's own subtree (`element.closest('.boxel-card-container')` as query root), never the document — the same card can render in multiple stacks on one page; JS query hooks are dedicated data attributes, not class names and not `data-test-*` (tests only)
 - [ ] Prefers `<@fields.field />` for all simple field rendering; `@model.x` for conditionals, HTML attributes, context-specific fallback value, and JS getters
 - [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
+- [ ] No overrides that cancel a boxel-ui component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Pill`/`Button`) — pick the `@kind`/`@variant`/`@size` that already has no chrome (e.g. `Button @kind='link-muted'`) and keep only genuinely bespoke declarations
+- [ ] `:deep()` / `display: contents` used only on host-generated field DOM — a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`

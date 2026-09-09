@@ -120,7 +120,9 @@ Wrap inputs with `FieldContainer` for consistent label + input layout. Use compo
 
 **Always set explicit `width` and `height` attributes on an icon component** — never size an icon through CSS (`.glyph { width: 1.5rem }`) alone. The attributes give the SVG an intrinsic size, which is required for it to render at the right dimensions during prerender where the scoped CSS may not have applied yet; CSS-only sizing collapses or mis-sizes the glyph in those passes. Use CSS on the icon only for color. This is the one place plain numeric (px-equivalent) sizing is expected — the rem-over-px preference does not apply to icon `width`/`height` attributes.
 
-Icons and SVGs must not use hardcoded hex fills — use theme color tokens via CSS:
+Icons and SVGs must not use hardcoded hex fills — use theme color tokens via CSS. "Theme token" is not the whole rule, though: **icon color obeys the same pairing rules as text.** Legal values are `--muted-foreground`, `--foreground`, or the `--*-foreground` paired with the surface the icon sits on. An action/surface token (`--primary`, `--accent`, …) is not a foreground: it names a background, and the theme guarantees no contrast for it as ink. This is a common miss precisely because "don't hardcode hex, use a token" reads as satisfied by *any* token.
+
+Best of all is often no color rule at all: an incidental mark that inherits `currentColor` tracks whatever surface it lands on for free.
 
 ```gts
 // Avoid — hardcoded hex fills
@@ -133,9 +135,13 @@ Icons and SVGs must not use hardcoded hex fills — use theme color tokens via C
 
 // Correct — explicit width/height attributes, CSS for color only
 <ChefHat width='12' height='12' class='chef-hat-icon' />
+
+// Also correct — no class; the glyph inherits currentColor from its context
+<ChefHat width='12' height='12' aria-hidden='true' />
 ```
 
 ```css
+/* Correct — a foreground token */
 .chef-hat-icon {
   color: var(--muted-foreground);
 }

@@ -43,7 +43,7 @@ import {
 - `DateRangePicker` — date range selection
 
 **Buttons & Actions:**
-- `Button` — primary action button (use `@kind` for primary/secondary/muted/destructive/text-only; use `@size` for `auto, base, extra-small, small, tall, touch)
+- `Button` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
 - `IconButton` — icon-only button (use `@variant` for primary/secondary/muted/destructive/text-only, `@size` for `auto, base, extra-small, small, tall, touch)
 - `ContextButton` — contextual action button (`@icon` for add, edit, close, delete, context-menu, context-menu-vertical; `@variant` for highlight, highlight-icon, ghost, destructive, destructive-icon)
 - `CopyButton` — copy-to-clipboard
@@ -73,6 +73,43 @@ import {
 - `Message` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `KanbanPlane` — preferred drag-and-drop interface for boards. Do not hand-roll pointer drag in card templates unless no boxel-ui component exists for the interaction.
+
+### Don't neutralize a component — pick the variant
+
+If styling a boxel-ui component requires cancelling its own defaults, you picked the wrong component or the wrong variant. The tell is a `<style scoped>` block that zeroes out what the component brought:
+
+**Wrong** — `Pill` stripped down to plain text, then re-styled from scratch:
+```gts
+<Pill class='meta-link' @tag={{if @model.url.length 'a'}} href={{@model.url}}>
+  <:default><@fields.label /></:default>
+</Pill>
+<style scoped>
+  .meta-link {
+    padding: 0;          /* fighting the component */
+    background: none;    /* fighting the component */
+    border: none;        /* fighting the component */
+    color: var(--boxel-500);
+    font-size: 0.75rem;
+  }
+</style>
+```
+
+**Right** — a variant that already has no chrome, leaving only genuinely bespoke declarations:
+```gts
+<Button class='meta-link' @as='anchor' @kind='link-muted' @size='extra-small' @href={{@model.url}}>
+  <@fields.label />
+</Button>
+<style scoped>
+  .meta-link {
+    font-family: var(--font-mono);
+    text-transform: uppercase;   /* nothing the component already provides */
+  }
+</style>
+```
+
+Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's API first (see the top of this file) and look through `@kind` / `@variant` / `@size` before writing a single override.
+
+**Component args are not portable between components.** `@as` and `@href` are `Button`'s args. `Pill` has no `@as` — it takes `@tag` (a raw HTML tag name) and receives `href` as a plain attribute through `...attributes`. Never carry one component's arg names to another; check the signature.
 
 ### Drag/drop quality bar
 

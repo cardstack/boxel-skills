@@ -21,8 +21,8 @@ border: 1px solid var(--border, #d3d3d3);
 **Right:**
 ```css
 padding: var(--boxel-sp);
-background-color: var(--background);
-color: var(--foreground);
+background-color: var(--card);
+color: var(--card-foreground);
 border: 1px solid var(--border);
 ```
 
@@ -32,7 +32,7 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
 
 ### Color Pairing Rules
 
-- `--primary`, `--secondary`, `--accent`, `--destructive`, `--sidebar-primary`, and `--sidebar-accent` are surface/action/state tokens, not ordinary text colors. Boxel's primary may be a bright brand teal, so `color: var(--primary)` can fail on light backgrounds. Use `--foreground` for body text, `--muted-foreground` for secondary text, or the paired `--*-foreground` when text sits on the matching surface.
+- `--primary`, `--secondary`, `--accent`, `--destructive`, `--muted`, `--sidebar-primary`, and `--sidebar-accent` are surface/action/state tokens, not foreground colors. They fail in both directions: Boxel's primary may be a bright brand teal, so `color: var(--primary)` washes out on light backgrounds, while `--muted` is a near-white surface that all but vanishes as `color` on `--background` or `--card`. Each names a background and only pairs with its own `--*-foreground`. This covers **every** foreground role, not just body text — icon `color`/`stroke`/`fill`, borders, rules, and underlines all inherit the same problem. Use `--foreground` for body text, `--muted-foreground` for secondary text and de-emphasized marks, or the paired `--*-foreground` when the element sits on the matching surface.
 
 - The status tokens follow the same contract: `--success`, `--warning`, `--info`, `--attention`, and `--destructive` are fills, each paired with its own `--*-foreground`. A status *word* or *icon* on a neutral surface takes the hue's `--*-ink` token instead (see below), never the fill.
 
@@ -59,6 +59,30 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
     - `background-color: var(--secondary); color: var(--secondary-foreground);`
 
 **Hue as ink.** When a word or mark must read *as* a hue on a neutral surface — a status label, a link, a colored icon — use the hue's ink token (`color: var(--success-ink)`, `color: var(--primary-ink)`) rather than the fill. Every fill has one (`--primary-ink`, `--secondary-ink`, `--accent-ink`, `--destructive-ink`, `--success-ink`, `--warning-ink`, `--info-ink`, `--attention-ink`). The default is the hue mixed 60% toward `--foreground`, so it darkens on light surfaces and lightens on dark ones, and a theme that sets only `--success` still gets a readable `--success-ink`. Ink tokens belong on `--background`, `--card`, and `--muted`; on a hue's own fill use its `--*-foreground`.
+
+### Guaranteed Contrast Pairings
+
+The theme owes you these pairings and nothing else. Stay inside them and no contrast check is needed:
+
+- Every surface token with its own `--*-foreground`: `--background`/`--foreground`, `--card`/`--card-foreground`, `--popover`, `--primary`, `--secondary`, `--accent`, `--muted`, `--destructive`, `--success`, `--warning`, `--info`, `--attention`, `--tooltip`, and the `--sidebar-*` family.
+- `--foreground` on any neutral surface: `--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`, and `--muted`.
+- `--muted-foreground` on `--background`, `--card`, or `--muted`.
+- Each `--*-ink` token on `--background`, `--card`, or `--muted`.
+
+A pair outside this list — an accent token used as ink, a hand-picked combination, a `color-mix()` result, a foreground placed on a surface it was not paired with — has no guarantee behind it, and the theme is free to break it. Prefer restructuring onto a guaranteed pair over keeping the combination.
+
+### `background-color`, Not `background`, for a Plain Color
+
+When a rule sets only a color, write `background-color: var(--card)`, never `background: var(--card)`.
+
+`background` is a shorthand for eight properties. Writing a bare color through it resets the other seven (`background-image`, `-size`, `-position`, `-repeat`, `-origin`, `-clip`, `-attachment`) to their initial values in the same declaration. That is rarely what a color change means, and the damage is silent: a hover rule that says `background: var(--hover)` wipes a gradient or a wallpaper image the resting state set; a parent's `:deep()` override that says `background: var(--card)` erases a child's `background-image`; a theme that later adds a texture to `--canvas` never shows through. It also blurs the pairing rule — the rule for a surface is "set the background color and its `-foreground` together", and `background-color` says exactly that.
+
+Exceptions, where the shorthand is the right tool because you mean more than the color:
+
+- You are setting an image or gradient: `background: linear-gradient(180deg, var(--muted), var(--accent));`, `background: url(...) center / cover no-repeat;`. Tokens still apply inside the gradient stops.
+- You are setting several sub-properties at once and want them read as one declaration.
+- You intend the reset: `background: none;` or `background: transparent;` to clear an inherited image *and* color together. Say so in a comment, because the next reader will assume it was a plain color.
+- Inline `style=` attributes and JS style objects follow the same rule (`backgroundColor` in `Object.assign(el.style, …)`).
 
 ### Semi-transparent Colors on Themed Surfaces
 
@@ -98,6 +122,8 @@ As with spacing, you have the same three options for font sizes:
 Choose based on whether you want the text to respond to the linked theme.
 
 **`font:` shorthand pitfall.** The composite `--boxel-font-*` tokens (`font: var(--boxel-font-sm);` etc.) bundle size/line-height *and* `--boxel-font-family` — the fixed IBM Plex stack. Using the shorthand therefore pins the Boxel family and stomps the theme's `--font-sans`. On themeable content, set the individual `font-size` / `font-weight` / `line-height` properties instead so the theme's family inherits. The shorthand stays valid where Boxel chrome styling is the intent — it's a deliberate theme opt-out, so judge each occurrence by intent, not mechanically.
+
+**`--boxel-font-*` is not a size.** `font-size: var(--boxel-font-sm);` is invalid CSS and the declaration is dropped: `--boxel-font-sm` expands to `<size> / <line-height> <family>`, a value only the `font` shorthand accepts. The two correct forms are `font-size: var(--boxel-font-size-sm);` for themeable content, where the theme's family and line-height inherit, or `font: var(--boxel-font-sm);` where Boxel chrome styling is the intent. Never mix the two names.
 
 #### Semantic typography variables
 

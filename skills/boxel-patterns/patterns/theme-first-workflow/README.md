@@ -87,15 +87,10 @@ In `<style scoped>` blocks, reference theme CSS variables exclusively:
 
 ```css
 .card-shell {
-  background: var(--background);
-  color: var(--foreground);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-family: var(--font-sans);
+  padding: 1rem;
 }
-
 .primary-action {
-  background: var(--primary);
+  background-color: var(--primary);
   color: var(--primary-foreground);
 }
 ```
