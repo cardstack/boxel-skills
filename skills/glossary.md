@@ -312,11 +312,11 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 - **`npx boxel profile <list|add|switch|remove|migrate>`** — Profile / environment management. `switch` changes the global active profile; restore it after a temporary environment change.
 - **`npx boxel realm <create|list|remove|wait-for-ready|cancel-indexing>`** — Realm lifecycle.
-- **`npx boxel realm pull <realm-url> <local-dir>`** — Realm → local.
+- **`npx boxel realm pull <realm-url> <local-dir>`** — Realm → local. **Destructive to unpushed local edits:** overwrites every local file with no dirty check and no warning. For provisioning a fresh mirror, not for updating one in use. → `boxel-environment/references/shared-mirror-safety.md`
 - **`npx boxel realm push <local-dir> <realm-url>`** — Local → realm.
-- **`npx boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.)
+- **`npx boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.) `--prefer-remote` carries the same hazard as `pull`.
 - **fresh-realm push ordering** — Push definitions, wait for schemas, then write instances. Mixed first pushes can preserve card counts while replacing nested realm-defined field values with `null`. → `boxel-environment/references/fresh-realm-push-integrity.md`
-- **`npx boxel realm status <local-dir>`** — Classify local changes vs. manifest.
+- **`npx boxel realm status <local-dir>`** — Classify local changes vs. manifest (`modified-local` / `modified-remote` / `new-remote` / `conflict`). Read-only; `--pull` takes only the files with no local changes, so it is the **safe alternative to `realm pull`** on a mirror in use. Not present in every installed CLI — check `npx boxel realm --help`.
 - **`npx boxel realm publish <source> <published>` / `unpublish`** — Create or remove an anonymous host-mode copy.
 - **`npx boxel realm indexing-errors --realm <url>`** — List cards that failed to index when supported by the installed CLI.
 - **`npx boxel realm history`** — List/restore/tag checkpoints.
