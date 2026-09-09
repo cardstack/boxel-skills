@@ -104,7 +104,7 @@ The Boxel host has theme-oriented commands that understand the hierarchy:
 
 Use these command patterns when making or improving theme cards through the app instead of treating every Theme as a raw CSS string.
 
-Monorepo source files to check when this model changes: `packages/base/structured-theme.gts`, `packages/base/style-reference.gts`, `packages/base/detailed-style-reference.gts`, `packages/base/brand-guide.gts`, `packages/base/brand-logo.gts`, `packages/base/brand-functional-palette.gts`, `packages/base/structured-theme-variables.gts`, `packages/base/Theme/boxel-brand-guide.json`, `packages/boxel-ui/addon/src/helpers/theme-css.ts`, and `packages/host/app/tools/generate-theme-example.ts`.
+Monorepo source files to check when this model changes: `packages/base/structured-theme.gts`, `packages/base/style-reference.gts`, `packages/base/detailed-style-reference.gts`, `packages/base/brand-guide.gts`, `packages/base/brand-logo.gts`, `packages/base/brand-functional-palette.gts`, `packages/base/structured-theme-variables.gts`, `packages/base/Theme/boxel-brand-guide.json`, `packages/boxel-ui/src/styles/theme.css` (the token contract and its default values), `packages/boxel-ui/src/helpers/theme-css.ts`, and `packages/host/app/tools/generate-theme-example.ts`.
 
 ### 3.2 Canonical Theme Variables
 Use the variables directly (do not wrap with `hsl(var(...))`). Pair backgrounds with their foregrounds for contrast: a rule that sets a semantic background also sets the paired `--*-foreground` in the same rule, once at that surface's root — descendants inherit it. See the Color Pairing Rules in `boxel-ui-guidelines/references/use-boxel-design-tokens-for-theming.md` for the full rules and exceptions.
@@ -123,10 +123,24 @@ When assigning values, remember that Boxel UI treats shadcn-style tokens as pair
 --muted
 --accent
 --destructive
---input
+--success
+--warning
+--info
+--attention
+--overlay
 --sidebar
 --sidebar-primary
 --sidebar-accent
+```
+- Neutral surfaces (no `-foreground` of their own — `--foreground` must read on all of them; `--tooltip` is the inverted exception):
+```css
+--canvas
+--inset
+--field
+--hover
+--stripe
+--selected
+--tooltip
 ```
 
 - Foreground Colors:
@@ -139,13 +153,32 @@ When assigning values, remember that Boxel UI treats shadcn-style tokens as pair
 --muted-foreground
 --accent-foreground
 --destructive-foreground
+--success-foreground
+--warning-foreground
+--info-foreground
+--attention-foreground
+--tooltip-foreground
+--subtle-foreground
 --sidebar-foreground
 --sidebar-primary-foreground
 --sidebar-accent-foreground
 ```
+- Ink Colors (a hue used *as* text/icon color on a neutral surface; default is the hue mixed 60% toward `--foreground`, so a theme that sets only the fill still gets a readable ink):
+```css
+--primary-ink
+--secondary-ink
+--accent-ink
+--destructive-ink
+--success-ink
+--warning-ink
+--info-ink
+--attention-ink
+```
 - Border Colors:
 ```css
 --border
+--border-strong
+--input
 --sidebar-border
 ```
 - Css Outline Colors:
@@ -160,6 +193,12 @@ When assigning values, remember that Boxel UI treats shadcn-style tokens as pair
 --chart-3
 --chart-4
 --chart-5
+--chart-6
+--chart-7
+```
+- Control sizing:
+```css
+--control-height
 ```
 
 - Fonts: (`font-family`)
@@ -219,6 +258,7 @@ When assigning values, remember that Boxel UI treats shadcn-style tokens as pair
 --shadow-lg
 --shadow-xl
 --shadow-2xl
+--shadow-inset
 --boxel-box-shadow
 --boxel-box-shadow-hover
 --boxel-deep-box-shadow
@@ -238,7 +278,12 @@ When assigning values, remember that Boxel UI treats shadcn-style tokens as pair
 --boxel-subheading-font-size
 --boxel-body-font-size
 --boxel-caption-font-size
+--boxel-ui-label-font-size
+--boxel-eyebrow-font-size
 ```
+- Typography roles: the theme's `typography` field has a slot per role — `heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label` (control text, table headers, badges), `eyebrow` (the tracked-out kicker above a title). Each slot carries family, size, weight, line-height, and letter-spacing, published to templates as `--boxel-<role>-*` (the label role publishes as `--boxel-ui-label-*`).
+
+Every token above is a declared field with a default in `theme.css`, reset at each themed-card boundary. A token the contract does not name (motion, easing, shape constants) has no slot on `StructuredTheme`; it needs a `BrandGuide` (its `customCssVariables` list, or `brandColorPalette` names) or a theme card definition extended with its own fields. Custom variables have no default and no boundary reset: they leak into nested cards, and switching to another theme card drops them. Never duplicate a named token that way.
 
 #### CSS Usage Examples:
 

@@ -2,7 +2,7 @@
 
 Never hard-code colors. Always use CSS custom properties.
 
-**Fallback rule — scoped to theme/semantic tokens.** Do not provide hardcoded fallback values inside `var()` when referencing theme or semantic tokens — e.g. `var(--primary, #6366f1)`, `var(--boxel-sp, 1rem)`, `var(--background, white)`. Those tokens are always defined, so the fallback is dead weight that drifts out of sync with the theme. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`.
+**Fallback rule — scoped to theme/semantic tokens.** Do not provide hardcoded fallback values inside `var()` when referencing theme or semantic tokens — e.g. `var(--primary, #6366f1)`, `var(--boxel-sp, 1rem)`, `var(--background, white)`. Those tokens are always defined, so the fallback is dead weight that drifts out of sync with the theme. That includes the status tokens: `--success`, `--warning`, `--info`, and `--attention` are declared in `theme.css` with defaults, so plain `var(--success)` is correct and `var(--success, green)` is the same dead weight. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`.
 
 Two exemptions — both resolved by declaring on a parent container, never inline per selector:
 
@@ -46,14 +46,52 @@ var(--accent)               /* accent background-color */
 var(--accent-foreground)    /* text on accent */
 var(--destructive)          /* error/danger color */
 var(--destructive-foreground) /* text on error/danger surface */
+var(--success)              /* success/positive feedback surface */
+var(--success-foreground)   /* text on success */
+var(--warning)              /* warning/caution feedback surface */
+var(--warning-foreground)   /* text on warning */
+var(--info)                 /* informational feedback surface */
+var(--info-foreground)      /* text on info */
+var(--attention)            /* needs-your-attention surface, distinct from warning and destructive */
+var(--attention-foreground) /* text on attention */
+var(--overlay)              /* translucent scrim behind modals and drawers */
+
+/* Neutral surfaces beyond shadcn's. None carries its own -foreground:
+   --foreground must read on all of them, so pair them with --foreground. */
+var(--canvas)               /* workspace ground behind the page background */
+var(--inset)                /* a well sunk into a card */
+var(--field)                /* an editable input at rest; its border is --input */
+var(--hover)                /* pointer-hover surface; translucent, composes over any background */
+var(--stripe)               /* alternate (zebra) row background */
+var(--selected)             /* selected row/item; defaults to a tint of --primary over --card */
+var(--tooltip)              /* tooltip background — the one inverted surface */
+var(--tooltip-foreground)   /* text on tooltip */
+
+/* Hue as ink: the hue used *as* text/icon color on a neutral surface (a status
+   label, a link, an icon). Distinct from --x-foreground, which is ink *on* the
+   hue's own fill. Defaults pull each hue toward --foreground so it stays readable. */
+var(--primary-ink)
+var(--secondary-ink)
+var(--accent-ink)
+var(--destructive-ink)
+var(--success-ink)
+var(--warning-ink)
+var(--info-ink)
+var(--attention-ink)
+
+var(--subtle-foreground)    /* third ink step, fainter than --muted-foreground: timestamps, tertiary counts */
 var(--border)               /* border color */
-var(--input)                /* input background-color */
+var(--border-strong)        /* one visible step darker than --border, for dividers that must hold their own */
+var(--input)                /* input border color and unfilled control track; input backgrounds are --field */
 var(--ring)                 /* focus ring color */
+var(--control-height)       /* height of inputs, selects, buttons (default 2.5rem) */
 var(--chart-1)          /* chart color 1 */
 var(--chart-2)          /* chart color 2 */
 var(--chart-3)          /* chart color 3 */
 var(--chart-4)          /* chart color 4 */
 var(--chart-5)          /* chart color 5 */
+var(--chart-6)          /* chart color 6 */
+var(--chart-7)          /* chart color 7 */
 var(--popover)           /* popover background-color */
 var(--popover-foreground) /* popover font color */
 var(--sidebar)            /* sidebar background-color */
@@ -69,6 +107,10 @@ var(--sidebar-ring)        /* sidebar focus-ring color */
 ### Color Pairing Rules
 
 - `--primary`, `--secondary`, `--accent`, `--destructive`, `--sidebar-primary`, and `--sidebar-accent` are surface/action/state tokens, not ordinary text colors. Boxel's primary may be a bright brand teal, so `color: var(--primary)` can fail on light backgrounds. Use `--foreground` for body text, `--muted-foreground` for secondary text, or the paired `--*-foreground` when text sits on the matching surface.
+
+- The status tokens follow the same contract: `--success`, `--warning`, `--info`, `--attention`, and `--destructive` are fills, each paired with its own `--*-foreground`. A status *word* or *icon* on a neutral surface takes the hue's `--*-ink` token instead (see below), never the fill.
+
+- The neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) have no `-foreground` of their own by design: the theme guarantees `--foreground` reads on every one of them, so a rule that sets one of them as `background-color` pairs it with `color: var(--foreground)` (or inherits it). `--tooltip` is the exception — it is the inverted surface and pairs with `--tooltip-foreground`.
 
 - `--muted-foreground` must only be used on `--muted`, `--background`, or `--card` surfaces. Do not place it on `--primary`, `--accent`, or any other surface — contrast is not guaranteed.
 
@@ -89,6 +131,8 @@ var(--sidebar-ring)        /* sidebar focus-ring color */
     - `background-color: var(--accent); color: var(--accent-foreground);`
     - `background-color: var(--primary); color: var(--primary-foreground);`
     - `background-color: var(--secondary); color: var(--secondary-foreground);`
+
+**Hue as ink.** When a word or mark must read *as* a hue on a neutral surface — a status label, a link, a colored icon — use the hue's ink token (`color: var(--success-ink)`, `color: var(--primary-ink)`) rather than the fill. Every fill has one (`--primary-ink`, `--secondary-ink`, `--accent-ink`, `--destructive-ink`, `--success-ink`, `--warning-ink`, `--info-ink`, `--attention-ink`). The default is the hue mixed 60% toward `--foreground`, so it darkens on light surfaces and lightens on dark ones, and a theme that sets only `--success` still gets a readable `--success-ink`. Ink tokens belong on `--background`, `--card`, and `--muted`; on a hue's own fill use its `--*-foreground`.
 
 ### Semi-transparent Colors on Themed Surfaces
 
@@ -188,7 +232,31 @@ var(--boxel-caption-font-family)
 var(--boxel-caption-font-size)
 var(--boxel-caption-font-weight)
 var(--boxel-caption-line-height)
+
+/* UI label: control text, table headers, badges.
+   (--boxel-label-* is the Label component's own contract — not this.) */
+var(--boxel-ui-label-font-family)
+var(--boxel-ui-label-font-size)
+var(--boxel-ui-label-font-weight)
+var(--boxel-ui-label-line-height)
+
+/* Eyebrow: the small tracked-out kicker above a title */
+var(--boxel-eyebrow-font-family)
+var(--boxel-eyebrow-font-size)
+var(--boxel-eyebrow-font-weight)
+var(--boxel-eyebrow-line-height)
+
+/* Letter-spacing per role; body, caption, and label follow the theme's --tracking-normal */
+var(--boxel-heading-letter-spacing)
+var(--boxel-section-heading-letter-spacing)
+var(--boxel-subheading-letter-spacing)
+var(--boxel-body-letter-spacing)
+var(--boxel-caption-letter-spacing)
+var(--boxel-ui-label-letter-spacing)
+var(--boxel-eyebrow-letter-spacing)
 ```
+
+Each role, including `label` and `eyebrow`, is a slot on the theme's `typography` field, so a theme can retune it; the `--boxel-*` names above are what `CardContainer` publishes from those slots. Use the role's letter-spacing token rather than a hand-picked `--boxel-lsp-*` value when the text is in a themed template — an eyebrow's tracking is part of the theme's voice.
 
 #### Low-level typography tokens
 
@@ -235,9 +303,21 @@ var(--boxel-border-radius-2xl) /* scales with theme */
 
 ### Shadow & Effects Tokens
 
-Always check the linked card in cardInfo.theme for guidance. Here are some defaults:
+Prefer the theme's shadow scale: it is part of the theme contract, so a theme can retune elevation and the template follows. The `--boxel-*` shadows are fixed Boxel chrome values that do not respond to the theme.
 
 ```css
+/* theme-owned elevation scale, lightest to heaviest */
+var(--shadow-2xs)
+var(--shadow-xs)
+var(--shadow-sm)
+var(--shadow)
+var(--shadow-md)
+var(--shadow-lg)
+var(--shadow-xl)
+var(--shadow-2xl)
+var(--shadow-inset)            /* sunken wells and inputs */
+
+/* fixed Boxel chrome shadows and motion */
 var(--boxel-box-shadow)        /* subtle elevation */
 var(--boxel-box-shadow-hover)  /* hover state elevation */
 var(--boxel-deep-box-shadow)   /* strong elevation */
@@ -263,10 +343,23 @@ var(--boxel-dark-green)
 var(--boxel-yellow)
 var(--boxel-orange)
 
-/* Status */
+/* Status — the fixed palette behind the themed status tokens. In a card, use
+   --destructive / --success / --warning / --info / --attention (and their
+   -foreground / -ink pairs) instead, so the theme can restyle them. */
 var(--boxel-danger)
 var(--boxel-danger-hover)
+var(--boxel-success)
+var(--boxel-warning)
 ```
+
+### Tokens Outside the Contract
+
+Everything above is the named contract: each token is a declared field on the theme's variables (`ThemeVarField`), has a default in `theme.css`, and is reset at every themed-card boundary so it cannot leak in from an outer theme. `StructuredTheme` has no slot for anything else, on purpose. A design system that needs tokens the contract does not name — motion durations, easing curves, shape constants — has two options, and both give up the contract's guarantees:
+
+- Use a `BrandGuide`. Its `customCssVariables` list emits arbitrary name/value pairs alongside the generated variables, and `brandColorPalette` names become `--<dasherized-name>` variables.
+- Extend a theme card definition with fields of your own that contribute to its `cssVariables`.
+
+Know the downsides before choosing either. Custom variables have no `theme.css` default and no reset at the themed-card boundary, so they leak into every nested card, and a nested card with its own theme still sees the outer values. And a template that reads one is only correct under a theme that declares it: linking a different theme card silently drops the variable, because it does not exist there. Prefer mapping onto a named token wherever one is close enough; when you must read a custom variable in a template that may render under other themes, give it a fallback once, in a local variable on the component root (exemption 2 at the top of this reference). Never use a custom variable for something the contract already names — `--success` has a field.
 
 ### Brand Guide Tokens
 
