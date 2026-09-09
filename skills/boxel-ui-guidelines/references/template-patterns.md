@@ -4,19 +4,7 @@
 
 Do NOT use `CardContainer` as the root — the runtime (`field-component.gts`) already wraps every card format in `CardContainer`. Adding a second `CardContainer` is a redundant double-wrap.
 
-The themed `CardContainer` already applies `font-family: var(--boxel-body-font-family)` (and matching `font-size`, `font-weight`, `line-height`) on its root element. Do NOT repeat this on your template's root element — it is already inherited by all children.
-
-Via `@layer reset`, all heading and text elements inside a themed card automatically receive semantic typography — no need to declare font/size/weight on them unless overriding:
-
-| Element | Token set applied |
-|---|---|
-| `h1` | `--boxel-heading-*` (font-family, size, weight, line-height) |
-| `h2` | `--boxel-section-heading-*` |
-| `h3` | `--boxel-subheading-*` |
-| `p` | `--boxel-body-*` |
-| `small` | `--boxel-caption-font-size`, `--boxel-caption-line-height` |
-
-Also applied to the container root: `letter-spacing: var(--tracking-normal)` — do not redeclare it.
+The themed `CardContainer` already applies the theme's background/foreground pair and the full `body` typography role (family, size, weight, line-height, letter-spacing) on its root, and via `@layer reset` gives `h1`/`h2`/`h3` the `heading`/`sectionHeading`/`subheading` roles, `small` the `caption` role, and zero margins to headings and `p`. Do NOT repeat any of that on your template root or on those elements; declare only where the design deviates. The exact list is in `skills/boxel-ui-guidelines/references/theme-token-contract.md` under "What CardContainer already applies".
 
 **Font size defaults are appropriate for isolated templates.** Embedded and fitted templates render in much smaller spaces — override font sizes where needed, but always prioritize legibility. Depending on the font, you can go as small as 0.5rem, but ideally no smaller.
 

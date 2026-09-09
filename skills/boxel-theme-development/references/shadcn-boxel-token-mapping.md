@@ -6,6 +6,8 @@ Official shadcn convention: semantic tokens come in background/foreground pairs.
 
 Boxel runtime convention: `CardContainer` maps the theme's semantic tokens into Boxel component variables, including spacing, typography, radius, borders, and foreground color.
 
+The token inventory itself lives in `skills/boxel-ui-guidelines/references/theme-token-contract.md`; this file covers how Boxel UI components consume each token and what that means for the values a theme author picks.
+
 Sources to re-check when this model changes:
 
 - Official shadcn theming docs: `https://ui.shadcn.com/docs/theming`

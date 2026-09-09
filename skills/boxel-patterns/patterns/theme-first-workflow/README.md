@@ -10,7 +10,7 @@ validated: source-proven
 
 **The insight:** Boxel's theme system is built around `cardInfo.theme` — a `linksTo(Theme)` field on every CardDef. The Theme card holds:
 - theme variables - either as a raw `cssVariables` string on minimal themes or as structured `rootVariables`, `darkModeVariables`, `typography`, palette, and mark fields that compute `cssVariables`.
-- `cssImports` — Google Fonts and other `<link>` URLs.
+- `cssImports` — `<link>` stylesheet URLs. On a StructuredTheme this is computed from the font stacks; hand-added links go in `customCssImports`.
 
 When a card has `cardInfo.theme` set, the CardContainer injects those CSS variables and imports the fonts. Your templates then reference `var(--background)`, `var(--foreground)`, `var(--primary)`, `var(--font-sans)` etc. and "just work".
 
@@ -30,7 +30,7 @@ Three options, in order of preference:
    - `@cardstack/base/brand-guide` for a full brand system with logo/mark usage, functional palette, color palette, typography, voice, and detailed style guidance.
    - `@cardstack/base/detailed-style-reference` for a full style system without logo/mark material.
    - `@cardstack/base/style-reference` for a compact visual DNA reference with inspirations and wallpapers.
-   - `@cardstack/base/structured-theme` for a token-only theme.
+   - `@cardstack/base/structured-theme` for a token-only theme. This is the floor: never adopt from or subclass the bare `Theme` in `@cardstack/base/card-api`, whose free-form `cssVariables` string bypasses the token contract. Custom variables outside the contract require `BrandGuide`.
 
 ### Step 1 — Link the theme on every instance
 
