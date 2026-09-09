@@ -7,7 +7,7 @@ Never hard-code colors. Always use CSS custom properties.
 Two exemptions — both resolved by declaring on a parent container, never inline per selector:
 
 1. **Locally-defined component variables** (`--fit-*`, `--stagger-d`, …): declare them once, with their default values, on the component's parent/root element; descendants reference them bare (`var(--fit-headline-size)`), never with inline fallbacks scattered through child selectors.
-2. **Conditionally-existing runtime tokens** — tokens that only exist on themed containers (the scale-driven `--boxel-fs-*` ladder) or have no default at all (`--font-serif`). These genuinely need a fallback; give it ONCE, in a local-variable declaration on the parent container (e.g. `--serif: var(--font-serif, Georgia, serif);` on the composition root), and reference the local variable bare below.
+2. **Conditionally-existing runtime tokens** — tokens that only exist on themed containers (the scale-driven `--boxel-fs-*` ladder, and any custom variable a Brand Guide adds). These genuinely need a fallback; give it ONCE, in a local-variable declaration on the parent container (e.g. `--display-size: var(--boxel-fs-2xl, 2.4rem);` on the composition root), and reference the local variable bare below.
 
 Hardcoded hex inside `linear-gradient()` is also a violation: `linear-gradient(180deg, #fef7ed 0%, #fed7aa 100%)` must become `linear-gradient(180deg, var(--muted) 0%, var(--accent) 100%)`.
 
@@ -106,9 +106,9 @@ These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. U
 These are good for isolated or embedded card views. The sizes might be too large for fitted card templates. Before declaring any of them, check what `CardContainer` already applies (body role on the root, heading roles on `h1`–`h3`, caption on `small`; see the contract reference) — most templates need no typography declarations at all.
 
 **Note:**
-- `--font-sans` is default for most text, so you don't need to redeclare it.
-- `--font-mono` is default for most monospace text such as `<code>...</code>` etc. So most likely you don't need to redeclare it.
-- `--font-serif` is not set by default, so if your theme calls for serif font family, you can declare it at the most efficient level of the css.
+- `--font-sans` is applied by `CardContainer` as the card's default family and every role's fallback, so no need redeclare it.
+- `--font-serif` has a default but the container applies it to nothing. For a serif voice, declare `font-family: var(--font-serif)` once at the highest element that needs it.
+- `--font-mono` follows the theme only inside rendered Markdown. A bare `<code>` / `<pre>` in a template gets the fixed Boxel mono from the global stylesheet, so declare `font-family: var(--font-mono)` on those elements when they should match the theme.
 
 Each role, including `label` and `eyebrow`, is a slot on the theme's `typography` field, so a theme can retune it; the `--boxel-*` names are what `CardContainer` publishes from those slots. Use the role's letter-spacing token rather than a hand-picked `--boxel-lsp-*` value when the text is in a themed template — an eyebrow's tracking is part of the theme's voice.
 

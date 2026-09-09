@@ -97,9 +97,9 @@ These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. U
 These are good for isolated or embedded card views. The sizes might be too large for fitted card templates. Before declaring any of them, check what `CardContainer` already applies (body role on the root, heading roles on `h1`–`h3`, caption on `small`; see the contract reference) — most templates need no typography declarations at all.
 
 **Note:**
-- `--font-sans` is default for most text, so you don't need to redeclare it.
-- `--font-mono` is default for most monospace text such as `<code>...</code>` etc. So most likely you don't need to redeclare it.
-- `--font-serif` is not set by default, so if your theme calls for serif font family, you can declare it at the most efficient level of the css.
+- `--font-sans` is applied by `CardContainer` as the card's default family and every role's fallback, so no need to redeclare it.
+- `--font-serif` has a default but the container applies it to nothing. For a serif voice, declare `font-family: var(--font-serif)` once at the highest element that needs it.
+- `--font-mono` follows the theme only inside rendered Markdown. A bare `<code>` / `<pre>` in a template gets the fixed Boxel mono from the global stylesheet, so declare `font-family: var(--font-mono)` on those elements when they should match the theme.
 
 Each role, including `label` and `eyebrow`, is a slot on the theme's `typography` field, so a theme can retune it; the `--boxel-*` names are what `CardContainer` publishes from those slots. Use the role's letter-spacing token rather than a hand-picked `--boxel-lsp-*` value when the text is in a themed template — an eyebrow's tracking is part of the theme's voice.
 

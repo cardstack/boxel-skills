@@ -80,7 +80,7 @@ Surface tokens name a background. Each pairs with its own `-foreground`, which i
 
 ### Typography
 
-Font stacks. `--font-sans` is the default for body text and `--font-mono` for code, so neither usually needs redeclaring; `--font-serif` is only set when the theme provides one.
+Font stacks. All three have `theme.css` defaults (the IBM Plex families). `CardContainer` applies `--font-sans` as the card's default `font-family` and as the fallback family for every typography role, so it never needs redeclaring. `--font-serif` is applied to nothing by the container: a serif voice is opted into by declaring `font-family: var(--font-serif)` once at the highest element that needs it, or by a typography slot naming it. `--font-mono` is applied only inside rendered Markdown; a bare `<code>`, `<pre>`, `<kbd>`, or `<samp>` in a template gets the fixed Boxel mono (`--boxel-monospace-font-family`) from the global stylesheet, so a template that wants the theme's mono stack on those elements declares `font-family: var(--font-mono)` on them.
 
 ```css
 --font-sans   --font-serif   --font-mono
@@ -107,7 +107,7 @@ Body, caption, and label letter-spacing follow `--tracking-normal` unless the sl
 --theme-font-size   --theme-scale
 ```
 
-**Size ladders.** Two exist, and they differ in how they step. `--boxel-font-size-*` multiplies the base by fixed factors (defaults in parentheses) and always exists. `--boxel-fs-*` steps by `--theme-scale` and is what the heading elements use (`--boxel-fs-2xl` is h1 … `--boxel-fs-md` is h4, `--boxel-fs` is body); it is only defined inside a themed `CardContainer`, so a template that may render outside one gives it a fallback once on its root.
+**Size ladders.** Two exist, and they differ in how they step. `--boxel-font-size-*` multiplies the base by fixed factors (defaults in parentheses) and always exists. `--boxel-fs-*` steps by `--theme-scale` (`--boxel-fs` is the body size, each step up or down multiplies or divides by the ratio); it is only defined inside a themed `CardContainer`, so a template that may render outside one gives it a fallback once on its root. Headings do not read either ladder directly: they take the typography role tokens, whose defaults fall back to `--boxel-font-size-lg/md/...`.
 
 ```css
 --boxel-font-size-2xl (36px)  --boxel-font-size-xl (32px)  --boxel-font-size-lg (22px)  --boxel-font-size-md (20px)
@@ -116,9 +116,9 @@ Body, caption, and label letter-spacing follow `--tracking-normal` unless the sl
 --boxel-fs-2xl  --boxel-fs-xl  --boxel-fs-lg  --boxel-fs-md  --boxel-fs  --boxel-fs-sm  --boxel-fs-xs  --boxel-fs-2xs
 
 --boxel-line-height-xl  --boxel-line-height-lg  --boxel-line-height  --boxel-line-height-sm  --boxel-line-height-xs
-
---boxel-lsp-xxl  --boxel-lsp-xl  --boxel-lsp-lg  --boxel-lsp  --boxel-lsp-sm  --boxel-lsp-xs  --boxel-lsp-xxs
 ```
+
+The `--boxel-lsp-*` letter-spacing steps are fixed Boxel values, not derived from the theme; themed text takes its role's letter-spacing token instead.
 
 ### Spacing
 
