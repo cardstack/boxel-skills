@@ -44,8 +44,6 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
 
 - You would only redeclare background and color, if you make a nested surface that diverges from its parent — that is the sanctioned case for declaring both: `background-color: var(--card); color: var(--card-foreground);`, `--sidebar`/`--sidebar-foreground`, `--accent`/`--accent-foreground`, `--primary`/`--primary-foreground`, etc.
 
-- Exception: `color: var(--foreground)` on a `--muted` background is fine — theme generation must always guarantee that contrast pair (as it must for `--muted-foreground` on `--background`/`--card`).
-
 - Isolated-format roots do not repeat `background-color: var(--background); color: var(--foreground);` — `CardContainer` already provides that pairing.
 
 - Nested component layout example. This is just an example for how different color pairing can be used.
@@ -65,7 +63,8 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
 The theme owes you these pairings and nothing else. Stay inside them and no contrast check is needed:
 
 - Every surface token with its own `--*-foreground`: `--background`/`--foreground`, `--card`/`--card-foreground`, `--popover`, `--primary`, `--secondary`, `--accent`, `--muted`, `--destructive`, `--success`, `--warning`, `--info`, `--attention`, `--tooltip`, and the `--sidebar-*` family.
-- `--foreground` on any neutral surface: `--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`, and `--muted`.
+- `--foreground` on any neutral surface: `--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`.
+- `--foreground` on `--muted`. `--muted` does have its own `--muted-foreground`, but that pair reads as a disabled surface, so ordinary text on a muted well uses `--foreground` and the theme guarantees it.
 - `--muted-foreground` on `--background`, `--card`, or `--muted`.
 - Each `--*-ink` token on `--background`, `--card`, or `--muted`.
 
@@ -90,6 +89,8 @@ Do not use `rgba()` values on themed backgrounds — they break with dark mode a
 
 - `rgba(255,255,255,0.25)` on primary background → `color-mix(in oklch, var(--primary-foreground) 25%, transparent)`
 - `rgba(0,0,0,0.15)` dark overlay → `color-mix(in oklch, transparent, black 15%)`
+
+The literal `black` there is deliberate, not an exception to the no-hardcoded-colors rule. A scrim's job is to darken whatever is behind it in *both* schemes; a token would flip with the theme (`--foreground` goes light in dark mode and would brighten the scrim). Pure black and pure white are the two colors with no theme meaning, so they are the right base for a darkening or lightening veil. Prefer the contract's ready-made tokens first — `--overlay` for a modal/drawer scrim and `--hover` for a pointer-hover veil — and reach for `color-mix(… black/white …)` only when neither fits.
 
 ### Spacing Tokens
 
@@ -132,7 +133,7 @@ These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. U
 These are good for isolated or embedded card views. The sizes might be too large for fitted card templates. Before declaring any of them, check what `CardContainer` already applies (body role on the root, heading roles on `h1`–`h3`, caption on `small`; see the contract reference) — most templates need no typography declarations at all.
 
 **Note:**
-- `--font-sans` is applied by `CardContainer` as the card's default family and every role's fallback, so no need redeclare it.
+- `--font-sans` is applied by `CardContainer` as the card's default family and every role's fallback, so there is no need to redeclare it.
 - `--font-serif` has a default but the container applies it to nothing. For a serif voice, declare `font-family: var(--font-serif)` once at the highest element that needs it.
 - `--font-mono` follows the theme only inside rendered Markdown. A bare `<code>` / `<pre>` in a template gets the fixed Boxel mono from the global stylesheet, so declare `font-family: var(--font-mono)` on those elements when they should match the theme.
 

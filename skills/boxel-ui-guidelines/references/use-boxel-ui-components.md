@@ -35,7 +35,7 @@ import {
 **Inputs & Forms:**
 - `Input` — most inputs
 - `EmailInput` / `PhoneInput` — specialized inputs
-- `Select` / `MultiSelect` — dropdowns
+- `BoxelSelect` / `BoxelMultiSelect` — dropdowns (single and multi-value; `BoxelMultiSelectBasic` for the unstyled multi-select)
 - `RadioInput` — radio buttons
 - `Switch` — toggle switch
 - `FieldContainer` — wraps a label + input with consistent spacing (use `@vertical={{true}}` for vertical)

@@ -2,7 +2,14 @@ You are a Boxel UI specialist. Whenever you write or review GTS templates and ca
 
 ## Use Boxel Design Tokens for Theming
 
-Never hard-code colors. Always use CSS custom properties. Do not provide hardcoded fallback values inside `var()` — e.g. `var(--token, 1rem)` or `var(--token, white)`. If fallbacks are needed, define them once on the parent container class rather than repeating them throughout child selectors. The status tokens need none: `--success`, `--warning`, `--info`, and `--attention` are declared in `theme.css` with defaults, so plain `var(--success)` is correct and `var(--success, green)` is dead weight. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`.
+Never hard-code colors. Always use CSS custom properties.
+
+**Fallback rule — scoped to theme/semantic tokens.** Do not provide hardcoded fallback values inside `var()` when referencing theme or semantic tokens — e.g. `var(--primary, #6366f1)`, `var(--boxel-sp, 1rem)`, `var(--background, white)`. Those tokens are always defined, so the fallback is dead weight that drifts out of sync with the theme. That includes the status tokens: `--success`, `--warning`, `--info`, and `--attention` are declared in `theme.css` with defaults, so plain `var(--success)` is correct and `var(--success, green)` is the same dead weight. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`.
+
+Two exemptions — both resolved by declaring on a parent container, never inline per selector:
+
+1. **Locally-defined component variables** (`--fit-*`, `--stagger-d`, …): declare them once, with their default values, on the component's parent/root element; descendants reference them bare (`var(--fit-headline-size)`), never with inline fallbacks scattered through child selectors.
+2. **Conditionally-existing runtime tokens** — tokens that only exist on themed containers (the scale-driven `--boxel-fs-*` ladder, and any custom variable a Brand Guide adds). These genuinely need a fallback; give it ONCE, in a local-variable declaration on the parent container (e.g. `--display-size: var(--boxel-fs-2xl, 2.4rem);` on the composition root), and reference the local variable bare below.
 
 Hardcoded hex inside `linear-gradient()` is also a violation: `linear-gradient(180deg, #fef7ed 0%, #fed7aa 100%)` must become `linear-gradient(180deg, var(--muted) 0%, var(--accent) 100%)`.
 
@@ -16,8 +23,8 @@ border: 1px solid var(--border, #d3d3d3);
 **Right:**
 ```css
 padding: var(--boxel-sp);
-background-color: var(--background);
-color: var(--foreground);
+background-color: var(--card);
+color: var(--card-foreground);
 border: 1px solid var(--border);
 ```
 
@@ -39,8 +46,6 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
 
 - You would only redeclare background and color, if you make a nested surface that diverges from its parent — that is the sanctioned case for declaring both: `background-color: var(--card); color: var(--card-foreground);`, `--sidebar`/`--sidebar-foreground`, `--accent`/`--accent-foreground`, `--primary`/`--primary-foreground`, etc.
 
-- Exception: `color: var(--foreground)` on a `--muted` background is fine — theme generation must always guarantee that contrast pair (as it must for `--muted-foreground` on `--background`/`--card`).
-
 - Isolated-format roots do not repeat `background-color: var(--background); color: var(--foreground);` — `CardContainer` already provides that pairing.
 
 - Nested component layout example. This is just an example for how different color pairing can be used.
@@ -60,7 +65,8 @@ The full inventory — surfaces and their paired foregrounds, status fills, neut
 The theme owes you these pairings and nothing else. Stay inside them and no contrast check is needed:
 
 - Every surface token with its own `--*-foreground`: `--background`/`--foreground`, `--card`/`--card-foreground`, `--popover`, `--primary`, `--secondary`, `--accent`, `--muted`, `--destructive`, `--success`, `--warning`, `--info`, `--attention`, `--tooltip`, and the `--sidebar-*` family.
-- `--foreground` on any neutral surface: `--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`, and `--muted`.
+- `--foreground` on any neutral surface: `--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`.
+- `--foreground` on `--muted`. `--muted` does have its own `--muted-foreground`, but that pair reads as a disabled surface, so ordinary text on a muted well uses `--foreground` and the theme guarantees it.
 - `--muted-foreground` on `--background`, `--card`, or `--muted`.
 - Each `--*-ink` token on `--background`, `--card`, or `--muted`.
 
@@ -86,9 +92,13 @@ Do not use `rgba()` values on themed backgrounds — they break with dark mode a
 - `rgba(255,255,255,0.25)` on primary background → `color-mix(in oklch, var(--primary-foreground) 25%, transparent)`
 - `rgba(0,0,0,0.15)` dark overlay → `color-mix(in oklch, transparent, black 15%)`
 
+The literal `black` there is deliberate, not an exception to the no-hardcoded-colors rule. A scrim's job is to darken whatever is behind it in *both* schemes; a token would flip with the theme (`--foreground` goes light in dark mode and would brighten the scrim). Pure black and pure white are the two colors with no theme meaning, so they are the right base for a darkening or lightening veil. Prefer the contract's ready-made tokens first — `--overlay` for a modal/drawer scrim and `--hover` for a pointer-hover veil — and reach for `color-mix(… black/white …)` only when neither fits.
+
 ### Spacing Tokens
 
 **Important:** The `spacing` value set in the theme's `rootVariables` is multiplied by 4 at runtime to produce `--boxel-sp`. Set it accordingly — e.g. to get a 16px base unit, set `spacing: 0.25rem` (not `1rem`), because `0.25rem × 4 = 1rem = 16px`.
+
+Do not copy a shadcn, Tailwind, or DESIGN.md base spacing value directly into Boxel `--spacing` without normalization. If the source system says the base spacing rhythm is `1rem`, Boxel usually wants `spacing: 0.25rem`.
 
 All three options below are valid — choose based on whether you want spacing to respond to the linked theme:
 
@@ -125,7 +135,7 @@ These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. U
 These are good for isolated or embedded card views. The sizes might be too large for fitted card templates. Before declaring any of them, check what `CardContainer` already applies (body role on the root, heading roles on `h1`–`h3`, caption on `small`; see the contract reference) — most templates need no typography declarations at all.
 
 **Note:**
-- `--font-sans` is applied by `CardContainer` as the card's default family and every role's fallback, so no need to redeclare it.
+- `--font-sans` is applied by `CardContainer` as the card's default family and every role's fallback, so there is no need to redeclare it.
 - `--font-serif` has a default but the container applies it to nothing. For a serif voice, declare `font-family: var(--font-serif)` once at the highest element that needs it.
 - `--font-mono` follows the theme only inside rendered Markdown. A bare `<code>` / `<pre>` in a template gets the fixed Boxel mono from the global stylesheet, so declare `font-family: var(--font-mono)` on those elements when they should match the theme.
 
@@ -172,6 +182,36 @@ var(--boxel-warning)
 ### Tokens Outside the Contract
 
 `StructuredTheme` has no slot for tokens the contract does not name, and the escape hatches (a `BrandGuide`'s `customCssVariables`, or an extended theme card definition) give up the boundary reset and the ability to switch theme cards. `skills/boxel-ui-guidelines/references/theme-token-contract.md` spells out the trade-off. In a template: map onto a named token wherever one is close enough, and when you must read a custom variable under a theme that may be swapped, give it a fallback once in a local variable on the component root (exemption 2 at the top of this reference).
+
+### Brand Guide Tokens
+
+When the linked `cardInfo.theme` is a `BrandGuide`, consume brand identity through the generated variables rather than hardcoding brand colors or logo URLs. Brand Guide variables sit alongside the semantic variables above; prefer semantic roles for normal UI, and use brand variables only when the design specifically needs brand identity.
+
+Functional brand palette:
+
+```css
+var(--brand-primary)
+var(--brand-secondary)
+var(--brand-accent)
+var(--brand-light)
+var(--brand-dark)
+```
+
+Logo and mark variables:
+
+```css
+var(--brand-primary-mark)
+var(--brand-secondary-mark)
+var(--brand-primary-mark-greyscale)
+var(--brand-secondary-mark-greyscale)
+var(--brand-social-media-profile-icon)
+var(--brand-primary-mark-min-height)
+var(--brand-primary-mark-clearance-ratio)
+var(--brand-secondary-mark-min-height)
+var(--brand-secondary-mark-clearance-ratio)
+```
+
+Use `--primary`, `--secondary`, `--accent`, `--background`, and `--foreground` for ordinary UI. `BrandGuide` maps those semantic tokens from `--brand-*` values when explicit theme values are absent, and generates readable foreground colors for primary/secondary/accent surfaces.
 
 ## Font Loading — Theme Card Owns Imports
 
@@ -243,13 +283,14 @@ static isolated = class Isolated extends Component<typeof this> {
 Fitted cards are rendered at many different container sizes — from small badges to large tiles. The template must look good at any size, not just one target size. Design for fluid resizing:
 
 - **Do not** use `box-shadow: inset` left-border accents (e.g. `inset 3px 0 0 <color>`) on the fitted card wrapper — this styling is not desired
-
 - Prioritize the most essential information (see common fields that all cards have such as `cardTitle`, `cardDescription` and `cardThumbnailURL`) — the card may be tiny, so show only what fits
 - For image columns/panels, use `cqh` (container query height) units so sizing scales with the card: `width: 40cqh; min-width: 3.75rem; max-width: 12.5rem`
 - Use `text-overflow: ellipsis` with `white-space: nowrap` for single-line labels, or clamp multi-line text with `-webkit-line-clamp`
 - Override inherited font sizes to fit the smaller space — but keep text legible. Depending on the font, you can go as small as 0.5rem, but ideally no smaller
 
-Optionally, you can use the `FittedCard` component from `@cardstack/boxel-ui/components` for fitted card layouts. It handles all responsive container-query breakpoints, image column sizing, text clamping, and overflow — you only supply named content blocks.
+#### The `FittedCard` component — a good option for most cases
+
+`FittedCard` from `@cardstack/boxel-ui/components` handles all responsive container-query breakpoints, image column sizing, text clamping, and overflow — you only supply named content blocks. Reach for it when the design fits its slot model; hand-roll a fitted template (next section) when it does not.
 
 ```gts
 import { FittedCard, Pill } from '@cardstack/boxel-ui/components';
@@ -307,7 +348,7 @@ Named blocks must be direct children of `<FittedCard>`. Glimmer rejects a `<:eye
 | --------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@imageUrl`     | `string`             | Cover image URL; triggers the image column layout                                                                                                                                                                                                         |
 | `@imageAlt`     | `string`             | Alt text for the cover image (defaults to `""`)                                                                                                                                                                                                           |
-| `@imageLoading` | `string`             | `'lazy'` or `'eager'`; omit to use the browser default                                                                                                                                                                                                    |
+| `@imageLoading` | `'lazy' \| 'eager'`  | Image loading hint; omit to use the browser default                                                                                                                                                                                                    |
 | `@titleTag`     | `FittedCardTitleTag` | HTML heading element for the title: `'h1'` (default), `'h2'`, `'h3'`, etc. Pass `'h2'` or `'h3'` when cards appear in a list to preserve heading hierarchy for screen readers.                                                                            |
 | `@layout`       | `FittedCardLayout`   | Force a layout direction regardless of container size: `'vertical'` — image always stacks on top; `'horizontal'` — image always sits to the left; `'auto'` (default) — direction is chosen by container-query breakpoints based on aspect-ratio and size. |
 
@@ -315,75 +356,22 @@ Named blocks must be direct children of `<FittedCard>`. Glimmer rejects a `<:eye
 
 #### CSS custom properties
 
-Override these on the FittedCard root element. Breakpoints adjust many automatically; only set them when you need to deviate.
+Every visual metric has an `--fc-*` override, set on the `FittedCard` root; the breakpoints adjust most of them, so only set one to deviate. The ones that come up most:
 
 ```css
 .my-fitted {
-  /* ── Layout ── */
-  --fc-content-padding: var(--boxel-sp-xs); /* padding inside text column */
-  --fc-content-gap: var(
-    --boxel-sp-3xs
-  ); /* gap between header / meta / footer */
-  --fc-content-gap-no-image: var(
-    --boxel-sp-xs
-  ); /* gap when there is no image column */
-  --fc-content-justify: flex-start; /* justify-content for the text column; space-between at larger breakpoints */
-  --fc-header-gap: var(
-    --boxel-sp-6xs
-  ); /* gap within header (eyebrow / title / subtitle) */
-
-  /* ── Image column ── */
-  --fc-image-width: 40cqh; /* horizontal layouts */
-  --fc-image-min-width: 3.75rem;
-  --fc-image-max-width: 12.5rem;
-  --fc-image-height: auto; /* vertical tiles override with a cqmin value */
-  --fc-image-object-fit: cover; /* object-fit for the cover image */
-  --fc-image-background: linear-gradient(
-    180deg,
-    var(--muted) 0%,
-    var(--accent) 100%
-  ); /* column bg when no image fills it */
-  --fc-image-fade-color: var(
-    --card
-  ); /* base color for expanded-card image fade; match your card background */
-
-  /* ── Typography ── */
-  --fc-eyebrow-font-size: 0.625rem;
-  --fc-eyebrow-line-height: 1.1;
-  --fc-title-font-size: var(--boxel-font-size-sm);
-  --fc-title-line-height: 1.2;
+  --fc-content-gap: var(--boxel-sp-xs);       /* gap between header / meta / footer */
+  --fc-content-padding: var(--boxel-sp-xs);   /* padding inside the text column */
+  --fc-image-width: 40cqh;                    /* image column in horizontal layouts */
+  --fc-image-object-fit: cover;
   --fc-title-line-clamp: 2;
-  --fc-title-text-overflow: clip; /* strip breakpoints override with ellipsis */
-  --fc-title-white-space: normal; /* strip breakpoints override with nowrap */
-  --fc-subtitle-font-size: var(--boxel-font-size-xs);
-  --fc-subtitle-line-height: 1.1;
   --fc-subtitle-line-clamp: 2;
-  --fc-subtitle-text-overflow: clip;
-  --fc-subtitle-white-space: normal;
-  --fc-meta-font-size: var(--boxel-caption-font-size);
-  --fc-meta-line-height: 1.1;
-  --fc-footer-font-size: var(--boxel-caption-font-size);
-
-  /* ── Badges ── */
-  --fc-badge-offset: var(
-    --boxel-sp-2xs
-  ); /* inset from card edges for badgeLeft / badgeRight */
-
-  /* ── Badge row ── */
-  --fc-badge-row-justify: space-between;
-  --fc-badge-row-gap: var(--boxel-sp-2xs);
-
-  /* ── Meta & footer flex row ── */
-  --fc-meta-justify: flex-start; /* justify-content */
-  --fc-meta-gap: var(--boxel-sp-2xs);
-  --fc-meta-align-items: center; /* align-items */
-  --fc-meta-flex-wrap: nowrap;
-  --fc-footer-justify: flex-start; /* justify-content */
-  --fc-footer-align-items: center; /* align-items */
-  --fc-footer-flex-wrap: nowrap; /* flex-wrap */
-  --fc-footer-gap: var(--boxel-sp-2xs);
+  --fc-footer-justify: space-between;
+  --fc-subtitle-display: none;                /* every section has a --fc-<section>-display switch */
 }
 ```
+
+The full list, with defaults, is in the component source: `packages/boxel-ui/src/components/fitted-card/index.gts` (and its `usage.gts`). Verify there before relying on a name not shown above.
 
 #### Customising caller-owned content per breakpoint
 
@@ -395,6 +383,53 @@ Override these on the FittedCard root element. Breakpoints adjust many automatic
     display: none;
   }
 }
+```
+
+#### Hand-rolled fitted template
+
+When the design calls for its own layout, own it yourself. Query the host's `fitted-card` container for breakpoints (see `use-container-queries-not-viewport-units.md`); never declare a container on the root.
+
+```gts
+static fitted = class Fitted extends Component<typeof this> {
+  <template>
+    <article class='my-fitted'>
+      <header class='content-header'>
+        <h1 class='title boxel-ellipsize'><@fields.cardTitle /></h1>
+        <p class='subtitle'><@fields.cardDescription /></p>
+      </header>
+      <div class='content'>
+        <p>Content here...</p>
+      </div>
+      <footer>
+        <p>Footer content here...</p>
+      </footer>
+    </article>
+    <style scoped>
+      .my-fitted {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        padding: var(--boxel-sp-xs);
+        background-color: var(--card);
+        color: var(--card-foreground);
+      }
+      .content {
+        display: grid;
+        gap: var(--boxel-sp-xs);
+      }
+      .title {
+        font-weight: 500;
+      }
+      .subtitle {
+        font-size: var(--boxel-font-size-xs);
+        color: var(--muted-foreground);
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+    </style>
+  </template>
+};
 ```
 
 ### All 16 fitted formats (from `fitted-formats.ts`)
@@ -553,7 +588,7 @@ import {
 **Inputs & Forms:**
 - `Input` — most inputs
 - `EmailInput` / `PhoneInput` — specialized inputs
-- `Select` / `MultiSelect` — dropdowns
+- `BoxelSelect` / `BoxelMultiSelect` — dropdowns (single and multi-value; `BoxelMultiSelectBasic` for the unstyled multi-select)
 - `RadioInput` — radio buttons
 - `Switch` — toggle switch
 - `FieldContainer` — wraps a label + input with consistent spacing (use `@vertical={{true}}` for vertical)
@@ -660,22 +695,17 @@ Before finalizing any card template, verify:
 
 - [ ] No raw `<button>` — use `<Button>` component
 - [ ] No raw `<input>` — use `<Input>` or `<FieldContainer>` + `<Input>`
-- [ ] No raw `<select>` — use `<Select>` or `<MultiSelect>`
-- [ ] No hard-coded colors — use CSS custom properties
-- [ ] Semantic theme variables (`--background`, `--foreground`, `--primary`, etc.) used where applicable
+- [ ] No raw `<select>` — use `<BoxelSelect>` or `<BoxelMultiSelect>`
+- [ ] Every color is a theme token, never a literal (`#hex`, `rgb()`, named colors — inside `linear-gradient()` and SVG `fill`/`stroke` too); semi-transparent variants come from `color-mix()` on a token, not `rgba()`
+- [ ] Every text, icon, border, and rule color sits on a surface the theme guarantees it against: a `--*-foreground` on its own `--*` fill, `--foreground` on `--background`/`--card`/`--muted`/the neutral surfaces, `--muted-foreground` or a `--*-ink` on `--background`/`--card`/`--muted`, or no color at all so `currentColor` inherits. An action/surface token (`--primary`, `--accent`, `--muted`, …) is never a foreground — it paints, its `--*-foreground` writes
 - [ ] Scoped styles use `<style scoped>` in templates
 - [ ] No `@import url(...)` inside `<style scoped>` — font imports belong in the Theme card's `cssImports` field
-- [ ] Semi-transparent colors use `color-mix(in oklch, ...)` not `rgba()`
 - [ ] No fixed widths that ignore available space — use relative units or `max-width`
 - [ ] Responsive layout uses `@container` queries, not `@media` viewport queries or `vw`/`vh` units
-- [ ] Icons and SVGs never use hardcoded hex fills — color them with a foreground token (`--muted-foreground`, `--foreground`, or the `--*-foreground` paired with their surface), or leave them uncolored to inherit `currentColor`
-- [ ] No action/surface token (`--primary`, `--secondary`, `--accent`, `--destructive`, `--muted`) used as a foreground — checked for text and equally for icon `color`/`stroke`/`fill`, borders, and rules. Each token paints; its `--*-foreground` writes
-- [ ] Every text/icon color sits on a surface the theme guarantees it against — the `--*`/`--*-foreground` pairs, `--foreground` on the neutral surfaces, `--muted-foreground` and the `--*-ink` tokens on `--background`/`--card`/`--muted`; anything else is unguaranteed and should be restructured onto a guaranteed pair
-- [ ] `font-size` takes `--boxel-font-size-*`; the composite `--boxel-font-*` goes only in the `font:` shorthand, and only for Boxel chrome
+- [ ] Themeable text sets `font-size`/`font-weight`/`line-height` individually from `--boxel-font-size-*` or a role group, never `font: var(--boxel-font-*)`: the composite pins the fixed Boxel family over the theme's `--font-sans`, and `font-size: var(--boxel-font-sm)` is invalid CSS. The `font:` shorthand is right only in Boxel chrome
 - [ ] `background-color` for plain colors; the `background` shorthand only for images, gradients, multi-property sets, or an intended full reset
-- [ ] No hardcoded fallback values scattered in `var()` calls — if fallbacks are needed, define them once on the parent container. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
+- [ ] No hardcoded fallbacks on theme/semantic tokens (`var(--primary, #6366f1)` is a violation — the token is always defined). Locally-defined component variables are declared once (with defaults) on the parent container and referenced bare in descendants; conditionally-existing tokens (the `--boxel-fs-*` ladder, which exists only inside a themed `CardContainer`, and any Brand Guide custom variable) get their one fallback at that parent declaration; `--font-serif` is not one of them, it has a `theme.css` default. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
 - [ ] No deprecated `xx*` token names — use the digit forms (`--boxel-sp-2xl` not `--boxel-sp-xxl`, `--boxel-border-radius-2xs` not `-xxs`, `--boxel-icon-2xs` not `-xxs`); check the `deprecated - Do Not Use` block in boxel-ui `variables.css` for the current list
-- [ ] No `font:` shorthand with composite `--boxel-font-*` tokens on themeable content — it pins the fixed Boxel family and stomps the theme's `--font-sans`; use individual `font-size`/`font-weight`/`line-height` (shorthand is fine where Boxel chrome styling is the intent)
 - [ ] Hardcoded metrics (raw font-sizes, widths/heights, border-radii) hoisted into component-prefixed custom properties on the component root, not scattered as literals
 - [ ] Card titles render `<@fields.cardTitle />` (or `@model.cardTitle`) — no `{{if @model.title @model.title 'Untitled Foo'}}` hand-rolled fallbacks. A domain `title` field (blog-post title, job title) is fine, but don't declare `title` just to name the card — that's `cardInfo.name`/`cardTitle`
 - [ ] Semantic HTML: headings for titles, `<p>` for prose, `<header>` for intro blocks, `role='toolbar'` + `aria-label` for control groups, `<output>` for readouts, `aria-label` on icon-only buttons, `aria-hidden` on decoration; divs only for pure layout geometry
@@ -686,4 +716,5 @@ Before finalizing any card template, verify:
 - [ ] No overrides that cancel a boxel-ui component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Pill`/`Button`) — pick the `@kind`/`@variant`/`@size` that already has no chrome (e.g. `Button @kind='link-muted'`) and keep only genuinely bespoke declarations
 - [ ] Chrome on a single linked card is styled through a class on `<@fields.link class='…' />` (forwarded to its `CardContainer` via `...attributes`), not through `:deep(.boxel-card-container)`
 - [ ] `:deep()` / `display: contents` used only on host-generated field DOM — a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
+- [ ] Kanban/status boards use `KanbanPlane` and persisted placements; no hand-rolled pointer drag in card templates
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`

@@ -4,22 +4,17 @@ Before finalizing any card template, verify:
 
 - [ ] No raw `<button>` — use `<Button>` component
 - [ ] No raw `<input>` — use `<Input>` or `<FieldContainer>` + `<Input>`
-- [ ] No raw `<select>` — use `<Select>` or `<MultiSelect>`
-- [ ] No hard-coded colors — use CSS custom properties
-- [ ] Semantic theme variables (`--background`, `--foreground`, `--primary`, etc.) used where applicable
+- [ ] No raw `<select>` — use `<BoxelSelect>` or `<BoxelMultiSelect>`
+- [ ] Every color is a theme token, never a literal (`#hex`, `rgb()`, named colors — inside `linear-gradient()` and SVG `fill`/`stroke` too); semi-transparent variants come from `color-mix()` on a token, not `rgba()`
+- [ ] Every text, icon, border, and rule color sits on a surface the theme guarantees it against: a `--*-foreground` on its own `--*` fill, `--foreground` on `--background`/`--card`/`--muted`/the neutral surfaces, `--muted-foreground` or a `--*-ink` on `--background`/`--card`/`--muted`, or no color at all so `currentColor` inherits. An action/surface token (`--primary`, `--accent`, `--muted`, …) is never a foreground — it paints, its `--*-foreground` writes
 - [ ] Scoped styles use `<style scoped>` in templates
 - [ ] No `@import url(...)` inside `<style scoped>` — font imports belong in the Theme card's `cssImports` field
-- [ ] Semi-transparent colors use `color-mix(in oklch, ...)` not `rgba()`
 - [ ] No fixed widths that ignore available space — use relative units or `max-width`
 - [ ] Responsive layout uses `@container` queries, not `@media` viewport queries or `vw`/`vh` units
-- [ ] Icons and SVGs never use hardcoded hex fills — color them with a foreground token (`--muted-foreground`, `--foreground`, or the `--*-foreground` paired with their surface), or leave them uncolored to inherit `currentColor`
-- [ ] No action/surface token (`--primary`, `--secondary`, `--accent`, `--destructive`, `--muted`) used as a foreground — checked for text and equally for icon `color`/`stroke`/`fill`, borders, and rules. Each token paints; its `--*-foreground` writes
-- [ ] Every text/icon color sits on a surface the theme guarantees it against — the `--*`/`--*-foreground` pairs, `--foreground` on the neutral surfaces, `--muted-foreground` and the `--*-ink` tokens on `--background`/`--card`/`--muted`; anything else is unguaranteed and should be restructured onto a guaranteed pair
-- [ ] `font-size` takes `--boxel-font-size-*`; the composite `--boxel-font-*` goes only in the `font:` shorthand, and only for Boxel chrome
+- [ ] Themeable text sets `font-size`/`font-weight`/`line-height` individually from `--boxel-font-size-*` or a role group, never `font: var(--boxel-font-*)`: the composite pins the fixed Boxel family over the theme's `--font-sans`, and `font-size: var(--boxel-font-sm)` is invalid CSS. The `font:` shorthand is right only in Boxel chrome
 - [ ] `background-color` for plain colors; the `background` shorthand only for images, gradients, multi-property sets, or an intended full reset
-- [ ] No hardcoded fallbacks on theme/semantic tokens (`var(--primary, #6366f1)` is a violation — the token is always defined). Locally-defined component variables are declared once (with defaults) on the parent container and referenced bare in descendants; conditionally-existing tokens (`--boxel-fs-*`, `--font-serif`) get their one fallback at that parent declaration. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
+- [ ] No hardcoded fallbacks on theme/semantic tokens (`var(--primary, #6366f1)` is a violation — the token is always defined). Locally-defined component variables are declared once (with defaults) on the parent container and referenced bare in descendants; conditionally-existing tokens (the `--boxel-fs-*` ladder, which exists only inside a themed `CardContainer`, and any Brand Guide custom variable) get their one fallback at that parent declaration; `--font-serif` is not one of them, it has a `theme.css` default. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
 - [ ] No deprecated `xx*` token names — use the digit forms (`--boxel-sp-2xl` not `--boxel-sp-xxl`, `--boxel-border-radius-2xs` not `-xxs`, `--boxel-icon-2xs` not `-xxs`); check the `deprecated - Do Not Use` block in boxel-ui `variables.css` for the current list
-- [ ] No `font:` shorthand with composite `--boxel-font-*` tokens on themeable content — it pins the fixed Boxel family and stomps the theme's `--font-sans`; use individual `font-size`/`font-weight`/`line-height` (shorthand is fine where Boxel chrome styling is the intent)
 - [ ] Hardcoded metrics (raw font-sizes, widths/heights, border-radii) hoisted into component-prefixed custom properties on the component root, not scattered as literals
 - [ ] Card titles render `<@fields.cardTitle />` (or `@model.cardTitle`) — no `{{if @model.title @model.title 'Untitled Foo'}}` hand-rolled fallbacks. A domain `title` field (blog-post title, job title) is fine, but don't declare `title` just to name the card — that's `cardInfo.name`/`cardTitle`
 - [ ] Semantic HTML: headings for titles, `<p>` for prose, `<header>` for intro blocks, `role='toolbar'` + `aria-label` for control groups, `<output>` for readouts, `aria-label` on icon-only buttons, `aria-hidden` on decoration; divs only for pure layout geometry
