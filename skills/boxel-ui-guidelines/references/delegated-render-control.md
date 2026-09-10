@@ -224,6 +224,8 @@ Also prefer `@displayContainer={{false}}` on the field render over hand-written 
 
 Rule of thumb: `:deep()` and `display: contents` are for host-generated DOM you don't control. If you control it, fix the structure instead.
 
+**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Reserve `:deep()` for chrome you cannot reach with a class, such as the per-item containers inside a plural field.
+
 ### Staggered animations through `display: contents` wrappers
 
 `:nth-child` resolves against the DOM, not the visual flow — so `.field-component-card:nth-child(N)` matches whatever sits inside the per-item wrapper (always the only child of its parent → always `:nth-child(1)`). Staggered delays applied directly to the cards collapse to a single delay value.

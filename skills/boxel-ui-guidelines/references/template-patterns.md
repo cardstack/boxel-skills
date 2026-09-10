@@ -6,6 +6,8 @@ Do NOT use `CardContainer` as the root — the runtime (`field-component.gts`) a
 
 The themed `CardContainer` already applies the theme's background/foreground pair and the full `body` typography role (family, size, weight, line-height, letter-spacing) on its root, and via `@layer reset` gives `h1`/`h2`/`h3` the `heading`/`sectionHeading`/`subheading` roles, `small` the `caption` role, and zero margins to headings and `p`. Do NOT repeat any of that on your template root or on those elements; declare only where the design deviates. The exact list is in `skills/boxel-ui-guidelines/references/theme-token-contract.md` under "What CardContainer already applies".
 
+**The isolated root fills and scrolls the container.** Give it `height: 100%; overflow-y: auto`. `min-height: 100%` is not equivalent: the host container has a fixed height and clips, so a taller root gets cut off instead of scrolling.
+
 **Font size defaults are appropriate for isolated templates.** Embedded and fitted templates render in much smaller spaces — override font sizes where needed, but always prioritize legibility. Depending on the font, you can go as small as 0.5rem, but ideally no smaller.
 
 ```gts

@@ -212,6 +212,8 @@ Do NOT use `CardContainer` as the root — the runtime (`field-component.gts`) a
 
 The themed `CardContainer` already applies the theme's background/foreground pair and the full `body` typography role (family, size, weight, line-height, letter-spacing) on its root, and via `@layer reset` gives `h1`/`h2`/`h3` the `heading`/`sectionHeading`/`subheading` roles, `small` the `caption` role, and zero margins to headings and `p`. Do NOT repeat any of that on your template root or on those elements; declare only where the design deviates. The exact list is in `skills/boxel-ui-guidelines/references/theme-token-contract.md` under "What CardContainer already applies".
 
+**The isolated root fills and scrolls the container.** Give it `height: 100%; overflow-y: auto`. `min-height: 100%` is not equivalent: the host container has a fixed height and clips, so a taller root gets cut off instead of scrolling.
+
 **Font size defaults are appropriate for isolated templates.** Embedded and fitted templates render in much smaller spaces — override font sizes where needed, but always prioritize legibility. Depending on the font, you can go as small as 0.5rem, but ideally no smaller.
 
 ```gts
@@ -296,6 +298,8 @@ static fitted = class Fitted extends Component<typeof this> {
 | `subtitle`    | Secondary line below the title                                                                                                           | No       |
 | `meta`        | Additional content between header and footer                                                                                             | No       |
 | `footer`      | Bottom row: date, location, price, stats, etc.                                                                                           | No       |
+
+Named blocks must be direct children of `<FittedCard>`. Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block: `<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`. To drop a section outright, set its `--fc-*-display` custom property to `none` instead.
 
 #### Args
 
@@ -636,6 +640,8 @@ Point the parent's `containsMany` at the leaf field directly and migrate the ins
 
 Also prefer `@displayContainer={{false}}` on the field render over hand-written `display: contents` when all you want is chrome removal, and don't add a wrapper `<div>` whose only job is to carry a margin — put the margin on the element that already exists.
 
+**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Reserve `:deep()` for chrome you cannot reach with a class, such as the per-item containers inside a plural field.
+
 ### When a component is missing from boxel-ui
 
 If no existing component satisfies your need, write a self-contained Glimmer component in the same file (or a co-located file) that is structured so it could be contributed to the boxel-ui library later:
@@ -678,5 +684,6 @@ Before finalizing any card template, verify:
 - [ ] Prefers `<@fields.field />` for all simple field rendering; `@model.x` for conditionals, HTML attributes, context-specific fallback value, and JS getters
 - [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
 - [ ] No overrides that cancel a boxel-ui component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Pill`/`Button`) — pick the `@kind`/`@variant`/`@size` that already has no chrome (e.g. `Button @kind='link-muted'`) and keep only genuinely bespoke declarations
+- [ ] Chrome on a single linked card is styled through a class on `<@fields.link class='…' />` (forwarded to its `CardContainer` via `...attributes`), not through `:deep(.boxel-card-container)`
 - [ ] `:deep()` / `display: contents` used only on host-generated field DOM — a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`

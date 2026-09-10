@@ -21,7 +21,7 @@ import {
 
 **Layout & Containers:**
 - `CardContainer` — wraps card content with correct border/shadow/padding. all cards are already wrapped in this.
-- `FittedCard` — **the preferred starting point for `fitted` templates.** Slot-fill layout (`:placeholder`, `:badgeLeft`/`:badgeRight`, `:badgeRow`, `:eyebrow`, `:title`, `:subtitle`, `:meta`, `:footer`, `:image`, `:background`) that queries the host's `fitted-card` container internally and adapts across all 16 fitted sizes; tune via `--fc-*` custom properties. Hand-roll per `boxel/references/container-query-fitted-layout.md` only when the slot model can't express the design.
+- `FittedCard` — **the preferred starting point for `fitted` templates.** Slot-fill layout (`:placeholder`, `:badgeLeft`/`:badgeRight`, `:badgeRow`, `:eyebrow`, `:title`, `:subtitle`, `:meta`, `:footer`, `:image`, `:background`) that queries the host's `fitted-card` container internally and adapts across all 16 fitted sizes; tune via `--fc-*` custom properties. Hand-roll per `boxel/references/container-query-fitted-layout.md` only when the slot model can't express the design. Named blocks must be direct children of `<FittedCard>` — Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block (`<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`) or set the section's `--fc-*-display` to `none`.
 - `GridContainer` — responsive grid layout
 - `Container` — generic container
 - `ResizablePanelGroup` — resizable panel layouts
