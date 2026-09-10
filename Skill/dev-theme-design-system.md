@@ -48,7 +48,7 @@ Use the variables directly (do not wrap with `hsl(var(...))`). Pair backgrounds 
 
 Our design system is compatible with shadcn css variables.
 
-The complete token inventory — color roles and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, fonts, typography roles (`heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label`, `eyebrow`), spacing, radius, and shadows — is maintained in one file: `skills/boxel-ui-guidelines/references/theme-token-contract.md`. It also explains the boundary reset (a theme only sets what it changes; everything else falls back to `theme.css`) and why custom variables outside the contract are a `BrandGuide`-only escape hatch with real costs. Do not duplicate the list here.
+The complete token inventory — color roles and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, fonts, typography roles (`heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label`, `eyebrow`), spacing, radius, and shadows — is maintained in one place: the **Theme Token Contract** skill (`Skill/dev-theme-token-contract`; the same text is `skills/boxel-ui-guidelines/references/theme-token-contract.md` in the repo). It also explains the boundary reset (a theme only sets what it changes; everything else falls back to `theme.css`) and why custom variables outside the contract are a `BrandGuide`-only escape hatch with real costs. Do not duplicate the list here.
 
 #### CSS Usage Examples:
 

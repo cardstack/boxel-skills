@@ -331,7 +331,7 @@ Per format, outer-element rules. `CardContainer` — which wraps every card rend
 
 | Format | OK on outermost | NOT OK |
 |---|---|---|
-| `isolated` | `font-family` (only if not `--font-sans`), inner padding, inner grid/flex | `border-radius`, `border`, `box-shadow`, `overflow`, background/foreground overrides (use the theme's) |
+| `isolated` | `height: 100%; overflow-y: auto` (fills the fixed-height container and scrolls; `min-height` clips instead), `font-family` (only if not `--font-sans`), inner padding, inner grid/flex | `border-radius`, `border`, `box-shadow`, `overflow: hidden`, `min-height` in place of `height: 100%`, background/foreground overrides (use the theme's) |
 | `embedded` | same — plus a different background/foreground pairing (e.g. `--card` + `--card-foreground`) | `border-radius`, `border`, `box-shadow`, `overflow`, `width/height/max-width` |
 | `fitted` | a different background/foreground pairing (e.g. `--card` + `--card-foreground`), `font-family` (only if not `--font-sans`), inner padding, inner grid template | `border-radius`, `border`, `box-shadow`, `width/height/min/max-height`, `container-type`, `container-name` |
 | `atom` | inline content only | `padding`, `border`, `border-radius`, `background`, any `display:` other than default |

@@ -151,10 +151,9 @@ export class Surge extends CardDef {
           overflow-y: auto;
         }
         .sg-featured-card {
+          /* the container already draws its 1px --border ring and border-radius; no border here */
           background-color: var(--card);
           color: var(--card-foreground);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
         }
         .sg-status {
           margin: 0;

@@ -94,7 +94,7 @@ static fitted = class Fitted extends Component<typeof this> {
 | `meta`        | Additional content between header and footer                                                                                             | No       |
 | `footer`      | Bottom row: date, location, price, stats, etc.                                                                                           | No       |
 
-Named blocks must be direct children of `<FittedCard>`. Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block: `<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`. To drop a section outright, set its `--fc-*-display` custom property to `none` instead.
+Named blocks must be direct children of `<FittedCard>`. Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block: `<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`. Every section is optional: to leave one out, don't write its block. When the conditional inside a block is false, the section's element still renders empty and the component's `:empty` rule collapses it. To hide a section you do provide — usually at a breakpoint — set its display switch to `none`: `--fc-image-display`, `--fc-subtitle-display`, `--fc-meta-display`, `--fc-footer-display`, `--fc-badge-left-display`, `--fc-badge-right-display`, `--fc-badge-row-display`. The title and eyebrow have no switch.
 
 #### Args
 
@@ -121,7 +121,7 @@ Every visual metric has an `--fc-*` override, set on the `FittedCard` root; the 
   --fc-title-line-clamp: 2;
   --fc-subtitle-line-clamp: 2;
   --fc-footer-justify: space-between;
-  --fc-subtitle-display: none;                /* every section has a --fc-<section>-display switch */
+  --fc-subtitle-display: none;                /* hides the subtitle; image, meta, footer, and badge slots have their own --fc-<section>-display */
 }
 ```
 

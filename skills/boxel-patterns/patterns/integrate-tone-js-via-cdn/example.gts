@@ -133,7 +133,7 @@ export class ChordPlayer extends CardDef {
           gap: 0.75rem;
         }
         .error {
-          color: var(--destructive);
+          color: var(--destructive-ink);
         }
       </style>
     </template>

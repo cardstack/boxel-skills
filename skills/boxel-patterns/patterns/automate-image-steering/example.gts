@@ -365,7 +365,7 @@ Create a high-quality image following these guidelines, with user commands takin
         border-radius: var(--radius);
       }
       .frame--current img {
-        border-color: var(--primary);
+        border-color: var(--primary-ink);
         border-width: var(--steering-current-border);
       }
       .frame figcaption {
@@ -384,7 +384,7 @@ Create a high-quality image following these guidelines, with user commands takin
           var(--destructive) 12%,
           var(--background)
         );
-        color: var(--destructive);
+        color: var(--destructive-ink);
       }
     </style>
   </template>

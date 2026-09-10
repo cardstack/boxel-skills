@@ -94,7 +94,9 @@ If the linked card has `cardInfo.theme` AND the theme sets the variables, the ca
 
 Caveat: the wrapper's `--themed` class is only added when `hasTheme(card)` is true on the *linked* card. If your performer / venue / listing instances DON'T have `cardInfo.theme`, the wrapper won't pick up your `--radius: 0` from the parent.
 
-### Layer 1 — `:deep()` from the parent's `<style scoped>` (the workhorse)
+### Layer 1 — `:deep()` from the parent's `<style scoped>` (last resort)
+
+Reach for this only for chrome you cannot address otherwise: brand-wide outer treatment belongs on the Theme card (`--radius`, `--background`, `--border`), and a single linked card's chrome takes a class through `...attributes` (see "Style a linked card's chrome with a class" above). Every token used inside a `:deep()` block is a contract token — `--card`, `--border`, `--muted` — never a name the theme does not define.
 
 `:deep()` pierces scoping so the parent's CSS can target descendant elements. The CardContainer is `:global(.boxel-card-container)`, so `:deep()` works for it too.
 
@@ -104,7 +106,8 @@ Caveat: the wrapper's `--themed` class is only added when `hasTheme(card)` is tr
 /* Square corners on every embedded child inside .prg-listings-grid */
 .prg-listings-grid :deep(.boxel-card-container) {
   border-radius: 0;
-  background: var(--paper);
+  background-color: var(--card);
+  color: var(--card-foreground);
 }
 
 /* Kill the halo selectively */
@@ -147,7 +150,7 @@ Pair this with a sibling element styled by the parent to provide the visual chip
   display: inline-flex;
   align-items: baseline;
   padding: 4px 10px;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--border);
   border-radius: 0;        /* sharp corners — Row & Rail */
   background: transparent;
 }
@@ -224,7 +227,7 @@ Also prefer `@displayContainer={{false}}` on the field render over hand-written 
 
 Rule of thumb: `:deep()` and `display: contents` are for host-generated DOM you don't control. If you control it, fix the structure instead.
 
-**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Reserve `:deep()` for chrome you cannot reach with a class, such as the per-item containers inside a plural field.
+**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Don't add a `border` there: an embedded linksTo render already paints a 1px `--border` ring through `box-shadow` (`@displayBoundaries` defaults to true), so a border doubles the edge. Pass `@displayContainer={{false}}` if you want to draw the edge yourself. Reserve `:deep()` for chrome you cannot reach with a class, such as the per-item containers inside a plural field.
 
 ### Staggered animations through `display: contents` wrappers
 
@@ -327,13 +330,13 @@ You always have to pick one of two strategies. There is no in-between.
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;                                          /* no gap — rows touch */
-  border-top: 1px solid var(--ink);                /* parent owns the rules */
+  border-top: 1px solid var(--border);                /* parent owns the rules */
 }
 .event-list :deep(.boxel-card-container--boundaries) {
   box-shadow: none;                                /* MUST kill the child halo */
 }
 .event-list :deep(.field-component-card.embedded-format) {
-  border-bottom: 1px solid var(--rule-soft);       /* parent draws between */
+  border-bottom: 1px solid var(--border);       /* parent draws between */
 }
 ```
 
@@ -348,7 +351,7 @@ Use for: vertical lists, editorial newspaper grids, table-style rosters, anywher
   gap: 16px;                                       /* gap is the breathing room */
 }
 .event-grid :deep(.boxel-card-container--boundaries) {
-  box-shadow: 0 0 0 1px var(--ink);                /* keep / recolor the child halo */
+  box-shadow: 0 0 0 1px var(--border);                /* keep / recolor the child halo */
 }
 /* DON'T add border-bottom / border-right on the cards — that's the double rule */
 ```
@@ -375,7 +378,7 @@ When you change a section from Strategy B (halo IS the boundary) to Strategy A (
 }
 /* … 30 lines of unrelated rules … */
 .event-list :deep(.boxel-card-container--boundaries) {
-  box-shadow: 0 0 0 1px var(--ink);                /* line 230 — stale, but wins */
+  box-shadow: 0 0 0 1px var(--border);                /* line 230 — stale, but wins */
 }
 
 /* ✅ Delete the stale rule entirely. One source of truth per selector. */
@@ -440,10 +443,10 @@ The fix is upstream of CSS — it's the format choice. The two formats have fund
 .event-list {
   display: grid;
   grid-template-columns: 1fr;
-  border-top: 1px solid var(--ink);
+  border-top: 1px solid var(--border);
 }
 .event-list :deep(.field-component-card.embedded-format) {
-  border-bottom: 1px solid var(--rule-soft);  /* divider, not a forced height */
+  border-bottom: 1px solid var(--border);  /* divider, not a forced height */
 }
 ```
 
@@ -516,7 +519,7 @@ Embedded cards declare `container-type: inline-size; container-name: embedded-ca
 
 ### Theme tokens cascade INTO `:deep()` overrides
 
-When you write `:deep(.boxel-card-container) { background: var(--paper); }`, the `var(--paper)` resolves in the PARENT'S scope. Themes set the token; the override applies the token. This is the right way — don't hardcode hex inside `:deep()` blocks if a theme token captures the value.
+When you write `:deep(.boxel-card-container) { background-color: var(--card); }`, the `var(--card)` resolves in the PARENT'S scope. Themes set the token; the override applies the token. Use only contract tokens inside `:deep()` blocks — never hex, and never a name outside the contract (`--paper`, `--ink`), which is undefined and paints nothing.
 
 ### Test the override after a theme change
 
@@ -568,7 +571,7 @@ Clearing only the height leaves the fade mask painting over the tail of the cont
 | Plural grid (linksToMany or containsMany) lays out correctly | `:deep(> .plural-field) { display: contents; }` + `:deep(.linksToMany-itemContainer), :deep(.containsMany-item) { display: contents; }` |
 | Stagger per-item animation delays | Set `--stagger-d` on `:deep(.linksToMany-itemContainer:nth-child(N))`; read `animation-delay: var(--stagger-d)` on `.field-component-card` |
 | Override embedded child's `border-radius` | `:deep(.boxel-card-container) { border-radius: 0; }` |
-| Override embedded child's `background` | `:deep(.boxel-card-container) { background: var(--paper); }` |
+| Override embedded child's `background` | `:deep(.boxel-card-container) { background-color: var(--card); color: var(--card-foreground); }` |
 | Kill the 1px halo | `:deep(.boxel-card-container--boundaries) { box-shadow: none; }` |
 | Let images bleed past corners | `:deep(.field-component-card.embedded-format) { overflow: visible; }` |
 | Target by format | `:deep([data-boxel-card-format="embedded"]) { ... }` |
@@ -617,7 +620,6 @@ Everything above is how the PARENT overrides the host's chrome. The contract has
 </article>
 <style scoped>
   .news-isolated {
-    color: var(--ink);            /* OK — inner concern */
     padding: 48px;                /* OK — inner concern */
     display: grid;                /* OK — inner layout */
     gap: 32px;                    /* OK — inner concern */
@@ -632,7 +634,7 @@ Everything above is how the PARENT overrides the host's chrome. The contract has
 
 | Format | OK on outermost | NOT OK on outermost (host/parent owns) |
 |---|---|---|
-| `isolated` | inner padding, inner grid/flex layout, `min-height` for content | `border-radius`, `border`, `box-shadow`, `overflow`, background/foreground overrides (use the theme's) |
+| `isolated` | `height: 100%; overflow-y: auto` (the root fills the fixed-height container and scrolls; `min-height` does not — the container clips), inner padding, inner grid/flex layout | `border-radius`, `border`, `box-shadow`, `overflow: hidden`, `min-height` in place of `height: 100%`, background/foreground overrides (use the theme's) |
 | `embedded` | same as isolated — plus MAY use a different background/foreground pairing from the theme (e.g. `--card` + `--card-foreground`) | `border-radius`, `border`, `box-shadow`, `overflow`, `width`/`height`/`max-width` |
 | `fitted` | a background/foreground pairing different from the theme's (e.g. `--card` + `--card-foreground`), inner padding, inner grid template, inner gap | `border-radius`, `border`, `box-shadow`, `width`, `height`, `min-height`, `max-height`, `container-type`, `container-name` (the host sets these) |
 | `atom` | inline content only (text node, small inline icon) | `padding` (host provides), `border`, `border-radius`, `background`, any `display` other than inline-by-default |
@@ -659,8 +661,8 @@ Every card linked to that theme renders with sharp corners + paper background + 
 
 When the parent (e.g., the Programme showcase) embeds your card:
 
-- **Contract honored:** parent's `:deep(.boxel-card-container) { border-radius: 0; background: var(--paper); }` overrides cleanly. Sharp corners, brand paper, no double-borders.
-- **Contract violated:** child's own `border-radius: 12px` on `.news-isolated` competes with parent's `:deep` override. Specificity wars. Or child's `box-shadow` stacks under the halo creating a double-border. Or child's `background: white` blocks the parent's `--paper` cascade — embedded child looks pasted on instead of integrated.
+- **Contract honored:** parent's `:deep(.boxel-card-container) { background-color: var(--card); color: var(--card-foreground); }` overrides cleanly. The theme's card surface and foreground, no double-borders.
+- **Contract violated:** child's own `border-radius: 12px` on `.news-isolated` competes with parent's `:deep` override. Specificity wars. Or child's `box-shadow` stacks under the halo creating a double-border. Or child's `background: white` blocks the parent's `--card` cascade — embedded child looks pasted on instead of integrated.
 
 The single most common symptom in agent-generated cards is rounded-corner embedded children inside a sharp-corner parent. Cause: every child added `border-radius: 8px` to its outer because "cards have rounded corners." Fix: strip the outer decoration; trust the wrapper.
 

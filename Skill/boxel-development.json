@@ -131,6 +131,11 @@
           "inclusionMode": "link-only",
           "contentSummary": "The `searchable` field option controls which links a card's search doc follows: contained fields are always included; an unmarked link is a bare reference only (a linksTo as its { id }, a linksToMany as an array of them) until made searchable; true = the self link, a dotted path = a deeper (n+1) link, an array combines routes; links capture the declared type only; query-backed relationships are inert; querying a resolvable-but-non-searchable path errors",
           "alternateTitle": "Searchable Fields"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "The single inventory of every CSS variable a Boxel theme provides and how the contract behaves at card boundaries",
+          "alternateTitle": "Theme Token Contract"
         }
       ]
     },
@@ -243,6 +248,11 @@
       "relatedSkills.20.skill": {
         "links": {
           "self": "./dev-searchable-fields"
+        }
+      },
+      "relatedSkills.21.skill": {
+        "links": {
+          "self": "./dev-theme-token-contract"
         }
       }
     }

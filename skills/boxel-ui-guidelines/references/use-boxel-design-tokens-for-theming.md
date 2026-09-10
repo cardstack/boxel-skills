@@ -7,7 +7,7 @@ Never hard-code colors. Always use CSS custom properties.
 Two exemptions — both resolved by declaring on a parent container, never inline per selector:
 
 1. **Locally-defined component variables** (`--fit-*`, `--stagger-d`, …): declare them once, with their default values, on the component's parent/root element; descendants reference them bare (`var(--fit-headline-size)`), never with inline fallbacks scattered through child selectors.
-2. **Conditionally-existing runtime tokens** — tokens that only exist on themed containers (the scale-driven `--boxel-fs-*` ladder, and any custom variable a Brand Guide adds). These genuinely need a fallback; give it ONCE, in a local-variable declaration on the parent container (e.g. `--display-size: var(--boxel-fs-2xl, 2.4rem);` on the composition root), and reference the local variable bare below.
+2. **Brand Guide custom variables** — tokens outside the contract that only exist when a particular Brand Guide is active. These genuinely need a fallback; give it ONCE, in a local-variable declaration on the parent container (e.g. `--display-size: var(--brand-display-size, 2.4rem);` on the composition root), and reference the local variable bare below. The `--boxel-fs-*` ladder is not one of these: `CardContainer` declares it on every container alongside `--boxel-sp-*`, so it is referenced bare.
 
 Hardcoded hex inside `linear-gradient()` is also a violation: `linear-gradient(180deg, #fef7ed 0%, #fed7aa 100%)` must become `linear-gradient(180deg, var(--muted) 0%, var(--accent) 100%)`.
 

@@ -9,7 +9,7 @@ Never hard-code colors. Always use CSS custom properties.
 Two exemptions — both resolved by declaring on a parent container, never inline per selector:
 
 1. **Locally-defined component variables** (`--fit-*`, `--stagger-d`, …): declare them once, with their default values, on the component's parent/root element; descendants reference them bare (`var(--fit-headline-size)`), never with inline fallbacks scattered through child selectors.
-2. **Conditionally-existing runtime tokens** — tokens that only exist on themed containers (the scale-driven `--boxel-fs-*` ladder, and any custom variable a Brand Guide adds). These genuinely need a fallback; give it ONCE, in a local-variable declaration on the parent container (e.g. `--display-size: var(--boxel-fs-2xl, 2.4rem);` on the composition root), and reference the local variable bare below.
+2. **Brand Guide custom variables** — tokens outside the contract that only exist when a particular Brand Guide is active. These genuinely need a fallback; give it ONCE, in a local-variable declaration on the parent container (e.g. `--display-size: var(--brand-display-size, 2.4rem);` on the composition root), and reference the local variable bare below. The `--boxel-fs-*` ladder is not one of these: `CardContainer` declares it on every container alongside `--boxel-sp-*`, so it is referenced bare.
 
 Hardcoded hex inside `linear-gradient()` is also a violation: `linear-gradient(180deg, #fef7ed 0%, #fed7aa 100%)` must become `linear-gradient(180deg, var(--muted) 0%, var(--accent) 100%)`.
 
@@ -30,7 +30,7 @@ border: 1px solid var(--border);
 
 ### Semantic Theme Variables (prefer these)
 
-The full inventory — surfaces and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, typography, spacing, radius, shadows — lives in one place: `skills/boxel-ui-guidelines/references/theme-token-contract.md`. Read it before styling; this reference only covers how to *use* those tokens. In short: every surface token names a background and pairs with its own `--*-foreground`; the neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) pair with `--foreground`; a hue used as text or icon color on a neutral surface takes its `--*-ink` token.
+The full inventory — surfaces and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, typography, spacing, radius, shadows — lives in one place: the **Theme Token Contract** skill (`Skill/dev-theme-token-contract`; the same text is `skills/boxel-ui-guidelines/references/theme-token-contract.md` in the repo). Read it before styling; this reference only covers how to *use* those tokens. In short: every surface token names a background and pairs with its own `--*-foreground`; the neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) pair with `--foreground`; a hue used as text or icon color on a neutral surface takes its `--*-ink` token.
 
 ### Color Pairing Rules
 
@@ -112,7 +112,7 @@ All three options below are valid — choose based on whether you want spacing t
 
 **Note on `--spacing`:** Using `--spacing` directly is valid, but it's a single value. If you need a range of sizes, use the `--boxel-sp-*` scale — or derive your own variables with `calc(var(--spacing) * n)`.
 
-The `--boxel-sp-*` ladder and its default values are listed in `skills/boxel-ui-guidelines/references/theme-token-contract.md`.
+The `--boxel-sp-*` ladder and its default values are listed in the Theme Token Contract skill.
 
 ### Typography Tokens
 
@@ -130,7 +130,7 @@ Choose based on whether you want the text to respond to the linked theme.
 
 #### Semantic typography variables
 
-These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. Use them when styling text by semantic role (heading, section heading, subheading, body, caption, UI label, eyebrow). Use `--font-sans/serif/mono` only when referencing a generic font stack directly. The role tokens and the low-level size ladder are listed in `skills/boxel-ui-guidelines/references/theme-token-contract.md`.
+These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. Use them when styling text by semantic role (heading, section heading, subheading, body, caption, UI label, eyebrow). Use `--font-sans/serif/mono` only when referencing a generic font stack directly. The role tokens and the low-level size ladder are listed in the Theme Token Contract skill.
 
 These are good for isolated or embedded card views. The sizes might be too large for fitted card templates. Before declaring any of them, check what `CardContainer` already applies (body role on the root, heading roles on `h1`–`h3`, caption on `small`; see the contract reference) — most templates need no typography declarations at all.
 
@@ -145,11 +145,11 @@ Each role, including `label` and `eyebrow`, is a slot on the theme's `typography
 
 ### Border & Radius Tokens
 
-`--radius` is valid for the base radius, but it's a single value. If you need a range of sizes, use the `--boxel-border-radius-*` scale (listed in `skills/boxel-ui-guidelines/references/theme-token-contract.md`) — or derive your own variables with `calc(var(--radius) * n)`. The scale is pre-built and re-scales with the theme's `radius` setting. `--boxel-border` / `--boxel-border-color` are fixed Boxel chrome values; themed content uses `1px solid var(--border)`.
+`--radius` is valid for the base radius, but it's a single value. If you need a range of sizes, use the `--boxel-border-radius-*` scale (listed in the Theme Token Contract skill) — or derive your own variables with `calc(var(--radius) * n)`. The scale is pre-built and re-scales with the theme's `radius` setting. `--boxel-border` / `--boxel-border-color` are fixed Boxel chrome values; themed content uses `1px solid var(--border)`.
 
 ### Shadow & Effects Tokens
 
-Prefer the theme's shadow scale (`--shadow-2xs` … `--shadow-2xl`, plus `--shadow-inset` for sunken wells; see `skills/boxel-ui-guidelines/references/theme-token-contract.md`): it is part of the contract, so a theme can retune elevation and the template follows. `--boxel-box-shadow`, `--boxel-box-shadow-hover`, `--boxel-deep-box-shadow`, and `--boxel-transition` are fixed Boxel chrome values that do not respond to the theme.
+Prefer the theme's shadow scale (`--shadow-2xs` … `--shadow-2xl`, plus `--shadow-inset` for sunken wells; see the Theme Token Contract skill): it is part of the contract, so a theme can retune elevation and the template follows. `--boxel-box-shadow`, `--boxel-box-shadow-hover`, `--boxel-deep-box-shadow`, and `--boxel-transition` are fixed Boxel chrome values that do not respond to the theme.
 
 ### Primitive Color Tokens — Do Not Use for Brand/Theme
 
@@ -181,7 +181,7 @@ var(--boxel-warning)
 
 ### Tokens Outside the Contract
 
-`StructuredTheme` has no slot for tokens the contract does not name, and the escape hatches (a `BrandGuide`'s `customCssVariables`, or an extended theme card definition) give up the boundary reset and the ability to switch theme cards. `skills/boxel-ui-guidelines/references/theme-token-contract.md` spells out the trade-off. In a template: map onto a named token wherever one is close enough, and when you must read a custom variable under a theme that may be swapped, give it a fallback once in a local variable on the component root (exemption 2 at the top of this reference).
+`StructuredTheme` has no slot for tokens the contract does not name, and the escape hatches (a `BrandGuide`'s `customCssVariables`, or an extended theme card definition) give up the boundary reset and the ability to switch theme cards. The Theme Token Contract skill spells out the trade-off. In a template: map onto a named token wherever one is close enough, and when you must read a custom variable under a theme that may be swapped, give it a fallback once in a local variable on the component root (exemption 2 at the top of this reference).
 
 ### Brand Guide Tokens
 
@@ -250,7 +250,7 @@ Reach for `@model.fieldName` when you need the raw value:
 
 Do NOT use `CardContainer` as the root — the runtime (`field-component.gts`) already wraps every card format in `CardContainer`. Adding a second `CardContainer` is a redundant double-wrap.
 
-The themed `CardContainer` already applies the theme's background/foreground pair and the full `body` typography role (family, size, weight, line-height, letter-spacing) on its root, and via `@layer reset` gives `h1`/`h2`/`h3` the `heading`/`sectionHeading`/`subheading` roles, `small` the `caption` role, and zero margins to headings and `p`. Do NOT repeat any of that on your template root or on those elements; declare only where the design deviates. The exact list is in `skills/boxel-ui-guidelines/references/theme-token-contract.md` under "What CardContainer already applies".
+The themed `CardContainer` already applies the theme's background/foreground pair and the full `body` typography role (family, size, weight, line-height, letter-spacing) on its root, and via `@layer reset` gives `h1`/`h2`/`h3` the `heading`/`sectionHeading`/`subheading` roles, `small` the `caption` role, and zero margins to headings and `p`. Do NOT repeat any of that on your template root or on those elements; declare only where the design deviates. The exact list is in the Theme Token Contract skill under "What CardContainer already applies".
 
 **The isolated root fills and scrolls the container.** Give it `height: 100%; overflow-y: auto`. `min-height: 100%` is not equivalent: the host container has a fixed height and clips, so a taller root gets cut off instead of scrolling.
 
@@ -340,7 +340,7 @@ static fitted = class Fitted extends Component<typeof this> {
 | `meta`        | Additional content between header and footer                                                                                             | No       |
 | `footer`      | Bottom row: date, location, price, stats, etc.                                                                                           | No       |
 
-Named blocks must be direct children of `<FittedCard>`. Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block: `<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`. To drop a section outright, set its `--fc-*-display` custom property to `none` instead.
+Named blocks must be direct children of `<FittedCard>`. Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block: `<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`. Every section is optional: to leave one out, don't write its block. When the conditional inside a block is false, the section's element still renders empty and the component's `:empty` rule collapses it. To hide a section you do provide — usually at a breakpoint — set its display switch to `none`: `--fc-image-display`, `--fc-subtitle-display`, `--fc-meta-display`, `--fc-footer-display`, `--fc-badge-left-display`, `--fc-badge-right-display`, `--fc-badge-row-display`. The title and eyebrow have no switch.
 
 #### Args
 
@@ -367,11 +367,11 @@ Every visual metric has an `--fc-*` override, set on the `FittedCard` root; the 
   --fc-title-line-clamp: 2;
   --fc-subtitle-line-clamp: 2;
   --fc-footer-justify: space-between;
-  --fc-subtitle-display: none;                /* every section has a --fc-<section>-display switch */
+  --fc-subtitle-display: none;                /* hides the subtitle; image, meta, footer, and badge slots have their own --fc-<section>-display */
 }
 ```
 
-The full list, with defaults, is in the component source: `packages/boxel-ui/src/components/fitted-card/index.gts` (and its `usage.gts`). Verify there before relying on a name not shown above.
+The full list, with defaults, lives in the `FittedCard` component source in boxel-ui (`fitted-card/index.gts`), which the in-app assistant cannot open — so treat the names shown in this section as the supported set and don't invent others.
 
 #### Customising caller-owned content per breakpoint
 
@@ -566,7 +566,7 @@ import {
   CardContainer,
   FieldContainer,
   Header,
-  Input,
+  BoxelInput,
   Pill,
   // ... other components as needed
 } from '@cardstack/boxel-ui/components';
@@ -586,7 +586,7 @@ import {
 - `CardHeader` — card-specific header with icon, title, actions
 
 **Inputs & Forms:**
-- `Input` — most inputs
+- `BoxelInput` — most inputs
 - `EmailInput` / `PhoneInput` — specialized inputs
 - `BoxelSelect` / `BoxelMultiSelect` — dropdowns (single and multi-value; `BoxelMultiSelectBasic` for the unstyled multi-select)
 - `RadioInput` — radio buttons
@@ -675,7 +675,7 @@ Point the parent's `containsMany` at the leaf field directly and migrate the ins
 
 Also prefer `@displayContainer={{false}}` on the field render over hand-written `display: contents` when all you want is chrome removal, and don't add a wrapper `<div>` whose only job is to carry a margin — put the margin on the element that already exists.
 
-**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Reserve `:deep()` for chrome you cannot reach with a class, such as the per-item containers inside a plural field.
+**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Don't add a `border` there: an embedded linksTo render already paints a 1px `--border` ring through `box-shadow` (`@displayBoundaries` defaults to true), so a border doubles the edge. Pass `@displayContainer={{false}}` if you want to draw the edge yourself. Reserve `:deep()` for chrome you cannot reach with a class, such as the per-item containers inside a plural field.
 
 ### When a component is missing from boxel-ui
 
@@ -694,7 +694,7 @@ Add a TODO comment noting it should be moved to `@cardstack/boxel-ui/components`
 Before finalizing any card template, verify:
 
 - [ ] No raw `<button>` — use `<Button>` component
-- [ ] No raw `<input>` — use `<Input>` or `<FieldContainer>` + `<Input>`
+- [ ] No raw `<input>` — use `<BoxelInput>` or `<FieldContainer>` + `<BoxelInput>`
 - [ ] No raw `<select>` — use `<BoxelSelect>` or `<BoxelMultiSelect>`
 - [ ] Every color is a theme token, never a literal (`#hex`, `rgb()`, named colors — inside `linear-gradient()` and SVG `fill`/`stroke` too); semi-transparent variants come from `color-mix()` on a token, not `rgba()`
 - [ ] Every text, icon, border, and rule color sits on a surface the theme guarantees it against: a `--*-foreground` on its own `--*` fill, `--foreground` on `--background`/`--card`/`--muted`/the neutral surfaces, `--muted-foreground` or a `--*-ink` on `--background`/`--card`/`--muted`, or no color at all so `currentColor` inherits. An action/surface token (`--primary`, `--accent`, `--muted`, …) is never a foreground — it paints, its `--*-foreground` writes
@@ -704,7 +704,7 @@ Before finalizing any card template, verify:
 - [ ] Responsive layout uses `@container` queries, not `@media` viewport queries or `vw`/`vh` units
 - [ ] Themeable text sets `font-size`/`font-weight`/`line-height` individually from `--boxel-font-size-*` or a role group, never `font: var(--boxel-font-*)`: the composite pins the fixed Boxel family over the theme's `--font-sans`, and `font-size: var(--boxel-font-sm)` is invalid CSS. The `font:` shorthand is right only in Boxel chrome
 - [ ] `background-color` for plain colors; the `background` shorthand only for images, gradients, multi-property sets, or an intended full reset
-- [ ] No hardcoded fallbacks on theme/semantic tokens (`var(--primary, #6366f1)` is a violation — the token is always defined). Locally-defined component variables are declared once (with defaults) on the parent container and referenced bare in descendants; conditionally-existing tokens (the `--boxel-fs-*` ladder, which exists only inside a themed `CardContainer`, and any Brand Guide custom variable) get their one fallback at that parent declaration; `--font-serif` is not one of them, it has a `theme.css` default. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
+- [ ] No hardcoded fallbacks on theme/semantic tokens (`var(--primary, #6366f1)` is a violation — the token is always defined). Locally-defined component variables are declared once (with defaults) on the parent container and referenced bare in descendants; Brand Guide custom variables (the only conditionally-existing tokens) get their one fallback at that parent declaration; `--font-serif` and the `--boxel-fs-*` ladder are not among them — `--font-serif` has a `theme.css` default and `--boxel-fs-*` is declared on every `CardContainer`. Falling back to another CSS variable is fine: `var(--token, var(--other-token))`
 - [ ] No deprecated `xx*` token names — use the digit forms (`--boxel-sp-2xl` not `--boxel-sp-xxl`, `--boxel-border-radius-2xs` not `-xxs`, `--boxel-icon-2xs` not `-xxs`); check the `deprecated - Do Not Use` block in boxel-ui `variables.css` for the current list
 - [ ] Hardcoded metrics (raw font-sizes, widths/heights, border-radii) hoisted into component-prefixed custom properties on the component root, not scattered as literals
 - [ ] Card titles render `<@fields.cardTitle />` (or `@model.cardTitle`) — no `{{if @model.title @model.title 'Untitled Foo'}}` hand-rolled fallbacks. A domain `title` field (blog-post title, job title) is fine, but don't declare `title` just to name the card — that's `cardInfo.name`/`cardTitle`

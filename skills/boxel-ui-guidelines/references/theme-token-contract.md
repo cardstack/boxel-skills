@@ -107,7 +107,7 @@ Body, caption, and label letter-spacing follow `--tracking-normal` unless the sl
 --theme-font-size   --theme-scale
 ```
 
-**Size ladders.** Two exist, and they differ in how they step. `--boxel-font-size-*` multiplies the base by fixed factors (defaults in parentheses) and always exists. `--boxel-fs-*` steps by `--theme-scale` (`--boxel-fs` is the body size, each step up or down multiplies or divides by the ratio); it is only defined inside a themed `CardContainer`, so a template that may render outside one gives it a fallback once on its root. Headings do not read either ladder directly: they take the typography role tokens, whose defaults fall back to `--boxel-font-size-lg/md/...`.
+**Size ladders.** Two exist, and they differ in how they step. `--boxel-font-size-*` multiplies the base by fixed factors (defaults in parentheses) and always exists. `--boxel-fs-*` steps by `--theme-scale` (`--boxel-fs` is the body size, each step up or down multiplies or divides by the ratio). Both ladders are declared on every `CardContainer`, themed or not, in the same rule as `--boxel-sp-*`, so neither takes a fallback. Headings do not read either ladder directly: they take the typography role tokens, whose defaults fall back to `--boxel-font-size-lg/md/...`.
 
 ```css
 --boxel-font-size-2xl (36px)  --boxel-font-size-xl (32px)  --boxel-font-size-lg (22px)  --boxel-font-size-md (20px)

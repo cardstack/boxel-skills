@@ -10,7 +10,7 @@ import {
   CardContainer,
   FieldContainer,
   Header,
-  Input,
+  BoxelInput,
   KanbanPlane,
   Pill,
   // ... other components as needed
@@ -21,7 +21,7 @@ import {
 
 **Layout & Containers:**
 - `CardContainer` — wraps card content with correct border/shadow/padding. all cards are already wrapped in this.
-- `FittedCard` — **the preferred starting point for `fitted` templates.** Slot-fill layout (`:placeholder`, `:badgeLeft`/`:badgeRight`, `:badgeRow`, `:eyebrow`, `:title`, `:subtitle`, `:meta`, `:footer`, `:image`, `:background`) that queries the host's `fitted-card` container internally and adapts across all 16 fitted sizes; tune via `--fc-*` custom properties. Hand-roll per `boxel/references/container-query-fitted-layout.md` only when the slot model can't express the design. Named blocks must be direct children of `<FittedCard>` — Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block (`<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`) or set the section's `--fc-*-display` to `none`.
+- `FittedCard` — **the preferred starting point for `fitted` templates.** Slot-fill layout (`:placeholder`, `:badgeLeft`/`:badgeRight`, `:badgeRow`, `:eyebrow`, `:title`, `:subtitle`, `:meta`, `:footer`, `:image`, `:background`) that queries the host's `fitted-card` container internally and adapts across all 16 fitted sizes; tune via `--fc-*` custom properties. Hand-roll per `boxel/references/container-query-fitted-layout.md` only when the slot model can't express the design. Named blocks must be direct children of `<FittedCard>` — Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block (`<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`) (an empty section collapses via the component's `:empty` rule). Leave a section out by not writing its block; `--fc-<section>-display: none` (image, subtitle, meta, footer, badge slots) hides one you do provide, typically per breakpoint.
 - `GridContainer` — responsive grid layout
 - `Container` — generic container
 - `ResizablePanelGroup` — resizable panel layouts
@@ -33,7 +33,7 @@ import {
 - `CardHeader` — card-specific header with icon, title, actions
 
 **Inputs & Forms:**
-- `Input` — most inputs
+- `BoxelInput` — most inputs
 - `EmailInput` / `PhoneInput` — specialized inputs
 - `BoxelSelect` / `BoxelMultiSelect` — dropdowns (single and multi-value; `BoxelMultiSelectBasic` for the unstyled multi-select)
 - `RadioInput` — radio buttons
