@@ -49,6 +49,10 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **`cardTheme`** — Computed field on a CardDef that resolves which Theme to apply. Default = pass-through to `cardInfo.theme`; CardDefs override to inherit from a linked card (`this.project.cardTheme`), query for a realm default, or derive by business logic. → `theme-first-workflow`, `boxel/references/theme-design-system.md`
 - **`cardTitle`** — Computed field that surfaces the card's display label. Override to respect `cardInfo.name` first, then a primary field, then `Untitled <DisplayName>`. → `cardinfo-override-title`
 - **primary field** — A schema-level concept: the field that names the card (`firstName + lastName`, `headline`, `title`, etc.). Drives the `cardTitle` fallback.
+- **`static screenshots`** — Declared self-refreshing capture slots on a CardDef/FileDef: `static screenshots: Record<string, ScreenshotSpec> = {…}` (the annotation is required — without it TS widens the literals and the class fails TS2417). Each `ScreenshotSpec` declares exactly one of `format` or `render` (a capture-only component), required `width`/`height`, and optional `useAsThumbnail` (at most one slot; feeds `cardThumbnailURL`) and `keyBy: 'generation' | 'file-content'` (what invalidates the capture). Captured server-side on every index. → `automate-declared-screenshots`
+- **`screenshotURLs`** — Reserved getter on every CardDef/FileDef (an `@field` may not use the name): one key per declared screenshot slot, `undefined` until a capture exists — always guard the `<img>` and build fallback chains on `undefined`. → `automate-declared-screenshots`
+- **`cardThumbnailURL`** — Computed the default fitted tile renders; fallback chain: author-set URL → authored `cardInfo.cardThumbnail` link → the `useAsThumbnail` capture. → `automate-declared-screenshots`
+- **`data-screenshot-pending`** — DOM attribute a capture-only component renders while async content (video frame, PDF page, WebGL first frame) is unready; the capture engine waits (bounded) until no such element remains before shooting. → `automate-declared-screenshots`
 - **`instanceOf`** — Type guard for CardDef instances.
 
 ## 3. Templates — Glimmer / Boxel UI surface
@@ -255,7 +259,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`UseAiAssistantCommand`** — Host command that opens a multi-turn AI room with a skill card + attached cards pre-loaded. → `command-with-skill-card-ref`
 - **OpenRouter image generation** — Image-gen via OpenRouter chat completions with `modalities: ['image', 'text']`. Default model: `google/gemini-2.5-flash-image` (Gemini Flash Image). ChatGPT/OpenAI image models on request (`openai/gpt-5-image-mini`, `openai/gpt-5.4-image-2`). → `integrate-openrouter-image-generation`
 - **`GenerateThumbnailCommand`** — Composes OpenRouter image-gen + `WriteBinaryFileCommand` + optional `PatchCardInstanceCommand` to patch `cardInfo.cardThumbnail`. → `integrate-thumbnail-card-ai`
-- **`ScreenshotCardCommand`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). → `integrate-screenshot-card-format`
+- **`ScreenshotCardCommand`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). **Point-in-time** snapshots kept as separate files; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
 - **Steerable image generation** — Multi-step iterative refinement using initial prompt + steering input + first/current image lineage. → `automate-image-steering`
 - **Skill cards** — Cards typed as `Skill` from `@cardstack/base/skill` that pre-load into AI rooms with their description as system context.
 
@@ -417,6 +421,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 ### Automate / Compute
 - **`automate-linked-to-me-lookup`** — Schema-level query-backed `linksToMany` (preferred) or component-level `getCards()`. For circular `linksTo` between two CardDefs, both sides use the `() => Class` thunk form to avoid cyclic-import errors.
 - **`resource-for-state`** — Wrap third-party library state in an ember-resources Resource.
+- **`automate-declared-screenshots`** — Self-refreshing screenshot slots via `static screenshots`, consumed as `@model.screenshotURLs.<name>`; a `useAsThumbnail: true` slot feeds `cardThumbnailURL` so grid tiles show the real rendering with zero template edits. Prefer over the imperative screenshot/thumbnail commands whenever the card should *always* have a current picture of itself.
 - **`automate-image-steering`** — Iteratively refine an image generation with initial prompt + steering input + first/current image lineage.
 - **`automate-run-command-cli`** — Invoke a host Command via `npx boxel run-command` shell + typed run card for history.
 
