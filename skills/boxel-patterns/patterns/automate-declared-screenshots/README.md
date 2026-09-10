@@ -26,10 +26,13 @@ validated: source-proven
 import {
   CardDef,
   Component,
-  contains,
-  field,
   type ScreenshotSpec,
 } from '@cardstack/base/card-api';
+
+// Capture-only component — see example.gts for the full version.
+class SocialCard extends Component<typeof Recipe> {
+  <template>…</template>
+}
 
 export class Recipe extends CardDef {
   // ⚠️ The `Record<string, ScreenshotSpec>` annotation is REQUIRED.
@@ -47,11 +50,12 @@ Each entry is one named slot. Names must match `^[A-Za-z0-9][A-Za-z0-9_-]*$` (ma
 - `format: 'isolated' | 'embedded' | 'fitted' | 'atom'` — capture one of the card's existing display formats, **or**
 - `render: SomeComponent` — a *capture-only* component: it gets the full author surface (`@model`, `@fields`, `@context`, linked data) but is only ever rendered by the capture engine — it never appears in the app and is not part of the format API.
 
+Both are required: `width` and `height` — the CSS px of the capture box (the fitted envelope for `format: 'fitted'`).
+
 Remaining knobs (all optional):
 
 | Field | Default | Notes |
 | --- | --- | --- |
-| `width` / `height` | required | CSS px of the capture box (the fitted envelope for `format: 'fitted'`) |
 | `deviceScaleFactor` | `2` | Output px = size × dsf. Max 3; each edge × dsf must stay ≤ 16384 |
 | `background` | `'white'` | Any CSS color, or `'transparent'` (requires `type` `'png'`/`'webp'` — jpeg has no alpha) |
 | `type` | `'png'` | `'png' \| 'jpeg' \| 'webp'` |
@@ -72,7 +76,7 @@ Validation is strict: an unknown field or bad value throws loudly at read time r
 {{/if}}
 ```
 
-Always guard the `<img>`: the value is `undefined` until a capture exists (new instance, capture in flight, or capture failed), and Glimmer omits the attribute for `undefined`, which renders a broken image. `undefined` is the deliberate absence signal — build fallback chains on it.
+Always guard the `<img>`: the value is `undefined` until a capture exists (new instance, capture in flight, or capture failed). Glimmer omits the `src` attribute for `undefined`, so nothing crashes — but the src-less `<img>` still renders, leaving alt text and a layout hole on every pre-capture render. `undefined` is the deliberate absence signal — build fallback chains on it.
 
 **As the grid-tile thumbnail — declare and you're done.** A `useAsThumbnail` slot feeds the `cardThumbnailURL` fallback chain (author-set URL → authored `cardInfo.cardThumbnail` link → this capture), and the default fitted template renders `cardThumbnailURL`. Recommended box: **170×250 at the default dsf 2** — the standard grid-tile size, so the capture crops predictably under consumers' `object-fit`.
 

@@ -98,7 +98,8 @@ export class Recipe extends CardDef {
         {{! Consuming a slot: screenshotURLs is a reserved getter with one
             key per declared slot. The value is undefined until a capture
             exists (new instance, capture in flight, or capture failed) —
-            ALWAYS guard, or Glimmer renders a broken <img>. }}
+            ALWAYS guard: Glimmer omits the src for undefined, but the
+            src-less <img> still renders (alt text and a layout hole). }}
         {{#if @model.screenshotURLs.social}}
           <img
             src={{@model.screenshotURLs.social}}
