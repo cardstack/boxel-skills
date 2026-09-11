@@ -93,7 +93,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 - `preview-format_cb94` — Open module + preview card (code mode; use after edits).
 - `update-code-path-with-selection_f749` — Open file in code editor.
 - `open-workspace_1696` — Navigate to a workspace by URL. Lands in **interact mode** — it exits code mode. To work on a specific realm in code mode, use `switch-submode` with a `codePath` in that realm instead.
-- `create-workspace` — Create a new workspace (realm) for the current user (requires approval). Both inputs are optional: `name` is the display name (a random one is generated when omitted) and `endpoint` is the URL path segment (derived from the name when omitted). Returns `realmURL`; tell the user that URL and, if they want to work there, follow with `open-workspace`. The new workspace appears in the workspace chooser right away.
+- `create-workspace` — Create a new workspace (realm) for the current user (requires approval). Both inputs are optional: `name` is the display name (a random one is generated when omitted) and `endpoint` is the URL path segment (derived from the name when omitted). When done it opens the new workspace; its URL is the `Workspace:` line in the context returned with the tool result — report that URL to the user.
 - `delete-workspace` — Permanently delete a workspace the user owns, with all of its cards and files (requires approval). Pass `realmIdentifier`. Confirm with the user before calling it; it cannot be undone.
 
 ## Search
