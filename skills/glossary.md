@@ -280,7 +280,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **Card I/O** — `save-card`, `patch-fields`, `patch-card-instance`, `apply-markdown-edit`, `write-text-file`, `copy-card`, `copy-source`, `copy-file-to-realm`, `transform-cards`, `read-file-for-ai-assistant`, `read-card-for-ai-assistant`, `fetch-card-json`, `get-card`, `read-source`, `serialize-card`.
 - **Search** — `search-cards`, `search-and-choose`.
 - **Realm-server** — `get-all-realm-metas`, `get-available-realm-urls`, `get-default-writable-realm`, `get-catalog-realm-urls`, `get-realm-of-url`, `can-read-realm`, `validate-realm`, `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job`, `invalidate-realm-identifiers`, `sanitize-module-list`.
-- **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`.
+- **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`, `delete-workspace`.
 - **Store** — `store-add`.
 - **Catalog** — `listing-create`, `listing-install`, `listing-remix`, `listing-use`, `listing-generate-example`, `listing-update-specs`, `create-and-open-submission-workflow-card`, `retry-submission-workflow`, `execute-atomic-operations`.
 - **Code-introspection** — `get-card-type-schema`.
