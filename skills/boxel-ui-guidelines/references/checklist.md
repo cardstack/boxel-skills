@@ -8,7 +8,7 @@ Before finalizing any card template, verify:
 - [ ] Every color is a theme token, never a literal (`#hex`, `rgb()`, named colors — inside `linear-gradient()` and SVG `fill`/`stroke` too); semi-transparent variants come from `color-mix()` on a token, not `rgba()`
 - [ ] Every text, icon, border, and rule color sits on a surface the theme guarantees it against: a `--*-foreground` on its own `--*` fill, `--foreground` on `--background`/`--card`/`--muted`/the neutral surfaces, `--muted-foreground` or a `--*-ink` on `--background`/`--card`/`--muted`, or no color at all so `currentColor` inherits. An action/surface token (`--primary`, `--accent`, `--muted`, …) is never a foreground — it paints, its `--*-foreground` writes
 - [ ] Scoped styles use `<style scoped>` in templates
-- [ ] No `@import url(...)` inside `<style scoped>` — font imports belong in the Theme card's `cssImports` field
+- [ ] No `@import url(...)` inside `<style scoped>` — font imports belong to the Theme card: `StructuredTheme` derives Google Fonts links in `cssImports` from its font stacks; other stylesheets go in `customCssImports`
 - [ ] No fixed widths that ignore available space — use relative units or `max-width`
 - [ ] Responsive layout uses `@container` queries, not `@media` viewport queries or `vw`/`vh` units
 - [ ] Themeable text sets `font-size`/`font-weight`/`line-height` individually from `--boxel-font-size-*` or a role group, never `font: var(--boxel-font-*)`: the composite pins the fixed Boxel family over the theme's `--font-sans`, and `font-size: var(--boxel-font-sm)` is invalid CSS. The `font:` shorthand is right only in Boxel chrome
