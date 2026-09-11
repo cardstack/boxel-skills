@@ -33,6 +33,10 @@ boxel:
         name: default
       requiresApproval: false
     - codeRef:
+        module: '@cardstack/boxel-host/tools/create-workspace'
+        name: default
+      requiresApproval: true
+    - codeRef:
         module: '@cardstack/boxel-host/tools/preview-format'
         name: default
       requiresApproval: false
@@ -85,6 +89,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 - `preview-format_cb94` — Open module + preview card (code mode; use after edits).
 - `update-code-path-with-selection_f749` — Open file in code editor.
 - `open-workspace_1696` — Navigate to a workspace by URL. Lands in **interact mode** — it exits code mode. To work on a specific realm in code mode, use `switch-submode` with a `codePath` in that realm instead.
+- `create-workspace` — Create a new workspace (realm) for the current user (requires approval). Both inputs are optional: `name` is the display name (a random one is generated when omitted) and `endpoint` is the URL path segment (derived from the name when omitted). Returns `realmURL`; tell the user that URL and, if they want to work there, follow with `open-workspace`. The new workspace appears in the workspace chooser right away.
 
 ## Search
 
@@ -106,4 +111,4 @@ Quick lookup of every command available to this skill, what it does, and notable
 ## Approval requirements
 
 The following require user approval before execution:
-- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`
+- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `create-workspace`

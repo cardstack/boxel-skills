@@ -87,12 +87,14 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 │   ├─ Display card                  → show-card_566f
 │   ├─ Create card / definition      → a SEARCH/REPLACE block with `(new)` after the file URL — that alone creates the file; no tool call is part of writing
 │   ├─ Switch to code                → switch-submode_dd88 (submode: "code"; pass codePath to target a specific realm — a bare switch stays in the current realm)
-│   └─ Open workspace                → open-workspace_1696 (lands in interact mode)
+│   ├─ Open workspace                → open-workspace_1696 (lands in interact mode)
+│   └─ Create workspace              → create-workspace (returns realmURL; report it to the user)
 ├─ CODE MODE:
 │   ├─ Create or edit a file         → SEARCH/REPLACE block. Never call switch-submode_dd88 again for a file the tab already shows — the last tool result's `context.codeMode.currentFile` tells you where you are
 │   ├─ Preview card + module         → preview-format_cb94
 │   ├─ Open file in editor           → update-code-path-with-selection_f749
 │   ├─ Switch to interact            → switch-submode_dd88 (submode: "interact")
+│   ├─ Create workspace              → create-workspace (returns realmURL; report it to the user)
 │   └─ Open workspace                → open-workspace_1696 (⚠️ exits code mode — to change realm and stay in code mode, switch-submode with a codePath in that realm)
 └─ EITHER MODE:
     └─ Toggle mode                   → switch-submode_dd88
