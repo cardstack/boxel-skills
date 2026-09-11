@@ -9,7 +9,7 @@ validated: source-proven
 **When to use:** Whenever a user asks for a new card, a card family, or an app — before you write the first line of `.gts`. This is meant to run as **step 0** of creating a card, designing one, or any "build me a …" intent.
 
 **The insight:** Boxel's theme system is built around `cardInfo.theme` — a `linksTo(Theme)` field on every CardDef. The Theme card holds:
-- theme variables - either as a raw `cssVariables` string on minimal themes or as structured `rootVariables`, `darkModeVariables`, `typography`, palette, and mark fields that compute `cssVariables`.
+- theme variables — structured `rootVariables`, `darkModeVariables`, `typography`, and (for `BrandGuide`) palette/mark fields that compute `cssVariables`. Avoid the bare `Theme` card’s free-form `cssVariables` string, which bypasses the token contract.
 - `cssImports` — `<link>` stylesheet URLs. On a StructuredTheme this is computed from the font stacks; hand-added links go in `customCssImports`.
 
 When a card has `cardInfo.theme` set, the CardContainer injects those CSS variables and imports the fonts. Your templates then reference `var(--background)`, `var(--foreground)`, `var(--primary)`, `var(--font-sans)` etc. and "just work".
