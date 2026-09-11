@@ -329,10 +329,11 @@ npx boxel realm publish <source-url> <published-url>             Publish a host-
 npx boxel realm unpublish <published-url>                        Remove a host-mode publication
 npx boxel realm indexing-errors --realm <url>                    List indexing failures (when supported)
 
-npx boxel realm pull <realm-url> <local-dir>                    Realm → local
+npx boxel realm pull <realm-url> <local-dir>                    Realm → local (DESTROYS unpushed local edits)
 npx boxel realm push <local-dir> <realm-url>                    Local → realm
 npx boxel realm sync <local-dir> <realm-url>                    Bidirectional
-npx boxel realm status <local-dir>                              Classify changes vs the manifest
+npx boxel realm status <local-dir>                              Classify changes vs the manifest (read-only)
+npx boxel realm status <local-dir> --pull                       Safe pull: only files with no local changes
 
 npx boxel realm history <local-dir>                             List checkpoints
 npx boxel realm history <local-dir> --restore <id|hash>         Restore a checkpoint

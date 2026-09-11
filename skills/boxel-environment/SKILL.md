@@ -124,6 +124,7 @@ By task:
 - [`references/choosing-llm-models.md`](references/choosing-llm-models.md) — Model selection. Check when code tasks detected or debugging stuck.
 - [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards.
 - [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step patterns (migrations, bulk operations).
+- [`references/shared-mirror-safety.md`](references/shared-mirror-safety.md) — **Read before `realm pull` / `sync`.** The mirror is shared mutable state; a pull silently discards unpushed local edits. Generating outside the mirror and pushing from there.
 - [`references/markdown-edit.md`](references/markdown-edit.md) — Editing long markdown fields surgically.
 - [`../boxel/references/lint-workflow.md`](../boxel/references/lint-workflow.md) — Required installed npm `boxel` lint gate for `.gts` code tasks.
 
