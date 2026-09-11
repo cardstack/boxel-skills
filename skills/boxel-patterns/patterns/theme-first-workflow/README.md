@@ -9,8 +9,8 @@ validated: source-proven
 **When to use:** Whenever a user asks for a new card, a card family, or an app — before you write the first line of `.gts`. This is meant to run as **step 0** of creating a card, designing one, or any "build me a …" intent.
 
 **The insight:** Boxel's theme system is built around `cardInfo.theme` — a `linksTo(Theme)` field on every CardDef. The Theme card holds:
-- theme variables - either as a raw `cssVariables` string on minimal themes or as structured `rootVariables`, `darkModeVariables`, `typography`, palette, and mark fields that compute `cssVariables`.
-- `cssImports` — Google Fonts and other `<link>` URLs.
+- theme variables — structured `rootVariables`, `darkModeVariables`, `typography`, and (for `BrandGuide`) palette/mark fields that compute `cssVariables`. Avoid the bare `Theme` card’s free-form `cssVariables` string, which bypasses the token contract.
+- `cssImports` — `<link>` stylesheet URLs. On a StructuredTheme this is computed from the font stacks; hand-added links go in `customCssImports`.
 
 When a card has `cardInfo.theme` set, the CardContainer injects those CSS variables and imports the fonts. Your templates then reference `var(--background)`, `var(--foreground)`, `var(--primary)`, `var(--font-sans)` etc. and "just work".
 
@@ -30,7 +30,7 @@ Three options, in order of preference:
    - `@cardstack/base/brand-guide` for a full brand system with logo/mark usage, functional palette, color palette, typography, voice, and detailed style guidance.
    - `@cardstack/base/detailed-style-reference` for a full style system without logo/mark material.
    - `@cardstack/base/style-reference` for a compact visual DNA reference with inspirations and wallpapers.
-   - `@cardstack/base/structured-theme` for a token-only theme.
+   - `@cardstack/base/structured-theme` for a token-only theme. This is the floor: never adopt from or subclass the bare `Theme` in `@cardstack/base/card-api`, whose free-form `cssVariables` string bypasses the token contract. Custom variables outside the contract require `BrandGuide`.
 
 ### Step 1 — Link the theme on every instance
 
@@ -87,15 +87,10 @@ In `<style scoped>` blocks, reference theme CSS variables exclusively:
 
 ```css
 .card-shell {
-  background: var(--background);
-  color: var(--foreground);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-family: var(--font-sans);
+  padding: 1rem;
 }
-
 .primary-action {
-  background: var(--primary);
+  background-color: var(--primary);
   color: var(--primary-foreground);
 }
 ```

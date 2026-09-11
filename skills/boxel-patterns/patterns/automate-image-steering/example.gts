@@ -14,12 +14,7 @@
 //
 // See the README for the layered prompt template + post-generation state
 // update + the gotchas list.
-import {
-  CardDef,
-  Component,
-  contains,
-  field,
-} from '@cardstack/base/card-api';
+import { CardDef, Component, contains, field } from '@cardstack/base/card-api';
 import StringField from '@cardstack/base/string';
 import TextAreaField from '@cardstack/base/text-area';
 import { restartableTask } from 'ember-concurrency';
@@ -28,7 +23,12 @@ import { action } from '@ember/object';
 import { on } from '@ember/modifier';
 
 import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
-import { Button } from '@cardstack/boxel-ui/components';
+import {
+  BoxelInput,
+  Button,
+  FieldContainer,
+} from '@cardstack/boxel-ui/components';
+import { not } from '@cardstack/boxel-ui/helpers';
 import CameraIcon from '@cardstack/boxel-icons/camera';
 
 const DEFAULT_MODEL = 'google/gemini-2.5-flash-image';
@@ -194,9 +194,7 @@ Create a high-quality image following these guidelines, with user commands takin
         .find((url: string) => url && url.startsWith('data:image/'));
 
       if (!dataUrl) {
-        throw new Error(
-          messageContent?.content || 'No image was generated.',
-        );
+        throw new Error(messageContent?.content || 'No image was generated.');
       }
 
       // ─── Post-generation state update ─────────────────────────────
@@ -245,8 +243,8 @@ Create a high-quality image following these guidelines, with user commands takin
   }
 
   @action
-  onSteeringInput(event: Event) {
-    this.steeringInput = (event.target as HTMLInputElement).value;
+  onSteeringInput(value: string) {
+    this.steeringInput = value;
   }
 
   @action
@@ -258,8 +256,8 @@ Create a high-quality image following these guidelines, with user commands takin
 
   <template>
     <article class='steering-demo'>
-      <header>
-        <h2>Steered Image Generator</h2>
+      <header class='steering-intro'>
+        <h1><@fields.cardTitle /></h1>
         <p>
           Set a base subject, then iteratively steer the generation with short
           commands. Each step keeps the original subject's identity while
@@ -267,40 +265,42 @@ Create a high-quality image following these guidelines, with user commands takin
         </p>
       </header>
 
-      <section class='field'>
-        <label>Base subject (immutable anchor)</label>
+      <FieldContainer
+        @label='Base subject (immutable anchor)'
+        @vertical={{true}}
+      >
         <@fields.subjectPrompt />
-      </section>
+      </FieldContainer>
 
-      <section class='field'>
-        <label>Steering command</label>
-        <input
-          type='text'
-          placeholder='e.g. warmer light, tighter crop, side angle…'
-          value={{this.steeringInput}}
-          {{on 'input' this.onSteeringInput}}
+      <FieldContainer @label='Steering command' @vertical={{true}}>
+        <BoxelInput
+          @value={{this.steeringInput}}
+          @onInput={{this.onSteeringInput}}
+          @placeholder='e.g. warmer light, tighter crop, side angle…'
         />
-      </section>
+      </FieldContainer>
 
-      <section class='actions'>
+      <div class='actions' role='toolbar' aria-label='Generation actions'>
         <Button
-          data-test-steer
+          class='steer-button'
+          @kind='primary'
           @disabled={{not this.canSteer}}
           {{on 'click' this.onSteerClick}}
+          data-test-steer
         >
-          <CameraIcon />
+          <CameraIcon width='16' height='16' />
           {{if this.isGenerating 'Generating…' 'Steer'}}
         </Button>
         <Button @kind='secondary' {{on 'click' this.reset}}>
           Reset chain
         </Button>
-      </section>
+      </div>
 
       {{#if this.errorMessage}}
-        <p class='status status--error'>{{this.errorMessage}}</p>
+        <p class='status status--error' role='alert'>{{this.errorMessage}}</p>
       {{/if}}
 
-      <section class='lineage'>
+      <section class='lineage' aria-label='Image lineage'>
         {{#if this.firstImage}}
           <figure class='frame'>
             <img src={{this.firstImage}} alt='Grounding reference' />
@@ -309,7 +309,7 @@ Create a high-quality image following these guidelines, with user commands takin
         {{/if}}
         {{#each this.imageHistory as |entry|}}
           <figure class='frame frame--history'>
-            <img src={{entry.image}} alt='Step' />
+            <img src={{entry.image}} alt='Step {{entry.version}}' />
             <figcaption>#{{entry.version}}</figcaption>
           </figure>
         {{/each}}
@@ -324,31 +324,27 @@ Create a high-quality image following these guidelines, with user commands takin
 
     <style scoped>
       .steering-demo {
+        --steering-frame-size: 10rem;
+        --steering-frame-border: 1px;
+        --steering-current-border: 2px;
+        height: 100%;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
         gap: var(--boxel-sp-lg);
         padding: var(--boxel-sp-lg);
       }
-      header p {
-        margin: var(--boxel-sp-xs) 0 0;
-        color: var(--boxel-700);
-      }
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: var(--boxel-sp-xs);
-      }
-      .field label {
-        font-weight: 600;
-      }
-      .field input[type='text'] {
-        padding: var(--boxel-sp-xs) var(--boxel-sp-sm);
-        border: 1px solid var(--boxel-200);
-        border-radius: var(--boxel-border-radius);
+      .steering-intro p {
+        margin-top: var(--boxel-sp-xs);
+        color: var(--muted-foreground);
       }
       .actions {
         display: flex;
+        flex-wrap: wrap;
         gap: var(--boxel-sp);
+      }
+      .steer-button {
+        gap: var(--boxel-sp-xs);
       }
       .lineage {
         display: flex;
@@ -361,29 +357,34 @@ Create a high-quality image following these guidelines, with user commands takin
         flex-shrink: 0;
       }
       .frame img {
-        width: 160px;
-        height: 160px;
+        display: block;
+        width: var(--steering-frame-size);
+        height: var(--steering-frame-size);
         object-fit: cover;
-        border: 1px solid var(--boxel-200);
-        border-radius: var(--boxel-border-radius);
+        border: var(--steering-frame-border) solid var(--border);
+        border-radius: var(--radius);
       }
       .frame--current img {
-        border-color: var(--primary, var(--boxel-purple-300));
-        border-width: 2px;
+        border-color: var(--primary-ink);
+        border-width: var(--steering-current-border);
       }
       .frame figcaption {
         margin-top: var(--boxel-sp-xs);
-        font-size: var(--boxel-font-sm);
-        color: var(--boxel-600);
+        font-size: var(--boxel-font-size-sm);
+        color: var(--muted-foreground);
       }
       .status {
         margin: 0;
         padding: var(--boxel-sp-sm);
-        border-radius: var(--boxel-border-radius);
+        border-radius: var(--radius);
       }
       .status--error {
-        background: color-mix(in srgb, var(--boxel-error-100) 12%, white);
-        color: var(--boxel-error-100);
+        background-color: color-mix(
+          in oklch,
+          var(--destructive) 12%,
+          var(--background)
+        );
+        color: var(--destructive-ink);
       }
     </style>
   </template>
@@ -391,6 +392,7 @@ Create a high-quality image following these guidelines, with user commands takin
 
 export class SteeredImageDemo extends CardDef {
   static displayName = 'Steered Image Generator';
+  static icon = CameraIcon;
 
   @field subjectPrompt = contains(TextAreaField);
   @field generationCount = contains(StringField);
