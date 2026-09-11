@@ -142,4 +142,6 @@ class BlogPost extends CardDef {
 
 - `@query` — an `entry`-rooted query (`SearchEntryWireQuery`). Build it from a normal query with `searchEntryWireQueryFromQuery`, then set `realms` (and optionally `page`). Changing it re-runs the search.
 - `@mode` — hydration of prerendered rows on interaction: `'none'` (stay inert), `'hover'` (default), `'click'`, `'touch'`.
+- `@overlays` — whether each row registers with the operator-mode overlay (chip, options menu, selection toggle). Defaults to `true`; pass `false` for a card that lays results out in its own UI.
+- `@displayContainer` — whether each row renders inside its card-container chrome (the boundary ring). Defaults to `true`; pass `false` for a consumer that frames results itself — the same switch `<@fields.x @displayContainer={{false}} />` offers, and it applies to the inert prerendered HTML and the hydrated card alike.
 - Yields `results`: `results.entries` (each `entry` exposes `.component`, `.id`, `.isError`, plus `.displayName` / `.iconHtml` for a row with no HTML yet), `results.isLoading`, `results.meta` (`{ page: { total } }`), and `results.errors`.

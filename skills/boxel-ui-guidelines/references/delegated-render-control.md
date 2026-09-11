@@ -137,6 +137,8 @@ For atoms especially, often you want NO chrome — just the linked card's conten
 
 This causes the wrapper to render as `display: contents` — the container disappears, only the children layout. **The class on the wrapper still exists** (`field-component-card atom-format display-container-false`) but it's transparent to layout.
 
+The same arg exists on `@context.searchResultsComponent`: `<@context.searchResultsComponent @query={{this.query}} @displayContainer={{false}} as |results|>` removes the boundary ring from every yielded `entry.component`, on the inert prerendered HTML and the hydrated live card alike. There is no per-entry switch — the flag is set once on the component.
+
 Pair this with a sibling element styled by the parent to provide the visual chip:
 
 ```hbs
