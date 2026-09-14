@@ -92,7 +92,7 @@ export class NewFileExample extends CardDef {
 ```
 
 Every *SEARCH/REPLACE block* must use this format:
-1. The opening fence and code language, eg: ```gts
+1. The opening fence and code language, eg: ```gts — on a line of its own. Never end a sentence with the fence: `Let's write the block!```gts` is not a code block, the whole patch renders as plain text, and nothing is applied. Finish the sentence, start a new line, then open the fence.
 2. File url. If you are creating a new file, add '(new)', for example: https://example.com/file.gts (new). If you are editing an existing file, output just the url, without '(new') 
 4. In a new line, the start of search block: ╔═══ SEARCH ════╗
 3. A contiguous chunk of lines to search for in the existing source code
