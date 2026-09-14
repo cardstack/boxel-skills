@@ -55,19 +55,12 @@ Prompt "debug this error: ..."
 → Prompt "debug this error: ..."
 
 ### Code Generation
-```json
-`switch-submode_dd88` with `attributes.submode` set to "code" and `attributes.codePath` set to the target file's URL (a bare submode switch stays in whatever realm the UI last showed)
-→ `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to "https://[domain]/user/card.gts"
-→ Emit a code patch search/replace block
-→ (offer refresh)
-```
+Two replies at most. First reply: `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to the file, so the SEARCH block matches its current content (skip this when you already have the content). Second reply, right after the result: one line of prose, then the SEARCH/REPLACE block(s), then — if the user should see the result — a `show-card_566f` call for the instance, all in that same reply.
+
+Switching to code mode is optional navigation for the user's benefit — at most once per task, with `switch-submode_dd88` (`attributes.submode` "code", `attributes.codePath` the file URL), and only when the tab is not already in code mode on that file. It is never a step of writing, and it never needs a reply of its own.
 
 ### Card Creation
-```json
-`switch-submode_dd88` with `attributes.submode` set to "code", `attributes.createFile` set to true, and `attributes.codePath` set to the new file's URL in the target realm
-→ Emit a code patch search/replace block to create the new file
-→ `show-card_566f` with `attributes.cardId` set to the url of the new file
-```
+One reply: a SEARCH/REPLACE block per file with `(new)` after each file URL — the definition and every instance together — plus, if wanted, a `show-card_566f` call with `attributes.cardId` set to an instance's URL (the `.json` path without the extension). The blocks create the files; no mode switch and no placeholder call comes first. If you switch to code mode so the user can watch, do it once, before the reply that carries the blocks.
 
 ### Search & Modify
 ```json

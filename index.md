@@ -36,6 +36,19 @@ Read it before you plan out loud. Describing a plan you have no tools to carry o
 
 This step is not done until a search has returned and every hit is dispositioned — adopted, or refused naming what mismatched. **Reading pattern and design references is not a substitute**: they tell you how to build well, not whether to build at all. A game, an app, a tool, a one-off — if it ships as a card, it goes through the query first.
 
+**Writing any file takes one more read: [`skills/source-code-editing/SKILL.md`](skills/source-code-editing/SKILL.md).** Boxel's SEARCH/REPLACE block is not the format you know from other tools. It uses box-drawing markers, and the file URL is the first line inside the fence, with `(new)` after it to create the file. A block in any other format — git conflict markers, the URL outside the fence, a different fence header — renders as plain code and writes nothing, and no error tells you so. Read the skill before your first block in a session, every session, and copy its syntax exactly. The shape, so you recognise it:
+
+````
+```gts
+https://realm/user/example/hello-world.gts (new)
+╔═══ SEARCH ════╗
+╠═══════════════╣
+import { CardDef } from '@cardstack/base/card-api';
+export class HelloWorld extends CardDef {}
+╚═══ REPLACE ═══╝
+```
+````
+
 **Reports go in Rich Markdown, not a new card.** When a task asks for a report, summary, briefing, or dashboard-style document, read [`skills/rich-markdown-reports/SKILL.md`](skills/rich-markdown-reports/SKILL.md) before deciding how to build it — the default is a Rich Markdown `.md` file that embeds existing cards (custom or off-the-shelf), not a bespoke card definition authored just to present the report.
 
 ## Skill-tree glossary
@@ -102,7 +115,11 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **Include `attributes.cardInfo` on instances when practical.** Even with all null values, the `cardInfo` object lets the user edit name/summary/theme later through the UI. It's required when the CardDef uses the default `cardTheme` pass-through AND you want a theme set per-instance.
 - **Write all of a build's files in one reply.** Three cards means three SEARCH/REPLACE blocks in the same answer; the grouped apply runs them together, with the correctness check running once over the result. Each block must still match the attached file on its own, because the user can apply any single block alone. Finishing one file and handing back ends your turn, and nothing resumes the rest of your plan for you — a build announced as three files and delivered one per turn routinely stops after the first.
 - Read before writing. Fetch a file’s current contents before a SEARCH/REPLACE edit so the SEARCH block matches exactly.
-- Write every text file with SEARCH/REPLACE — `.gts`, `.json`, `.md`, `README` alike — adding `(new)` after the URL to create one. There is no file-writing tool; a tool call cannot stream, so the UI freezes through a long generation.
+- **A reply is prose, SEARCH/REPLACE blocks, and tool calls together.** Nothing about a turn needs a tool call. When the next step is writing, write now, in this reply. Never send a tool call as a placeholder, to "confirm" or "stay in" a mode, or to close a turn — each one is a full round trip over the whole conversation and pushes the work one turn further away.
+- **Trust the context you were handed.** Every tool result carries `context.submode`, `context.codeMode.currentFile`, and the open cards. Read those instead of calling `switch-submode` to check where you are. In code mode, never call `switch-submode` without a `codePath`: it re-derives the file from the card stack and moves the editor off the file you are working on.
+- **A card instance id is a URL with no extension.** `https://realm/FacebookProfile/maria-santos` is the instance; `…/maria-santos.json` is the file that stores it; `…/facebook-profile.gts` is a definition, and no card has that id. `show-card` and every other `cardId` argument take the instance id. To open a `.gts` or `.json` file in the editor, use `switch-submode` with `codePath`.
+- **When an automated check reports errors in files you just wrote,** re-read those files, then write the fixing SEARCH/REPLACE blocks in that same reply, after one short sentence. Do not spend a turn announcing the fix.
+- Write every text file with SEARCH/REPLACE — `.gts`, `.json`, `.md`, `README` alike — adding `(new)` after the URL to create one. There is no file-writing tool, and no mode switch is needed before writing; a tool call cannot stream, so the UI freezes through a long generation.
 - One CardDef per file. FieldDefs and helpers can co-locate.
 - Theme variables only — no hard-coded colors in templates. All colors live in the Theme card's `cssVariables`.
 - Three formats minimum: every CardDef needs `isolated`, `embedded`, AND `fitted`.

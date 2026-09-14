@@ -45,9 +45,14 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **`computeVia: fn`** — Derive a field's value from other fields. Function runs on each access; mark with `cacheable: true` for expensive computations.
 - **`computeVia: expression(...)`** — bxl-flavored `computeVia` that runs a bxl expression with the card's fields as context. Validated against the `derive` profile when the field is defined, so a volatile or request-scoped expression throws as the card module loads. → `bxl-authoring`
 - **`cardInfo`** — Base CardDef field on every card. Holds `name`, `summary`, `theme` (linksTo Theme), and `cardThumbnail`. Per-instance metadata users edit via the UI.
+- **card instance id** — The URL of a card instance with no extension (`https://realm/FacebookProfile/maria-santos`). The `.json` file at that URL plus the extension stores the instance; a `.gts` URL is a definition module and is not a card id. Every `cardId` tool argument takes the instance id. → `boxel-environment/references/host-commands-reference.md`
 - **`cardTheme`** — Computed field on a CardDef that resolves which Theme to apply. Default = pass-through to `cardInfo.theme`; CardDefs override to inherit from a linked card (`this.project.cardTheme`), query for a realm default, or derive by business logic. → `theme-first-workflow`, `boxel/references/theme-design-system.md`
 - **`cardTitle`** — Computed field that surfaces the card's display label. Override to respect `cardInfo.name` first, then a primary field, then `Untitled <DisplayName>`. → `cardinfo-override-title`
 - **primary field** — A schema-level concept: the field that names the card (`firstName + lastName`, `headline`, `title`, etc.). Drives the `cardTitle` fallback.
+- **`static screenshots`** — Declared self-refreshing capture slots on a CardDef/FileDef: `static screenshots: Record<string, ScreenshotSpec> = {…}` (the annotation is required — without it TS widens the literals and the class fails TS2417). Each `ScreenshotSpec` declares exactly one of `format` or `render` (a capture-only component), required `width`/`height`, and optional `useAsThumbnail` (at most one slot; feeds `cardThumbnailURL`) and `keyBy: 'generation' | 'file-content'` (what invalidates the capture). Captured server-side on every index. → `automate-declared-screenshots`
+- **`screenshotURLs`** — Reserved getter on every CardDef/FileDef (an `@field` may not use the name): one key per declared screenshot slot, `undefined` until a capture exists — always guard the `<img>` and build fallback chains on `undefined`. → `automate-declared-screenshots`
+- **`cardThumbnailURL`** — Computed the default fitted tile renders; fallback chain: author-set URL → authored `cardInfo.cardThumbnail` link → the `useAsThumbnail` capture. → `automate-declared-screenshots`
+- **`data-screenshot-pending`** — DOM attribute a capture-only component renders while async content (video frame, PDF page, WebGL first frame) is unready; the capture engine waits (bounded) until no such element remains before shooting. → `automate-declared-screenshots`
 - **`instanceOf`** — Type guard for CardDef instances.
 
 ## 3. Templates — Glimmer / Boxel UI surface
@@ -110,8 +115,8 @@ The five formats every CardDef can declare via `static <format> = class extends 
 
 ## 6. Theme system
 
-- **Theme CardDef** — A card that stores a brand's `cssVariables` (`--background`, `--foreground`, `--primary`, `--muted`, `--border`, etc.) plus typography + assets.
-- **Structured Theme** — Theme subclass with structured `rootVariables`, `darkModeVariables`, `typography`, and `version`; computes `cssVariables` instead of requiring a hand-authored CSS string. Use for token-only themes.
+- **Theme CardDef** — DO NOT USE. An internal class that has fields for `cssVariables` (`--background`, `--foreground`, `--primary`, `--muted`, `--border`, etc.) and font-family imports. This bare `Theme` in `@cardstack/base/card-api` is a root class only: never instantiate or subclass it. New themes start from `StructuredTheme` at minimum; `BrandGuide` when custom variables are required.
+- **Structured Theme** — This is the bare minimum theme card to use when generating a new theme. Theme subclass with structured `rootVariables`, `darkModeVariables`, `typography`, and `version`; computes `cssVariables` instead of requiring a hand-authored CSS string. Use for token-only themes.
 - **Style Reference** — `StructuredTheme` subclass that adds `styleName`, `inspirations`, `visualDNA`, and `wallpaperImages`. Use when the visual language needs to be documented.
 - **Detailed Style Reference** — `StyleReference` subclass with long-form design guidance: context, palette, typography, geometry, material, composition, motion, component vocabulary, voice, technical specs, application scenarios, quality standards, and design mindset.
 - **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, and `markUsage`. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
@@ -121,6 +126,9 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **`cardInfo.theme`** — Per-instance theme override (`linksTo(Theme)`). Wins over any computed `cardTheme`.
 - **`cardTheme`** — Computed field returning the active Theme for this instance. Default is pass-through to `cardInfo.theme`; override to inherit from a parent card or query a realm-default.
 - **theme tokens** — CSS custom properties referenced from templates: `var(--background)`, `var(--primary)`, `var(--muted)`, `var(--border)`, `var(--radius)`. Always referenced from theme tokens, never hard-coded `#hex` values in production templates.
+- **theme contract** — The full set of named tokens every theme satisfies: each is a declared field on the theme's variables, has a default in `packages/boxel-ui/src/styles/theme.css`, and is reset at every themed-card boundary so a theme only sets what it changes. Beyond shadcn's set it names status fills (`--success`, `--warning`, `--info`, `--attention`, `--overlay`), neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`, `--tooltip`), `--subtle-foreground`, `--border-strong`, `--control-height`, `--chart-6/7`, `--shadow-inset`, and the `label` / `eyebrow` typography roles. The one inventory: → `boxel-ui-guidelines/references/theme-token-contract.md`
+- **ink token (`--x-ink`)** — A hue used *as* text or icon color on a neutral surface, as opposed to `--x-foreground`, which is ink *on* the hue's own fill. One per fill (`--primary-ink`, `--success-ink`, …); defaults to the hue mixed 60% toward `--foreground`, so it stays readable in both schemes.
+- **custom theme variables** — Tokens outside the contract. `StructuredTheme` has no slot for them; they come from a `BrandGuide` (`customCssVariables` list, `brandColorPalette` names) or a theme card definition extended with its own fields. No `theme.css` default and no reset at the themed-card boundary, so they leak into nested cards and disappear when another theme card is linked. Never duplicate a named token this way; a template reading one needs a local fallback unless it only renders under that theme.
 - **shadcn/Boxel token mapping** — Boxel consumes shadcn-style tokens as paired surface/foreground contracts. `--primary` is an action surface or indicator, not ordinary text; `--spacing` is a quarter-unit that becomes `--boxel-sp` after runtime scaling. → `boxel-theme-development/references/shadcn-boxel-token-mapping.md`
 - **theme cascade** — Host injects the Theme card's `cssVariables` as CSS custom properties on the card root. Children inherit; cross-card delegated rendering retains the parent's theme unless overridden.
 - **theme-first workflow** — Choose/create a Theme BEFORE writing the card. Link via `cardInfo.theme`; templates use tokens from line one. → `theme-first-workflow`
@@ -254,7 +262,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`UseAiAssistantCommand`** — Host command that opens a multi-turn AI room with a skill card + attached cards pre-loaded. → `command-with-skill-card-ref`
 - **OpenRouter image generation** — Image-gen via OpenRouter chat completions with `modalities: ['image', 'text']`. Default model: `google/gemini-2.5-flash-image` (Gemini Flash Image). ChatGPT/OpenAI image models on request (`openai/gpt-5-image-mini`, `openai/gpt-5.4-image-2`). → `integrate-openrouter-image-generation`
 - **`GenerateThumbnailCommand`** — Composes OpenRouter image-gen + `WriteBinaryFileCommand` + optional `PatchCardInstanceCommand` to patch `cardInfo.cardThumbnail`. → `integrate-thumbnail-card-ai`
-- **`ScreenshotCardCommand`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). → `integrate-screenshot-card-format`
+- **`ScreenshotCardCommand`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). **Point-in-time** snapshots kept as separate files; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
 - **Steerable image generation** — Multi-step iterative refinement using initial prompt + steering input + first/current image lineage. → `automate-image-steering`
 - **Skill cards** — Cards typed as `Skill` from `@cardstack/base/skill` that pre-load into AI rooms with their description as system context.
 
@@ -312,11 +320,11 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 - **`npx boxel profile <list|add|switch|remove|migrate>`** — Profile / environment management. `switch` changes the global active profile; restore it after a temporary environment change.
 - **`npx boxel realm <create|list|remove|wait-for-ready|cancel-indexing>`** — Realm lifecycle.
-- **`npx boxel realm pull <realm-url> <local-dir>`** — Realm → local.
+- **`npx boxel realm pull <realm-url> <local-dir>`** — Realm → local. **Destructive to unpushed local edits:** overwrites every local file with no dirty check and no warning. For provisioning a fresh mirror, not for updating one in use. → `boxel-environment/references/shared-mirror-safety.md`
 - **`npx boxel realm push <local-dir> <realm-url>`** — Local → realm.
-- **`npx boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.)
+- **`npx boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.) `--prefer-remote` carries the same hazard as `pull`.
 - **fresh-realm push ordering** — Push definitions, wait for schemas, then write instances. Mixed first pushes can preserve card counts while replacing nested realm-defined field values with `null`. → `boxel-environment/references/fresh-realm-push-integrity.md`
-- **`npx boxel realm status <local-dir>`** — Classify local changes vs. manifest.
+- **`npx boxel realm status <local-dir>`** — Classify local changes vs. manifest (`modified-local` / `modified-remote` / `new-remote` / `conflict`). Read-only; `--pull` takes only the files with no local changes, so it is the **safe alternative to `realm pull`** on a mirror in use. Not present in every installed CLI — check `npx boxel realm --help`.
 - **`npx boxel realm publish <source> <published>` / `unpublish`** — Create or remove an anonymous host-mode copy.
 - **`npx boxel realm indexing-errors --realm <url>`** — List cards that failed to index when supported by the installed CLI.
 - **`npx boxel realm history`** — List/restore/tag checkpoints.
@@ -417,6 +425,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 ### Automate / Compute
 - **`automate-linked-to-me-lookup`** — Schema-level query-backed `linksToMany` (preferred) or component-level `getCards()`. For circular `linksTo` between two CardDefs, both sides use the `() => Class` thunk form to avoid cyclic-import errors.
 - **`resource-for-state`** — Wrap third-party library state in an ember-resources Resource.
+- **`automate-declared-screenshots`** — Self-refreshing screenshot slots via `static screenshots`, consumed as `@model.screenshotURLs.<name>`; a `useAsThumbnail: true` slot feeds `cardThumbnailURL` so grid tiles show the real rendering with zero template edits. Prefer over the imperative screenshot/thumbnail commands whenever the card should *always* have a current picture of itself.
 - **`automate-image-steering`** — Iteratively refine an image generation with initial prompt + steering input + first/current image lineage.
 - **`automate-run-command-cli`** — Invoke a host Command via `npx boxel run-command` shell + typed run card for history.
 

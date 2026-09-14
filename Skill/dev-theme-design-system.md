@@ -35,145 +35,20 @@ A ThemeCard is an instance of a card definition that inherits from `@cardstack/b
 
 | Type | Module | Description |
 |------|-----|-------------|
-| Base Theme | `@cardstack/base/theme/default` | Root base class |
+| Base Theme | `@cardstack/base/theme/default` | DO NOT USE. Root base class. Do not instantiate or subclass it: its free-form `cssVariables` string bypasses the token contract, so themes built on it get no defaults, no validation, and no editor support. |
 | Structured Theme | `@cardstack/base/structured-theme/default` | MINIMUM template — includes all theme variables (except Brand variables) |
 | Style Reference | `@cardstack/base/style-reference/default` | Extends `StructuredTheme` — adds fields for inspiration images, terms, and style description |
 | Detailed Style Reference | `@cardstack/base/detailed-style-reference/default` | **PREFERRED** — extends `StyleReference` with detailed design system description |
 | Brand Guide | `@cardstack/base/brand-guide/default` | Extends `DetailedStyleReference` — adds brand-specific variables for colors and typography |
 
-> **When creating a Theme card:** Prefer `DetailedStyleReference`. At minimum, fill in `rootVariables` and `typography`. Add font URLs to `cssImports` as a string array — no `@import` needed (the system handles imports).
+> **When creating a Theme card:** Start from `StructuredTheme` at minimum, never the bare `Theme`. If the design needs custom variables outside the token contract, use `BrandGuide`; it is the only theme shape with a slot for them. Prefer `DetailedStyleReference`. At minimum, fill in `rootVariables` and `typography`. Font stylesheets are derived: `cssImports` is computed from the theme's font stacks (Google Fonts), so do not write it by hand. Only a stylesheet that cannot be derived, such as Adobe Fonts, goes in `customCssImports`. Templates never `@import` a font.
 
 ### 3.2 Canonical Theme Variables
 Use the variables directly (do not wrap with `hsl(var(...))`). Pair backgrounds with their foregrounds for contrast: a rule that sets a semantic background also sets the paired `--*-foreground` in the same rule, once at that surface's root — descendants inherit it (never re-declare what's already inherited). Nested surfaces that diverge (`--card`, `--sidebar`, `--accent`, `--primary`, …) are the sanctioned case for declaring both. Exceptions: `--foreground` over `--muted` is fine (theme generation must guarantee that pair), and isolated-format roots don't repeat `--background`/`--foreground` — `CardContainer` already provides them.
 
 Our design system is compatible with shadcn css variables.
 
-- Background Colors:
-```css
---background
---card
---popover
---primary
---secondary
---muted
---accent
---destructive
---input
---sidebar
---sidebar-primary
---sidebar-accent
-```
-
-- Foreground Colors:
-```css
---foreground
---card-foreground
---popover-foreground
---primary-foreground
---secondary-foreground
---muted-foreground
---accent-foreground
---destructive-foreground
---sidebar-foreground
---sidebar-primary-foreground
---sidebar-accent-foreground
-```
-- Border Colors:
-```css
---border
---sidebar-border
-```
-- Css Outline Colors:
-```css
---ring
---sidebar-ring
-```
-- Chart Colors:
-```css
---chart-1
---chart-2
---chart-3
---chart-4
---chart-5
-```
-
-- Fonts: (`font-family`)
-```css
---font-sans
---font-serif
---font-mono
-```
-- Radius: (`border-radius`)
-```css
---radius
---boxel-border-radius-2xs
---boxel-border-radius-xs
---boxel-border-radius-sm
---boxel-border-radius
---boxel-border-radius-lg
---boxel-border-radius-xl
---boxel-border-radius-2xl
-```
-- Spacing:
-```css
---spacing
---boxel-sp-6xs
---boxel-sp-5xs
---boxel-sp-4xs
---boxel-sp-3xs
---boxel-sp-2xs
---boxel-sp-xs
---boxel-sp-sm
---boxel-sp
---boxel-sp-lg
---boxel-sp-xl
---boxel-sp-2xl
---boxel-sp-3xl
---boxel-sp-4xl
---boxel-sp-5xl
---boxel-sp-6xl
-```
-- Letter-spacing:
-```css
---tracking-normal
---boxel-lsp-xxl
---boxel-lsp-xl
---boxel-lsp-lg
---boxel-lsp
---boxel-lsp-sm
---boxel-lsp-xs
---boxel-lsp-xxs
-```
-- Shadows: (`box-shadow`)
-```css
---shadow-2xs
---shadow-xs
---shadow-sm
---shadow
---shadow-md
---shadow-lg
---shadow-xl
---shadow-2xl
---boxel-box-shadow
---boxel-box-shadow-hover
---boxel-deep-box-shadow
-```
-
-- Font Sizes: (`font-size`)
-```css
---boxel-font-size-2xl
---boxel-font-size-xl
---boxel-font-size-lg
---boxel-font-size-md
---boxel-font-size
---boxel-font-size-sm
---boxel-font-size-xs
---boxel-heading-font-size
---boxel-section-heading-font-size
---boxel-subheading-font-size
---boxel-body-font-size
---boxel-caption-font-size
-```
+The complete token inventory — color roles and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, fonts, typography roles (`heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label`, `eyebrow`), spacing, radius, and shadows — is maintained in one place: the **Theme Token Contract** skill (`Skill/dev-theme-token-contract`; the same text is `skills/boxel-ui-guidelines/references/theme-token-contract.md` in the repo). It also explains the boundary reset (a theme only sets what it changes; everything else falls back to `theme.css`) and why custom variables outside the contract are a `BrandGuide`-only escape hatch with real costs. Do not duplicate the list here.
 
 #### CSS Usage Examples:
 

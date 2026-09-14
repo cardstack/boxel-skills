@@ -14,7 +14,14 @@
         "summary": "Ensures boxel-ui components are used in templates and theming guidelines are followed",
         "cardThumbnailURL": null
       },
-      "commands": []
+      "commands": [],
+      "relatedSkills": [
+        {
+          "inclusionMode": "full",
+          "contentSummary": "The single inventory of every CSS variable a Boxel theme provides and how the contract behaves at card boundaries",
+          "alternateTitle": "Theme Token Contract"
+        }
+      ]
     },
     "relationships": {
       "cardInfo.theme": {
@@ -29,6 +36,11 @@
         "data": {
           "type": "file",
           "id": "./boxel-ui-guidelines.md"
+        }
+      },
+      "relatedSkills.0.skill": {
+        "links": {
+          "self": "./dev-theme-token-contract"
         }
       }
     }
