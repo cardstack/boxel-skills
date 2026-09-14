@@ -3,6 +3,11 @@ name: boxel-ui-component-discovery
 description: MANDATORY before writing any UI in a `.gts` template. Search the catalog for a boxel-ui component Spec and reuse it. Fall back to raw HTML only when no matching spec exists, and surface the gap when you do.
 boxel:
   kind: skill
+  tools:
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/search-entries'
+        name: default
+      requiresApproval: false
 ---
 
 # Boxel UI Component Discovery
@@ -53,20 +58,26 @@ of truth for what's available and what each component is called.
    }
    ```
 
-   Run the filter through whatever search transport your session has —
-   the card-search tool in an assistant room, or
-   `npx boxel search --realm <catalog-realm-url> --query '<filter-json>' --json`
-   from a CLI session; the filter is identical either way. Write it
+   Run the filter through your session's search transport. Write it
    card-rooted (`on`/`type` anchors, bare field names) like every other
    card query — the transport translates it to the search endpoint's
    wire form itself; never hand-write `item.`-prefixed paths.
 
-   One broad query returns the full inventory (~50 specs). Match each
-   item in your enumeration to a result by reading `attributes.cardTitle`
-   and `attributes.cardDescription`. Narrow with `contains` on the title
-   or `matches` (full-text over the readMe) if the inventory is large
-   enough to be noisy. See `boxel/references/query-systems.md` for full
-   query syntax.
+   - **From a CLI session**, `npx boxel search --realm <catalog-realm-url>
+     --query '<filter-json>' --json` returns the full inventory (~50
+     specs) in one call. Match each item in your enumeration to a result
+     by reading `attributes.cardTitle` and `attributes.cardDescription`.
+   - **In an assistant room, use `search-entries`** with `scope: 'cards'`.
+     It pages (`limit` default 5, max 10), so one broad query will not
+     hand you the whole inventory — run one query per enumerated item
+     instead, adding `{ "matches": "<the item's plain-language name>" }`
+     alongside the `specType` constraint, and read the `total` each
+     result carries to see how much you have not seen. `search-entries`
+     becomes callable once you have read this skill file.
+
+   Narrow with `contains` on the title or `matches` (full-text over the
+   readMe) if a query is noisy. See `boxel/references/query-systems.md`
+   for full query syntax.
 
 3. **Read each chosen spec's `attributes.readMe`** — it has the Import
    line, the API table (arg / type / required / default / options /

@@ -1,217 +1,247 @@
 ---
 name: catalog-reuse
-description: MANDATORY before building a new card, field, component, command, or app, or adding an asset (image, font, icon, theme) — search the catalog and reuse what's there: reference an existing definition as-is by default, remix only to modify, build new only when nothing matches. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
+description: >-
+  MANDATORY before writing any `.gts`. Boxel ships a curated catalog; search it before you author. Classify what you need, then apply the matching reuse operation: a **Listing** when the whole card or app may already exist (install or remix it), a **Spec** when you need building blocks (a CardDef to link, a FieldDef to contain, a component or command to import), an **instance** when you need content that already exists (point a relationship at it). Build new only for confirmed gaps. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
 boxel:
   kind: skill
+  tools:
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/search-entries'
+        name: default
+      requiresApproval: false
 ---
 
 # Catalog Reuse
 
-## A Spec is a pointer, not the thing
+Boxel ships a **curated catalog**: whole apps and cards packaged for
+installation, the definitions they are built from, components, commands, themes,
+and assets — real, tested parts other people finished and shipped.
 
-**A `Spec` is not the card, field, or component — it is the catalog's
-searchable *index entry* that points at one.** Each Spec carries:
+**First classify what kind of thing you need. Then apply the reuse operation for
+that kind.** Everything below is that one idea, made operational.
 
-- `attributes.ref` = `{ module, name }`, naming the **real definition**
-  (the CardDef / FieldDef / component / command).
-- `attributes.linkedExamples` = example **instances** of it.
-- `attributes.readMe` / `cardTitle` / `cardDescription` = what it is and
-  how to use it.
+## Non-negotiable rules
 
-You **search** Specs. You **reference the definition a Spec names** — via
-its `ref`, or an instance from `linkedExamples`. You never `adoptsFrom`,
-`linksTo`, `contains`, or import a Spec itself; the Spec is only how you
-found the thing.
+1. **Never author before searching.** By the time you write the first line of
+   any `.gts`, a catalog query must already have returned.
+2. **Never treat a Spec as the reusable object.** A Spec is an index entry. You
+   reuse what its `ref` names, or an instance from its `linkedExamples` — never
+   the Spec itself.
+3. **Never conclude a gap after one failed query.** Broaden once (step 5) before
+   declaring anything missing.
+4. **Never pass over a suitable result without recording why.** Every hit is
+   adopted, or refused in writing naming what mismatched.
+5. **Never hand-copy a Listing's files.** Reuse it whole through `install` or
+   `remix`.
+6. **Prove it at the end.** For everything you authored from scratch, be able to
+   name the reuse option above it and why it was unusable. "I didn't look" means
+   it needs replacing.
 
-## Two ways to reuse — reference a Spec's target, or remix a Listing
+Reading design or pattern references is not a substitute for searching: they
+tell you how to build well, not whether to build at all.
 
-A match can be reused two ways, and they map onto the two things the
-catalog exposes:
+## Required workflow
 
-- **Reference (default)** — driven from a **`Spec`**: take its `ref` and
-  `adoptsFrom` / import / `linksTo` the definition it names, keeping a
-  live dependency on the catalog. This is what a search finds and what
-  you reach for first.
-- **Install / remix** — driven from a **`Listing`**, the catalog's
-  *installable bundle* (specs + examples + skills — `CardListing`,
-  `FieldListing`, `AppListing`, …). The catalog `listing-install` /
-  `listing-remix` commands copy it (with dependencies) into your realm
-  so it can diverge. Reach for it only when referencing won't do.
+1. **Enumerate** every card, field, component, command, app, theme, and asset
+   the brief implies, in plain language.
+2. **Search Listings** for the deliverable as a whole.
+3. **If no Listing answers the brief**, search Specs for each enumerated need.
+   Skip this when an accepted Listing already covers the brief.
+4. **Search instances** when a need is content-shaped — a particular author,
+   theme, config, image, or a sample to start from.
+5. **Evaluate** each hit against the need; broaden once before calling anything
+   a gap.
+6. **Build only confirmed gaps**, and record them.
+7. **Self-audit** before finishing.
 
-Referencing keeps you in lockstep with the catalog; remixing forks you
-off it. A Listing *contains* Specs — they aren't rivals at the same
-level: a Spec is what you find, a Listing is a package you copy in.
+Step 3 is mandatory only when step 2 does not produce an acceptable whole
+solution — if you install a Listing that answers the brief, the part-level
+searches are moot.
 
-## Mandatory rule
+## Reuse strategy: classify, then operate
 
-Before you build a **card**, **field**, **component**, **command**,
-**app**, or **asset** (image, font, icon, theme), search the catalog
-first. Decide per match, in priority order:
+Every search here is a search over card instances — `Spec` and `Listing` are
+ordinary card types, and so is `Author`. What differs is what a hit **denotes**.
 
-1. **Reference the definition as-is (default, preferred).** Using the
-   Spec's `ref`, `adoptsFrom` / import the catalog *module*, or `linksTo`
-   an existing *instance* (from `linkedExamples`) — never the Spec, which
-   is only the entry you found it through. Keep the live dependency:
-   updates flow through, nothing is duplicated. The target realm does
-   **not** need to be self-contained.
-2. **Remix the Listing** — only when the definition must be **modified**.
-   This copies it in (with dependencies) via the catalog remix command,
-   so your copy can diverge; it needs the definition's **Listing**, not
-   just its Spec (see below).
-3. **Build new** — only when nothing in the catalog adequately matches.
-   Record the gap where your workflow keeps notes (tell the user, or
-   note it on the Issue you are working on).
+| You need | Anchor on | A hit denotes | Operation |
+|---|---|---|---|
+| the whole thing | `Listing` | an installable bundle | `install` as-is · `remix` when you will modify the copy |
+| parts to build with | `Spec` | a module export, named by `ref` | link · contain · extend · import |
+| content that exists | the card type itself | the instance | point a `linksTo` / `linksToMany` at it · or copy and edit |
 
-Reaching for "build new" without having searched is a defect. Visual or
-naming differences are not a reason to skip reuse — reference and
-restyle, or remix if the schema itself must change.
+Nothing exports a Listing, so no CodeRef names one: **a Spec query can never
+return a Listing, and a Listing query can never return a bare definition.**
+Different anchors, because they describe different kinds of thing.
 
-## Procedure
+### Parts: what each `specType` entitles you to
 
-1. **Enumerate first.** Read the brief and list every card, field,
-   component, command, app, and asset it implies, in plain language
-   ("a Person card", "an Address field", "a send-email command", "a hero
-   image"). The partial-compliance failure mode is "agent reuses one
-   thing, hand-builds the rest" — enumerating up front prevents it.
+Take the target from the hit's `ref` (module + name) and wire **that**.
 
-2. **Query per enumerated need.** How you name the catalog depends on
-   your session, and in an assistant room you do **not** need a realm
-   URL at all — the card-search tool takes only a query and already
-   searches every realm available to you, the catalog included. What
-   selects catalog content is the filter's `Spec` anchor, not a host. So
-   do not go looking for a catalog realm URL there, and do not block on
-   not having one. From a CLI session, where the realm *is* an argument,
-   take it from your context or list what is available
-   (`npx boxel realm ls`); do not invent a host.
+| `specType` | The export is | How you wire it |
+|---|---|---|
+| `card` | a **CardDef** | `linksTo` / `linksToMany` as a field · `extends` to specialize · `adoptsFrom` in an instance |
+| `field` | a **FieldDef** | `contains` / `containsMany` · `extends` to specialize |
+| `component` | a Glimmer component | import into your template's markup |
+| `command` | a Command | import and invoke, or run through your session's command mechanism |
+| `app` | an AppCard family | ships as a **Listing** in practice → use the Listing anchor |
+| `file` | an asset | an **instance** → use the instance anchor |
 
-   For each need, run one narrowed query: anchor on `Spec`, constrain to
-   the matching `specType`, and add a full-text key from the need's
-   plain-language name:
+**A CardDef is *linked*; a FieldDef is *contained*.** `@field author =
+linksTo(Author)` is how you reuse a card definition; a FieldDef is contained,
+never linked.
 
-   ```json
-   {
-     "filter": {
-       "on": { "module": "@cardstack/base/spec", "name": "Spec" },
-       "every": [
-         { "eq": { "specType": "field" } },
-         { "matches": "address" }
-       ]
-     },
-     "sort": [{ "by": "_matchRelevance", "direction": "desc" }]
-   }
-   ```
+`specType` crosses these rows — four values name module exports, `app` is in
+practice a Listing, `file` is an instance. It is advisory and sometimes absent,
+so constrain it explicitly rather than assuming every Spec carries one.
 
-   The searchable specTypes are `card`, `field`, `component`, `command`,
-   and `app` (an app is a CardDef that extends `AppCard` — its Spec is
-   referenced like a card's). Prefer `matches` (bare-string full-text
-   over the Spec's rendered content) — it survives the vocabulary gap
-   between your phrasing and the catalog's ("send-email command" still
-   finds a Spec titled "Email Dispatch"). **Sort by `_matchRelevance`**
-   (as in the query above) and read `entry.meta._matchRelevance` — a 0–1
-   relevance score, best first — to rank and threshold the hits. Fall
-   back to `contains` on the title only if a query is still too noisy. If
-   a need returns nothing, broaden once — drop the text key and sweep
-   that `specType`'s full inventory — before concluding a gap. "Build
-   new" is only legitimate after that sweep; a single `matches` miss is
-   not a gap.
+**You may import catalog modules directly.** `@cardstack/catalog/` is a
+registered import prefix, so a catalog module imports straight into your `.gts`
+across realms — you do not have to copy the file in.
 
-   > **Note:** `_matchRelevance` is provided by a separate, in-flight
-   > engine change to the full-text `matches` path (a `ts_rank_cd` score
-   > surfaced as `entry.meta._matchRelevance`). It is an opt-in sort, so
-   > the filter must carry at least one positive `matches` term for it to
-   > apply.
+Within parts, prefer more whole over less: a card over a field, a field over
+hand-rolled markup. This is not a queue — a need that *is* a field starts at the
+field. What it forbids is hand-building a part when a bigger unit contains it.
 
-   Run the filter through your session's search transport. The filter is
-   identical either way, but the transport is not interchangeable:
+### Content: two different instance searches
 
-   - **In an assistant room, use the query-based card-search tool**
-     (`SearchCardsByQueryCommand`), which takes a `query`. Its
-     title-based sibling (`SearchCardsByTypeAndTitleCommand`) accepts
-     only a card title and type, so it **cannot express `specType` or
-     `matches`** — it will never find a Spec this way. Substituting it is
-     a defect, not a shortcut.
-   - **From a CLI session**, `npx boxel search --realm <catalog-realm-url>
-     --query '<filter-json>' --json`.
+- **Catalog instances — this is reuse.** Anchor on the card type and search the
+  catalog. A hit is something to point a relationship at, or to copy and edit.
+- **Your own realm — this is a self-check.** Same tool, your realm. It answers
+  "have I already built this?", not "has the catalog?", and does **not** satisfy
+  step 2 or 3.
 
-   **A search of the realm you are building in does not satisfy this
-   step.** Checking what already exists in the current workspace is
-   useful, and it is a different search: same tool, different realm, and
-   it answers "have I already built this?" not "has the catalog already
-   built this?" Do both if you like, but the catalog query is the one
-   this skill requires.
+`linkedExamples` on a Spec hit is the direct route from a definition to the
+instances the catalog ships for it. Check it before authoring instances by hand.
 
-   Write the filter card-rooted (`on` anchor, bare field names); never
-   hand-write `item.`-prefixed paths. See
-   `boxel/references/query-systems.md` and
-   `boxel/references/spec-usage.md`.
+**Declaring a relationship and filling it are different steps.** You declare
+`@field author = linksTo(Author)` from a Spec hit's `ref` (parts); you fill it by
+pointing `relationships.author` at an existing `…/Author/jane.json` you found by
+searching instances (content). Same keyword, different step.
 
-3. **Read each hit's `attributes.specType`, `attributes.cardTitle`,
-   `attributes.cardDescription`, and `attributes.readMe`.** Confirm each
-   hit actually answers the need — a text match is a candidate, not a
-   decision. The readMe is the source of truth.
+## Search mechanics
 
-   **Whether those fields arrive with the search results depends on the
-   transport, so check before you judge.** A CLI `--json` search returns
-   the full Spec attributes. An assistant room's card-search result may
-   carry only ids and titles — if that is what you got, **read the
-   candidate Spec cards themselves** before deciding. Judging a hit on
-   its title alone is how a Spec that answered the need gets discarded;
-   a Spec whose `cardDescription` is empty is common, so the `readMe` and
-   `ref` are often the only things that actually settle it.
+**Transport.** Use whichever search you actually have — the queries below are
+identical either way.
 
-4. **Decide per hit with the rubric above** — reference, remix, or build.
+- **The `search-entries` tool**, which this skill makes available wherever tools
+  are. It spans every realm you can read, catalog included, so you need no realm
+  URL and should not go looking for one.
+- **`npx boxel search --realm <realm-url> --query '<filter-json>' --json`**,
+  where you have a shell instead. Here `--realm` is required and repeatable, so
+  the catalog realm has to be passed explicitly; your environment guidance names
+  its URL.
 
-5. **Reference is per-type.** Take the target from the hit's
-   `attributes.ref` (module + name), or an instance from
-   `attributes.linkedExamples`, and wire **that** — never the Spec:
+Card-search tools are a different thing again: they fetch live instances to
+attach, open, or patch.
 
-   | `specType` | Reference the definition it names by |
-   |---|---|
-   | `card` / `app` | `adoptsFrom` the card (an app is a CardDef extending `AppCard`) to reuse its schema, or `linksTo` / `linksToMany` an instance |
-   | `field` | importing the FieldDef and using `contains` / `containsMany` (a FieldDef is contained, never linked) |
-   | `component` | importing it into the template's markup — see `boxel-ui-component-discovery` for the enumerate/self-audit discipline |
-   | `command` | importing and invoking it in code, or invoking it through your session's command mechanism (`run-command` from a CLI session) |
+**Filter shape.** Card-rooted: an `on` type anchor plus `every` / `eq` /
+`matches`, bare field names. Never hand-write `item.`-prefixed paths.
 
-## Remixing — via the Listing
+```json
+{
+  "filter": {
+    "on": { "module": "@cardstack/base/spec", "name": "Spec" },
+    "every": [{ "eq": { "specType": "field" } }, { "matches": "address" }]
+  },
+  "sort": [{ "by": "_matchRelevance", "direction": "desc" }]
+}
+```
 
-Remix is the copy-in path, and it runs on a **Listing**, not a Spec: the
-catalog `listing-remix` command takes a Listing card (see
-`catalog-listing`). So to remix a definition you found as a Spec, you
-need the **Listing that bundles it** — a Listing carries its `specs`, so
-find the Listing packaging that Spec (or, for a whole app, its
-`AppListing`) and remix that. If your surface can't bridge Spec → Listing
-yet, reference the Spec's target instead, or record the gap. Reserve
-remix for cases where you will actually modify the copy.
+`specType` is advisory and sometimes absent, so the broadened retry drops it —
+this is the form to reach for when the constrained query returns nothing:
 
-## Whole apps and assets
+```json
+{
+  "filter": {
+    "on": { "module": "@cardstack/base/spec", "name": "Spec" },
+    "matches": "address OR postal OR location"
+  }
+}
+```
 
-- **Whole apps** → an app is usually consumed as a *family* (the
-  `AppCard` shell plus its member cards), which the catalog ships as an
-  **`AppListing`**. Install or remix that (see `catalog-listing`) rather
-  than referencing a lone app Spec. (`app` is a valid `specType` and you
-  reference an app Spec exactly like a card Spec; the catalog currently
-  publishes apps as Listings, so a Spec sweep for `app` may return empty
-  — an inventory fact, not a reason to skip the sweep.)
-- **Files and themes** (image, font, icon, theme) → an *instance*
-  search, not a Spec search. Query the catalog for the `FileDef` /
-  `ImageDef` / `Theme` card and `linksTo` it (or set `cardInfo.theme`).
-  Don't re-upload or re-author what the catalog already hosts.
+For Listings the anchor is
+`{ "module": "@cardstack/catalog/catalog-app/listing/listing", "name": "Listing" }`;
+for content, the card type itself.
+
+**`scope`** is `'cards' | 'files' | 'all'` and selects card-instance rows vs file
+rows. It is orthogonal to which type you anchor on — Specs, Listings and Authors
+are all card instances. Use `'files'` for assets.
+
+**Two query rules that decide outcomes:**
+
+- **`matches` ANDs its words.** `"person author"` means *person AND author*.
+  One concept per query; spell alternatives as `"person OR author"`. Keep an
+  `OR` set to terms of comparable specificity — one generic word swamps it
+  (`"game OR card OR gambling"` against a catalog of cards returns everything).
+  An empty result from a multi-word `matches` is a malformed query, not a gap.
+- **`_matchRelevance`** scores 0–1, best first, and is appended for you when the
+  filter carries a positive `matches`. Read the scores, do not just take rank 1:
+  a flat spread of low scores means the query was too broad. The sort is only
+  valid alongside `matches` — requesting it on a `type`-only filter is rejected.
+
+Deeper query semantics: `boxel/references/query-systems.md`,
+`boxel/references/spec-usage.md`.
+
+## Evaluating hits
+
+Read each hit's `specType`, `cardTitle`, `cardDescription`, and `readMe`. A text
+match is a candidate, not a decision. The `readMe` is the source of truth — it
+carries the API contract, and `search-entries` returns it in full on the hit, so
+judging needs no follow-up read. `cardDescription` is often empty, so `readMe`
+and `ref` are usually what settle it. Judging on the title alone is how a Spec
+that answered the need gets discarded.
+
+**If a need returns nothing, broaden once** before concluding a gap: re-query
+with two or three alternates joined by `OR`, and drop the `specType` constraint.
+Each result carries a `total`, showing how much of the match set the page did not
+show. The catalog is a corpus of app-specific parts, not a standard library, so
+"nothing fits" is often correct — but it is a verdict you record, never one you
+take silently.
+
+**Then disposition every hit**: adopted, or refused naming what actually
+mismatched — the fields it lacks, the design rule it breaks. A hit that is
+neither is the failure this skill exists to prevent.
+
+**Reading a hit is not adopting it.** Opening a found card to understand its
+shape and then authoring your own is a refusal, not a reuse — record it as one,
+naming why the hit itself could not be linked, installed, or copied.
+
+## Edge cases
+
+- **Whole apps** ship as Listings, not app Specs, so a Spec sweep for `app` may
+  return empty. Use the Listing anchor.
+- **Themes** are instances — link one through `cardInfo.theme`, or copy and edit
+  when it must diverge.
+- **Files, images, fonts, icons** are instances too — search with
+  `scope: 'files'` and `linksTo` what you find.
+- **Installing beats copying.** Copying re-types code that already exists, costs
+  a large multiple of an install, and drifts from the original. Visual or naming
+  differences are not a reason to skip reuse: install and restyle, or remix if
+  the schema must change. `catalog-listing` has the mechanics.
+- **Reuse *from a user realm* does mean copying.** User realms have no import
+  prefix and literal realm URLs are lint-banned. This restricts user realms, not
+  the catalog — catalog modules import directly.
+- **Base-realm imports are the baseline, not the target.** Importing from the
+  base realm and `@cardstack/boxel-ui` is what every card already does. This
+  skill is about what you add on top.
 
 ## Self-audit before finishing
 
-Re-read what you built. For every card, field, component, command, app,
-or asset you authored from scratch, ask: would I have searched the
-catalog for this if I were starting over? If yes, did I — and if a
-matching Spec, Listing, or asset existed, did I reference the definition
-it names (or remix it) instead of rebuilding it? Replace any hand-built
-thing that has a catalog equivalent, confirm any real gap is recorded,
-and only then call it done.
+Re-read what you built. For everything you authored from scratch:
+
+- Which reuse operation did I answer it with — Listing, part, or instance?
+- Was there really no Listing? If I installed one, did I stop there?
+- If I authored instance JSON, did I check whether the catalog already ships one?
+- Does every refusal name its mismatch, and is every real gap recorded?
+
+If the honest answer to any of these is "I didn't look", that thing needs
+replacing with its catalog equivalent. Only then is it done.
 
 ## Related
 
-- `boxel-ui-component-discovery` — the specialized front-end for UI
-  primitives; use it whenever the task is writing template UI. This skill
-  is the general form.
+- `boxel-ui-component-discovery` — the specialized front-end for UI primitives;
+  use it whenever the task is writing template UI. This skill is the general form.
 - `catalog-listing` — install / remix / update mechanics for Listings.
-- `boxel` — CardDef / FieldDef authoring, `adoptsFrom` vs `contains` vs
-  `linksTo`, query syntax.
+- `boxel-file-structure` — the `linksTo`-vs-`contains` rule, module paths, and
+  where definitions and instances live on disk.
+- `boxel` — CardDef / FieldDef authoring, query syntax.
