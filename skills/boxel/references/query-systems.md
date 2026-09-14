@@ -268,7 +268,9 @@ class BlogPost extends CardDef {
 ```
 
 - `@query` — an `entry`-rooted query (`SearchEntryWireQuery`). Build it from a normal query with `searchEntryWireQueryFromQuery`, then set `realms` (and optionally `page`). Changing it re-runs the search.
-- `@mode` — hydration of prerendered rows on interaction: `'none'` (stay inert), `'hover'` (default), `'click'`, `'touch'`.
+- `@mode` — hydration of prerendered rows on interaction: `'none'` (stay inert) or `'hover'` (default). A full live row ignores it.
+- `@overlays` — whether each row registers with the operator-mode overlay (chip, options menu, selection toggle). Defaults to `true`; pass `false` for a card that lays results out in its own UI.
+- `@displayContainer` — whether each row renders inside its card-container chrome. Defaults to `true`; pass `false` for a consumer that frames results itself — the same switch `<@fields.x @displayContainer={{false}} />` offers. It applies to the inert prerendered HTML and the hydrated card alike: the boundary ring goes on every row, and an atom-format row additionally collapses to `display: contents` (fitted and embedded rows keep their box).
 - Yields `results`: `results.entries` (each `entry` exposes `.component`, `.id`, `.isError`, plus `.displayName` / `.iconHtml` for a row with no HTML yet), `results.isLoading`, `results.meta` (`{ page: { total } }`), and `results.errors`.
 
 > boxel-skills prefers `@context.searchResultsComponent` (above) as the display surface for new work. `@context.prerenderedCardSearchComponent` / `<PrerenderedCardSearch>` is the older surface it supersedes. The pattern library still uses `PrerenderedCardSearch` in places, so the contrast is captured below; a tree-wide migration to `searchResultsComponent` is a separate follow-up.
