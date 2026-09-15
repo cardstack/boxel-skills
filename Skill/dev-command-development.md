@@ -134,20 +134,21 @@ export class MyCommand extends Command<typeof Input, undefined> {
 ### Menu Integration
 
 ```gts
-import { getCardMenuItems } from '@cardstack/runtime-common';
+import { getMenuItems } from '@cardstack/runtime-common';
+import { type GetMenuItemParams } from '@cardstack/base/card-api';
+import { type MenuItemOptions } from '@cardstack/boxel-ui/helpers';
 
-[getCardMenuItems](params: GetCardMenuItemParams): MenuItemOptions[] {
+[getMenuItems](params: GetMenuItemParams): MenuItemOptions[] {
   return [{
     label: 'My Action',
     icon: MyIcon,
+    disabled: !this.id,
     action: async () => {
-      await new MyCommand(params.commandContext).execute({
+      await new MyCommand(params.toolContext).execute({
         cardId: this.id,
-        realm: params.realmURL
       });
-      await params.saveCard(this);
     }
-  }, ...super[getCardMenuItems](params)];
+  }, ...super[getMenuItems](params)];
 }
 ```
 

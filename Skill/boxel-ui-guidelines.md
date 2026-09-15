@@ -562,10 +562,10 @@ Always prefer boxel-ui components over raw HTML elements. Import from `@cardstac
 
 ```gts
 import {
-  Button,
+  BoxelButton,
   CardContainer,
   FieldContainer,
-  Header,
+  BoxelHeader,
   BoxelInput,
   Pill,
   // ... other components as needed
@@ -577,11 +577,11 @@ import {
 **Layout & Containers:**
 - `CardContainer` — wraps card content with correct border/shadow/padding. all cards are already wrapped in this.
 - `GridContainer` — responsive grid layout
-- `Container` — generic container
+- `BoxelContainer` — generic container
 - `ResizablePanelGroup` — resizable panel layouts
 
 **Headers & Navigation:**
-- `Header` — page/section headers
+- `BoxelHeader` — page/section headers
 - `TabbedHeader` — headers with tabs
 - `CardHeader` — card-specific header with icon, title, actions
 
@@ -596,7 +596,7 @@ import {
 - `DateRangePicker` — date range selection
 
 **Buttons & Actions:**
-- `Button` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
+- `BoxelButton` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
 - `IconButton` — icon-only button (use `@variant` for primary/secondary/muted/destructive/text-only, `@size` for `auto, base, extra-small, small, tall, touch)
 - `ContextButton` — contextual action button (`@icon` for add, edit, close, delete, context-menu, context-menu-vertical; `@variant` for highlight, highlight-icon, ghost, destructive, destructive-icon)
 - `CopyButton` — copy-to-clipboard
@@ -615,15 +615,15 @@ import {
 - `Pill` — inline status/badge (`@variant` for primary, secondary, accent, muted, destructive; use `@kind='button'` to make it a button)
 - `Swatch` — color swatch display
 - `Avatar` — user/entity avatar
-- `EntityIconDisplay` / `EntityThumbnailDisplay` — entity visuals
+- `EntityDisplayWithIcon` / `EntityDisplayWithThumbnail` — entity visuals
 - `RealmIcon` — realm icon display
 - `FilterList` — filterable list
 - `SortDropdown` — sort controls
 - `ViewSelector` — view mode toggle
 - `Menu` — dropdown menu
 - `Modal` — overlay dialogs
-- `Dropdown` — dropdown container
-- `Message` — chat/message bubbles
+- `BoxelDropdown` — dropdown container
+- `BoxelMessage` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `DragAndDrop` — drag-and-drop interface
 

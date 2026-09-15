@@ -98,7 +98,7 @@ So:
 - Need the instances in JS (read / manipulate) → `getCards` (reactive) or `@context.store.search` (imperative, returns instances)
 - Treat a query result as a field → query-backed fields (`linksTo` / `linksToMany` with a `query`)
 
-> ⚠️ Deprecated: `@context.prerenderedCardSearchComponent` / `<PrerenderedCardSearch>` is the old display surface. Use `@context.searchResultsComponent` instead.
+> `@context.prerenderedCardSearchComponent` / `<PrerenderedCardSearch>` no longer exist. Use `@context.searchResultsComponent`.
 
 **Rendering a result list via `@context.searchResultsComponent`:**
 

@@ -54,7 +54,6 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `getCards`, `getCard` | Query the realm for cards by filter. |
 | `getField`, `getFieldIcon`, `cardDefComputedFields` | Field metadata for generic rendering. |
 | `searchResultsComponent` | Preferred result-list surface for new work — the `<SearchResults>` component, used via `@context.searchResultsComponent` (entry-rooted query built with `searchEntryWireQueryFromQuery`). |
-| `prerenderedCardSearchComponent` | Older card-grid surface (via `@context.prerenderedCardSearchComponent`), superseded by `searchResultsComponent`. |
 | `searchEntryWireQueryFromQuery`, `SearchEntryWireQuery` | Build the entry-rooted query that `@context.searchResultsComponent` takes, from an ordinary `Query`. |
 | `getMenuItems`, `GetMenuItemParams` | Typed menu construction. |
 | `baseRRI('<module>')` | Canonical base-realm module URL. |
@@ -146,7 +145,7 @@ UI kit. Three sub-paths.
 
 ### `/components`
 
-`Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Drawer`, `Toast`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+`BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `BoxelHeader`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 Use `KanbanPlane` for lane-based drag/drop boards instead of hand-rolled DOM drag code. Persist placements by stable card id + column key + sort order, map to `KanbanPlacement.index` only at render time, and render child cards through `@fields` at fitted format. Pattern: `layout-kanban-drag-drop`.
 

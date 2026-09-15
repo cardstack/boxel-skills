@@ -58,7 +58,7 @@ import { Author } from './author';
 **Field specs (contains/containsMany):**
 ```gts
 import StringField from '@cardstack/base/string';
-import AddressField from '@cardstack/base/address-field';
+import AddressField from '@cardstack/base/address';
 @field name = contains(StringField);
 @field addresses = containsMany(AddressField);
 ```

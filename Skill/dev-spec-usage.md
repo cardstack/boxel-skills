@@ -9,7 +9,7 @@ Mark a link `searchable` to pull its target into the search doc and make it quer
 **Field specs (contains/containsMany):**
 ```gts
 import StringField from '@cardstack/base/string';
-import AddressField from '@cardstack/base/address-field';
+import AddressField from '@cardstack/base/address';
 @field name = contains(StringField);
 @field addresses = containsMany(AddressField);
 ```

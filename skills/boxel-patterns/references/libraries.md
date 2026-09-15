@@ -56,8 +56,6 @@ import { Command }                      from '@cardstack/runtime-common/commands
 // then render via @context.searchResultsComponent.
 import { searchEntryWireQueryFromQuery } from '@cardstack/runtime-common';
 import type { SearchEntryWireQuery }     from '@cardstack/runtime-common';
-// Older surface, superseded by the above (still available via @context.prerenderedCardSearchComponent):
-import { prerenderedCardSearchComponent } from '@cardstack/runtime-common/prerendered-card-search';
 ```
 
 ### `@cardstack/boxel-ui` — UI components, helpers, icons
@@ -65,9 +63,8 @@ import { prerenderedCardSearchComponent } from '@cardstack/runtime-common/preren
 ```ts
 // Components
 import {
-  Button, Pill, Avatar, BoxelSelect, ColorPalette, ColorPicker,
-  Header, FieldContainer, CardContainer,
-  Modal, Drawer, Toast,
+  BoxelButton, Pill, Avatar, BoxelInput, BoxelSelect, ColorPalette, ColorPicker,
+  BoxelHeader, FieldContainer, CardContainer, Modal,
   KanbanPlane, autoPlaceKanban,
   type KanbanColumnConfig, type KanbanPlacement,
 } from '@cardstack/boxel-ui/components';
