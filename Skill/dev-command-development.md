@@ -38,18 +38,18 @@ import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request
 import SearchCardsByQueryCommand from '@cardstack/boxel-host/tools/search-cards-by-query';
 
 // Save a card
-await new SaveCardCommand(this.commandContext).execute({
+await new SaveCardCommand(this.toolContext).execute({
   card: myCard,
   realm: 'https://realm-url/'
 });
 
 // Get a card
-const card = await new GetCardCommand(this.commandContext).execute({
+const card = await new GetCardCommand(this.toolContext).execute({
   cardId: 'https://realm/Card/id'
 });
 
 // External API call
-const response = await new SendRequestViaProxyCommand(this.commandContext).execute({
+const response = await new SendRequestViaProxyCommand(this.toolContext).execute({
   url: 'https://api.example.com/endpoint',
   method: 'POST',
   requestBody: JSON.stringify(data),
@@ -88,7 +88,7 @@ const text = data.choices?.[0]?.message?.content ?? '';
 ```gts
 import UploadImageCommand from 'https://realms-staging.stack.cards/catalog/commands/upload-image';
 
-const result = await new UploadImageCommand(this.commandContext).execute({
+const result = await new UploadImageCommand(this.toolContext).execute({
   sourceImageUrl: dataUrl,
   targetRealmUrl: input.realm
 });
@@ -99,7 +99,7 @@ const result = await new UploadImageCommand(this.commandContext).execute({
 ```gts
 import SearchCardsByQueryCommand from '@cardstack/boxel-host/tools/search-cards-by-query';
 
-const results = await new SearchCardsByQueryCommand(this.commandContext).execute({
+const results = await new SearchCardsByQueryCommand(this.toolContext).execute({
   query: {
     filter: {
       on: { module: new URL('./product', import.meta.url).href, name: 'Product' },

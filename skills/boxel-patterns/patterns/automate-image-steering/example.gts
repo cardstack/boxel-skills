@@ -49,8 +49,8 @@ class Isolated extends Component<typeof SteeredImageDemo> {
   @tracked errorMessage: string | null = null;
   @tracked steeringInput = ''; // the user's current command
 
-  get hasCommandContext() {
-    return Boolean(this.args.context?.commandContext);
+  get hasToolContext() {
+    return Boolean(this.args.context?.toolContext);
   }
 
   get hasSeed() {
@@ -60,7 +60,7 @@ class Isolated extends Component<typeof SteeredImageDemo> {
   get canSteer() {
     return (
       !this.isGenerating &&
-      this.hasCommandContext &&
+      this.hasToolContext &&
       this.hasSeed &&
       this.steeringInput.trim().length > 0
     );
@@ -125,7 +125,7 @@ Create a high-quality image following these guidelines, with user commands takin
   // ─── The steering action — restartable so a new input cancels the
   //     prior in-flight gen rather than queueing.
   steer = restartableTask(async (userInput: string) => {
-    if (!this.hasCommandContext) return;
+    if (!this.hasToolContext) return;
     let subjectPrompt = (this.args.model as any)?.subjectPrompt?.trim?.();
     if (!subjectPrompt) {
       this.errorMessage = 'Enter a base subject before steering.';
@@ -171,7 +171,7 @@ Create a high-quality image following these guidelines, with user commands takin
       }
 
       let result = await new SendRequestViaProxyCommand(
-        this.args.context!.commandContext,
+        this.args.context!.toolContext,
       ).execute({
         url: 'https://openrouter.ai/api/v1/chat/completions',
         method: 'POST',

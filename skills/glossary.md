@@ -60,7 +60,8 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **`<@fields.x />`** — Render a field through its FieldDef's view for the current format. The host injects chrome (CardContainer wrapper) around the child.
 - **`@format='isolated'|'embedded'|'fitted'|'edit'|'atom'`** — Override the default format when delegating to a child via `<@fields.x @format='…' />`.
 - **`@model`** — The card/field instance accessed inside a Component. `@model.firstName`, `@model.body`, etc.
-- **`@context`** — Host context object exposing `commandContext`, `searchResultsComponent`, `viewCard`, etc.
+- **`@context`** — Host context object exposing `toolContext`, `searchResultsComponent`, `viewCard`, etc.
+- **`toolContext`** — The handle passed to `new SomeTool(toolContext)`; read it from `@context.toolContext`, `params.toolContext` in menu-item actions, or `this.toolContext` inside a tool class. `commandContext` is the pre-rename spelling, still populated as a deprecated alias for deployed content — do not write it in new code.
 - **`<style scoped>`** — Boxel's scoped-CSS block. Must be a direct child of `<template>`; doesn't propagate scope hash into inner GlimmerComponent classes.
 - **`:deep()`** — Pierce the scoped-CSS boundary to style inner host-injected wrappers (`.boxel-card-container`, `.plural-field`, etc.). → `boxel-ui-guidelines/references/delegated-render-control.md`
 - **plural-field wrapper** — `<@fields.X @format='…' />` for a `containsMany`/`linksToMany` injects `.plural-field` + per-item wrappers (`.containsMany-item`, `.linksToMany-itemContainer`) between your grid and the cards. Apply `display: contents` cascade. → `boxel-ui-guidelines/references/delegated-render-control.md`
@@ -295,7 +296,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 ## 19. Boxel UI (`@cardstack/boxel-ui`)
 
-**`/components`** — `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `BoxelHeader`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+**`/components`** — `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 **`/helpers`** — Logic (`eq`/`not`/`and`/`or`/`gt`/`gte`/`lt`/`lte`/arithmetic), templates (`cn`/`cssVar`/`element`/`optional`/`pick`), formatters (`formatDateTime`/`formatNumber`/`formatCurrency`/...), markdown (`markdownEscape`), menus (`MenuItem`/`MenuItemOptions`).
 

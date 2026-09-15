@@ -64,7 +64,7 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `isCardInstance` | Type guard for command inputs. |
 | `logger('namespace:operation')` | Realm-side structured logging. |
 | `join` | URL join helper. |
-| `loadCommandModule`, `CommandContext`, `Loader` | Command-loading internals. |
+| `loadCommandModule`, `ToolContext`, `Loader` | Command-loading internals. |
 | `baseRealm`, `devSkillLocalPath`, `envSkillLocalPath` | Base-realm constants. |
 
 ---
@@ -145,7 +145,7 @@ UI kit. Three sub-paths.
 
 ### `/components`
 
-`BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `BoxelHeader`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+`Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 Use `KanbanPlane` for lane-based drag/drop boards instead of hand-rolled DOM drag code. Persist placements by stable card id + column key + sort order, map to `KanbanPlacement.index` only at render time, and render child cards through `@fields` at fitted format. Pattern: `layout-kanban-drag-drop`.
 

@@ -97,7 +97,7 @@ Use for LLM, image generation, imports, diagnostics, or any workflow where user-
 
 ```json
 Card component action
-→ resolve `commandContext` and current `realmURL`
+→ resolve `toolContext` and current `realmURL`
 → create one typed Run/Job card with steps, logs, status, prompt/model/input snapshot
 → queue `SaveCardCommand` through an OptimisticSave helper
 → mutate the same run card for each stage and queue progress saves

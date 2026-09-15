@@ -6,10 +6,10 @@ Always prefer boxel-ui components over raw HTML elements. Import from `@cardstac
 
 ```gts
 import {
-  BoxelButton,
+  Button,
   CardContainer,
   FieldContainer,
-  BoxelHeader,
+  Header,
   BoxelInput,
   KanbanPlane,
   Pill,
@@ -28,7 +28,7 @@ import {
 - `KanbanPlane` — lane-based drag/drop board with pointer + keyboard reordering, insertion gaps, ghost rendering, collapsed/hidden columns, and WIP limit display. Use pattern `layout-kanban-drag-drop`.
 
 **Headers & Navigation:**
-- `BoxelHeader` — page/section headers
+- `Header` — page/section headers
 - `TabbedHeader` — headers with tabs
 - `CardHeader` — card-specific header with icon, title, actions
 
@@ -43,7 +43,7 @@ import {
 - `DateRangePicker` — date range selection
 
 **Buttons & Actions:**
-- `BoxelButton` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
+- `Button` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
 - `IconButton` — icon-only button (use `@variant` for primary/secondary/muted/destructive/text-only, `@size` for `auto, base, extra-small, small, tall, touch)
 - `ContextButton` — contextual action button (`@icon` for add, edit, close, delete, context-menu, context-menu-vertical; `@variant` for highlight, highlight-icon, ghost, destructive, destructive-icon)
 - `CopyButton` — copy-to-clipboard
@@ -70,7 +70,7 @@ import {
 - `Menu` — dropdown menu
 - `Modal` — overlay dialogs
 - `BoxelDropdown` — dropdown container
-- `BoxelMessage` — chat/message bubbles
+- `Message` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `KanbanPlane` — preferred drag-and-drop interface for boards. Do not hand-roll pointer drag in card templates unless no boxel-ui component exists for the interaction.
 

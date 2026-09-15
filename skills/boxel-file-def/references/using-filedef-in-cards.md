@@ -53,7 +53,7 @@ import { ImageDef, linksTo } from '@cardstack/base/card-api';
 
 @field outputImage = linksTo(ImageDef);
 
-let writeResult = await new WriteBinaryFileCommand(commandContext).execute({
+let writeResult = await new WriteBinaryFileCommand(toolContext).execute({
   path: 'GeneratedImages/result.png',
   realm: realmUrl,
   base64Content,

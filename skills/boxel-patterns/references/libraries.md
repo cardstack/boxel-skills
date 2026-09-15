@@ -63,8 +63,8 @@ import type { SearchEntryWireQuery }     from '@cardstack/runtime-common';
 ```ts
 // Components
 import {
-  BoxelButton, Pill, Avatar, BoxelInput, BoxelSelect, ColorPalette, ColorPicker,
-  BoxelHeader, FieldContainer, CardContainer, Modal,
+  Button, Pill, Avatar, BoxelInput, BoxelSelect, ColorPalette, ColorPicker,
+  Header, FieldContainer, CardContainer, Modal,
   KanbanPlane, autoPlaceKanban,
   type KanbanColumnConfig, type KanbanPlacement,
 } from '@cardstack/boxel-ui/components';

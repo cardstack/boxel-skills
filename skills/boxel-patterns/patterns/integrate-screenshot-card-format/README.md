@@ -15,31 +15,31 @@ validated: source-proven
 - **Audit / approval trails** — capture the visible state when a workflow card transitions.
 - **Test fixtures** — anywhere a `.png` of a real render beats a hand-curated mock.
 
-**The insight:** `ScreenshotCardCommand` (from `@cardstack/boxel-host/tools/screenshot-card`) is a Boxel host command that orchestrates the realm-server screenshot job end-to-end. You pass two inputs — the target card (as a `linksTo` reference) and a format string — and you get back an `imageDefUrl` you can render straight into an `<img>` or link from another card via `ImageDef` / `PngDef`. The realm-server enqueues the job, the worker drives a Puppeteer browser through the prerender pool, the PNG comes back as base64, and `WriteBinaryFileCommand` writes it to `Screenshots/<slug>-<uuid>.png` in the **target card's own realm**. Cards never see the bytes; you get a clean URL.
+**The insight:** `ScreenshotCardTool` (from `@cardstack/boxel-host/tools/screenshot-card`) is a Boxel host tool that orchestrates the realm-server screenshot job end-to-end. You pass two inputs — the target card (as a `linksTo` reference) and a format string — and you get back a `captures` list whose first entry's `url` you can render straight into an `<img>` or link from another card via `ImageDef` / `PngDef`. The realm-server enqueues the job, the worker drives a Puppeteer browser through the prerender pool, the PNG comes back as base64, and `WriteBinaryFileCommand` writes it to `Screenshots/<slug>-<uuid>.png` in the **target card's own realm**. Cards never see the bytes; you get a clean URL.
 
 ## Recipe shape
 
 ```ts
-import ScreenshotCardCommand from '@cardstack/boxel-host/tools/screenshot-card';
+import ScreenshotCardTool from '@cardstack/boxel-host/tools/screenshot-card';
 
 // Inside an @action method:
-let result = await new ScreenshotCardCommand(commandContext).execute({
+let result = await new ScreenshotCardTool(toolContext).execute({
   card,                  // the linked CardDef instance to screenshot
   format: 'isolated',    // 'isolated' or 'embedded' — nothing else
 });
 
-this.imageDefUrl = result.imageDefUrl;
+this.imageDefUrl = result.captures?.[0]?.url ?? null;
 // Now render directly:
 //   <img src={{this.imageDefUrl}} />
 // Or assign to a linksTo(ImageDef) field on another card:
-//   anotherCard.thumbnail = new ImageDef({ id, url, sourceUrl: result.imageDefUrl });
+//   anotherCard.thumbnail = new ImageDef({ id, url, sourceUrl: this.imageDefUrl });
 ```
 
 The full demo card (`example.gts`) wraps this in a CardDef that:
 - Holds the target via `@field card = linksTo(CardDef)`.
 - Holds the format via `@field format = contains(enumField(StringField, { options: ['isolated', 'embedded'] }))`.
 - Owns `@tracked isRunning`, `@tracked errorMessage`, `@tracked imageDefUrl` for UI state.
-- Disables the action button until `commandContext` is available and a card is linked.
+- Disables the action button until `toolContext` is available and a card is linked.
 
 ## API surface
 
@@ -50,28 +50,28 @@ The full demo card (`example.gts`) wraps this in a CardDef that:
 
 | Output field | Type | Notes |
 |---|---|---|
-| `imageDefUrl` | `string` | The file identifier returned by `WriteBinaryFileCommand`. Render with `<img src={{...}} />`, or use as the `sourceUrl` on a fresh `ImageDef` / `PngDef`. |
+| `captures` | `{ url, … }[]` | One entry per capture; `captures[0].url` is the durable served URL of the PNG. Render with `<img src={{...}} />`, or use as the `sourceUrl` on a fresh `ImageDef` / `PngDef`. |
 
 ## How the realm-server does the work
 
-1. `ScreenshotCardCommand.run()` POSTs `{ realmURL, cardId, format }` to `/_screenshot-card` on the realm-server.
+1. `ScreenshotCardTool.run()` POSTs `{ realmURL, cardId, format }` to `/_screenshot-card` on the realm-server.
 2. The handler (`packages/realm-server/handlers/handle-screenshot-card.ts`) enqueues a `screenshot-card` job via the queue system.
 3. The worker task (`runtime-common/tasks/screenshot-card.ts`) drives Puppeteer through the prerender pool to render the card at the requested format.
 4. Puppeteer waits for the page to settle (data loads, animations, font swap, prerender hooks) before capturing.
 5. The PNG comes back as base64, and the command writes it via `WriteBinaryFileCommand` to `Screenshots/<slug>-<uuid>.png` in the **target card's own realm**.
 6. The realm indexer promotes the PNG into a `PngDef` / `ImageDef` card automatically.
 
-You don't see any of this from the consumer side — `await new ScreenshotCardCommand(ctx).execute({ card, format })` returns when the file is on disk.
+You don't see any of this from the consumer side — `await new ScreenshotCardTool(ctx).execute({ card, format })` returns when the file is on disk.
 
 ## Wire as a card menu item
 
-To make "Screenshot this card" a right-click affordance on every CardDef, compose with the [`link-command-menu-item`](../link-command-menu-item/README.md) pattern. The action body calls `ScreenshotCardCommand` with `this` as the card and a fixed format (or branches on a sub-menu):
+To make "Screenshot this card" a right-click affordance on every CardDef, compose with the [`link-command-menu-item`](../link-command-menu-item/README.md) pattern. The action body calls `ScreenshotCardTool` with `this` as the card and a fixed format (or branches on a sub-menu):
 
 ```ts
 import { getMenuItems } from '@cardstack/runtime-common';
 import { type GetMenuItemParams } from '@cardstack/base/card-api';
 import { type MenuItemOptions } from '@cardstack/boxel-ui/helpers';
-import ScreenshotCardCommand from '@cardstack/boxel-host/tools/screenshot-card';
+import ScreenshotCardTool from '@cardstack/boxel-host/tools/screenshot-card';
 import CameraIcon from '@cardstack/boxel-icons/camera';
 
 class MyCard extends CardDef {
@@ -81,16 +81,16 @@ class MyCard extends CardDef {
         label: 'Screenshot isolated',
         icon: CameraIcon,
         action: async () => {
-          let result = await new ScreenshotCardCommand(params.toolContext)
+          let result = await new ScreenshotCardTool(params.toolContext)
             .execute({ card: this as any, format: 'isolated' });
-          // Optionally show toast with result.imageDefUrl
+          // Optionally show toast with result.captures[0].url
         },
       },
       {
         label: 'Screenshot embedded',
         icon: CameraIcon,
         action: async () => {
-          await new ScreenshotCardCommand(params.toolContext)
+          await new ScreenshotCardTool(params.toolContext)
             .execute({ card: this as any, format: 'embedded' });
         },
       },
@@ -110,8 +110,8 @@ This gives every instance of `MyCard` two menu items that capture a settled PNG 
 - **Output lands in `Screenshots/` of the target's realm, not the caller's.** If you screenshot a third-party realm's card and you have write access, the PNG lives over there.
 - **Filenames are slug + uuid.** `<lowercased-last-url-segment>-<8-char-uuid>.png`. Stable for known cards, unique on collisions.
 - **Long renders block the request.** The realm-server polls the job until completion (Puppeteer needs to settle the page). On a slow card or under load, expect a few seconds. Wrap in `@tracked isRunning` / show a spinner; don't `await` inside `getMenuItems` without surfacing progress.
-- **commandContext must exist.** Only available in host interact mode — the prerenderer / SSR context doesn't have a live host. Feature-detect with `this.args.context?.commandContext` before calling.
-- **`listing-create` does not use this command.** The catalog's listing-creation flow uses `GenerateThumbnailCommand` (AI-generated stylized icon, not a real screenshot). Use `ScreenshotCardCommand` when you want the actual rendered card, not an interpretation.
+- **toolContext must exist.** Only available in host interact mode — the prerenderer / SSR context doesn't have a live host. Feature-detect with `this.args.context?.toolContext` before calling.
+- **`listing-create` does not use this command.** The catalog's listing-creation flow uses `GenerateThumbnailCommand` (AI-generated stylized icon, not a real screenshot). Use `ScreenshotCardTool` when you want the actual rendered card, not an interpretation.
 
 ## Source
 
