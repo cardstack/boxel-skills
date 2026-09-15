@@ -1,22 +1,23 @@
 ### Theme-First Principle
 
-- Always link a Theme before generating code or styling. (See 3.1 Theme Linking Rules)
+- Decide whether the card needs a specific Theme before generating code or styling. (See 3.1 Theme Linking Rules)
+- No theme link is needed for default styling: `boxel-ui`'s `theme.css` supplies every token's default, so an instance with no `cardInfo.theme` renders with the Boxel defaults.
 - All CSS in card templates must use theme variables (no hardcoded colors/spacing/fonts). (See 3.2 Canonical Theme Variables)
 - Theme linkage lives at `relationships.cardInfo.theme` on the card instance.
 
 ### 3.1 Theme Linking Rules
-- Set this as the Default Theme for all new, non-ThemeCard instances:
+- Link a Theme only when the instance should use a specific one; otherwise `theme.css` provides the defaults:
 
 ```json
 "relationships": {
   "cardInfo.theme": {
     "links": {
-      "self": "@cardstack/base/Theme/cardstack-brand-guide"
+      "self": "../Theme/<theme-slug>"
     }
   }
 }
 ```
-- You must also set the remaining cardInfo properties in the card data attributes. Example:
+- Set the remaining cardInfo properties in the card data attributes. Example:
 ```json
 "attributes": {
   "cardInfo": {

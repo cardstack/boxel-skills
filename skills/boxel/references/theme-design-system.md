@@ -1,6 +1,7 @@
 ### Theme-First Principle
 
-- Always decide the Theme or Brand Guide before generating code or styling. (See 3.1 Theme Linking Rules)
+- Decide whether the card needs a specific Theme or Brand Guide before generating code or styling. (See 3.1 Theme Linking Rules)
+- No theme link is needed for default styling: `boxel-ui`'s `theme.css` supplies every token's default, so an instance with no `cardInfo.theme` renders with the Boxel defaults.
 - All CSS in production card templates must use theme variables (no hardcoded colors/spacing/fonts). (See 3.2 Canonical Theme Variables)
 - Theme linkage usually lives at `relationships.cardInfo.theme` on the card instance. CardDefs can also compute `cardTheme` from a parent object, realm default, or business rule.
 - Brand Guides are Theme cards plus identity assets: palette, typography, style rules, and logo/mark material.
@@ -9,23 +10,23 @@
 ### 3.1 Theme Linking Rules
 Pick the source first:
 
-- **Boxel built-in feature work:** use `@cardstack/base/Theme/boxel-brand-guide`. This is the Boxel style guide and brand material source.
-- **Cardstack-branded work:** use `@cardstack/base/Theme/cardstack-brand-guide`.
+- **Default styling:** link nothing; `theme.css` provides the defaults.
+- **Boxel built-in feature work:** use `@cardstack/base/Theme/boxel-brand-guide` as the style reference. This is the Boxel style guide and brand material source.
 - **User/custom realm work:** choose or create a theme that fits the requested domain. Do not force Boxel styling onto an unrelated app unless the user asks for Boxel-branded output.
 - **Logo, mark, brand color, or brand material needed:** use a `BrandGuide`, not a plain `StructuredTheme`.
 
-For an instance that should use the Boxel Brand Guide:
+For an instance that should use a specific Theme, link it under `relationships`:
 
 ```json
 "relationships": {
   "cardInfo.theme": {
     "links": {
-      "self": "@cardstack/base/Theme/boxel-brand-guide"
+      "self": "../Theme/<theme-slug>"
     }
   }
 }
 ```
-- You must also set the remaining cardInfo properties in the card data attributes. Example:
+- Set the remaining cardInfo properties in the card data attributes. Example:
 ```json
 "attributes": {
   "cardInfo": {
