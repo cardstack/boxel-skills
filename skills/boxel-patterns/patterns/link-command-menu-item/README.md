@@ -67,6 +67,8 @@ Return entries conditionally to hide or disable based on card state:
 
 Hide entirely when the action doesn't apply. Use `disabled: true` + a tooltip only when the action *could* apply but a precondition fails (so the user sees why it's unavailable).
 
+`params.menuContext` says where the menu is being composed: `'interact'`, `'code-mode-preview'`, `'code-mode-playground'`, or `'ai-assistant'`. The `'ai-assistant'` variant also carries `params.menuContextParams` (`canEditActiveRealm`, `activeRealmURL`); the other variants do not, so narrow on `menuContext` before reading it. The host's own items gate on `params.menuContext === 'interact'` — do the same for actions that only make sense on an interactive card.
+
 ## Composing with other modes
 
 - Same `MyCommand` class powers the menu item AND a primary button in the isolated template — the menu is the discoverable affordance, the button is the contextual one.
