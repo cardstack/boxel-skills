@@ -120,10 +120,12 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 These are the HTTP endpoints the host commands map to. Useful when scripting via `curl` or `boxel-cli`:
 
-OpenRouter calls go through `/_request-forward` to the external `https://openrouter.ai/api/v1/chat/completions` URL. There is no live `/_openrouter/chat/completions` or `/_screenshot-card` endpoint in the current monorepo checkout.
+OpenRouter calls go through `/_request-forward` to the external `https://openrouter.ai/api/v1/chat/completions` URL. There is no live `/_openrouter/chat/completions` endpoint in the current monorepo checkout (the screenshot endpoints below *are* live — an older audit that predates them was stale).
 
 | Endpoint | Method | Purpose |
 |---|---|---|
+| `/_screenshot-card` | POST | Capture a settled render of a card — PNG (default) or paged PDF (`captureSpec.type: 'pdf'`, `media: 'screen' \| 'print'`). Backs `ScreenshotCardCommand`. Pattern: `integrate-screenshot-card-format`. |
+| `{realm}_screenshot/{path}?…` | GET | Durable serving URL for an on-demand capture — `?type=pdf[&media=print]` yields an always-current PDF (ledger hit on repeat, re-capture after an edit); embed instead of storing base64. |
 | `/_federated-search` | QUERY | Cross-realm search (used by `npx boxel search` + `SearchCardsByQueryCommand` when crossing realms). |
 | `/_federated-search-prerendered` | QUERY | Same with prerendered card results. |
 | `/_federated-info` | GET | Cross-realm realm metadata. |
