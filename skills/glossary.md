@@ -119,7 +119,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **Structured Theme** — This is the bare minimum theme card to use when generating a new theme. Theme subclass with structured `rootVariables`, `darkModeVariables`, `typography`, and `version`; computes `cssVariables` instead of requiring a hand-authored CSS string. Use for token-only themes.
 - **Style Reference** — `StructuredTheme` subclass that adds `styleName`, `inspirations`, `visualDNA`, and `wallpaperImages`. Use when the visual language needs to be documented.
 - **Detailed Style Reference** — `StyleReference` subclass with long-form design guidance: context, palette, typography, geometry, material, composition, motion, component vocabulary, voice, technical specs, application scenarios, quality standards, and design mindset.
-- **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, and `markUsage`. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
+- **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, `markUsage`, and `customCssVariables` for tokens outside the contract. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
 - **Boxel Brand Guide** — Built-in Brand Guide at `@cardstack/base/Theme/boxel-brand-guide`. Source of truth for Boxel built-in feature styling, base cards, host-facing Boxel UI, and Boxel-branded catalog material.
 - **Functional Palette** — Brand Guide field mapping brand intent to variables: `--brand-primary`, `--brand-secondary`, `--brand-accent`, `--brand-light`, and `--brand-dark`; Brand Guide maps these into semantic theme tokens when needed.
 - **Mark Usage / BrandLogo** — Brand Guide field for primary/secondary marks, greyscale marks, social profile icon, minimum heights, and clearance ratios. Emits `--brand-*-mark` variables for templates.
@@ -131,7 +131,9 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **custom theme variables** — Tokens outside the contract. `StructuredTheme` has no slot for them; they come from a `BrandGuide` (`customCssVariables` list, `brandColorPalette` names) or a theme card definition extended with its own fields. No `theme.css` default and no reset at the themed-card boundary, so they leak into nested cards and disappear when another theme card is linked. Never duplicate a named token this way; a template reading one needs a local fallback unless it only renders under that theme.
 - **shadcn/Boxel token mapping** — Boxel consumes shadcn-style tokens as paired surface/foreground contracts. `--primary` is an action surface or indicator, not ordinary text; `--spacing` is a quarter-unit that becomes `--boxel-sp` after runtime scaling. → `boxel-theme-development/references/shadcn-boxel-token-mapping.md`
 - **theme cascade** — Host injects the Theme card's `cssVariables` as CSS custom properties on the card root. Children inherit; cross-card delegated rendering retains the parent's theme unless overridden.
-- **theme-first workflow** — Choose/create a Theme BEFORE writing the card. Link via `cardInfo.theme`; templates use tokens from line one. → `theme-first-workflow`
+- **`data-theme`** — Attribute on `<html>` or any element that switches the semantic tokens to their `dark` or `light` defaults for that subtree. The only scheme switch with a `light` counterpart; there is no automatic `prefers-color-scheme` in `theme.css`. → `boxel/references/theme-design-system.md` §3.3
+- **`--boxel-color-scheme`** — Inherited signal (`light`/`dark`) set by `data-theme`. A Theme's `darkModeVariables` are emitted under a style container query on it, so a card's dark values follow the nearest ancestor's scheme. → `boxel/references/theme-design-system.md` §3.3
+- **theme-first workflow** — Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Link via `cardInfo.theme` only when a specific Theme is wanted; templates use tokens from line one. → `theme-first-workflow`
 - **drop-in CSS themes** — Per-theme CSS files override `--*` tokens at runtime; no JS branching. → `theme-css-token-redefinition`
 
 ## 7. Design playbook
@@ -140,7 +142,7 @@ The 4-stage recommended process for any user-facing card:
 
 1. **Stage 1 — Mockup with no variables.** Direct hex colors, named fonts, specific pixel sizes. Trust intrinsic taste. Pentagram art-director / internal-taste-maker brief.
 2. **Stage 2 — Extract theme DNA.** Audit the mockup; pull out color tokens, typography pair, spacing rhythm, asset direction.
-3. **Stage 3 — Tokenize.** Replace direct hexes/fonts/sizes with `var(--*)` references; build a Theme card to hold them.
+3. **Stage 3 — Tokenize.** Replace direct hexes/fonts/sizes with `var(--*)` references; build a Theme card whose fields hold them under the token contract names.
 4. **Stage 4 — Derive fitted + embedded.** Walk the 16 named fitted sizes, verify type hierarchy + composition holds; build embedded from the most rest-friendly cell.
 
 → `boxel/references/design-playbook.md`
@@ -367,7 +369,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 In rough priority order:
 
-- **Theme first.** Decide theme strategy before writing the card. Templates use `var(--*)` tokens, never hard-coded colors. → `theme-first-workflow`
+- **Theme first.** Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Templates use `var(--*)` tokens, never hard-coded colors; default styling needs no Theme link. → `theme-first-workflow`
 - **Boxel built-in feature work uses the Boxel Brand Guide.** Base cards, host-facing Boxel UI, and Boxel-branded catalog material use `@cardstack/base/Theme/boxel-brand-guide` as the style source.
 - **`cardInfo.theme` is the per-instance override** (wins over computed `cardTheme`).
 - **Override `cardTitle` when there's a primary field.** Respect `cardInfo.name` first.

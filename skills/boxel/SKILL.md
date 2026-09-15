@@ -165,7 +165,7 @@ Sibling skills:
 - Provide an `embedded` template for every FieldDef.
 - Compute `cardTitle` from the primary identifier field (a `title` field of your own is just data — the host reads `cardTitle` for the display name).
 - Provide empty states for arrays.
-- Use theme variables only; link a default theme on instances.
+- Use theme variables only; link a Theme on an instance only when it should use a specific one (`theme.css` supplies the defaults).
 - Store media as linked FileDef/ImageDef/PngDef; only small durable `http(s)` URLs belong in string fields.
 
 ## 🔁 Failure Recovery
