@@ -9,9 +9,9 @@
     "type": "card",
     "attributes": {
       "cardInfo": {
-        "name": null,
+        "name": "Catalog Listing",
         "notes": null,
-        "summary": null,
+        "summary": "Installing, browsing, remixing, updating, or submitting catalog listings (Apps, Cards, Fields, Skills, Themes) from a Boxel catalog realm",
         "cardThumbnailURL": null
       },
       "commands": [
@@ -60,7 +60,11 @@
       },
       "instructionsSource": {
         "links": {
-          "self": "./catalog-listing.md"
+          "self": "../skills/catalog-listing/SKILL.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/catalog-listing/SKILL.md"
         }
       }
     }
