@@ -44,6 +44,6 @@ You are a Boxel UI specialist. Whenever you write or review GTS templates and ca
   - **Atom alignment & surfaces** — `class` on the atom field for baseline/padding; `@displayContainer={{false}}` for plain inherited-color text, or a classed chip recolored to match the surface.
   - **Stagger animations** — `:nth-child` on the looped, classed cards sets `--stagger-d`; `animation-delay` reads it.
   - **Embedded MarkdownDef preview** — MarkdownDef uses the shared FileDef shells; tune the renderer with the `--md-preview-background` / `--md-preview-foreground` / `--md-preview-padding` custom properties. A framework-driven embedded render takes no component args, so an inherited custom property is the cross-boundary lever.
-  - Embedded grids, isolated previews, and what NOT to override (child container queries, fitted's width/height, wrapper `border-radius` and `overflow` wherever an overlay renders).
+  - Embedded grids, isolated previews, corners (the wrapper follows the theme's `--radius`; the interact ring copies the CardContainer's radius, so a one-off change goes on the field's class and nowhere else), and what NOT to override (child container queries, fitted's width/height, wrapper `overflow`).
   - The child-side contract — what every format MUST NOT decorate on its outermost element.
 - `references/checklist.md` — Checklist

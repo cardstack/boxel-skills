@@ -33,7 +33,7 @@ When you write `<@fields.featured @format='<F>' />`, the rendered DOM is:
 :global(.boxel-card-container) {
   position: relative;
   background-color: var(--background, var(--boxel-light));
-  border-radius: var(--_boxel-radius);
+  border-radius: var(--boxel-radius);   /* var(--radius, var(--_boxel-radius)) — follows the theme */
   color: var(--foreground, var(--boxel-dark));
   height: 100%;
   width: 100%;
@@ -82,7 +82,7 @@ When you write `<@fields.featured @format='<F>' />`, the rendered DOM is:
 
 **The five most common consequences:**
 
-1. **Rounded corners on every embedded child** — `border-radius: var(--_boxel-radius)` is a fixed Boxel value (`0.625rem`) that no theme token feeds. Leave it alone wherever the interact-mode overlay renders: the host draws the card's hover/selection overlay to the default corner, so a wrapper squared from the parent no longer lines up with its own overlay. Change the wrapper's corner only where no overlay is rendered — for example a `searchResultsComponent` list with `@overlays={{false}}`. Everywhere else, design the parent around the default corner (gap-spaced tiles, dividers that stop short of the corner).
+1. **Rounded corners on every embedded child** — the wrapper's `border-radius` is `var(--boxel-radius)`, which resolves to the theme's `--radius` and falls back to `0.625rem`. Brand-wide corners therefore belong on the Theme card: `--radius: 0` squares every wrapper and everything the child draws inside. The interact-mode hover/selection ring is a floating overlay that copies the CardContainer's computed `border-radius`, so **the visible corner must be the CardContainer's corner**. For a one-off deviation from the theme, set `border-radius` on the `class` you pass to the field — it lands on the CardContainer, and the ring follows. Never draw a competing corner elsewhere: not on the child's own root, and not on a parent frame around a wrapper that keeps a different radius. Both put the ring out of step with what the viewer sees.
 2. **A 1px halo around the chrome** — `box-shadow: 0 0 0 1px var(--border)` when `--boundaries` is on (default). Drop it through the fields API: `@displayContainer={{false}}` turns `--boundaries` off in every format. (`hide-boundaries` is a host-internal class the host app uses on its own surfaces, not an API for cards.)
 3. **Cream/white background** — `--background` defaults to `var(--boxel-light)`. If your parent's paper color differs, the embedded child looks pasted on.
 4. **Images clipped at corners** — `overflow: hidden` is hardcoded. Hero images that should bleed past the corner get clipped.
@@ -99,7 +99,7 @@ If the linked card resolves a theme (`cardTheme`, which defaults to `cardInfo.th
 | `--background` | wrapper background |
 | `--foreground` | text color inside |
 | `--border` | the 1px halo color (only visible if `--boundaries` is on) |
-| `--radius` | **content only.** Derives `--boxel-radius` and the `--boxel-border-radius-*` scale for elements inside the card. The wrapper's own `border-radius` is pinned to `--_boxel-radius` (0.625rem), so `--radius: 0` on a theme does NOT square the container. Do not square it from the parent either unless the overlay is not rendered (`@overlays={{false}}`) — the interact-mode overlay follows the default corner (see consequence 1). |
+| `--radius` | the wrapper's own `border-radius`, and the `--boxel-radius` / `--boxel-border-radius-*` scale for everything inside the card. `--radius: 0` on a theme squares the container and its contents together; the interact-mode ring copies the CardContainer's radius, so it stays in sync (see consequence 1). |
 
 Caveat: the cascade is not gated on the `--themed` marker class (nothing styles it; `@isThemed` is deprecated). What matters is whether a theme stylesheet is actually in scope for the linked card. If your performer / venue / listing instances resolve no theme, the wrapper falls back to the Boxel defaults and the parent's theme values do not reach it.
 
@@ -113,7 +113,7 @@ Caveat: the cascade is not gated on the `--themed` marker class (nothing styles 
 | Different surface color on one linked child | `class='…'` on `<@fields.link />`, forwarded to its `CardContainer` (see "Style a linked card's chrome with a class") | `:deep()` on that card's wrapper |
 | No 1px halo | `@displayContainer={{false}}` on the field or on `searchResultsComponent` (Layer 2) | `:deep(.boxel-card-container--boundaries) { box-shadow: none; }` |
 | Images bleeding past the wrapper | Let the child's own format design the bleed inside its box; `overflow: hidden` on the wrapper is part of the contract | `:deep(.field-component-card.embedded-format) { overflow: visible; }` |
-| Different corners | Only where no overlay renders (`@overlays={{false}}`); otherwise keep the default | `:deep(.boxel-card-container) { border-radius: … }` |
+| Different corners | Brand-wide: the Theme card's `--radius` (Layer 0). One-off: `border-radius` on the `class` passed to the field — the CardContainer changes and the interact ring follows | `:deep(.boxel-card-container) { border-radius: … }`, a radius on the child's root, or a parent frame with a different corner around the wrapper |
 
 Plural fields and atoms do not need `:deep()` either. Iterate the plural field yourself (`{{#each @fields.items as |Item|}}<Item class='…' />{{/each}}`) and there is no host wrapper to reach through; pass `class` on an atom field and its chip is a plain scoped selector (see "Plural fields" and "Atom alignment"). What is left for `:deep()` is DOM the host generates that you neither render nor can reach with a class — the body of an embedded MarkdownDef shell, for instance. Any token used there is a contract token — `--card`, `--border`, `--muted` — never a name the theme does not define.
 
@@ -127,7 +127,7 @@ For atoms especially, often you want NO chrome — just the linked card's conten
 
 - **Every format:** passes `@displayBoundaries={{false}}`, so the 1px halo goes, and stamps `display-container-false` on the wrapper.
 - **Atom only:** the wrapper additionally renders as `display: contents` — the container disappears, only the children layout. **The class on the wrapper still exists** (`field-component-card atom-format display-container-false`) but it's transparent to layout.
-- **Embedded / fitted:** the wrapper keeps its full box (background, radius, `overflow: hidden`); only the ring is dropped. Background comes from the Theme card or a class on the field; radius and overflow stay.
+- **Embedded / fitted:** the wrapper keeps its full box (background, radius, `overflow: hidden`); only the ring is dropped. Background and, if the design needs it, `border-radius` go on the class passed to the field; `overflow: hidden` stays.
 - **Compound FieldDefs:** `false` removes the `.compound-field` wrapper entirely and renders the field's template bare.
 
 The same arg exists on `@context.searchResultsComponent`: `<@context.searchResultsComponent @query={{this.query}} @displayContainer={{false}} as |results|>` removes the boundary ring from every yielded `entry.component`, and collapses atom-format rows to `display: contents` exactly as on a field, on the inert prerendered HTML and the hydrated live card alike. There is no per-entry switch — the flag is set once on the component.
@@ -338,12 +338,12 @@ You always have to pick one of two strategies. There is no in-between.
 
 ### Strategy A — parent draws dividers (newspaper grid, list rows)
 
-Turn the child halo off through the field API and draw the rules on elements the parent owns:
+Turn the child halo off through the field API, square the wrapper through the field's class so its corner matches the straight rules, and draw the rules on elements the parent owns:
 
 ```hbs
 <ul class='event-list'>
   {{#each @fields.events as |Event|}}
-    <li><Event @format='embedded' @displayContainer={{false}} /></li>
+    <li><Event @format='embedded' @displayContainer={{false}} class='event-row' /></li>
   {{/each}}
 </ul>
 ```
@@ -358,7 +358,12 @@ Turn the child halo off through the field API and draw the rules on elements the
 .event-list > li {
   border-bottom: 1px solid var(--border);           /* parent draws between */
 }
+.event-row {
+  border-radius: 0;   /* the CardContainer's corner matches the square rules; the interact ring follows it */
+}
 ```
+
+Without `.event-row`, the wrapper keeps its 0.625rem corner inside square rules and the hover ring is rounded inside a straight-edged row.
 
 Use for: vertical lists, editorial newspaper grids, table-style rosters, anywhere the design is "cards as data rows separated by hairlines."
 
@@ -484,7 +489,7 @@ When in doubt, read the child's `static embedded` and `static fitted` source —
 }
 ```
 
-If the parent owns the divider rules, pass `@displayContainer={{false}}` on the item render so the halo goes; the wrapper's background comes from the Theme card, and its corners and `overflow: hidden` stay as the host sets them.
+If the parent owns the divider rules, pass `@displayContainer={{false}}` on the item render so the halo goes; the wrapper's background comes from the Theme card, a `border-radius` that must match the parent's rules goes on the item's class (see Strategy A), and `overflow: hidden` stays as the host sets it.
 
 ### Fitted — for compact card thumbnails in toolbars / pickers
 
@@ -499,7 +504,7 @@ If the parent owns the divider rules, pass `@displayContainer={{false}}` on the 
   background-color: var(--card);
   color: var(--card-foreground);
   /* DON'T set width/height — fitted needs the host's 100%/100% for its own container queries */
-  /* DON'T set border-radius — the interact-mode overlay follows the default corner */
+  /* border-radius is fine here if the design needs it — the interact ring copies the CardContainer's */
 }
 ```
 
@@ -527,7 +532,7 @@ Best practice: `@displayContainer={{false}}` + parent-owned chip span. See "Atom
 
 ### Don't break the child's container queries
 
-Embedded cards declare `container-type: inline-size; container-name: embedded-card`. Fitted declares `container-type: size; container-name: fitted-card`. These are the child's basis for responsive layout. Overriding them from the parent (via `:deep`) breaks the child's design. Style the chrome (`border`, `background`, `box-shadow`, `padding`), not the layout primitives — and leave the wrapper's `border-radius` at its default.
+Embedded cards declare `container-type: inline-size; container-name: embedded-card`. Fitted declares `container-type: size; container-name: fitted-card`. These are the child's basis for responsive layout. Overriding them from the parent (via `:deep`) breaks the child's design. Style the chrome (`border`, `background`, `box-shadow`, `padding`, `border-radius`) through the field's class, not the layout primitives.
 
 ### Theme tokens cascade INTO the parent's chrome rules
 
@@ -578,7 +583,7 @@ The shell's height is not a custom property; a different preview height needs a 
 | Uniform tile grid where every card fills a fixed box | `@format='fitted'` + parent sets `min-height` / `aspect-ratio` |
 | Plural grid (linksToMany or containsMany) lays out correctly | `{{#each @fields.plural as \|Item\|}}<Item @format='…' class='tile' />{{/each}}` — no host wrapper, cards are the grid's children |
 | Stagger per-item animation delays | `.tile:nth-child(N) { --stagger-d: … }` on the looped, classed cards; `animation-delay: var(--stagger-d)` on `.tile` |
-| Square / re-round the embedded child's corners | Only where no overlay renders (`@overlays={{false}}`); otherwise keep the default — the interact-mode overlay follows it |
+| Square / re-round the embedded child's corners | Brand-wide: Theme card `--radius`. One-off: `border-radius` on the `class` passed to the field — the interact ring copies the CardContainer's radius. Never on the child's root or a parent frame |
 | Override embedded child's `background` | Theme card `--background` / `--foreground` for all children; `class='…'` on `<@fields.link />` for one |
 | Kill the 1px halo | `<@fields.X @format='…' @displayContainer={{false}} />` (works in every format, and on `searchResultsComponent`) |
 | Let images bleed past corners | Don't — `overflow: hidden` on the wrapper is part of the contract; design the bleed inside the child's box |
@@ -657,17 +662,17 @@ Row & Rail's editorial paper-and-ink aesthetic, for example (a `StructuredTheme`
 ```
   background: <brand paper>     /* ← wrapper background */
   border: <brand ink>           /* ← halo when --boundaries on */
-  radius: 0                     /* ← inner --boxel-border-radius-* scale only */
+  radius: 0                     /* ← wrapper corner AND the inner --boxel-border-radius-* scale */
 ```
 
-Every card linked to that theme renders with paper background + ink halo, automatically. Corners are the exception: the wrapper's `border-radius` is pinned to `--_boxel-radius` and ignores `--radius`. Leave the wrapper's corner as it is wherever an overlay renders — the interact-mode overlay is drawn to that default, so squaring the wrapper from the parent puts the card and its overlay out of step; only a surface with `@overlays={{false}}` may change it. `--radius: 0` does square everything the child draws inside through the `--boxel-border-radius-*` scale, which is where a sharp-cornered brand should express itself.
+Every card linked to that theme renders with paper background, ink halo, and square corners, automatically: the wrapper's `border-radius` reads `--radius`, and the same value drives the `--boxel-border-radius-*` scale the child uses inside. The interact ring copies the CardContainer's radius, so it goes square too. A parent that needs one linked card to deviate puts `border-radius` on the class it passes to the field. What never works is a corner drawn anywhere else — the child's root or a parent frame — because the ring keeps tracing the wrapper.
 
 ### Why this matters — the failure mode
 
 When the parent (e.g., the Programme showcase) embeds your card:
 
 - **Contract honored:** the Theme card's tokens, or a class passed on the field (`.home-spotlight { background-color: var(--card); color: var(--card-foreground); }`), recolor the wrapper cleanly. The theme's card surface and foreground, no double-borders.
-- **Contract violated:** child's own `border-radius: 12px` on `.news-isolated` fights the wrapper's corner, so the card and its interact-mode overlay disagree. Or child's `box-shadow` stacks under the halo creating a double-border. Or child's `background: white` blocks the parent's `--card` cascade — embedded child looks pasted on instead of integrated.
+- **Contract violated:** child's own `border-radius: 12px` on `.news-isolated` paints a corner the wrapper clips at 0.625rem, and the interact ring traces the wrapper, so the card and its ring disagree. Same failure from the parent side: square rules on an `li` around a wrapper left at its default radius. Or child's `box-shadow` stacks under the halo creating a double-border. Or child's `background: white` blocks the parent's `--card` cascade — embedded child looks pasted on instead of integrated.
 
 The single most common symptom in agent-generated cards is rounded-corner embedded children inside a sharp-corner parent. Cause: every child added `border-radius: 8px` to its outer because "cards have rounded corners." Fix: strip the outer decoration; trust the wrapper.
 
