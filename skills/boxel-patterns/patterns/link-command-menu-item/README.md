@@ -45,7 +45,7 @@ export class MyCardDef extends CardDef {
 - **Order: custom items first, defaults last.** Users read top-down; card-specific actions belong above the generic ones.
 - **Icon comes from `@cardstack/boxel-icons/<name>` or `@cardstack/boxel-ui/icons/<name>`.** Match the existing menu style — small, single-color, Lucide/Tabler-flavored.
 - **Label is verb-first.** "Generate avatar" not "Avatar generation". Title-cased like other menu items.
-- **`action` is async.** Always `await` the Command, then call `params.cardCrudFunctions.saveCard?.(this.id)` if the action mutates fields on the card itself.
+- **`action` is async.** Always `await` the Command, then call `params.cardCrudFunctions.saveCard?.(this.id)` if the action mutates fields on the card itself. `saveCard` is synchronous and returns nothing (it hands the id to the store, which saves in the background), so there is nothing to `await`; the `?.` is because `cardCrudFunctions` is a `Partial` and some menu contexts supply no save path.
 
 ## Conditional items
 

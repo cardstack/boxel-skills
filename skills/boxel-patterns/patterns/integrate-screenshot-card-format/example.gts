@@ -108,7 +108,7 @@ class Isolated extends Component<typeof ScreenshotCardDemo> {
 
       {{#if this.screenshotUrl}}
         <section class='result'>
-          <p>Saved to:</p>
+          <p>Served at:</p>
           <code class='url'>{{this.screenshotUrl}}</code>
           <img src={{this.screenshotUrl}} alt='Card screenshot' />
         </section>

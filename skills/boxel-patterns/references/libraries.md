@@ -89,8 +89,10 @@ import UseAiAssistantCommand    from '@cardstack/boxel-host/tools/ai-assistant';
 import SetActiveLLMCommand      from '@cardstack/boxel-host/tools/set-active-llm';
 import SwitchSubmodeCommand     from '@cardstack/boxel-host/tools/switch-submode';
 import ShowCardCommand          from '@cardstack/boxel-host/tools/show-card';
-import SearchCardsByQueryCommand        from '@cardstack/boxel-host/tools/search-cards';
-import SearchCardsByTypeAndTitleCommand from '@cardstack/boxel-host/tools/search-cards';
+import {
+  SearchCardsByQueryCommand,
+  SearchCardsByTypeAndTitleCommand,
+} from '@cardstack/boxel-host/tools/search-cards';
 import ReadFileForAiAssistantCommand    from '@cardstack/boxel-host/tools/read-file-for-ai-assistant';
 import PatchFieldsCommand               from '@cardstack/boxel-host/tools/patch-fields';
 import ApplyMarkdownEditCommand         from '@cardstack/boxel-host/tools/apply-markdown-edit';

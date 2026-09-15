@@ -199,7 +199,7 @@ So:
 
 ### No `@isLive` on result lists
 
-`@context.searchResultsComponent` has no `@isLive` arg — liveness is handled by the surface. Results fetch on mount and refetch when `@query` changes; do not try to force per-keystroke refetches.
+`@context.searchResultsComponent` has no `@isLive` arg — results are live by default. The surface fetches on mount, re-runs the search when `@query` changes, and re-issues it when the realm invalidates matching cards, so the list reflects new, edited, and deleted cards without any remount; do not try to force per-keystroke refetches.
 
 **Query-backed relationship vs explicit linked composition:**
 

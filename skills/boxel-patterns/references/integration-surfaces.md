@@ -55,7 +55,7 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `getField`, `getFieldIcon`, `cardDefComputedFields` | Field metadata for generic rendering. |
 | `searchResultsComponent` | Preferred result-list surface for new work — the `<SearchResults>` component, used via `@context.searchResultsComponent` (entry-rooted query built with `searchEntryWireQueryFromQuery`). |
 | `searchEntryWireQueryFromQuery`, `SearchEntryWireQuery` | Build the entry-rooted query that `@context.searchResultsComponent` takes, from an ordinary `Query`. |
-| `getMenuItems`, `GetMenuItemParams` | Typed menu construction. |
+| `getMenuItems` | Typed menu construction (the `GetMenuItemParams` type comes from `@cardstack/base/card-api`, and `MenuItemOptions` from `@cardstack/boxel-ui/helpers`). |
 | `baseRRI('<module>')` | Canonical base-realm module URL. |
 | `Query`, `Sort`, `TypedFilter` | Query type primitives. |
 | `ResolvedCodeRef` | Strongly-typed code references. |
