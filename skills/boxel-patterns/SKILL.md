@@ -29,7 +29,7 @@ Patterns are indexed by **user intent**, not by class hierarchy. Find the patter
 
 Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.md`; most also have a separate `patterns/<slug>/example.gts`. A few are README-with-inline-recipe — the worked code lives in fenced blocks inside the README itself, marked `(README-only)` in the list below.
 
-> **Start here for any new card:** `theme-first-workflow` + `cardinfo-override-title` together form the recommended "step 0" for every new CardDef. Skipping them is the most common cause of cards that "look wrong" or have blank titles.
+> **Start here for any new card:** `theme-first-workflow` + `cardinfo-override-title` together form the recommended "step 0" for every new CardDef. The theme workflow decides whether Boxel defaults are sufficient or a specific Theme is wanted; it does not require a Theme link. Skipping these decisions is the most common cause of cards that "look wrong" or have blank titles.
 
 ### Show
 
@@ -52,7 +52,7 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 ### Build / Template
 
 - **`build-planning-cards-trio`** *(README-only)* — Stage-0 planning artifacts for any card family: three CardDefs (`ArchitecturePlan`, `DataModelPlan`, `MicroMockups`) whose `static isolated` templates ARE the plan documents. Without stage 0, fitted views come out pedestrian. See `boxel/references/design-playbook.md` "Planning before code — Stage 0".
-- **`theme-first-workflow`** — Choose or create a Theme card BEFORE writing the card. Link via `cardInfo.theme`; templates reference theme tokens (`var(--background)`, `var(--primary)`, etc.) from line one. The starting step for any new card or app.
+- **`theme-first-workflow`** — Decide whether Boxel defaults are sufficient or a specific Theme is wanted BEFORE writing the card. Link via `cardInfo.theme` only for the latter; templates reference theme tokens (`var(--background)`, `var(--primary)`, etc.) from line one. The starting step for any new card or app.
 - **`cardinfo-override-title`** — Override `cardTitle` to respect `cardInfo.name` first, then fall back to a primary field (`headline`, `firstName + lastName`, etc.), then to the default. Every CardDef with a natural identifier needs this.
 - `build-site-config-with-theme` — Multi-page site registry: `SiteConfig` links to a `ThemeCard` brand guide and `linksToMany(PageConfig)` nav entries; page shells compute `cardTheme` from the site unless overridden by `cardInfo.theme`.
 - `containsmany-sorted-render` — Render a `containsMany`/`linksToMany` in a non-insertion order without losing the host's field rendering chrome. Sort indexes in the Component, drive `{{#each}}` with `<@fields.notes.[i] />`.

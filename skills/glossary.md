@@ -131,7 +131,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **custom theme variables** — Tokens outside the contract. `StructuredTheme` has no slot for them; they come from a `BrandGuide` (`customCssVariables` list, `brandColorPalette` names) or a theme card definition extended with its own fields. No `theme.css` default and no reset at the themed-card boundary, so they leak into nested cards and disappear when another theme card is linked. Never duplicate a named token this way; a template reading one needs a local fallback unless it only renders under that theme.
 - **shadcn/Boxel token mapping** — Boxel consumes shadcn-style tokens as paired surface/foreground contracts. `--primary` is an action surface or indicator, not ordinary text; `--spacing` is a quarter-unit that becomes `--boxel-sp` after runtime scaling. → `boxel-theme-development/references/shadcn-boxel-token-mapping.md`
 - **theme cascade** — Host injects the Theme card's `cssVariables` as CSS custom properties on the card root. Children inherit; cross-card delegated rendering retains the parent's theme unless overridden.
-- **theme-first workflow** — Choose/create a Theme BEFORE writing the card. Link via `cardInfo.theme`; templates use tokens from line one. → `theme-first-workflow`
+- **theme-first workflow** — Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Link via `cardInfo.theme` only when a specific Theme is wanted; templates use tokens from line one. → `theme-first-workflow`
 - **drop-in CSS themes** — Per-theme CSS files override `--*` tokens at runtime; no JS branching. → `theme-css-token-redefinition`
 
 ## 7. Design playbook
@@ -367,7 +367,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 In rough priority order:
 
-- **Theme first.** Decide theme strategy before writing the card. Templates use `var(--*)` tokens, never hard-coded colors. → `theme-first-workflow`
+- **Theme first.** Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Templates use `var(--*)` tokens, never hard-coded colors; default styling needs no Theme link. → `theme-first-workflow`
 - **Boxel built-in feature work uses the Boxel Brand Guide.** Base cards, host-facing Boxel UI, and Boxel-branded catalog material use `@cardstack/base/Theme/boxel-brand-guide` as the style source.
 - **`cardInfo.theme` is the per-instance override** (wins over computed `cardTheme`).
 - **Override `cardTitle` when there's a primary field.** Respect `cardInfo.name` first.

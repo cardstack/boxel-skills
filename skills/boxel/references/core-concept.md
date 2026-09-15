@@ -280,7 +280,7 @@ The host renders against `this.cardTheme`. The DEFAULT computeVia just passes th
 });
 ```
 
-Two ways a card ends up themed — pick whichever fits the schema:
+Boxel's default token values come from `theme.css` and need no Theme card. When a card should use a specific Theme, there are two ways to install it — pick whichever fits the schema:
 
 **(A) Per-instance assignment via `cardInfo.theme`.** The user (or your seed JSON) links a Theme on the instance. The default computeVia picks it up. Simplest case — covers most card types without a natural parent to inherit from.
 
@@ -309,7 +309,7 @@ Other valid sources for a computed `cardTheme`: lookup by `cardId` pattern, by t
 **Practical implications for seed/instance JSON:**
 
 - Cards that have a custom computed `cardTheme` (e.g. a Task inheriting from its Project) don't need `relationships["cardInfo.theme"]` on every instance — the computeVia handles it.
-- Cards that rely on the default computeVia (`cardTheme = cardInfo.theme`) DO need the relationship set on the instance, otherwise no theme installs.
+- Cards that rely on the default computeVia (`cardTheme = cardInfo.theme`) need the relationship only to install a specific Theme. Without it, no Theme card installs and `theme.css` supplies Boxel's defaults.
 - `attributes.cardInfo` should still be present so the user can later add notes, name, or override the theme — but its absence isn't fatal when a computed `cardTheme` resolves.
 
 JSON shape for the per-instance link (when used):
