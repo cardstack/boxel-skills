@@ -9,9 +9,9 @@
     "type": "card",
     "attributes": {
       "cardInfo": {
-        "name": "Boxel Design",
+        "name": "Design Playbook",
         "notes": null,
-        "summary": "Visual decisions for Boxel cards: choose the style source, then run the four-stage design playbook. The taste layer, not token or template implementation",
+        "summary": "The four-stage card design workflow: mockup with no variables, extract the theme, tokenize the isolated template, derive embedded and fitted",
         "cardThumbnailURL": null
       },
       "commands": []
@@ -24,11 +24,11 @@
       },
       "instructionsSource": {
         "links": {
-          "self": "../skills/boxel-design/SKILL.md"
+          "self": "../skills/boxel/references/design-playbook.md"
         },
         "data": {
           "type": "file",
-          "id": "../skills/boxel-design/SKILL.md"
+          "id": "../skills/boxel/references/design-playbook.md"
         }
       }
     }

@@ -9,9 +9,9 @@
     "type": "card",
     "attributes": {
       "cardInfo": {
-        "name": "Boxel Design",
+        "name": "Design Critical Rules",
         "notes": null,
-        "summary": "Visual decisions for Boxel cards: choose the style source, then run the four-stage design playbook. The taste layer, not token or template implementation",
+        "summary": "Anti-cliché checklist for card design (Rounded Rectangle Syndrome, Center-All Disease, Card Grid Autopilot) plus the image URL field-routing rule",
         "cardThumbnailURL": null
       },
       "commands": []
@@ -24,11 +24,11 @@
       },
       "instructionsSource": {
         "links": {
-          "self": "../skills/boxel-design/SKILL.md"
+          "self": "../skills/boxel-design/references/critical-rules.md"
         },
         "data": {
           "type": "file",
-          "id": "../skills/boxel-design/SKILL.md"
+          "id": "../skills/boxel-design/references/critical-rules.md"
         }
       }
     }
