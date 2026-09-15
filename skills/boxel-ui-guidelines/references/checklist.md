@@ -24,6 +24,6 @@ Before finalizing any card template, verify:
 - [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
 - [ ] No overrides that cancel a boxel-ui component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Pill`/`Button`) — pick the `@kind`/`@variant`/`@size` that already has no chrome (e.g. `Button @kind='link-muted'`) and keep only genuinely bespoke declarations
 - [ ] Chrome on a single linked card is styled through a class on `<@fields.link class='…' />` (forwarded to its `CardContainer` via `...attributes`), not through `:deep(.boxel-card-container)`
-- [ ] `:deep()` / `display: contents` used only on host-generated field DOM — a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
+- [ ] No `:deep()` / `display: contents` on plural-field or atom DOM — a plural field is looped (`{{#each @fields.plural as |Item|}}<Item class='…' />`) so there is no host wrapper, and an atom takes a `class`; a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
 - [ ] Kanban/status boards use `KanbanPlane` and persisted placements; no hand-rolled pointer drag in card templates
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`

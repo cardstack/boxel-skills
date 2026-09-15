@@ -62,19 +62,21 @@ Dense professional layouts with thoughtful scaling:
 - Radius: match the aesthetic (sharp for technical, soft for friendly)
 - Shadows: subtle elevation for interactive elements; keep z-index conservative (<10)
 
-Implementation tip: Define each token's fallback exactly once, on the component root, then use bare `var()` reads everywhere else. Never scatter per-use fallbacks (`var(--x, 1rem)` at each use site) — each site ends up carrying its own drifting default, which is hard to override or audit.
+Implementation tip: Theme-contract tokens and the `--boxel-*` scales are always defined, so read them bare (`var(--boxel-sp)`, `var(--radius)`, `var(--shadow-md)`) — a literal fallback on them is dead weight that drifts from the theme. Only a variable that may genuinely be missing (a Brand Guide custom variable, or a component-local variable) gets a fallback, stated exactly once on the component root; every other read is bare. Never scatter per-use fallbacks (`var(--x, 1rem)` at each use site) — each site ends up carrying its own drifting default, which is hard to override or audit.
 
 ```css
 .component {
-  /* fallback stated once, at the root */
-  --card-padding: var(--boxel-sp, 1rem);
-  --card-radius: var(--boxel-border-radius-sm, 0.5rem);
-  --card-shadow: var(--boxel-box-shadow, 0 2px 4px rgba(0,0,0,0.1));
+  /* the one place a fallback lives: a Brand Guide custom variable */
+  --display-size: var(--brand-display-size, 2.4rem);
+  /* local metrics, declared once */
+  --card-padding: var(--boxel-sp);
+  --card-radius: var(--boxel-border-radius-sm);
   /* bare reads from here on */
   padding: var(--card-padding);
   border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--shadow-md);
 }
+.component .display { font-size: var(--display-size); }
 ```
 
 The same hoisting applies to raw metric values that don't map to a theme token: hardcoded font-sizes, widths/heights, and border-radii belong in component-prefixed custom properties declared once on the component root (the `--fc-*` variables on `FittedCard` are the reference style), not scattered as literals through child selectors.
