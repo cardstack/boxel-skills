@@ -60,7 +60,8 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **`<@fields.x />`** — Render a field through its FieldDef's view for the current format. The host injects chrome (CardContainer wrapper) around the child.
 - **`@format='isolated'|'embedded'|'fitted'|'edit'|'atom'`** — Override the default format when delegating to a child via `<@fields.x @format='…' />`.
 - **`@model`** — The card/field instance accessed inside a Component. `@model.firstName`, `@model.body`, etc.
-- **`@context`** — Host context object exposing `commandContext`, `prerenderedCardSearchComponent`, `viewCard`, etc.
+- **`@context`** — Host context object exposing `toolContext`, `searchResultsComponent`, `viewCard`, etc.
+- **`toolContext`** — The handle passed to `new SomeTool(toolContext)`; read it from `@context.toolContext`, `params.toolContext` in menu-item actions, or `this.toolContext` inside a tool class. `commandContext` is the pre-rename spelling, still populated as a deprecated alias for deployed content — do not write it in new code.
 - **`<style scoped>`** — Boxel's scoped-CSS block. Must be a direct child of `<template>`; doesn't propagate scope hash into inner GlimmerComponent classes.
 - **`:deep()`** — Pierce the scoped-CSS boundary to style inner host-injected wrappers (`.boxel-card-container`, `.plural-field`, etc.). → `boxel-ui-guidelines/references/delegated-render-control.md`
 - **plural-field wrapper** — `<@fields.X @format='…' />` for a `containsMany`/`linksToMany` injects `.plural-field` + per-item wrappers (`.containsMany-item`, `.linksToMany-itemContainer`) between your grid and the cards. Apply `display: contents` cascade. → `boxel-ui-guidelines/references/delegated-render-control.md`
@@ -98,11 +99,10 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **`Query`** — Type imported from `@cardstack/runtime-common`. Carries `filter`, `sort`, `realmURLs`.
 - **`getCards(this, queryThunk)`** — Component-level reactive query. Returns an object with `instances`, `isLoading`. Best inside `static isolated` Components.
 - **`getCard(this, urlThunk)`** — Component-level reactive single-card fetch.
-- **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration; `@overlays={{false}}` drops the operator-mode overlay and `@displayContainer={{false}}` drops each row's container chrome. Supersedes `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
+- **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration; `@overlays={{false}}` drops the operator-mode overlay and `@displayContainer={{false}}` drops each row's container chrome. Replaces the removed `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
 - **`searchEntryWireQueryFromQuery` / `SearchEntryWireQuery`** — Helper + type (from `@cardstack/runtime-common`) that turn an ordinary query into the entry-rooted query `@context.searchResultsComponent` expects. → `boxel/references/query-systems.md`
-- **`PrerenderedCardSearch`** — Live-updating component that renders matching cards in a chosen format. Pass `@query`, `@realms`, `@format`, optional `@isLive`. Older display surface — `@context.searchResultsComponent` is preferred for new work. → `show-card-list-with-views`, `app-card-home-with-search`
-- **`prerenderedCardSearchComponent`** — Lower-level component-factory accessed via `@context.prerenderedCardSearchComponent`.
-- **`@isLive={{true}}`** — Re-fetch on every realm change. **Pay-per-keystroke cost; default OFF** unless you specifically need live updates.
+- **`PrerenderedCardSearch`** — Removed, along with `@context.prerenderedCardSearchComponent`. Former result-list surface; use `@context.searchResultsComponent`.
+- **`@isLive`** — Legacy `PrerenderedCardSearch` arg; `@context.searchResultsComponent` has no such arg (liveness is handled by the surface). Drop it when migrating.
 - **filter `type`** — `filter: { type: codeRef(…) }` selects all instances of a CardDef. **THE ONLY way to filter-by-type.**
 - **filter `on`** — `filter: { on: codeRef(…), eq: { status: 'active' } }`. `on` is a *scope* for predicates (`eq`/`contains`/`range`), NOT a filter by itself. A bare `{ on: ref }` returns zero rows silently.
 - **filter predicates** — `eq`, `contains`, `range`, plus `every: [...]` / `any: [...]` for composition. Predicates require an `on:` scope.
@@ -264,7 +264,7 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`UseAiAssistantCommand`** — Host command that opens a multi-turn AI room with a skill card + attached cards pre-loaded. → `command-with-skill-card-ref`
 - **OpenRouter image generation** — Image-gen via OpenRouter chat completions with `modalities: ['image', 'text']`. Default model: `google/gemini-2.5-flash-image` (Gemini Flash Image). ChatGPT/OpenAI image models on request (`openai/gpt-5-image-mini`, `openai/gpt-5.4-image-2`). → `integrate-openrouter-image-generation`
 - **`GenerateThumbnailCommand`** — Composes OpenRouter image-gen + `WriteBinaryFileCommand` + optional `PatchCardInstanceCommand` to patch `cardInfo.cardThumbnail`. → `integrate-thumbnail-card-ai`
-- **`ScreenshotCardCommand`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). **Point-in-time** snapshots kept as separate files; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
+- **`ScreenshotCardTool`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool) and returns a durable served media-cache URL (`captures[0].url`); needs realm read only, writes no realm file. **Point-in-time** snapshots; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
 - **Steerable image generation** — Multi-step iterative refinement using initial prompt + steering input + first/current image lineage. → `automate-image-steering`
 - **Skill cards** — Cards typed as `Skill` from `@cardstack/base/skill` that pre-load into AI rooms with their description as system context.
 
@@ -292,11 +292,11 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 → `boxel-patterns/references/integration-surfaces.md` §3 for the full annotated table.
 
-**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getCardMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
+**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
 
 ## 19. Boxel UI (`@cardstack/boxel-ui`)
 
-**`/components`** — `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Drawer`, `Toast`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+**`/components`** — `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 **`/helpers`** — Logic (`eq`/`not`/`and`/`or`/`gt`/`gte`/`lt`/`lte`/arithmetic), templates (`cn`/`cssVar`/`element`/`optional`/`pick`), formatters (`formatDateTime`/`formatNumber`/`formatCurrency`/...), markdown (`markdownEscape`), menus (`MenuItem`/`MenuItemOptions`).
 
@@ -443,7 +443,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`link-view-transition`** — `document.startViewTransition` + `view-transition-name`.
 - **`link-flip-card`** — CSS-only front/back flip primitive.
 - **`link-host-mode-paths`** — `realm.json` `hostRoutingRules` to route `/`, `/about`, `/blog` to cards.
-- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getCardMenuItems]`.
+- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getMenuItems]`.
 
 ### Collaborate
 - **`collab-yjs-shared-document`** — Real-time co-editing over a Yjs websocket relay: everyone syncs, one committer peer with a realm JWT materializes settled content into the official card. Y.Text and Y.Map variants; contested state stays with ordered commands.

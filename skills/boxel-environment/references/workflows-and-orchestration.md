@@ -97,7 +97,7 @@ Use for LLM, image generation, imports, diagnostics, or any workflow where user-
 
 ```json
 Card component action
-→ resolve `commandContext` and current `realmURL`
+→ resolve `toolContext` and current `realmURL`
 → create one typed Run/Job card with steps, logs, status, prompt/model/input snapshot
 → queue `SaveCardCommand` through an OptimisticSave helper
 → mutate the same run card for each stage and queue progress saves
@@ -133,7 +133,7 @@ Don't treat the transient as proof your query syntax is wrong. Recovery sequence
 
 1. Read the relevant files back with `npx boxel file read` to confirm they're really in the realm.
 2. `npx boxel realm wait-for-ready --realm <url>` until the realm reports ready.
-3. Validate through a host-rendered result-list card when possible (`@context.searchResultsComponent`; older builds used `PrerenderedCardSearch`) — that path exercises the indexer differently than the federated-search CLI route.
+3. Validate through a host-rendered result-list card when possible (`@context.searchResultsComponent`) — that path exercises the indexer differently than the federated-search CLI route.
 4. Retry `npx boxel search` after the realm has indexed.
 
 If the transient recurs while parallel agents are landing into the same realm, record it in the tracking doc (above) so other agents don't rewrite valid query syntax chasing a state issue.

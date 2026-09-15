@@ -56,8 +56,6 @@ import { Command }                      from '@cardstack/runtime-common/commands
 // then render via @context.searchResultsComponent.
 import { searchEntryWireQueryFromQuery } from '@cardstack/runtime-common';
 import type { SearchEntryWireQuery }     from '@cardstack/runtime-common';
-// Older surface, superseded by the above (still available via @context.prerenderedCardSearchComponent):
-import { prerenderedCardSearchComponent } from '@cardstack/runtime-common/prerendered-card-search';
 ```
 
 ### `@cardstack/boxel-ui` — UI components, helpers, icons
@@ -65,9 +63,8 @@ import { prerenderedCardSearchComponent } from '@cardstack/runtime-common/preren
 ```ts
 // Components
 import {
-  Button, Pill, Avatar, BoxelSelect, ColorPalette, ColorPicker,
-  Header, FieldContainer, CardContainer,
-  Modal, Drawer, Toast,
+  Button, Pill, Avatar, BoxelInput, BoxelSelect, ColorPalette, ColorPicker,
+  Header, FieldContainer, CardContainer, Modal,
   KanbanPlane, autoPlaceKanban,
   type KanbanColumnConfig, type KanbanPlacement,
 } from '@cardstack/boxel-ui/components';
@@ -92,8 +89,10 @@ import UseAiAssistantCommand    from '@cardstack/boxel-host/tools/ai-assistant';
 import SetActiveLLMCommand      from '@cardstack/boxel-host/tools/set-active-llm';
 import SwitchSubmodeCommand     from '@cardstack/boxel-host/tools/switch-submode';
 import ShowCardCommand          from '@cardstack/boxel-host/tools/show-card';
-import SearchCardsByQueryCommand        from '@cardstack/boxel-host/tools/search-cards';
-import SearchCardsByTypeAndTitleCommand from '@cardstack/boxel-host/tools/search-cards';
+import {
+  SearchCardsByQueryCommand,
+  SearchCardsByTypeAndTitleCommand,
+} from '@cardstack/boxel-host/tools/search-cards';
 import ReadFileForAiAssistantCommand    from '@cardstack/boxel-host/tools/read-file-for-ai-assistant';
 import PatchFieldsCommand               from '@cardstack/boxel-host/tools/patch-fields';
 import ApplyMarkdownEditCommand         from '@cardstack/boxel-host/tools/apply-markdown-edit';

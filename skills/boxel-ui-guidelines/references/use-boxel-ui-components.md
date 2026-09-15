@@ -23,7 +23,7 @@ import {
 - `CardContainer` — wraps card content with correct border/shadow/padding. all cards are already wrapped in this.
 - `FittedCard` — **the preferred starting point for `fitted` templates.** Slot-fill layout (`:placeholder`, `:badgeLeft`/`:badgeRight`, `:badgeRow`, `:eyebrow`, `:title`, `:subtitle`, `:meta`, `:footer`, `:image`, `:background`) that queries the host's `fitted-card` container internally and adapts across all 16 fitted sizes; tune via `--fc-*` custom properties. Hand-roll per `boxel/references/container-query-fitted-layout.md` only when the slot model can't express the design. Named blocks must be direct children of `<FittedCard>` — Glimmer rejects a `<:eyebrow>` wrapped in `{{#if}}`, so put the conditional inside the block (`<:eyebrow>{{#if @model.level}}<@fields.level />{{/if}}</:eyebrow>`) (an empty section collapses via the component's `:empty` rule). Leave a section out by not writing its block; `--fc-<section>-display: none` (image, subtitle, meta, footer, badge slots) hides one you do provide, typically per breakpoint.
 - `GridContainer` — responsive grid layout
-- `Container` — generic container
+- `BoxelContainer` — generic container
 - `ResizablePanelGroup` — resizable panel layouts
 - `KanbanPlane` — lane-based drag/drop board with pointer + keyboard reordering, insertion gaps, ghost rendering, collapsed/hidden columns, and WIP limit display. Use pattern `layout-kanban-drag-drop`.
 
@@ -62,14 +62,14 @@ import {
 - `Pill` — inline status/badge (`@variant` for primary, secondary, accent, muted, destructive; use `@kind='button'` to make it a button)
 - `Swatch` — color swatch display
 - `Avatar` — user/entity avatar
-- `EntityIconDisplay` / `EntityThumbnailDisplay` — entity visuals
+- `EntityDisplayWithIcon` / `EntityDisplayWithThumbnail` — entity visuals
 - `RealmIcon` — realm icon display
 - `FilterList` — filterable list
 - `SortDropdown` — sort controls
 - `ViewSelector` — view mode toggle
 - `Menu` — dropdown menu
 - `Modal` — overlay dialogs
-- `Dropdown` — dropdown container
+- `BoxelDropdown` — dropdown container
 - `Message` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `KanbanPlane` — preferred drag-and-drop interface for boards. Do not hand-roll pointer drag in card templates unless no boxel-ui component exists for the interaction.

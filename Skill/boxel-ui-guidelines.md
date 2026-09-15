@@ -461,7 +461,7 @@ Wrap inputs with `FieldContainer` for consistent label + input layout. Use compo
 
 ```gts
 <FieldContainer @label='Title' @tag='label' @vertical={{true}}>
-  <Input @value={{@model.title}} />
+  <BoxelInput @value={{@model.title}} />
 </FieldContainer>
 ```
 
@@ -577,7 +577,7 @@ import {
 **Layout & Containers:**
 - `CardContainer` — wraps card content with correct border/shadow/padding. all cards are already wrapped in this.
 - `GridContainer` — responsive grid layout
-- `Container` — generic container
+- `BoxelContainer` — generic container
 - `ResizablePanelGroup` — resizable panel layouts
 
 **Headers & Navigation:**
@@ -615,14 +615,14 @@ import {
 - `Pill` — inline status/badge (`@variant` for primary, secondary, accent, muted, destructive; use `@kind='button'` to make it a button)
 - `Swatch` — color swatch display
 - `Avatar` — user/entity avatar
-- `EntityIconDisplay` / `EntityThumbnailDisplay` — entity visuals
+- `EntityDisplayWithIcon` / `EntityDisplayWithThumbnail` — entity visuals
 - `RealmIcon` — realm icon display
 - `FilterList` — filterable list
 - `SortDropdown` — sort controls
 - `ViewSelector` — view mode toggle
 - `Menu` — dropdown menu
 - `Modal` — overlay dialogs
-- `Dropdown` — dropdown container
+- `BoxelDropdown` — dropdown container
 - `Message` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `DragAndDrop` — drag-and-drop interface
