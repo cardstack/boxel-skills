@@ -2,6 +2,7 @@
 
 - Decide whether the card needs a specific Theme before generating code or styling. (See 3.1 Theme Linking Rules)
 - No theme link is needed for default styling: `boxel-ui`'s `theme.css` supplies every token's default, so an instance with no `cardInfo.theme` renders with the Boxel defaults.
+- A linked Theme is layered over those defaults, not substituted for them: `theme.css` re-declares the full token contract at every themed card boundary (`[data-boxel-theme-scope]`), so a Theme only overrides the tokens it defines and the rest reset to the defaults instead of inheriting from the surrounding chrome or an outer theme.
 - All CSS in card templates must use theme variables (no hardcoded colors/spacing/fonts). (See 3.2 Canonical Theme Variables)
 - Theme linkage lives at `relationships.cardInfo.theme` on the card instance.
 
