@@ -2,7 +2,7 @@
 
 - Decide whether the card needs a specific Theme before generating code or styling. (See 3.1 Theme Linking Rules)
 - No theme link is needed for default styling: `boxel-ui`'s `theme.css` supplies every token's default, so an instance with no `cardInfo.theme` renders with the Boxel defaults.
-- A linked Theme is layered over those defaults, not substituted for them: `theme.css` re-declares the full token contract at every themed card boundary (`[data-boxel-theme-scope]`), so a Theme only overrides the tokens it defines and the rest reset to the defaults instead of inheriting from the surrounding chrome or an outer theme.
+- A linked Theme is layered over those defaults, not substituted for them: `theme.css` re-declares the token contract at every themed card boundary (`[data-boxel-theme-scope]`), so a Theme only overrides the tokens it defines and the rest reset to the light or dark defaults instead of inheriting from the surrounding chrome or an outer theme. Two things do pass through the boundary: the `--theme-*` typography knobs, which are deliberately left unset there, and the `--boxel-*` palette variables the defaults are written in. An ancestor that redefines a palette variable therefore changes what the reset tokens compute to inside the nested card; only a `BrandGuide` custom variable, a bare `Theme`, or host CSS can do that.
 - All CSS in card templates must use theme variables (no hardcoded colors/spacing/fonts). (See 3.2 Canonical Theme Variables)
 - Theme linkage lives at `relationships.cardInfo.theme` on the card instance.
 
@@ -70,6 +70,22 @@ box-shadow: var(--shadow-lg);
 ```css
 background-color: hsl(var(--background));   /* DO NOT wrap in hsl() */
 ```
+
+### 3.3 Dark Mode
+
+**How it applies.** Dark mode is opt-in and explicit; there is no automatic `prefers-color-scheme` switch in `theme.css`. Adding `data-theme="dark"` to `<html>` or to any element flips the semantic tokens (`--background`, `--foreground`, `--primary`, `--muted`, `--border`, ink tokens, sidebar tokens, and the rest) to their dark defaults for that subtree and sets the inherited `--boxel-color-scheme: dark` signal. `data-theme="light"` forces light back on inside a dark subtree. Always use the `data-theme` attribute to switch schemes: it is the only form with a `light` counterpart, and the host's own toggles and the theme editors' observers key off it. Typography and spacing tokens do not change between schemes.
+
+**How a Theme participates.** `StructuredTheme` and its descendants carry `darkModeVariables` next to `rootVariables`. The card runtime emits them under a style container query on `--boxel-color-scheme`, scoped to the card's own theme boundary, so a card's dark values follow the *nearest ancestor's* scheme. A Theme with no dark block keeps its light values in dark mode; any token it omits resets at the card boundary to the `theme.css` default for that scheme (scheme-neutral tokens such as `--success`, `--chart-*`, `--font-*`, `--radius` and `--shadow-*` have a single default). Never write `@media (prefers-color-scheme: dark)` inside a Theme's CSS; the theme parser skips it. Dark values belong in `darkModeVariables`.
+
+**When to use it.**
+- Author `darkModeVariables` on any Theme that may render inside a dark host surface or a site with a dark option. A light-only Theme in a dark subtree keeps its light values and looks out of place.
+- Do not toggle the scheme from an ordinary card template. The host controls its own chrome, and cards render under whatever scheme surrounds them.
+- Offer a visitor-facing light/dark toggle only at the page or site shell level (a `SiteShell`-style component), where it is legitimate app UI.
+
+**How to use it in templates.**
+- Write every color through a token and pair each background with its `-foreground`. That is all a card needs to be dark-mode safe; no scheme-specific selectors in `<style scoped>`.
+- Scrims and veils use `--overlay` / `--hover`, or `color-mix()` with literal `black`/`white`, never `rgba()` on a themed color and never `--foreground` (it inverts in dark mode).
+- A shell that owns a toggle stamps `data-theme={{if this.isDarkMode 'dark' 'light'}}` on a wrapper *above* the themed content, defaults to the visitor's `prefers-color-scheme`, persists the choice (e.g. `localStorage`), and never bakes a machine's preference into prerendered HTML.
 
 ### CSS Safety (All Formats)
 - Always use `<style scoped>`; only `/* */` comments (never `//`).

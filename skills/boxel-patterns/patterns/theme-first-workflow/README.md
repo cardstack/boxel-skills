@@ -27,10 +27,10 @@ Use Boxel defaults when the card does not need a distinct visual or brand identi
 1. **Reuse an existing Theme.** Most realms already have a couple. Browse `<realm>/Theme/*.json` or search with `npx boxel search` filtered on the Theme class. Pick by `styleName` / `visualDNA` fields.
 2. **Copy and edit.** Take an existing Theme, `copy-card` it, modify the `cssVariables` and `cssImports`. Catalog Themes have a "Copy and Edit" menu item built in.
 3. **Author a new Theme.** Choose the narrowest base that preserves the design intent:
-   - `@cardstack/base/brand-guide` for a full brand system with logo/mark usage, functional palette, color palette, typography, voice, and detailed style guidance.
+   - `@cardstack/base/brand-guide` for a full brand system with logo/mark usage, functional palette, color palette, typography, voice, and detailed style guidance. It is also the only theme card that accepts custom CSS variables outside the token contract (`customCssVariables`, `brandColorPalette`). Use it when custom variables are needed, but know the cost: they have no `theme.css` default and no boundary reset, and linking a different theme drops them, so any template that reads one needs a fallback (see `boxel-ui-guidelines/references/theme-token-contract.md`).
    - `@cardstack/base/detailed-style-reference` for a full style system without logo/mark material.
    - `@cardstack/base/style-reference` for a compact visual DNA reference with inspirations and wallpapers.
-   - `@cardstack/base/structured-theme` for a token-only theme. This is the floor: never adopt from or subclass the bare `Theme` in `@cardstack/base/card-api`, whose free-form `cssVariables` string bypasses the token contract. Custom variables outside the contract require `BrandGuide`.
+   - `@cardstack/base/structured-theme` for a token-only theme. This is the floor: never adopt from or subclass the bare `Theme` in `@cardstack/base/card-api`, whose free-form `cssVariables` string bypasses the token contract.
 
 ### Step 1 — Link a specific Theme where it applies
 
