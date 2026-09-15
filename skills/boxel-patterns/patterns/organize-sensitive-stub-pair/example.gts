@@ -169,8 +169,8 @@ export class FullRecord extends CardDef {
         .stub-preview .label { display: block; font-size: 0.75rem; color: var(--boxel-600); margin-bottom: 0.25rem; }
         .sync-alert {
           padding: 0.75rem 1rem;
-          background: var(--boxel-100);
-          border-left: 3px solid var(--primary, var(--boxel-purple-300));
+          background-color: var(--boxel-100);
+          border-left: 3px solid var(--boxel-purple-300);
           border-radius: var(--boxel-border-radius);
           margin: 1rem 0;
         }
