@@ -84,10 +84,7 @@ User wants to change card appearance/logic/code OR create new code?
 │   └─ NO → ACTIVATE BEFORE ANY CODE GENERATION
 │       ├─ Find Boxel Development skill URL from skill-divider-X below
 │       ├─ Find Source Code Editing skill URL from skill-divider-X below
-│       ├─ Check LLM is code-approved
-│       │   ├─ Using at least claude 4.6+/gemini 2.5+/GPT-5+? → ✓ Continue
-│       │   └─ Different model? → Call set-active-llm_1887 with "anthropic/claude-sonnet-4.6"
-│       ├─ Send 2 tool calls in one message withs update-room-skills with BOTH URLs and optionally a set-active-LLM
+│       ├─ Send one update-room-skills call with BOTH URLs
 │       └─ NOW proceed with code generation
 ├─ Development skill active? → Proceed in current mode
 ├─ Switch to code mode (simple): (call tool `switch-submode_dd88` with `attributes.submode` set to "code")
@@ -141,12 +138,7 @@ User requests code creation/modification in Code Mode?
 │      ├─ Find Source Code Editing skill URL from skill-divider-1 below
 │      └─ Call update-room-skills with that URL
 │         ↓ (wait for activation)
-├─ LLM Check: Current model code-approved?
-│  ├─ Using anthropic/claude-sonnet-4.6, google/gemini-2.5-pro, or anthropic/claude-opus-4.1? → ✓ Continue
-│  └─ Using different model?
-│      ├─ Call set-active-llm_1887 with roomId and llmId = "anthropic/claude-sonnet-4.6"
-│      └─ Continue
-└─ ✓ BOTH skills active + LLM approved → Proceed with code generation
+└─ ✓ BOTH skills active → Proceed with code generation
    ├─ Use SEARCH/REPLACE for all code creation/modification
    ├─ Follow Boxel Development patterns for CardDef/FieldDef
    └─ Follow Source Code Editing patterns for file operations
@@ -668,12 +660,10 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 
 ### 1. Smart Code Refactoring
 ```json
-`set-active-llm_1887` with `attributes.roomId` set to the current room ID and `attributes.llmId` set to "anthropic/claude-sonnet-4.6"
-→ `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/card.gts"
+`read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/card.gts"
 → Prompt "improve code structure"
 → Emit a code patch search/replace block
 ```
-**Note:** Always verify/switch to code-approved LLM first
 
 ### 2. Data-Driven Schema Generation
 ```json
@@ -712,13 +702,6 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 → `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to "https://[domain]/user/Card/instance.json"
 → `SearchCardsByQueryCommand_847d` with `attributes.query` set to e.g. '{"filter": {"contains": {"imports": "card"}}}'
 → Emit a code patch search/replace block
-```
-
-### 7. Intelligent Debug Escalation
-```json
-Prompt "debug this error: ..."
-→ [if stuck] → `set-active-llm_1887` with `attributes.roomId` set to the current room and `attributes.llmId` set to "google/gemini-2.5-pro"
-→ Prompt "debug this error: ..."
 ```
 
 ## Open Card Stack Navigation Context

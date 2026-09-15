@@ -2,12 +2,10 @@
 
 ### 1. Smart Code Refactoring
 ```json
-`set-active-llm_1887` with `attributes.roomId` set to the current room ID and `attributes.llmId` set to "anthropic/claude-sonnet-4.6"
-→ `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/card.gts"
+`read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/card.gts"
 → Prompt "improve code structure"
 → Emit a code patch search/replace block
 ```
-**Note:** Always verify/switch to code-approved LLM first
 
 ### 2. Data-Driven Schema Generation
 ```json
@@ -47,12 +45,6 @@
 → `SearchCardsByQueryCommand_847d` with `attributes.query` set to e.g. '{"filter": {"contains": {"imports": "card"}}}'
 → Emit a code patch search/replace block
 ```
-
-### 7. Intelligent Debug Escalation
-```json
-Prompt "debug this error: ..."
-→ [if stuck] → `set-active-llm_1887` with `attributes.roomId` set to the current room and `attributes.llmId` set to "google/gemini-2.5-pro"
-→ Prompt "debug this error: ..."
 
 ### Code Generation
 ```json
