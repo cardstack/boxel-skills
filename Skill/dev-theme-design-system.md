@@ -7,7 +7,14 @@
 - Theme linkage lives at `relationships.cardInfo.theme` on the card instance.
 
 ### 3.1 Theme Linking Rules
-- Link a Theme only when the instance should use a specific one; otherwise `theme.css` provides the defaults:
+Pick the source first:
+
+- **Default styling:** link nothing; `theme.css` provides the defaults.
+- **Boxel built-in feature work:** use `@cardstack/base/Theme/boxel-brand-guide` as the style reference. This is the Boxel style guide and brand material source.
+- **User/custom realm work:** choose or create a theme that fits the requested domain. Do not force Boxel styling onto an unrelated app unless the user asks for Boxel-branded output.
+- **Logo, mark, brand color, or brand material needed:** use a `BrandGuide`, not a plain `StructuredTheme`.
+
+For an instance that should use a specific Theme, link it under `relationships`:
 
 ```json
 "relationships": {
@@ -30,21 +37,21 @@
   },
 }
 ```
-- IMPORTANT: Never set `cardInfo.theme` on ThemeCards (cards adopting from `@cardstack/base/theme/default` or its subclasses) to avoid cycles.
+- IMPORTANT: Never set `cardInfo.theme` on ThemeCards (cards adopting from `@cardstack/base/theme` or its subclasses) to avoid cycles.
 
 #### ThemeCard Types
 
-A ThemeCard is an instance of a card definition that inherits from `@cardstack/base/theme/default` or from one of its subclasses.
+A ThemeCard is an instance of a card definition that inherits from `@cardstack/base/theme` or from one of its subclasses.
 
 | Type | Module | Description |
 |------|-----|-------------|
-| Base Theme | `@cardstack/base/theme/default` | DO NOT USE. Root base class. Do not instantiate or subclass it: its free-form `cssVariables` string bypasses the token contract, so themes built on it get no defaults, no validation, and no editor support. |
-| Structured Theme | `@cardstack/base/structured-theme/default` | MINIMUM template — includes all theme variables (except Brand variables) |
-| Style Reference | `@cardstack/base/style-reference/default` | Extends `StructuredTheme` — adds fields for inspiration images, terms, and style description |
-| Detailed Style Reference | `@cardstack/base/detailed-style-reference/default` | **PREFERRED** — extends `StyleReference` with detailed design system description |
-| Brand Guide | `@cardstack/base/brand-guide/default` | Extends `DetailedStyleReference` — adds brand-specific variables for colors and typography |
+| Base Theme | `@cardstack/base/theme` | DO NOT USE. Root base class. Do not instantiate or subclass it: its free-form `cssVariables` string bypasses the token contract, so themes built on it get no defaults, no validation, and no editor support. |
+| Structured Theme | `@cardstack/base/structured-theme` | MINIMUM template — includes all theme variables (except Brand variables) |
+| Style Reference | `@cardstack/base/style-reference` | Extends `StructuredTheme` — adds fields for inspiration images, terms, and style description |
+| Detailed Style Reference | `@cardstack/base/detailed-style-reference` | Extends `StyleReference` with detailed design system description. Use for a complete design system without logo/mark assets. |
+| Brand Guide | `@cardstack/base/brand-guide` | Extends `DetailedStyleReference` — adds brand-specific variables for colors and typography. Use whenever brand assets or brand governance matter. |
 
-> **When creating a Theme card:** Start from `StructuredTheme` at minimum, never the bare `Theme`. If the design needs custom variables outside the token contract, use `BrandGuide`; it is the only theme shape with a slot for them. Prefer `DetailedStyleReference`. At minimum, fill in `rootVariables` and `typography`. Font stylesheets are derived: `cssImports` is computed from the theme's font stacks (Google Fonts), so do not write it by hand. Only a stylesheet that cannot be derived, such as Adobe Fonts, goes in `customCssImports`. Templates never `@import` a font.
+> **When creating a Theme card:** Start from `StructuredTheme` at minimum, never the bare `Theme`. If the design needs custom variables outside the token contract, use `BrandGuide`; it is the only shipped structured theme shape with dedicated fields for them. Prefer `BrandGuide` if the output has a brand, logo, marks, or other brand material. Prefer `DetailedStyleReference` for a rich visual system without logo material. Use `StructuredTheme` only for a minimal token-only theme. At minimum, fill in `rootVariables` and `typography`. Font stylesheets are derived: `cssImports` is computed from the theme's font stacks (Google Fonts), so do not write it by hand. Only a stylesheet that cannot be derived, such as Adobe Fonts, goes in `customCssImports`. Templates never `@import` a font.
 
 ### 3.2 Canonical Theme Variables
 Use the variables directly (do not wrap with `hsl(var(...))`). Pair backgrounds with their foregrounds for contrast: a rule that sets a semantic background also sets the paired `--*-foreground` in the same rule, once at that surface's root — descendants inherit it (never re-declare what's already inherited). Nested surfaces that diverge (`--card`, `--sidebar`, `--accent`, `--primary`, …) are the sanctioned case for declaring both. Exceptions: `--foreground` over `--muted` is fine (theme generation must guarantee that pair), and isolated-format roots don't repeat `--background`/`--foreground` — `CardContainer` already provides them.
