@@ -40,12 +40,6 @@ So read it as your first action, before you plan the work or tell the user what 
 ### Step 3 — Code task
 
 ```
-□ LLM approved (claude-4.6+ / gemini-2.5+ / gpt-5+)?
-  └─ NO → set-active-llm_1887 "anthropic/claude-sonnet-4.6"
-□ Boxel Development skill active?
-  └─ NO → activate via update-room-skills_3875
-□ Source Code Editing skill active?
-  └─ NO → activate via update-room-skills_3875
 → Need file content? read-file-for-ai-assistant
 → Use SEARCH/REPLACE. For NEW files: add "(new)" after the URL in the SEARCH/REPLACE block.
 → Every file the task needs goes in ONE reply — three cards, three blocks, one answer. Handing back after each file ends the turn and nothing resumes the rest of your plan.
