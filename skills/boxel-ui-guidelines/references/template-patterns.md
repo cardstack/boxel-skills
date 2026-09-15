@@ -215,7 +215,7 @@ Wrap inputs with `FieldContainer` for consistent label + input layout. Use compo
 
 ```gts
 <FieldContainer @label='Title' @tag='label' @vertical={{true}}>
-  <Input @value={{@model.title}} />
+  <BoxelInput @value={{@model.title}} />
 </FieldContainer>
 ```
 
