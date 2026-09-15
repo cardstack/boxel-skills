@@ -70,7 +70,7 @@ card.outputImage = new ImageDef({
 });
 ```
 
-Reference implementation: `packages/host/app/tools/screenshot-card.ts` writes screenshot PNG bytes with `WriteBinaryFileCommand`, and `packages/host/tests/integration/commands/write-binary-file-test.gts` verifies the file is accessible and byte-identical afterward.
+Reference implementation: `packages/host/app/tools/generate-thumbnail.ts` writes generated image bytes with `WriteBinaryFileTool`, and `packages/host/tests/integration/tools/write-binary-file-test.gts` verifies the file is accessible and byte-identical afterward.
 
 ---
 
