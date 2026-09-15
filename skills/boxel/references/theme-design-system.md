@@ -21,11 +21,12 @@ For an instance that should use a specific Theme, link it under `relationships`:
 "relationships": {
   "cardInfo.theme": {
     "links": {
-      "self": "../Theme/<theme-slug>"
+      "self": "<theme-card-url>"
     }
   }
 }
 ```
+`<theme-card-url>` is the theme card's URL: absolute (`https://<realm>/<path-to-theme>`), relative to the instance file's own location, or `@cardstack/base/Theme/<slug>` for the shipped base-realm themes. The theme can live at any path; a `Theme/` folder is only a convention.
 - Set the remaining cardInfo properties in the card data attributes. Example:
 ```json
 "attributes": {
