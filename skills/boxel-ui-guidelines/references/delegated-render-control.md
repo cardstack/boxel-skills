@@ -45,9 +45,10 @@ When you write `<@fields.featured @format='<F>' />`, the rendered DOM is:
   box-shadow: 0 0 0 1px var(--border, var(--boxel-border-color));
 }
 
-/* From field-component.gts — per-format additions. These sit in
-   `@layer baseComponent`, so any unlayered parent rule wins regardless of
-   specificity or source order. */
+/* From field-component.gts — per-format additions. Only the fitted rule
+   sits in `@layer baseComponent` (so any unlayered parent rule beats it);
+   the isolated, embedded, and atom rules are unlayered and win or lose on
+   plain specificity. */
 .field-component-card.isolated-format {
   height: 100%;
 }
@@ -115,7 +116,7 @@ Caveat: the cascade is not gated on the `--themed` marker class (nothing styles 
 | Images bleeding past the wrapper | Let the child's own format design the bleed inside its box; `overflow: hidden` on the wrapper is part of the contract | `:deep(.field-component-card.embedded-format) { overflow: visible; }` |
 | Different corners | Brand-wide: the Theme card's `--radius` (Layer 0). One-off: `border-radius` on the `class` passed to the field — the CardContainer changes and the interact ring follows | `:deep(.boxel-card-container) { border-radius: … }`, a radius on the child's root, or a parent frame with a different corner around the wrapper |
 
-Plural fields and atoms do not need `:deep()` either. Iterate the plural field yourself (`{{#each @fields.items as |Item|}}<Item class='…' />{{/each}}`) and there is no host wrapper to reach through; pass `class` on an atom field and its chip is a plain scoped selector (see "Plural fields" and "Atom alignment"). What is left for `:deep()` is DOM the host generates that you neither render nor can reach with a class — the body of an embedded MarkdownDef shell, for instance. Any token used there is a contract token — `--card`, `--border`, `--muted` — never a name the theme does not define.
+Plural fields and atoms do not need `:deep()` either. A `class` on a one-tag plural render lands on the `.plural-field` wrapper, and the wrapper's own host layout rules are layered, so a plain scoped rule on that class restyles it; when you want no wrapper at all, iterate the field (`{{#each @fields.items as |Item|}}<Item class='…' />{{/each}}`) and the classed cards are your grid's children. Pass `class` on an atom field and its chip is a plain scoped selector (see "Plural fields" and "Atom alignment"). What is left for `:deep()` is DOM the host generates that you neither render nor can reach with a class — the body of an embedded MarkdownDef shell, or the per-item containers inside a one-tag plural render. Any token used there is a contract token — `--card`, `--border`, `--muted` — never a name the theme does not define.
 
 ### Layer 2 — `@displayContainer={{false}}` (kill the chrome entirely)
 
@@ -201,9 +202,13 @@ The host also ships layout rules on these wrappers that explain two frequent sym
 
 So a fitted `linksToMany` list is a stack of 65px-tall boxes with `--boxel-sp` between them until you collapse the item containers. `@displayContainer={{false}}` on a `containsMany` emits no `.plural-field` wrapper at all (items render bare); on a `linksToMany` the wrapper stays, gets `display-container-false`, and collapses only in atom format.
 
-### The fix — render the items yourself, so there is no wrapper
+### The fix — a class on the wrapper, or no wrapper at all
 
-The wrapper only exists because the plural field was rendered with one tag. Iterate it instead: each yielded `Item` is an ordinary field component, so `class` on it lands on that card's own `CardContainer`, and your grid's direct children are the cards.
+Two routes, neither needs `:deep()`.
+
+**Keep the one-tag render and class the wrapper.** `...attributes` on `<@fields.replies @format='embedded' class='replies' />` lands on the `.plural-field` element, and the host's layout rules for that element (the containsMany grid, the linksToMany margins and 65px fitted rows) sit in an anonymous `@layer`, so `.replies { display: grid; gap: …; }` in your scoped style wins outright. This is enough when the wrapper is the grid you wanted and the per-item containers can stay (they become the grid's cells). What it cannot do is restyle those per-item containers — they are children of the wrapper, and a scoped rule on the wrapper's class does not reach them.
+
+**Render the items yourself, so there is no wrapper.** Iterate the field: each yielded `Item` is an ordinary field component, so `class` on it lands on that card's own `CardContainer`, and your grid's direct children are the cards. Use this when the per-item containers get in the way — a fitted grid, anything with `:nth-child` staggering, or a layout that needs the cards themselves as cells.
 
 ```hbs
 <div class='swm-swimmers'>
@@ -230,7 +235,7 @@ The wrapper only exists because the plural field was rendered with one tag. Iter
 
 No `.plural-field`, no `.linksToMany-itemContainer`, no 65px fitted rows, no `--boxel-sp` margins between items — none of that DOM is emitted. The same holds for a `containsMany` of a FieldDef: each `Item` renders its `.compound-field` directly.
 
-Keep the one-tag render (`<@fields.topSwimmers @format='fitted' />`) only when the host's default stacking is what you want. If you find yourself writing `:deep(> .plural-field) { display: contents; }` to undo it, switch to the loop instead.
+Keep the bare one-tag render (`<@fields.topSwimmers @format='fitted' />`) when the host's default stacking is what you want, and the classed one-tag render when the wrapper itself is the grid. If you find yourself writing `:deep(> .plural-field) { display: contents; }` or `:deep(.linksToMany-itemContainer) { … }`, switch to the loop instead.
 
 ### First, check the nesting is real — the wrapper may be yours to delete
 
@@ -243,7 +248,7 @@ In that case delete the wrapper FieldDef and point the parent's `containsMany` a
 
 Also prefer `@displayContainer={{false}}` on the field render over hand-written `display: contents` when all you want is chrome removal, and don't add a wrapper `<div>` whose only job is to carry a margin — put the margin on the element that already exists.
 
-Rule of thumb: `:deep()` is for host-generated DOM you neither render nor can address with a class, and chrome removal is `@displayContainer={{false}}` — never hand-written `display: contents`. A plural field's wrappers are neither case: you chose the one-tag render; loop instead.
+Rule of thumb: `:deep()` is for host-generated DOM you neither render nor can address with a class, and chrome removal is `@displayContainer={{false}}` — never hand-written `display: contents`. A plural field's outer wrapper takes a class; its per-item containers do not, and you chose the one-tag render that produces them — loop instead of reaching in.
 
 **Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Don't add a `border` there: an embedded linksTo render already paints a 1px `--border` ring through `box-shadow` (`@displayBoundaries` defaults to true), so a border doubles the edge. Pass `@displayContainer={{false}}` if you want to draw the edge yourself. The same `class` works on every `Item` yielded from `{{#each @fields.plural}}`, so a plural field never needs `:deep()` either.
 
@@ -293,13 +298,9 @@ Atoms default to `display: inline-block; vertical-align: middle; padding: var(--
   align-self: center;
 }
 
-/* Raw text inside your own chip: strip the default padding */
-.prg-bill-chip .prg-bill-atom {
-  padding: 0;
-}
 ```
 
-The host also sets `vertical-align: middle` on the atom's inner child. If that still misaligns, `@displayContainer={{false}}` removes the chip element entirely and the text sits in your flow.
+The host's atom padding rule is unlayered and carries three classes, so a single-class rule like `.prg-bill-atom { padding: 0; }` loses to it on specificity. To drop the padding (raw text inside your own chip), do not fight that rule: pass `@displayContainer={{false}}` and there is no chip element at all — the text sits in your flow, and the host also stops setting `vertical-align: middle` on an inner child you cannot reach.
 
 For a row of atoms (e.g. "01 Headlining: [Big Thief]"), the cleanest pattern is **`@displayContainer={{false}}`** + a parent-owned chip span. Then the parent decides everything (sharp corners, ink-on-paper background, baseline alignment) and the atom's actual content (the linked card's name) sits inside.
 
@@ -581,7 +582,7 @@ The shell's height is not a custom property; a different preview height needs a 
 |---|---|
 | Vertical list of cards with natural row heights | `@format='embedded'`, NOT fitted |
 | Uniform tile grid where every card fills a fixed box | `@format='fitted'` + parent sets `min-height` / `aspect-ratio` |
-| Plural grid (linksToMany or containsMany) lays out correctly | `{{#each @fields.plural as \|Item\|}}<Item @format='…' class='tile' />{{/each}}` — no host wrapper, cards are the grid's children |
+| Plural grid (linksToMany or containsMany) lays out correctly | `class='…'` on the one-tag render (lands on `.plural-field`, whose host rules are layered) when the wrapper can be the grid; otherwise `{{#each @fields.plural as \|Item\|}}<Item @format='…' class='tile' />{{/each}}` so the cards are the grid's children |
 | Stagger per-item animation delays | `.tile:nth-child(N) { --stagger-d: … }` on the looped, classed cards; `animation-delay: var(--stagger-d)` on `.tile` |
 | Square / re-round the embedded child's corners | Brand-wide: Theme card `--radius`. One-off: `border-radius` on the `class` passed to the field — the interact ring copies the CardContainer's radius. Never on the child's root or a parent frame |
 | Override embedded child's `background` | Theme card `--background` / `--foreground` for all children; `class='…'` on `<@fields.link />` for one |
@@ -591,7 +592,7 @@ The shell's height is not a custom property; a different preview height needs a 
 | Recolor / re-pad an embedded MarkdownDef preview | set `--md-preview-background`, `--md-preview-foreground`, `--md-preview-padding` on an ancestor |
 | Atom chip matches a custom (e.g. dark) surface | `@displayContainer={{false}}` (text inherits the surface color), OR `class='chip'` on the atom field + `.chip { background-color: transparent; box-shadow: none; color: inherit; }` |
 | Atom baseline-align with prose | `class='…'` on the atom field + `vertical-align: baseline` on that class |
-| Atom padding match parent's chip | `class='…'` on the atom field + `padding: 0` on that class |
+| Atom padding match parent's chip | `@displayContainer={{false}}` — the host's three-class padding rule is unlayered and beats a one-class override |
 | Atom still misaligned after that | `@displayContainer={{false}}` — no chip element, text sits in your flow |
 
 ## What NOT to override

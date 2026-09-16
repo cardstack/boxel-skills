@@ -43,8 +43,7 @@ export class BlogPost extends CardDef {
           No hard-coded colors or fonts.
         */
         .post {
-          background-color: var(--card);
-          color: var(--card-foreground);
+          /* isolated: the CardContainer already paints --background / --foreground */
           padding: 2rem;
         }
 

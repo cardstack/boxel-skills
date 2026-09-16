@@ -79,7 +79,7 @@ export class CardCarousel extends CardDef {
       <div class='stage'>
         <header>
           <h1>{{if @model.cardTitle @model.cardTitle 'Carousel'}}</h1>
-          <button type='button' {{on 'click' this.toggleRotate}}>
+          <Button @kind='secondary' @size='small' {{on 'click' this.toggleRotate}}>
             {{if this.isRotating 'Stop' 'Auto-rotate'}}
           </Button>
         </header>
