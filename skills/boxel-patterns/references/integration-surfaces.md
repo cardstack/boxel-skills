@@ -54,9 +54,8 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `getCards`, `getCard` | Query the realm for cards by filter. |
 | `getField`, `getFieldIcon`, `cardDefComputedFields` | Field metadata for generic rendering. |
 | `searchResultsComponent` | Preferred result-list surface for new work — the `<SearchResults>` component, used via `@context.searchResultsComponent` (entry-rooted query built with `searchEntryWireQueryFromQuery`). |
-| `prerenderedCardSearchComponent` | Older card-grid surface (via `@context.prerenderedCardSearchComponent`), superseded by `searchResultsComponent`. |
 | `searchEntryWireQueryFromQuery`, `SearchEntryWireQuery` | Build the entry-rooted query that `@context.searchResultsComponent` takes, from an ordinary `Query`. |
-| `getMenuItems`, `GetMenuItemParams` | Typed menu construction. |
+| `getMenuItems` | Typed menu construction (the `GetMenuItemParams` type comes from `@cardstack/base/card-api`, and `MenuItemOptions` from `@cardstack/boxel-ui/helpers`). |
 | `baseRRI('<module>')` | Canonical base-realm module URL. |
 | `Query`, `Sort`, `TypedFilter` | Query type primitives. |
 | `ResolvedCodeRef` | Strongly-typed code references. |
@@ -65,7 +64,7 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `isCardInstance` | Type guard for command inputs. |
 | `logger('namespace:operation')` | Realm-side structured logging. |
 | `join` | URL join helper. |
-| `loadCommandModule`, `CommandContext`, `Loader` | Command-loading internals. |
+| `loadCommandModule`, `ToolContext`, `Loader` | Command-loading internals. |
 | `baseRealm`, `devSkillLocalPath`, `envSkillLocalPath` | Base-realm constants. |
 
 ---
@@ -124,7 +123,7 @@ OpenRouter calls go through `/_request-forward` to the external `https://openrou
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/_screenshot-card` | POST | Capture a settled render of a card — PNG (default) or paged PDF (`captureSpec.type: 'pdf'`, `media: 'screen' \| 'print'`). Backs `ScreenshotCardCommand`. Pattern: `integrate-screenshot-card-format`. |
+| `/_screenshot-card` | POST | Capture a settled render of a card — PNG (default) or paged PDF (`captureSpec.type: 'pdf'`, `media: 'screen' \| 'print'`). Backs `ScreenshotCardTool` (whose input is PNG-only; pass `captureSpec.type`/`media` when POSTing directly). Pattern: `integrate-screenshot-card-format`. |
 | `{realm}_screenshot/{path}?…` | GET | Durable serving URL for an on-demand capture — `?type=pdf[&media=print]` yields an always-current PDF (ledger hit on repeat, re-capture after an edit); embed instead of storing base64. |
 | `/_federated-search` | QUERY | Cross-realm search (used by `npx boxel search` + `SearchCardsByQueryCommand` when crossing realms). |
 | `/_federated-search-prerendered` | QUERY | Same with prerendered card results. |
@@ -148,7 +147,7 @@ UI kit. Three sub-paths.
 
 ### `/components`
 
-`Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Drawer`, `Toast`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+`Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 Use `KanbanPlane` for lane-based drag/drop boards instead of hand-rolled DOM drag code. Persist placements by stable card id + column key + sort order, map to `KanbanPlacement.index` only at render time, and render child cards through `@fields` at fitted format. Pattern: `layout-kanban-drag-drop`.
 
@@ -331,10 +330,11 @@ npx boxel realm publish <source-url> <published-url>             Publish a host-
 npx boxel realm unpublish <published-url>                        Remove a host-mode publication
 npx boxel realm indexing-errors --realm <url>                    List indexing failures (when supported)
 
-npx boxel realm pull <realm-url> <local-dir>                    Realm → local
+npx boxel realm pull <realm-url> <local-dir>                    Realm → local (DESTROYS unpushed local edits)
 npx boxel realm push <local-dir> <realm-url>                    Local → realm
 npx boxel realm sync <local-dir> <realm-url>                    Bidirectional
-npx boxel realm status <local-dir>                              Classify changes vs the manifest
+npx boxel realm status <local-dir>                              Classify changes vs the manifest (read-only)
+npx boxel realm status <local-dir> --pull                       Safe pull: only files with no local changes
 
 npx boxel realm history <local-dir>                             List checkpoints
 npx boxel realm history <local-dir> --restore <id|hash>         Restore a checkpoint

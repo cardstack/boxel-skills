@@ -9,7 +9,7 @@ validated: source-proven
 **Sibling patterns — pick the right one:**
 
 - **This pattern** — the card should *always* have a current picture of itself (grid thumbnails, social/og images, poster frames). Declarative, self-healing, re-captures on every edit.
-- [`integrate-screenshot-card-format`](../integrate-screenshot-card-format/README.md) — a user action should capture a *point-in-time* PNG of some card and keep it as a separate file (documentation snapshots, audit trails, before/after diffs). Imperative, via `ScreenshotCardCommand`.
+- [`integrate-screenshot-card-format`](../integrate-screenshot-card-format/README.md) — a user action should capture a *point-in-time* PNG of some card and keep its served URL (documentation snapshots, audit trails, before/after diffs). Imperative, via `ScreenshotCardTool`.
 - [`integrate-thumbnail-card-ai`](../integrate-thumbnail-card-ai/README.md) — an AI-*designed* representation rather than the actual rendering.
 
 **When to use:**

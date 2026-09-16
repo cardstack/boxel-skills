@@ -60,7 +60,8 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **`<@fields.x />`** — Render a field through its FieldDef's view for the current format. The host injects chrome (CardContainer wrapper) around the child.
 - **`@format='isolated'|'embedded'|'fitted'|'edit'|'atom'`** — Override the default format when delegating to a child via `<@fields.x @format='…' />`.
 - **`@model`** — The card/field instance accessed inside a Component. `@model.firstName`, `@model.body`, etc.
-- **`@context`** — Host context object exposing `commandContext`, `prerenderedCardSearchComponent`, `viewCard`, etc.
+- **`@context`** — Host context object exposing `toolContext`, `searchResultsComponent`, `viewCard`, etc.
+- **`toolContext`** — The handle passed to `new SomeTool(toolContext)`; read it from `@context.toolContext`, `params.toolContext` in menu-item actions, or `this.toolContext` inside a tool class. `commandContext` is the pre-rename spelling, still populated as a deprecated alias for deployed content — do not write it in new code.
 - **`<style scoped>`** — Boxel's scoped-CSS block. Must be a direct child of `<template>`; doesn't propagate scope hash into inner GlimmerComponent classes.
 - **`:deep()`** — Pierce the scoped-CSS boundary to style inner host-injected wrappers (`.boxel-card-container`, `.plural-field`, etc.). → `boxel-ui-guidelines/references/delegated-render-control.md`
 - **plural-field wrapper** — `<@fields.X @format='…' />` for a `containsMany`/`linksToMany` injects `.plural-field` + per-item wrappers (`.containsMany-item`, `.linksToMany-itemContainer`) between your grid and the cards. Apply `display: contents` cascade. → `boxel-ui-guidelines/references/delegated-render-control.md`
@@ -98,11 +99,10 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **`Query`** — Type imported from `@cardstack/runtime-common`. Carries `filter`, `sort`, `realmURLs`.
 - **`getCards(this, queryThunk)`** — Component-level reactive query. Returns an object with `instances`, `isLoading`. Best inside `static isolated` Components.
 - **`getCard(this, urlThunk)`** — Component-level reactive single-card fetch.
-- **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration. Supersedes `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
+- **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration; `@overlays={{false}}` drops the operator-mode overlay and `@displayContainer={{false}}` drops each row's container chrome. Replaces the removed `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
 - **`searchEntryWireQueryFromQuery` / `SearchEntryWireQuery`** — Helper + type (from `@cardstack/runtime-common`) that turn an ordinary query into the entry-rooted query `@context.searchResultsComponent` expects. → `boxel/references/query-systems.md`
-- **`PrerenderedCardSearch`** — Live-updating component that renders matching cards in a chosen format. Pass `@query`, `@realms`, `@format`, optional `@isLive`. Older display surface — `@context.searchResultsComponent` is preferred for new work. → `show-card-list-with-views`, `app-card-home-with-search`
-- **`prerenderedCardSearchComponent`** — Lower-level component-factory accessed via `@context.prerenderedCardSearchComponent`.
-- **`@isLive={{true}}`** — Re-fetch on every realm change. **Pay-per-keystroke cost; default OFF** unless you specifically need live updates.
+- **`PrerenderedCardSearch`** — Removed, along with `@context.prerenderedCardSearchComponent`. Former result-list surface; use `@context.searchResultsComponent`.
+- **`@isLive`** — Legacy `PrerenderedCardSearch` arg; `@context.searchResultsComponent` has no such arg (liveness is handled by the surface). Drop it when migrating.
 - **filter `type`** — `filter: { type: codeRef(…) }` selects all instances of a CardDef. **THE ONLY way to filter-by-type.**
 - **filter `on`** — `filter: { on: codeRef(…), eq: { status: 'active' } }`. `on` is a *scope* for predicates (`eq`/`contains`/`range`), NOT a filter by itself. A bare `{ on: ref }` returns zero rows silently.
 - **filter predicates** — `eq`, `contains`, `range`, plus `every: [...]` / `any: [...]` for composition. Predicates require an `on:` scope.
@@ -115,20 +115,25 @@ The five formats every CardDef can declare via `static <format> = class extends 
 
 ## 6. Theme system
 
-- **Theme CardDef** — A card that stores a brand's `cssVariables` (`--background`, `--foreground`, `--primary`, `--muted`, `--border`, etc.) plus typography + assets.
-- **Structured Theme** — Theme subclass with structured `rootVariables`, `darkModeVariables`, `typography`, and `version`; computes `cssVariables` instead of requiring a hand-authored CSS string. Use for token-only themes.
+- **Theme CardDef** — DO NOT USE. An internal class that has fields for `cssVariables` (`--background`, `--foreground`, `--primary`, `--muted`, `--border`, etc.) and font-family imports. This bare `Theme` in `@cardstack/base/card-api` is a root class only: never instantiate or subclass it. New themes start from `StructuredTheme` at minimum; `BrandGuide` when custom variables are required.
+- **Structured Theme** — This is the bare minimum theme card to use when generating a new theme. Theme subclass with structured `rootVariables`, `darkModeVariables`, `typography`, and `version`; computes `cssVariables` instead of requiring a hand-authored CSS string. Use for token-only themes.
 - **Style Reference** — `StructuredTheme` subclass that adds `styleName`, `inspirations`, `visualDNA`, and `wallpaperImages`. Use when the visual language needs to be documented.
 - **Detailed Style Reference** — `StyleReference` subclass with long-form design guidance: context, palette, typography, geometry, material, composition, motion, component vocabulary, voice, technical specs, application scenarios, quality standards, and design mindset.
-- **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, and `markUsage`. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
+- **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, `markUsage`, and `customCssVariables` for tokens outside the contract. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
 - **Boxel Brand Guide** — Built-in Brand Guide at `@cardstack/base/Theme/boxel-brand-guide`. Source of truth for Boxel built-in feature styling, base cards, host-facing Boxel UI, and Boxel-branded catalog material.
 - **Functional Palette** — Brand Guide field mapping brand intent to variables: `--brand-primary`, `--brand-secondary`, `--brand-accent`, `--brand-light`, and `--brand-dark`; Brand Guide maps these into semantic theme tokens when needed.
 - **Mark Usage / BrandLogo** — Brand Guide field for primary/secondary marks, greyscale marks, social profile icon, minimum heights, and clearance ratios. Emits `--brand-*-mark` variables for templates.
 - **`cardInfo.theme`** — Per-instance theme override (`linksTo(Theme)`). Wins over any computed `cardTheme`.
 - **`cardTheme`** — Computed field returning the active Theme for this instance. Default is pass-through to `cardInfo.theme`; override to inherit from a parent card or query a realm-default.
 - **theme tokens** — CSS custom properties referenced from templates: `var(--background)`, `var(--primary)`, `var(--muted)`, `var(--border)`, `var(--radius)`. Always referenced from theme tokens, never hard-coded `#hex` values in production templates.
+- **theme contract** — The full set of named tokens every theme satisfies: each is a declared field on the theme's variables, has a default in `packages/boxel-ui/src/styles/theme.css`, and is reset at every themed-card boundary so a theme only sets what it changes. Beyond shadcn's set it names status fills (`--success`, `--warning`, `--info`, `--attention`, `--overlay`), neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`, `--tooltip`), `--subtle-foreground`, `--border-strong`, `--control-height`, `--chart-6/7`, `--shadow-inset`, and the `label` / `eyebrow` typography roles. The one inventory: → `boxel-ui-guidelines/references/theme-token-contract.md`
+- **ink token (`--x-ink`)** — A hue used *as* text or icon color on a neutral surface, as opposed to `--x-foreground`, which is ink *on* the hue's own fill. One per fill (`--primary-ink`, `--success-ink`, …); defaults to the hue mixed 60% toward `--foreground`, so it stays readable in both schemes.
+- **custom theme variables** — Tokens outside the contract. `StructuredTheme` has no slot for them; they come from a `BrandGuide` (`customCssVariables` list, `brandColorPalette` names) or a theme card definition extended with its own fields. No `theme.css` default and no reset at the themed-card boundary, so they leak into nested cards and disappear when another theme card is linked. Never duplicate a named token this way; a template reading one needs a local fallback unless it only renders under that theme.
 - **shadcn/Boxel token mapping** — Boxel consumes shadcn-style tokens as paired surface/foreground contracts. `--primary` is an action surface or indicator, not ordinary text; `--spacing` is a quarter-unit that becomes `--boxel-sp` after runtime scaling. → `boxel-theme-development/references/shadcn-boxel-token-mapping.md`
 - **theme cascade** — Host injects the Theme card's `cssVariables` as CSS custom properties on the card root. Children inherit; cross-card delegated rendering retains the parent's theme unless overridden.
-- **theme-first workflow** — Choose/create a Theme BEFORE writing the card. Link via `cardInfo.theme`; templates use tokens from line one. → `theme-first-workflow`
+- **`data-theme`** — Attribute on `<html>` or any element that switches the semantic tokens to their `dark` or `light` defaults for that subtree. The only scheme switch with a `light` counterpart; there is no automatic `prefers-color-scheme` in `theme.css`. → `boxel/references/theme-design-system.md` §3.3
+- **`--boxel-color-scheme`** — Inherited signal (`light`/`dark`) set by `data-theme`. A Theme's `darkModeVariables` are emitted under a style container query on it, so a card's dark values follow the nearest ancestor's scheme. → `boxel/references/theme-design-system.md` §3.3
+- **theme-first workflow** — Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Link via `cardInfo.theme` only when a specific Theme is wanted; templates use tokens from line one. → `theme-first-workflow`
 - **drop-in CSS themes** — Per-theme CSS files override `--*` tokens at runtime; no JS branching. → `theme-css-token-redefinition`
 
 ## 7. Design playbook
@@ -137,7 +142,7 @@ The 4-stage recommended process for any user-facing card:
 
 1. **Stage 1 — Mockup with no variables.** Direct hex colors, named fonts, specific pixel sizes. Trust intrinsic taste. Pentagram art-director / internal-taste-maker brief.
 2. **Stage 2 — Extract theme DNA.** Audit the mockup; pull out color tokens, typography pair, spacing rhythm, asset direction.
-3. **Stage 3 — Tokenize.** Replace direct hexes/fonts/sizes with `var(--*)` references; build a Theme card to hold them.
+3. **Stage 3 — Tokenize.** Replace direct hexes/fonts/sizes with `var(--*)` references; build a Theme card whose fields hold them under the token contract names.
 4. **Stage 4 — Derive fitted + embedded.** Walk the 16 named fitted sizes, verify type hierarchy + composition holds; build embedded from the most rest-friendly cell.
 
 → `boxel/references/design-playbook.md`
@@ -259,10 +264,10 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`UseAiAssistantCommand`** — Host command that opens a multi-turn AI room with a skill card + attached cards pre-loaded. → `command-with-skill-card-ref`
 - **OpenRouter image generation** — Image-gen via OpenRouter chat completions with `modalities: ['image', 'text']`. Default model: `google/gemini-2.5-flash-image` (Gemini Flash Image). ChatGPT/OpenAI image models on request (`openai/gpt-5-image-mini`, `openai/gpt-5.4-image-2`). → `integrate-openrouter-image-generation`
 - **`GenerateThumbnailCommand`** — Composes OpenRouter image-gen + `WriteBinaryFileCommand` + optional `PatchCardInstanceCommand` to patch `cardInfo.cardThumbnail`. → `integrate-thumbnail-card-ai`
-- **`ScreenshotCardCommand`** — Captures a settled PNG — or a paged PDF (`type: 'pdf'`) — of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). **Point-in-time** snapshots kept as separate files; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
-- **`type: 'pdf'`** — Capture-spec output encoding that paginates the settled render into a PDF document instead of a raster (default `type: 'png'`). Bounded post-render at **20 pages / 10 MB** — over either is a capture error naming the cap, never a truncation. Singular-only; incompatible with `fullPage`/`clip`/`target`. → `integrate-screenshot-card-format`
+- **`ScreenshotCardTool`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool) and returns a durable served media-cache URL (`captures[0].url`); needs realm read only, writes no realm file. **Point-in-time** snapshots; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
+- **`type: 'pdf'`** — Capture-spec output encoding that paginates the settled render into a PDF document instead of a raster (default `type: 'png'`). Lives on the capture-spec surfaces (`_screenshot/` URL, `POST /_screenshot-card`), not on `ScreenshotCardTool`'s input. Bounded post-render at **20 pages / 10 MB** — over either is a capture error naming the cap, never a truncation. Singular-only; incompatible with `fullPage`/`clip`/`target`/`viewport`. → `integrate-screenshot-card-format`
 - **`media: 'print'`** — Capture-spec axis choosing the CSS media the render settles under (default `media: 'screen'`). `print` engages the card's `@page` (paper size), `@media print`, and `break-*` CSS — the paper-layout choice, most relevant to `type: 'pdf'`. No `@page { size }` rule ⇒ Chrome's Letter default. → `integrate-screenshot-card-format`
-- **durable PDF URL** — A `{realm}_screenshot/{card-path}?type=pdf[&media=print]` serving URL embedded in a card: served from MediaCache (ledger hit on repeat, capture on miss), re-captured when the source card is edited, so an embedded "download PDF" link is always current. Prefer over storing one-off base64 bytes. → `integrate-screenshot-card-format`
+- **durable PDF URL** — A `{realm}_screenshot/{card-path}?type=pdf[&media=print]` serving URL embedded in a card: served from MediaCache (ledger hit on repeat, capture on miss), re-captured when the source card is edited, so an embedded "download PDF" link is always current; served with `Content-Disposition: inline` and a filename derived from the card path. Prefer over storing one-off base64 bytes. → `integrate-screenshot-card-format`
 - **Steerable image generation** — Multi-step iterative refinement using initial prompt + steering input + first/current image lineage. → `automate-image-steering`
 - **Skill cards** — Cards typed as `Skill` from `@cardstack/base/skill` that pre-load into AI rooms with their description as system context.
 
@@ -283,18 +288,18 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **Card I/O** — `save-card`, `patch-fields`, `patch-card-instance`, `apply-markdown-edit`, `write-text-file`, `copy-card`, `copy-source`, `copy-file-to-realm`, `transform-cards`, `read-file-for-ai-assistant`, `read-card-for-ai-assistant`, `fetch-card-json`, `get-card`, `read-source`, `serialize-card`.
 - **Search** — `search-cards`, `search-and-choose`.
 - **Realm-server** — `get-all-realm-metas`, `get-available-realm-urls`, `get-default-writable-realm`, `get-catalog-realm-urls`, `get-realm-of-url`, `can-read-realm`, `validate-realm`, `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job`, `invalidate-realm-identifiers`, `sanitize-module-list`.
-- **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`.
+- **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`, `delete-workspace`.
 - **Store** — `store-add`.
 - **Catalog** — `listing-create`, `listing-install`, `listing-remix`, `listing-use`, `listing-generate-example`, `listing-update-specs`, `create-and-open-submission-workflow-card`, `retry-submission-workflow`, `execute-atomic-operations`.
 - **Code-introspection** — `get-card-type-schema`.
 
 → `boxel-patterns/references/integration-surfaces.md` §3 for the full annotated table.
 
-**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getCardMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
+**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
 
 ## 19. Boxel UI (`@cardstack/boxel-ui`)
 
-**`/components`** — `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Drawer`, `Toast`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+**`/components`** — `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 **`/helpers`** — Logic (`eq`/`not`/`and`/`or`/`gt`/`gte`/`lt`/`lte`/arithmetic), templates (`cn`/`cssVar`/`element`/`optional`/`pick`), formatters (`formatDateTime`/`formatNumber`/`formatCurrency`/...), markdown (`markdownEscape`), menus (`MenuItem`/`MenuItemOptions`).
 
@@ -320,11 +325,11 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 - **`npx boxel profile <list|add|switch|remove|migrate>`** — Profile / environment management. `switch` changes the global active profile; restore it after a temporary environment change.
 - **`npx boxel realm <create|list|remove|wait-for-ready|cancel-indexing>`** — Realm lifecycle.
-- **`npx boxel realm pull <realm-url> <local-dir>`** — Realm → local.
+- **`npx boxel realm pull <realm-url> <local-dir>`** — Realm → local. **Destructive to unpushed local edits:** overwrites every local file with no dirty check and no warning. For provisioning a fresh mirror, not for updating one in use. → `boxel-environment/references/shared-mirror-safety.md`
 - **`npx boxel realm push <local-dir> <realm-url>`** — Local → realm.
-- **`npx boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.)
+- **`npx boxel realm sync <local-dir> <realm-url>`** — Bidirectional. (Has known hang issue on some realms; fall back to push/pull.) `--prefer-remote` carries the same hazard as `pull`.
 - **fresh-realm push ordering** — Push definitions, wait for schemas, then write instances. Mixed first pushes can preserve card counts while replacing nested realm-defined field values with `null`. → `boxel-environment/references/fresh-realm-push-integrity.md`
-- **`npx boxel realm status <local-dir>`** — Classify local changes vs. manifest.
+- **`npx boxel realm status <local-dir>`** — Classify local changes vs. manifest (`modified-local` / `modified-remote` / `new-remote` / `conflict`). Read-only; `--pull` takes only the files with no local changes, so it is the **safe alternative to `realm pull`** on a mirror in use. Not present in every installed CLI — check `npx boxel realm --help`.
 - **`npx boxel realm publish <source> <published>` / `unpublish`** — Create or remove an anonymous host-mode copy.
 - **`npx boxel realm indexing-errors --realm <url>`** — List cards that failed to index when supported by the installed CLI.
 - **`npx boxel realm history`** — List/restore/tag checkpoints.
@@ -367,7 +372,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 In rough priority order:
 
-- **Theme first.** Decide theme strategy before writing the card. Templates use `var(--*)` tokens, never hard-coded colors. → `theme-first-workflow`
+- **Theme first.** Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Templates use `var(--*)` tokens, never hard-coded colors; default styling needs no Theme link. → `theme-first-workflow`
 - **Boxel built-in feature work uses the Boxel Brand Guide.** Base cards, host-facing Boxel UI, and Boxel-branded catalog material use `@cardstack/base/Theme/boxel-brand-guide` as the style source.
 - **`cardInfo.theme` is the per-instance override** (wins over computed `cardTheme`).
 - **Override `cardTitle` when there's a primary field.** Respect `cardInfo.name` first.
@@ -441,7 +446,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`link-view-transition`** — `document.startViewTransition` + `view-transition-name`.
 - **`link-flip-card`** — CSS-only front/back flip primitive.
 - **`link-host-mode-paths`** — `realm.json` `hostRoutingRules` to route `/`, `/about`, `/blog` to cards.
-- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getCardMenuItems]`.
+- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getMenuItems]`.
 
 ### Collaborate
 - **`collab-yjs-shared-document`** — Real-time co-editing over a Yjs websocket relay: everyone syncs, one committer peer with a realm JWT materializes settled content into the official card. Y.Text and Y.Map variants; contested state stays with ordered commands.
