@@ -9,9 +9,9 @@
     "type": "card",
     "attributes": {
       "cardInfo": {
-        "name": "Boxel Design",
+        "name": "Asset Selection Guidelines",
         "notes": null,
-        "summary": "Visual decisions for Boxel cards: choose the style source, then run the four-stage design playbook. The taste layer, not token or template implementation",
+        "summary": "How to pick and place imagery in cards: priority order for asset integration, format choices, and fit semantics",
         "cardThumbnailURL": null
       },
       "commands": []
@@ -24,11 +24,11 @@
       },
       "instructionsSource": {
         "links": {
-          "self": "../skills/boxel-design/SKILL.md"
+          "self": "../skills/boxel-design/references/asset-selection-guidelines.md"
         },
         "data": {
           "type": "file",
-          "id": "../skills/boxel-design/SKILL.md"
+          "id": "../skills/boxel-design/references/asset-selection-guidelines.md"
         }
       }
     }
