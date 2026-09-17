@@ -360,7 +360,7 @@ npx boxel parse [path]                                           Local Glint + J
 # The current monorepo CLI has no `npx boxel check`; use `npx boxel file lint` / `npx boxel lint`.
 # Clean lint means `No lint issues found` or JSON messages: [].
 
-npx boxel search '<query-json>' --realms <urls>                 Federated search across realms
+npx boxel search --realm <url> --query '<json>' [--json]        Federated search across realms
                                                             (hits /_federated-search)
 
 npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]

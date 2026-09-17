@@ -40,8 +40,6 @@ So read it as your first action, before you plan the work or tell the user what 
 ### Step 3 — Code task
 
 ```
-□ LLM approved (claude-4.6+ / gemini-2.5+ / gpt-5+)?
-  └─ NO → set-active-llm_1887 "anthropic/claude-sonnet-4.6"
 □ Boxel Development skill active?
   └─ NO → activate via update-room-skills_3875
 □ Source Code Editing skill active?
@@ -125,7 +123,6 @@ Always-relevant — read these together, first:
 - [`references/user-environment-awareness.md`](references/user-environment-awareness.md) — Parse workspace, mode, open cards from each message.
 
 By task:
-- [`references/choosing-llm-models.md`](references/choosing-llm-models.md) — Model selection. Check when code tasks detected or debugging stuck.
 - [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards.
 - [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step patterns (migrations, bulk operations).
 - [`references/shared-mirror-safety.md`](references/shared-mirror-safety.md) — **Read before `realm pull` / `sync`.** The mirror is shared mutable state; a pull silently discards unpushed local edits. Generating outside the mirror and pushing from there.

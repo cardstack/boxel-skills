@@ -82,7 +82,8 @@ Also: `realmURL` is a Symbol exported from `runtime-common` — import it direct
 `AnyFilter`, `EveryFilter`, `NotFilter`, `EqFilter`, `InFilter`, `ContainsFilter`, `RangeFilter`, `MatchesFilter`, `CardTypeFilter` — see the boxel monorepo's `packages/runtime-common/query.ts` for the exact shapes.
 
 - `type`: match all cards adopting from a type (the `CardTypeFilter`; the only filter that does NOT use `on`).
-- `eq`, `in`, `contains`, `range`, `matches`: predicates over fields; each must include `on` (or be inside a clause that supplies it implicitly, like a query-backed `linksToMany`).
+- `eq`, `in`, `contains`, `range`: predicates over fields; each must include `on` (or be inside a clause that supplies it implicitly, like a query-backed `linksToMany`).
+- `matches`: full-text search over the card's indexed markdown — a **bare string** (`{ "matches": "text" }`), not a field-keyed object. It's a typed predicate, so keep it under an `on`/`type` scope (see composition pattern 5).
 - `any`: OR union.
 - `every`: AND union.
 - `not`: negation.
@@ -103,6 +104,10 @@ These shapes have been confirmed against a live realm + indexer (not just inferr
 
 // 4. "All of this type, filtered by a substring match on a string field"
 { every: [{ type: ref }, { on: ref, contains: { cardTitle: 'launch' } }] }
+
+// 5. "All of this type, full-text matched over its indexed markdown"
+//    (`matches` is a bare string — realm full text, not a field key)
+{ every: [{ type: ref }, { on: ref, matches: 'launch' }] }
 ```
 
 Custom-field sorts need `on: ref` inside the sort entry:

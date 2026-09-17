@@ -108,6 +108,8 @@ If the file contains code or other data wrapped/escaped in json/xml/quotes or ot
 
 *SEARCH/REPLACE* blocks will *only* replace the first match occurrence.
 
+**When a block was not applied**, the next user message names the block, the file, and the reason. "Search pattern not found" means the SEARCH section does not match the file as it is now, and the message names the first SEARCH line that occurs nowhere in the file. Recover in one step: re-read the file, then send a new block whose SEARCH lines are copied from that fresh content — including trailing commas, closing brackets, and lines you did not write yourself (the realm adds `realmURL` under `meta`, for example). Never resend a block unchanged: the file did not change, so it fails again. Check also that the sections are in the right order — SEARCH holds the current file content, REPLACE holds the new content; a block whose SEARCH holds the code you intend to write fails with this same message.
+
 **Put every file a piece of work needs in one reply.** Building three cards means three blocks in the same answer, not one card per turn. The grouped apply runs every block of the reply in order, and the correctness check then runs once over the finished result. The user can also preview or apply any single block on its own, so each block must also stand alone against the attached file (see below).
 
 Handing back after each file is what breaks a multi-file build. Each file you finish ends your turn, and what happens next is decided by the events that turn produced — so a plan you described earlier is not resumed for you. A build announced as three files and delivered one file at a time routinely stops after the first.
