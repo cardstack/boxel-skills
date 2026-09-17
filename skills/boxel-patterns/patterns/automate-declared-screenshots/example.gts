@@ -117,7 +117,6 @@ export class Recipe extends CardDef {
           margin-top: 1.5rem;
           border: 1px solid var(--border);
           border-radius: var(--boxel-border-radius-sm);
-          overflow: hidden;
         }
       </style>
     </template>
