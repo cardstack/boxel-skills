@@ -17,7 +17,7 @@ validated: source-proven
 - **Audit / approval trails** — capture the visible state when a workflow card transitions.
 - **Test fixtures** — anywhere a `.png` of a real render beats a hand-curated mock.
 - **Printable documents (PDF)** — invoices, reports, statements, contracts, certificates: anything the user prints, downloads, or archives as a paged file. Use `type: 'pdf'` (see [Export as PDF](#export-as-pdf-type-pdf)), with `media: 'print'` when the card carries `@page`/`@media print` CSS.
-- **Always-current embedded documents (durable PDF URL)** — a `_screenshot/…?type=pdf` URL rendered into a card re-captures itself whenever the source card is edited, so an embedded "download PDF" link never goes stale. See [Durable PDF URLs](#durable-pdf-urls-embed-instead-of-base64).
+- **Always-current embedded documents (durable PDF URL)** — a `_screenshot/…?type=pdf` URL rendered into a card re-captures itself whenever the source card is edited, so an embedded "download PDF" link never goes stale. Render it through the host's `SignedCaptureLink` / `SignedCapture` components — a bare anchor or `<object>` pointing at a private realm's capture URL is refused. See [Durable PDF URLs](#durable-pdf-urls-embed-instead-of-base64).
 
 **The insight:** `ScreenshotCardTool` (from `@cardstack/boxel-host/tools/screenshot-card`) is a Boxel host tool that orchestrates the realm-server screenshot job end-to-end. You pass two inputs — the target card (as a `linksTo` reference) and a format string — and you get back a `captures` list whose first entry's `url` you can render straight into an `<img>`. The realm-server enqueues the job, the worker drives a Puppeteer browser through the prerender pool, and the PNG is persisted to the **media cache** under the capture's canonical identity (card URL × format × capture spec — geometry, `type`, `media` — × the card's index generation). Nothing is written into any realm; cards never see the bytes, you get a clean served URL.
 
@@ -62,6 +62,8 @@ Two more axes exist on the **capture spec** — the shared grammar behind the du
 |---|---|---|
 | `type` | `'png'` (default) `\| 'pdf'` | Output encoding. `pdf` paginates the settled render (see [Export as PDF](#export-as-pdf-type-pdf)). Incompatible with `fullPage`/`clip`/`target`/`viewport`. |
 | `media` | `'screen'` (default) `\| 'print'` | CSS media the render settles under. `print` engages the card's `@page`/`@media print` CSS — the paper-layout choice, matters most for `type: 'pdf'`. |
+
+`token` is **not** a spec axis. The serving path strips a `?token=` (a [signed capture URL](#render-it-through-the-signed-capture-components)) before the spec parse, so a signed URL and its durable form resolve to the same ledger identity — a token can never mint a distinct capture.
 
 ## How the realm-server does the work
 
@@ -146,26 +148,58 @@ https://my.realm/_screenshot/Invoice/2026-0042?type=pdf&media=print
 
 This URL is served straight from the realm's MediaCache: a **ledger hit** on repeat requests (no re-render), a fresh capture on the first miss. Because the cache identity pins the source card's *generation*, **editing the card re-captures the PDF on the next fetch** — the embedded link is never stale. The response carries `Content-Disposition: inline` with a filename derived from the source card, so the browser's PDF viewer shows a sensible name.
 
-Render it like any URL — an anchor, an `<iframe>`, or a `linksTo(FileDef)`-free plain link:
+### Render it through the signed-capture components
+
+A capture URL is served behind **realm read**. Inside the app that read is asserted by an `Authorization` header the host's auth service worker injects — but the two surfaces a PDF link actually lands on never pass through that worker: **`<object>`/`<embed>` loads** (they bypass service workers by spec) and **top-level navigations** to the realm origin (a "Download PDF" anchor with `target="_blank"`, a copied link). On a private realm a bare `<a href={{durableUrl}}>` or `<object data={{durableUrl}}>` therefore draws the realm's `text/plain` 401 — and a browser asked to save "a PDF" offers that error text as a `.txt` file. (`<img>` loads are fine either way: the service worker covers them.)
+
+The host provides two components, importable from `@cardstack/boxel-host/lib/signed-capture`, that hide the fix. Each mints a **signed capture URL** at the moment of use — the durable URL plus a short-lived `?token=` that authorizes exactly that one `_screenshot/` GET without a header — and the card template contains no signing JavaScript:
+
+- **`SignedCaptureLink`** — an anchor (rendered through the shared `Button`; default `@kind='link-primary'`, `@kind`/`@size` pass through) whose `href` stays the **durable** URL, so right-click → copy link shares the stable reference. On click it opens a new tab synchronously (keeping the user activation, so popup blockers stay quiet), mints, then navigates that tab to the signed URL. A failed mint closes the tab and renders the error beside the link.
+- **`SignedCapture`** — a renderless provider: `<SignedCapture @url={{…}} as |signedUrl error|>` yields `undefined` while minting, then the URL to load — the tokened variant, or the durable URL itself on a publicly readable realm. Use it for render-time attributes: an `<object>` PDF pane, an `<embed>`, an `<img>` you want to prove loads without the worker.
 
 ```gts
-<a href={{this.pdfUrl}} target="_blank" rel="noopener">Download PDF</a>
-```
-
-```ts
+import { Component } from '@cardstack/base/card-api';
 import { realmURL } from '@cardstack/runtime-common';
+import {
+  SignedCapture,
+  SignedCaptureLink,
+} from '@cardstack/boxel-host/lib/signed-capture';
 
-get pdfUrl() {
-  let card = (this.args.model as any)?.card;   // the linked CardDef instance
-  let id: string | undefined = card?.id;        // its durable card URL
-  let realm: string | undefined = card?.[realmURL]?.href; // its realm root
-  if (!id || !realm) return undefined;
-  let path = id.slice(realm.length);            // instance path within the realm
-  return `${realm}_screenshot/${path}?type=pdf&media=print`;
+class Isolated extends Component<typeof InvoiceViewer> {
+  // The DURABLE url — a plain sync getter. Getters cannot mint (minting is
+  // async); the components below sign this value at the moment of use.
+  get pdfUrl() {
+    let card = (this.args.model as any)?.card;   // the linked CardDef instance
+    let id: string | undefined = card?.id;        // its durable card URL
+    let realm: string | undefined = card?.[realmURL]?.href; // its realm root
+    if (!id || !realm) return undefined;
+    let path = id.slice(realm.length);            // instance path within the realm
+    return `${realm}_screenshot/${path}?type=pdf&media=print`;
+  }
+
+  <template>
+    {{! click-time: opens the PDF in a new tab with a fresh token }}
+    <SignedCaptureLink @url={{this.pdfUrl}}>Download PDF</SignedCaptureLink>
+
+    {{! render-time: an inline viewer pane }}
+    <SignedCapture @url={{this.pdfUrl}} as |signedUrl error|>
+      {{#if signedUrl}}
+        <object data={{signedUrl}} type='application/pdf' aria-label='Invoice PDF'></object>
+      {{else if error}}
+        <p role='alert'>{{error}}</p>
+      {{else}}
+        <p>Preparing PDF…</p>
+      {{/if}}
+    </SignedCapture>
+  </template>
 }
 ```
 
 (`realmURL` is the symbol re-exported from `@cardstack/runtime-common`; reading it off the linked card gives that card's own realm root, which is where the capture persists and serves from.)
+
+**Signed URLs are ephemeral view-layer values.** The token lives **15 minutes** and is bound to one realm, one capture URL (query-param-order-insensitive), and the user it was minted for; it is minted only for callers who already hold realm read, so it grants nothing new — it just makes that grant portable to browser-native fetches. Never write a signed URL into card data, an index doc, or prerendered HTML: the durable URL is the only storable reference. During a server-side prerender `SignedCapture` yields nothing and no mint happens, so prerendered markup stays durable-only. Browser PDF viewers save the bytes they already buffered, so a token that expires after the document loaded does not break "Save".
+
+Both components share the host's `capture-url-signer` service, which memoizes each durable URL until its token nears expiry and coalesces every request issued in one render pass into a single mint call per realm. Programmatic callers (scripts, `boxel-cli`) can use the same route directly: `QUERY {realm}_sign-capture-urls` (spelled `POST` + `X-HTTP-Method-Override: QUERY` from clients that cannot send `QUERY`, which is how the host itself calls it) with a JSON body `{ "urls": [ … ] }` (1–100 of *this* realm's `_screenshot/` URLs, header-authed like any realm request) returns `{ "signed": [{ "url", "signedUrl", "expiresAt" }] }`. An anonymous caller on a public realm gets each URL echoed back unsigned with `expiresAt: null` — there is no user to bind, and none is needed where anonymous read already serves.
 
 Prefer this durable-URL form over a one-off base64 capture whenever the PDF is *of the card itself* and should track the card's content. Reach for a direct `POST /_screenshot-card` with `captureSpec.type: 'pdf'` and `includeBase64` only when you need the bytes in hand at a point in time — a PDF snapshot archived as a separate file, detached from future edits.
 
@@ -223,6 +257,8 @@ This gives every instance of `MyCard` two menu items that capture a settled PNG 
 - **PDF refuses the raster axes.** `type: 'pdf'` with `fullPage`, `clip`, `target`, or a non-default `viewport` is rejected at the spec parse — a paged document is always the whole settled render laid out at the paper's width, so a crop or viewport is a contradiction.
 - **`media: 'print'` only changes anything if the card has print CSS.** Under `print`, `@page`/`@media print`/`break-*` rules take effect; a card with none renders the same as `screen`, just on Chrome's default paper. Author `@page { size: … }` when the paper size matters, or the PDF is Letter.
 - **Prefer a durable `?type=pdf` URL over stored bytes for an *of-the-card* PDF.** A one-off PDF capture is a point-in-time file that won't track later edits. For an embedded "always current" PDF link, compose the [durable URL](#durable-pdf-urls-embed-instead-of-base64) instead — it re-captures when the card changes.
+- **A bare `<a href>` or `<object data>` to a capture URL 401s on a private realm.** `<object>`/`<embed>` loads bypass the service worker and new-tab navigations never reach it, so no `Authorization` header arrives; the browser may offer the realm's 401 text as a `.txt` download. Render through `SignedCaptureLink` / `SignedCapture` from `@cardstack/boxel-host/lib/signed-capture` — see [the signed-capture components](#render-it-through-the-signed-capture-components). `<img>` loads are covered by the worker and need nothing.
+- **Never persist a signed URL.** The `?token=` variant is a 15-minute, single-URL credential minted at the moment of use. Store and compose the **durable** URL only — a getter returns the durable URL, the component signs it. Signing happens client-side and asynchronously, so a card getter (sync) cannot mint; prerendered output never carries a token.
 
 ## Source
 
@@ -230,6 +266,9 @@ This gives every instance of `MyCard` two menu items that capture a settled PNG 
 - Realm-server endpoint: `POST /_screenshot-card` → `packages/realm-server/handlers/handle-screenshot-card.ts`.
 - Durable serving URL: `GET {realm}_screenshot/{path}?type=pdf` → the MediaCache serving path (`packages/runtime-common/media-cache-serving.ts`); persisted by the worker task's PDF leg.
 - Capture-spec axes (`type`, `media`) and the PDF bounds (`SCREENSHOT_PDF_MAX_PAGES`, `SCREENSHOT_PDF_MAX_BYTES`): `packages/runtime-common/capture-spec.ts`.
+- Signed-capture components: `@cardstack/boxel-host/lib/signed-capture` — `packages/host/app/lib/signed-capture.gts` (`SignedCapture`, `SignedCaptureLink`), backed by the memoizing `packages/host/app/services/capture-url-signer.ts`.
+- Capture-URL token (15-minute TTL, `read-capture` scope, URL binding) and the `QUERY {realm}_sign-capture-urls` mint route: `packages/runtime-common/capture-url-token.ts`; `signCaptureURLs` / `verifyCaptureURLToken` in `packages/runtime-common/realm.ts`.
+- Interactive harness for the signed surfaces (bare vs signed new-tab, `<object>` PDF embed): `packages/experiments-realm/signed-capture-url-tester.gts`.
 - Worker task: `packages/runtime-common/tasks/screenshot-card.ts`.
 - Input/output types: `ScreenshotCardInput` / `ScreenshotCardOutput` in `packages/base/command.gts`.
 - Proven example: `packages/experiments-realm/screenshot-card-demo.gts` — copied verbatim into this pattern's `example.gts`.
