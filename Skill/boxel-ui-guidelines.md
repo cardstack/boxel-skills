@@ -541,7 +541,7 @@ Always reach for existing boxel-ui components before writing custom HTML + CSS. 
     display: inline-flex;
     align-items: center;
     padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
+    border-radius: var(--boxel-border-radius-pill);
     background-color: var(--muted);
     font-size: var(--boxel-font-size-xs);
   }
@@ -666,7 +666,7 @@ Each cancelling declaration is invisible coupling to the component's current int
 
 ### Collapse wrapper FieldDefs instead of flattening them with `:deep()`
 
-`:deep()` and `display: contents` are for **host-generated** DOM you cannot remove. If the wrapper is a FieldDef *you* introduced, delete it instead. Two signals it isn't a real grouping level:
+`:deep()` is for **host-generated** DOM you neither render nor can address with a class, and chrome removal is `@displayContainer={{false}}` — never hand-written `display: contents`. A plural field's wrappers are neither case — loop `{{#each @fields.plural as |Item|}}<Item class='…' />{{/each}}` and there is no wrapper. If the wrapper is a FieldDef *you* introduced, delete it instead. Two signals it isn't a real grouping level:
 
 - The instance data shows a `containsMany` of wrapper fields that each hold exactly **one** item. That's not a group, it's indirection.
 - You are reaching **across a scoped-style boundary** — a selector in the parent's `<style scoped>` targeting a class defined in a child FieldDef's own template. Scoped styles exist to prevent that; needing it means the split is in the wrong place.
@@ -675,7 +675,7 @@ Point the parent's `containsMany` at the leaf field directly and migrate the ins
 
 Also prefer `@displayContainer={{false}}` on the field render over hand-written `display: contents` when all you want is chrome removal, and don't add a wrapper `<div>` whose only job is to carry a margin — put the margin on the element that already exists.
 
-**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Don't add a `border` there: an embedded linksTo render already paints a 1px `--border` ring through `box-shadow` (`@displayBoundaries` defaults to true), so a border doubles the edge. Pass `@displayContainer={{false}}` if you want to draw the edge yourself. Reserve `:deep()` for chrome you cannot reach with a class, such as the per-item containers inside a plural field.
+**Style a linked card's chrome with a class, not `:deep()`.** `...attributes` on `<@fields.someLinksTo />` is forwarded through the field component onto the linked card's own `CardContainer` (and onto the broken-link placeholder when the link fails). So `<@fields.headlineMeet @format='embedded' class='home-spotlight' />` puts `.home-spotlight` on the `.boxel-card-container` element itself, inside your `<style scoped>` scope, and a plain `.home-spotlight { background-color: var(--card); color: var(--card-foreground); }` replaces a `.wrapper > :deep(.boxel-card-container)` rule. Don't add a `border` there: an embedded linksTo render already paints a 1px `--border` ring through `box-shadow` (`@displayBoundaries` defaults to true), so a border doubles the edge. Pass `@displayContainer={{false}}` if you want to draw the edge yourself. Reserve `:deep()` for host-generated DOM you neither render nor can reach with a class, such as the body of an embedded MarkdownDef shell — a plural field is looped instead, so it has no wrapper to reach.
 
 ### When a component is missing from boxel-ui
 
@@ -715,6 +715,6 @@ Before finalizing any card template, verify:
 - [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
 - [ ] No overrides that cancel a boxel-ui component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Pill`/`Button`) — pick the `@kind`/`@variant`/`@size` that already has no chrome (e.g. `Button @kind='link-muted'`) and keep only genuinely bespoke declarations
 - [ ] Chrome on a single linked card is styled through a class on `<@fields.link class='…' />` (forwarded to its `CardContainer` via `...attributes`), not through `:deep(.boxel-card-container)`
-- [ ] `:deep()` / `display: contents` used only on host-generated field DOM — a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
+- [ ] No `:deep()` / `display: contents` on plural-field or atom DOM — a plural field is looped (`{{#each @fields.plural as |Item|}}<Item class='…' />`) so there is no host wrapper, and an atom takes a `class`; a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
 - [ ] Kanban/status boards use `KanbanPlane` and persisted placements; no hand-rolled pointer drag in card templates
 - [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`
