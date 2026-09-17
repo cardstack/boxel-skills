@@ -283,7 +283,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **AI** — `ai-assistant`, `create-ai-assistant-room`, `open-ai-assistant-room`, `send-ai-assistant-message`, `one-shot-llm-request`, `set-active-llm`, `sync-openrouter-models`, `update-room-skills`.
 - **HTTP / generic** — `send-request-via-proxy`, `authed-fetch`, `search-google-images`.
 - **Card I/O** — `save-card`, `patch-fields`, `patch-card-instance`, `apply-markdown-edit`, `write-text-file`, `copy-card`, `copy-source`, `copy-file-to-realm`, `transform-cards`, `read-file-for-ai-assistant`, `read-card-for-ai-assistant`, `fetch-card-json`, `get-card`, `read-source`, `serialize-card`.
-- **Search** — `search-cards`, `search-and-choose`.
+- **Search** — `search-entries` (discovery: Specs, files, full readMe on the hit), `search-cards`, `search-and-choose`.
 - **Realm-server** — `get-all-realm-metas`, `get-available-realm-urls`, `get-default-writable-realm`, `get-catalog-realm-urls`, `get-realm-of-url`, `can-read-realm`, `validate-realm`, `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job`, `invalidate-realm-identifiers`, `sanitize-module-list`.
 - **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`, `delete-workspace`.
 - **Store** — `store-add`.
@@ -337,7 +337,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`npx boxel lint [path] --realm <url>`** — Remote lint (single file or whole realm).
 - **`npx boxel parse [path]`** — Local Glint type-check plus JSON document validation.
 - **`npx boxel test`** — Run co-located `.test.gts` QUnit card tests against the local workspace (or `--realm <url>` for cards already on a remote realm). Test-file contract (`runTests()`, `setupCardTest`, `renderCard`, shimmed modules): → `boxel/references/qunit-testing.md`
-- **`npx boxel search '<query-json>' --realms <urls>`** — Federated search.
+- **`npx boxel search --realm <realm-url> --query '<json>' [--json]`** — Federated search. `--realm` is required and repeatable; omitting `--query` lists every card in the realm(s).
 - **`npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]`** — Execute a host command via the prerenderer. CLI invocation mode for Commands. → `automate-run-command-cli`
 - **`npx boxel consolidate-workspaces`** — Merge multiple watched workspaces (interactive).
 
@@ -360,7 +360,8 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-workspace-cardinal-rules`** — Silent-failure trap checklist (DateField vs DateTimeField formats, external URLs in relationship links, `linksToMany` indexed keys, …); partially overlaps the `boxel` skill's cardinal rules under its own numbering.
 - **`bxl-authoring`** — Writing BXL in a card's `computeVia`: tag choice (plain string / `fx` / `jq`), what the `derive` profile refuses at field-definition time, collecting an aggregate's iterating argument, blank-input and error-value behavior, query-backed aggregation staleness, cyclic graphs, dates, memoization, `{ as: FieldDef }` materialization.
 - **`query-backed-relationships`** — Declaring and sizing the `{ query }` form of `linksTo`/`linksToMany`: the bounded page it holds, `totalMatchCount` vs counting rows, declaring a larger page, `eager: false`, singular-`linksTo` arity, and when a search component is the right tool instead.
-- **`boxel-ui-component-discovery`** — Mandatory catalog Spec search before hand-rolling UI primitives; enumerate → one broad `boxel search` query → read `attributes.readMe` → self-audit.
+- **`boxel-ui-component-discovery`** — Mandatory catalog Spec search before hand-rolling UI primitives; enumerate → one broad component-Spec query → read `attributes.readMe` → self-audit.
+- **`catalog-reuse`** — Mandatory catalog search before writing any `.gts`. Three searches, by what you need back: **Listing** → an installable bundle (`install` / `remix`); **Spec** → a module export named by its `ref` (CardDef: `linksTo`/`linksToMany` or `extends`; FieldDef: `contains`/`containsMany` or `extends`; component: import into markup; command: import + invoke); **instance** → the thing itself, to point a `linksTo` at (themes, files, `linkedExamples`). Listing and Spec are asked on every build; the instance search is conditional. Queries use `specType` + `matches` (bare words are ANDed — one concept per query, `OR` for alternatives of comparable specificity), relevance-sorted 0–1, broaden once before declaring a gap. A `Spec` is the searchable *pointer*, never the thing. Every hit must be dispositioned. Declares the `search-entries` tool. The general form of `boxel-ui-component-discovery`.
 - **`ember-best-practices`** — Ember.js performance + accessibility rules, 59 `rules/*.md` files across 10 prefix-keyed categories, indexed in its SKILL.md.
 - **`catalog-listing`** — Catalog operations + submission via `SubmissionWorkflowCard`.
 - **`source-code-editing`** — Canonical SEARCH/REPLACE edit transport.

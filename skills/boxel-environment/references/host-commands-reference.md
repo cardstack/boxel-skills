@@ -64,6 +64,14 @@ boxel:
         module: '@cardstack/boxel-host/tools/update-room-skills'
         name: default
       requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/search-cards'
+        name: SearchCardsByQueryCommand
+      requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/search-cards'
+        name: SearchCardsByTypeAndTitleCommand
+      requiresApproval: false
 ---
 
 # Host Commands Reference
