@@ -26,6 +26,119 @@ color: var(--card-foreground);
 border: 1px solid var(--border);
 ```
 
+### Do Not Redeclare Contract Tokens on a Component Root
+
+A component may legitimately opt out of the theme: a capture keyed on file content must render the same for every viewer, a print sheet must not follow a dark theme. When that is the case and there is a real reason not to use the fixed `--boxel-*` primitives from boxel-ui's `variables.css`, declare the constants under the component's own prefix (`--poster-*`), never by reassigning a name the contract owns.
+
+Writing `--card: #fff` or `--border: #d8d8d8` on a root is not a private constant; it is a theme override. Every descendant and every child card rendered inside inherits the pinned value, a linked Brand Guide or Theme card is silently ignored for the subtree, and a reader (or a hex grep) sees `var(--card)` below and assumes the contract is being honored. `--poster-paper: #fff` carries the same value with none of that: nothing outside the component reads it, and its name says it is not themed.
+
+Whatever the component opts into, its units tell one story. A fixed-proportion capture is either all `px` or all `rem`; rem font sizes over px margins and paddings means the type re-scales with the root font size while the geometry around it does not, so the "fixed proportions" are only fixed at one root size.
+
+**Wrong** — the contract's names reassigned to hex, plus rem type over px geometry:
+```css
+/* The theme's tokens are pinned here, once, on the capture root, so no
+   viewer's theme can reach them. Each fallback partner is pinned too, so
+   no chain can escape if a token ahead of it is ever dropped. */
+.office-poster {
+  --card: #fff;
+  --card-foreground: #1a1a1a;
+  --muted: #eceef1;
+  --muted-foreground: #555;
+  --border: #d8d8d8;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --tooltip: #262626;
+  --tooltip-foreground: #f7f7f5;
+  --fd-paper: #f7f7f5;
+  --fd-slate: #262626;
+  --shadow-sm: 0 1px 4px rgb(0 0 0 / 12%);
+
+  --poster-title-size: 0.8125rem;
+  --poster-body-size: 0.5625rem;
+  --poster-radius: 3px;
+
+  background-color: var(--card);
+  color: var(--card-foreground);
+  font-family: var(--font-sans);
+}
+.page {
+  padding: 14px 12px;
+}
+.page-title {
+  font-size: var(--poster-title-size);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.page-block[data-style='title'] {
+  font-size: var(--poster-title-size);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.sheet-tab {
+  font-size: var(--poster-body-size);
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--poster-radius) var(--poster-radius) 0 0;
+  padding: 2px 6px;
+}
+```
+
+What is wrong with it:
+
+- **Contract tokens reassigned.** `--card`, `--card-foreground`, `--muted`, `--muted-foreground`, `--border`, `--tooltip`, `--tooltip-foreground`, `--shadow-sm`, and `--font-sans` are overwritten. The `var(--card)` / `var(--border)` reads below look themed and are not, and any child card inside `.office-poster` inherits the pinned values.
+- **Invented tokens without the component's prefix.** `--fd-paper` and `--fd-slate` are private constants under a name that reads like a shared family. Under `--poster-*` they would be unambiguous.
+- **"Pinning fallback partners" re-implements the theme.** Every contract token already has a `theme.css` default and is reset at each themed-card boundary; there is no chain to "escape". The defensive layer duplicates the runtime.
+- **Mixed units.** `--poster-*-size` in rem, everything else (`14px 12px`, `8px`, `2px 6px`, `--poster-radius: 3px`) in px. Pick one.
+- **Metrics scattered through rules.** The paddings, margins, and line-heights are literals repeated across selectors instead of `--poster-*` variables on the root, so the component's own scale cannot be read or changed in one place.
+- **Duplicated rules.** `.page-title` and `.page-block[data-style='title']` are identical declarations.
+- **The comment justifies hijacking the contract.** "So no viewer's theme can reach them" describes a theme override, and a shared child component that reads contract tokens is the one case `--poster-*` naming cannot feed. Neither is a reason to reassign contract names: give the child its own input variables, or render the capture under a fixed theme card.
+
+**Right** — the same opt-out, owned end to end by the component's prefix, in one unit:
+```css
+.office-poster {
+  --poster-paper: #fff;
+  --poster-ink: #1a1a1a;
+  --poster-ink-muted: #555;
+  --poster-rule: #d8d8d8;
+  --poster-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --poster-title-size: 13px;
+  --poster-heading-size: 11px;
+  --poster-body-size: 9px;
+  --poster-cell-size: 8px;
+  --poster-page-padding: 14px 12px;
+  --poster-block-gap: 5px;
+  --poster-radius: 3px;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--poster-paper);
+  color: var(--poster-ink);
+  font-family: var(--poster-font);
+}
+.page {
+  padding: var(--poster-page-padding);
+}
+.page-title,
+.page-block[data-style='title'] {
+  font-size: var(--poster-title-size);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: var(--poster-block-gap);
+}
+.sheet-tab {
+  font-size: var(--poster-cell-size);
+  color: var(--poster-ink-muted);
+  border: 1px solid var(--poster-rule);
+  border-radius: var(--poster-radius) var(--poster-radius) 0 0;
+}
+```
+
+Nothing in the Right version can be mistaken for a themed token, nothing leaks into a child card, and the one unit keeps the proportions fixed at every root font size.
+
 ### Semantic Theme Variables (prefer these)
 
 The full inventory — surfaces and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, typography, spacing, radius, shadows — lives in one place: `skills/boxel-ui-guidelines/references/theme-token-contract.md`. Read it before styling; this reference only covers how to *use* those tokens. In short: every surface token names a background and pairs with its own `--*-foreground`; the neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) pair with `--foreground`; a hue used as text or icon color on a neutral surface takes its `--*-ink` token.
