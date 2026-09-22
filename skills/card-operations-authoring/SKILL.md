@@ -122,9 +122,15 @@ b.on(this.record.auditLog).record({ what: 'transferred to intensive care' });
 unbound extension resolves to a base file class, whose only writes are the base
 `update` and `appendLine`. A declaration on an author's own subclass then
 lowers, indexes, and is never found by name — and the instance carries no such
-member either, so the call throws before any request is made. A realm may
-re-bind an extension the base table already recognizes as a file; it cannot
-invent one.
+member either, so the call throws before any request is made.
+
+A realm binds only the extensions of content it stores: one the platform
+already reads as a file, and not the platform's own — a module's source or a
+card's stored `.json`. Anything else in the map is refused, along with a key
+that is not an extension and a value that is not a `{ module, name }` ref.
+**A refused binding behaves exactly like no binding**, and says so only in the
+realm's log — which from the author's side looks identical to an operation that
+does not exist, so read the log when a declared file operation is not found.
 
 The names `atomic`, `on`, `find`, `parallel` and `serial` belong to the
 invocation surface and cannot name an operation. Neither can a name that already
@@ -157,7 +163,7 @@ function calls, not interpolation syntax:
 | --------------------- | ----------------------------------------------------------------- |
 | `params('key')`       | That member of the request payload                                 |
 | `actor()`             | The caller's Matrix user id — **only** that                        |
-| `instance()`          | The target's stored source document; `instance('id')` its identity |
+| `instance()`          | The target's own stored values — its `id` and its attributes      |
 | `realmConfig('key')`  | A setting from the realm's `config` on `realm.json`                |
 | `card(…)`             | A link identity, from a URL or another marker                      |
 
@@ -291,9 +297,9 @@ program over a document, so they carry no `transformations` at all.
 
 ### `optimistic`
 
-The client detects whether an operation is eligible for its optimistic path.
-`optimistic: false` overrides that for an operation whose local result would not
-match what the realm produces.
+A declaration may carry `optimistic`, and it is validated and stored on the
+lowered operation. Nothing reads it, so setting it changes no behavior — write
+it only to record an intent, never expecting an effect.
 
 ## 3. Invoking
 
@@ -326,8 +332,9 @@ members simply take any payload.
 { id: string, version: string, generation: number, lastModified: number }
 ```
 
-plus `lid` on a create. A write reports identity and version rather than
-reprinting the document: the caller supplied the state, and reconciling against
+plus `lid` on a create **that a batch staged** — a single
+`operations(Class).create(…)` names no local id, so none comes back. A write
+reports identity and version rather than reprinting the document: the caller supplied the state, and reconciling against
 the version is the common case. A `read` answers its document. A `delete`
 answers `null`.
 
@@ -383,14 +390,26 @@ get onThisUnit() {
 Calling it answers the resource; `.query()` answers the wire query, which is what
 a card hands to `@context.searchResultsComponent` to render the rows itself.
 
-Every call builds an **independent** search, so hold the result — a `@cached`
-getter or a field — and never call it in a plain getter or during render. A
-plain class field goes too far the other way: it freezes the payload at
-construction, and a value arriving later would never reach the search.
+Every call builds an **independent** search with its own realm subscriptions, so
+make the call **once** and hold what it answers: a field, a one-time assignment,
+never an uncached getter and never during render.
 
-`.query()` answers nothing when the session cannot say who the caller is: nobody
-signed in, or a render, which authenticates as itself. The search component reads
-that as idle, so guard the render as above.
+A field is the plain form, and it fixes the payload at construction. Where the
+payload arrives later — `@model` is typed with every field optional, because a
+template renders a card that may still be loading — a `@cached` getter is the
+variant that lets it through, at the cost of building a fresh search whenever
+what it reads changes. A payload whose values are tracked moves an existing
+search without a second call, so reach for the getter only when the payload
+itself is not.
+
+**A search that compares against the caller answers nothing when the session
+cannot supply one** — nobody signed in, or a render, which authenticates as
+itself. That is the one silent case, and it applies only to a declaration that
+reads `actor()`: the search component treats the absent query as idle, which is
+what the `{{#if}}` above is for. A search that names no `actor()` always
+answers, so guarding one buys nothing. Everything else — a payload the
+declaration cannot resolve, a realm scope that will not resolve — is raised at
+the call rather than swallowed.
 
 **A saved search is as fresh as the index.** It reads the search index, which
 lags a write until that write is indexed. To read a card just written, read the
@@ -445,12 +464,16 @@ the values the check compares have to be gathered first. That costs reads, which
 the author opts into rather than paying invisibly. There is no non-snapshot form
 of that check.
 
-**A declared append has no `instance()` in scope.** An append edits stored bytes
-without ever assembling the document, which is the whole reason the behavior
-exists; offering `instance()` would mean the read the operation avoids. Writing
-one is `instance-out-of-scope`, caught when the module is indexed rather than at
-invocation. `params()`, `actor()` and `realmConfig()` work. An item that needs
-the card's own values belongs on a `transform`.
+**An append has no `instance()` in scope.** An append edits stored bytes without
+ever assembling the document, which is the whole reason the behavior exists;
+offering `instance()` would mean the read the operation avoids. `params()`,
+`actor()` and `realmConfig()` work. An item that needs the card's own values
+belongs on a `transform`.
+
+In an `appendContainsMany` item this is caught as `instance-out-of-scope` when
+the module is indexed. An `input` program is not read that way, so an
+`instance()` inside one fails at invocation instead — in an `appendLine`, which
+has no clause and composes its line there, that is the only form it takes.
 
 ## 5. Refusals a caller sees
 
