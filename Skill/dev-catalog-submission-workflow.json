@@ -9,9 +9,9 @@
     "type": "card",
     "attributes": {
       "cardInfo": {
-        "name": "Boxel Design",
+        "name": "Catalog Submission Workflow",
         "notes": null,
-        "summary": "Visual decisions for Boxel cards: choose the style source, then run the four-stage design playbook. The taste layer, not token or template implementation",
+        "summary": "The catalog \"Make a PR\" flow: what the SubmissionWorkflowCard tracks, how the GitHub PR is created, and how to retry or inspect a blocked submission",
         "cardThumbnailURL": null
       },
       "commands": []
@@ -19,16 +19,16 @@
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "@cardstack/base/Theme/boxel-brand-guide"
+          "self": "@cardstack/base/Theme/cardstack-brand-guide"
         }
       },
       "instructionsSource": {
         "links": {
-          "self": "../skills/boxel-design/SKILL.md"
+          "self": "../skills/catalog-listing/references/submission-workflow.md"
         },
         "data": {
           "type": "file",
-          "id": "../skills/boxel-design/SKILL.md"
+          "id": "../skills/catalog-listing/references/submission-workflow.md"
         }
       }
     }

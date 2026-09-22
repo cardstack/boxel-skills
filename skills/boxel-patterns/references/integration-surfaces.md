@@ -54,9 +54,8 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `getCards`, `getCard` | Query the realm for cards by filter. |
 | `getField`, `getFieldIcon`, `cardDefComputedFields` | Field metadata for generic rendering. |
 | `searchResultsComponent` | Preferred result-list surface for new work — the `<SearchResults>` component, used via `@context.searchResultsComponent` (entry-rooted query built with `searchEntryWireQueryFromQuery`). |
-| `prerenderedCardSearchComponent` | Older card-grid surface (via `@context.prerenderedCardSearchComponent`), superseded by `searchResultsComponent`. |
 | `searchEntryWireQueryFromQuery`, `SearchEntryWireQuery` | Build the entry-rooted query that `@context.searchResultsComponent` takes, from an ordinary `Query`. |
-| `getMenuItems`, `GetMenuItemParams` | Typed menu construction. |
+| `getMenuItems` | Typed menu construction (the `GetMenuItemParams` type comes from `@cardstack/base/card-api`, and `MenuItemOptions` from `@cardstack/boxel-ui/helpers`). |
 | `baseRRI('<module>')` | Canonical base-realm module URL. |
 | `Query`, `Sort`, `TypedFilter` | Query type primitives. |
 | `ResolvedCodeRef` | Strongly-typed code references. |
@@ -65,7 +64,7 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `isCardInstance` | Type guard for command inputs. |
 | `logger('namespace:operation')` | Realm-side structured logging. |
 | `join` | URL join helper. |
-| `loadCommandModule`, `CommandContext`, `Loader` | Command-loading internals. |
+| `loadCommandModule`, `ToolContext`, `Loader` | Command-loading internals. |
 | `baseRealm`, `devSkillLocalPath`, `envSkillLocalPath` | Base-realm constants. |
 
 ---
@@ -120,10 +119,13 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 These are the HTTP endpoints the host commands map to. Useful when scripting via `curl` or `boxel-cli`:
 
-OpenRouter calls go through `/_request-forward` to the external `https://openrouter.ai/api/v1/chat/completions` URL. There is no live `/_openrouter/chat/completions` or `/_screenshot-card` endpoint in the current monorepo checkout.
+OpenRouter calls go through `/_request-forward` to the external `https://openrouter.ai/api/v1/chat/completions` URL. There is no live `/_openrouter/chat/completions` endpoint in the current monorepo checkout (the screenshot endpoints below *are* live — an older audit that predates them was stale).
 
 | Endpoint | Method | Purpose |
 |---|---|---|
+| `/_screenshot-card` | POST | Capture a settled render of a card — PNG (default) or paged PDF (`captureSpec.type: 'pdf'`, `media: 'screen' \| 'print'`). Backs `ScreenshotCardTool` (whose input is PNG-only; pass `captureSpec.type`/`media` when POSTing directly). Pattern: `integrate-screenshot-card-format`. |
+| `{realm}_screenshot/{path}?…` | GET | Durable serving URL for an on-demand capture — `?type=pdf[&media=print]` yields an always-current PDF (ledger hit on repeat, re-capture after an edit); embed instead of storing base64. Requires realm read: an `Authorization` header, or a `?token=` minted by `_sign-capture-urls` for the loads the service worker can't reach (`<object>`/`<embed>`, new-tab navigation). |
+| `{realm}_sign-capture-urls` | QUERY | Mint signed capture URLs: body `{ "urls": [ …1–100 of this realm's `_screenshot/` URLs… ] }` → `{ "signed": [{ "url", "signedUrl", "expiresAt" }] }`. Realm-read gate (grants nothing the caller lacks); 15-minute single-URL tokens; anonymous callers on a public realm get URLs echoed unsigned. Card code uses the `SignedCaptureLink`/`SignedCapture` components instead of calling this. Pattern: `integrate-screenshot-card-format`. |
 | `/_federated-search` | QUERY | Cross-realm search (used by `npx boxel search` + `SearchCardsByQueryCommand` when crossing realms). |
 | `/_federated-search-prerendered` | QUERY | Same with prerendered card results. |
 | `/_federated-info` | GET | Cross-realm realm metadata. |
@@ -146,7 +148,7 @@ UI kit. Three sub-paths.
 
 ### `/components`
 
-`Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Drawer`, `Toast`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+`Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 Use `KanbanPlane` for lane-based drag/drop boards instead of hand-rolled DOM drag code. Persist placements by stable card id + column key + sort order, map to `KanbanPlacement.index` only at render time, and render child cards through `@fields` at fitted format. Pattern: `layout-kanban-drag-drop`.
 
@@ -359,7 +361,7 @@ npx boxel parse [path]                                           Local Glint + J
 # The current monorepo CLI has no `npx boxel check`; use `npx boxel file lint` / `npx boxel lint`.
 # Clean lint means `No lint issues found` or JSON messages: [].
 
-npx boxel search '<query-json>' --realms <urls>                 Federated search across realms
+npx boxel search --realm <url> --query '<json>' [--json]        Federated search across realms
                                                             (hits /_federated-search)
 
 npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]

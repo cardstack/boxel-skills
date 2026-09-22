@@ -109,7 +109,7 @@ Core syntax and patterns (load when topic comes up):
 
 Subsystems (load when used):
 
-- `references/query-systems.md` — Query syntax, the `on` rule, filter types, and the display surfaces: `@context.searchResultsComponent` (entry-rooted, preferred), `PrerenderedCardSearch`, and `getCards`.
+- `references/query-systems.md` — Query syntax, the `on` rule, filter types, and the display surfaces: `@context.searchResultsComponent` (entry-rooted) and `getCards`.
 - `references/searchable-fields.md` — The `searchable` field option (`true | string | string[]`) controlling which `linksTo`/`linksToMany` targets are pulled into the search doc (contained always in; links opt-in); dotted-path routing; the query-time error for querying a non-searchable path.
 - `references/fitted-formats.md` — Four sub-formats (badge/strip/tile/card), size classification. Quick reference only.
 - **`references/design-playbook.md`** — **The recommended way to design any user-facing card.** Four-stage process: (1) mockup with no variables, (2) extract theme DNA, (3) tokenize, (4) derive fitted/embedded. Includes the verbatim design-challenge framing (Pentagram art director + internal taste-maker) and the "fitted features the media" rule. Trust your intrinsic design taste; this is a process, not a CSS rulebook.
@@ -182,7 +182,7 @@ newlines correctly.
 - Provide an `embedded` template for every FieldDef.
 - Compute `cardTitle` from the primary identifier field (a `title` field of your own is just data — the host reads `cardTitle` for the display name).
 - Provide empty states for arrays.
-- Use theme variables only; link a default theme on instances.
+- Use theme variables only; link a Theme on an instance only when it should use a specific one (`theme.css` supplies the defaults).
 - Store media as linked FileDef/ImageDef/PngDef; only small durable `http(s)` URLs belong in string fields.
 
 ## 🔁 Failure Recovery

@@ -35,21 +35,21 @@ export class MyCommand extends Command<typeof MyInput, undefined> {
 import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
 import GetCardCommand from '@cardstack/boxel-host/tools/get-card';
 import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request-via-proxy';
-import SearchCardsByQueryCommand from '@cardstack/boxel-host/tools/search-cards-by-query';
+import { SearchCardsByQueryCommand } from '@cardstack/boxel-host/tools/search-cards';
 
 // Save a card
-await new SaveCardCommand(this.commandContext).execute({
+await new SaveCardCommand(this.toolContext).execute({
   card: myCard,
   realm: 'https://realm-url/'
 });
 
 // Get a card
-const card = await new GetCardCommand(this.commandContext).execute({
+const card = await new GetCardCommand(this.toolContext).execute({
   cardId: 'https://realm/Card/id'
 });
 
 // External API call
-const response = await new SendRequestViaProxyCommand(this.commandContext).execute({
+const response = await new SendRequestViaProxyCommand(this.toolContext).execute({
   url: 'https://api.example.com/endpoint',
   method: 'POST',
   requestBody: JSON.stringify(data),
@@ -88,7 +88,7 @@ const text = data.choices?.[0]?.message?.content ?? '';
 ```gts
 import UploadImageCommand from 'https://realms-staging.stack.cards/catalog/commands/upload-image';
 
-const result = await new UploadImageCommand(this.commandContext).execute({
+const result = await new UploadImageCommand(this.toolContext).execute({
   sourceImageUrl: dataUrl,
   targetRealmUrl: input.realm
 });
@@ -97,9 +97,9 @@ const result = await new UploadImageCommand(this.commandContext).execute({
 ### Query Pattern in Commands
 
 ```gts
-import SearchCardsByQueryCommand from '@cardstack/boxel-host/tools/search-cards-by-query';
+import { SearchCardsByQueryCommand } from '@cardstack/boxel-host/tools/search-cards';
 
-const results = await new SearchCardsByQueryCommand(this.commandContext).execute({
+const results = await new SearchCardsByQueryCommand(this.toolContext).execute({
   query: {
     filter: {
       on: { module: new URL('./product', import.meta.url).href, name: 'Product' },
@@ -134,20 +134,21 @@ export class MyCommand extends Command<typeof Input, undefined> {
 ### Menu Integration
 
 ```gts
-import { getCardMenuItems } from '@cardstack/runtime-common';
+import { getMenuItems } from '@cardstack/runtime-common';
+import { type GetMenuItemParams } from '@cardstack/base/card-api';
+import { type MenuItemOptions } from '@cardstack/boxel-ui/helpers';
 
-[getCardMenuItems](params: GetCardMenuItemParams): MenuItemOptions[] {
+[getMenuItems](params: GetMenuItemParams): MenuItemOptions[] {
   return [{
     label: 'My Action',
     icon: MyIcon,
+    disabled: !this.id,
     action: async () => {
-      await new MyCommand(params.commandContext).execute({
+      await new MyCommand(params.toolContext).execute({
         cardId: this.id,
-        realm: params.realmURL
       });
-      await params.saveCard(this);
     }
-  }, ...super[getCardMenuItems](params)];
+  }, ...super[getMenuItems](params)];
 }
 ```
 

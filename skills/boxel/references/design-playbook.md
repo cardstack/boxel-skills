@@ -264,6 +264,8 @@ If any answer is "no", iterate before stage 2.
 
 ## Stage 2 — Extract the theme
 
+**First check whether you need a theme at all.** If the stage-1 mockup made no visual decisions beyond Boxel's defaults, skip the Theme card and link nothing in stage 3. Otherwise write the mockup's values into a new Theme under the token contract names; the theme sets its own values rather than leaning on the defaults.
+
 Scan your stage-1 CSS and pull every distinct decision into the theme. The Theme card you write here IS the design DNA — the actual values that made the mockup work, not a guess at good defaults.
 
 **Use a `StructuredTheme` (or richer), never the bare `Theme` card.** The bare card's `cssVariables` string bypasses the token contract: nothing fills in what you omit, nothing validates it, and the theme editors cannot read it. Write your values into `rootVariables` / `darkModeVariables` / `typography` under the contract's names, listed in `boxel-ui-guidelines/references/theme-token-contract.md`. Step up to `StyleReference` or `DetailedStyleReference` when the visual language deserves prose, and to `BrandGuide` when the design has marks or needs custom variables the contract does not name.
@@ -313,7 +315,7 @@ Replace every hardcoded value in the isolated template with `var(--*)` reference
 
 **Rule of two:** if a value appears once, leave it inline. If it appears twice or more, it belongs in a theme field. A value with no contract role is either inlined or, if the design truly needs it as a variable, a reason to use `BrandGuide` and its `customCssVariables`.
 
-Link `cardInfo.theme` on the instance to your new Theme card. Push the updated `.gts` and the instance JSON.
+If you extracted a theme in stage 2, link `cardInfo.theme` on the instance to it. Push the updated `.gts` and the instance JSON.
 
 Verify visually that stage 3 matches stage 1. If anything shifted, your theme extraction missed something.
 
@@ -339,7 +341,7 @@ Per format, outer-element rules. `CardContainer` — which wraps every card rend
 
 Compound-field `embedded`/`edit` templates are the exception: nested inside a card surface, they may choose a different background/foreground combo to distinguish themselves — usually `--card` + `--card-foreground`.
 
-**If the brand demands a specific outer treatment** (sharp corners, custom border), put it on the **Theme card** (`--radius`, `--background`, `--border`). The wrapper's `--themed` cascade picks it up. Every linked card gets it for free — without format CSS contention.
+**If the brand demands a specific outer treatment** (sharp corners, custom border), put it on the **Theme card** (`--background`, `--border`, `--radius` — the wrapper's corner and the inner `--boxel-border-radius-*` scale both follow `--radius`). The CardContainer reads those tokens directly, so every linked card gets it for free — without format CSS contention.
 
 **Fitted — start from `<FittedCard>` for standard compositions.** For standard compositions (image + eyebrow + title + subtitle + meta + footer + badges), use the `FittedCard` component from `@cardstack/boxel-ui/components` and carry the design identity through its `--fc-*` variables and slot content — see the "Prefer `<FittedCard>`" section of `container-query-fitted-layout.md`. When the design calls for a special fitted template (barcode ticket stub, terminal ticker, boarding pass, magazine spread — the kind in that guide's File Inventory), skip `FittedCard` and hand-roll per the guide.
 

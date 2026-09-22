@@ -60,12 +60,13 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **`<@fields.x />`** — Render a field through its FieldDef's view for the current format. The host injects chrome (CardContainer wrapper) around the child.
 - **`@format='isolated'|'embedded'|'fitted'|'edit'|'atom'`** — Override the default format when delegating to a child via `<@fields.x @format='…' />`.
 - **`@model`** — The card/field instance accessed inside a Component. `@model.firstName`, `@model.body`, etc.
-- **`@context`** — Host context object exposing `commandContext`, `prerenderedCardSearchComponent`, `viewCard`, etc.
+- **`@context`** — Host context object exposing `toolContext`, `searchResultsComponent`, `viewCard`, etc.
+- **`toolContext`** — The handle passed to `new SomeTool(toolContext)`; read it from `@context.toolContext`, `params.toolContext` in menu-item actions, or `this.toolContext` inside a tool class. `commandContext` is the pre-rename spelling, still populated as a deprecated alias for deployed content — do not write it in new code.
 - **`<style scoped>`** — Boxel's scoped-CSS block. Must be a direct child of `<template>`; doesn't propagate scope hash into inner GlimmerComponent classes.
-- **`:deep()`** — Pierce the scoped-CSS boundary to style inner host-injected wrappers (`.boxel-card-container`, `.plural-field`, etc.). → `boxel-ui-guidelines/references/delegated-render-control.md`
-- **plural-field wrapper** — `<@fields.X @format='…' />` for a `containsMany`/`linksToMany` injects `.plural-field` + per-item wrappers (`.containsMany-item`, `.linksToMany-itemContainer`) between your grid and the cards. Apply `display: contents` cascade. → `boxel-ui-guidelines/references/delegated-render-control.md`
-- **chrome contract** — The host wraps every child card in a `CardContainer` with borders, halo, padding. The parent overrides via `:deep()`, theme cascade, or `@displayContainer={{false}}`. → `boxel-ui-guidelines/references/delegated-render-control.md`
-- **divider strategy (binary)** — Either parent draws dividers AND kills child halo (`.boxel-card-container--boundaries { box-shadow: none; }`), OR child halo IS the boundary AND parent skips borders. Doing both = "drop shadow fighting thin border."
+- **`:deep()`** — Pierce the scoped-CSS boundary to reach host-generated DOM you neither render nor can address with a `class`. Not for card chrome: `.boxel-card-container` and `.plural-field` both take a `class` from the field invocation; and not to strip a FileDef's shell for a content-only render — use the content-only preview component (`MarkdownPreview` etc.) instead. → `boxel-ui-guidelines/references/delegated-render-control.md`
+- **plural-field wrapper** — `<@fields.X @format='…' />` for a `containsMany`/`linksToMany` injects `.plural-field` + per-item wrappers (`.containsMany-item`, `.linksToMany-itemContainer`) between your grid and the cards. Loop the field instead (`{{#each @fields.X as |Item|}}<Item class='…' />{{/each}}`) so no wrapper is emitted, and drop chrome with `@displayContainer={{false}}`, never hand-written `display: contents`. → `boxel-ui-guidelines/references/delegated-render-control.md`
+- **chrome contract** — The host wraps every child card in a `CardContainer` with borders, halo, padding. The parent shapes it via the theme cascade, a `class` on the field (forwarded to the `CardContainer`), or `@displayContainer={{false}}` — not `:deep()`. → `boxel-ui-guidelines/references/delegated-render-control.md`
+- **divider strategy (binary)** — Either parent draws dividers AND passes `@displayContainer={{false}}` on the items (and squares their corner through the field's class), OR child halo IS the boundary AND parent skips borders. Doing both = "drop shadow fighting thin border."
 - **block param shadow trap** — `as |s|`, `as |section|`, `as |option|` etc. that shadow HTML tag names throw `TypeError: Cannot read properties of null (reading 'manager')`. Use unambiguous names.
 - **`{{#if this.x}}`** — Guard a block by a class getter / tracked property. **Don't write `{{#if (this.x)}}`** — wrapping in parens makes Glimmer treat it as a helper invocation; class getters fail silently.
 - **keyed single-item `{{#each}}` remount** — Wrap a visual subtree in `{{#each (array trackedValue) key='@identity'}}` when changing tracked state must recreate its DOM and replay entrance animation; keep persistent controls outside the keyed subtree. → `boxel-ui-guidelines/references/template-patterns.md`
@@ -98,11 +99,10 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **`Query`** — Type imported from `@cardstack/runtime-common`. Carries `filter`, `sort`, `realmURLs`.
 - **`getCards(this, queryThunk)`** — Component-level reactive query. Returns an object with `instances`, `isLoading`. Best inside `static isolated` Components.
 - **`getCard(this, urlThunk)`** — Component-level reactive single-card fetch.
-- **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration; `@overlays={{false}}` drops the operator-mode overlay and `@displayContainer={{false}}` drops each row's container chrome. Supersedes `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
+- **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration; `@overlays={{false}}` drops the operator-mode overlay and `@displayContainer={{false}}` drops each row's container chrome. Replaces the removed `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
 - **`searchEntryWireQueryFromQuery` / `SearchEntryWireQuery`** — Helper + type (from `@cardstack/runtime-common`) that turn an ordinary query into the entry-rooted query `@context.searchResultsComponent` expects. → `boxel/references/query-systems.md`
-- **`PrerenderedCardSearch`** — Live-updating component that renders matching cards in a chosen format. Pass `@query`, `@realms`, `@format`, optional `@isLive`. Older display surface — `@context.searchResultsComponent` is preferred for new work. → `show-card-list-with-views`, `app-card-home-with-search`
-- **`prerenderedCardSearchComponent`** — Lower-level component-factory accessed via `@context.prerenderedCardSearchComponent`.
-- **`@isLive={{true}}`** — Re-fetch on every realm change. **Pay-per-keystroke cost; default OFF** unless you specifically need live updates.
+- **`PrerenderedCardSearch`** — Removed, along with `@context.prerenderedCardSearchComponent`. Former result-list surface; use `@context.searchResultsComponent`.
+- **`@isLive`** — Legacy `PrerenderedCardSearch` arg; `@context.searchResultsComponent` has no such arg (liveness is handled by the surface). Drop it when migrating.
 - **filter `type`** — `filter: { type: codeRef(…) }` selects all instances of a CardDef. **THE ONLY way to filter-by-type.**
 - **filter `on`** — `filter: { on: codeRef(…), eq: { status: 'active' } }`. `on` is a *scope* for predicates (`eq`/`contains`/`range`), NOT a filter by itself. A bare `{ on: ref }` returns zero rows silently.
 - **filter predicates** — `eq`, `contains`, `range`, plus `every: [...]` / `any: [...]` for composition. Predicates require an `on:` scope.
@@ -119,7 +119,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **Structured Theme** — This is the bare minimum theme card to use when generating a new theme. Theme subclass with structured `rootVariables`, `darkModeVariables`, `typography`, and `version`; computes `cssVariables` instead of requiring a hand-authored CSS string. Use for token-only themes.
 - **Style Reference** — `StructuredTheme` subclass that adds `styleName`, `inspirations`, `visualDNA`, and `wallpaperImages`. Use when the visual language needs to be documented.
 - **Detailed Style Reference** — `StyleReference` subclass with long-form design guidance: context, palette, typography, geometry, material, composition, motion, component vocabulary, voice, technical specs, application scenarios, quality standards, and design mindset.
-- **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, and `markUsage`. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
+- **Brand Guide** — `DetailedStyleReference` subclass that adds brand assets and governance: `brandColorPalette`, `functionalPalette`, `typography`, `markUsage`, and `customCssVariables` for tokens outside the contract. Use when logo/mark material or official brand colors matter. → `boxel/references/theme-design-system.md`
 - **Boxel Brand Guide** — Built-in Brand Guide at `@cardstack/base/Theme/boxel-brand-guide`. Source of truth for Boxel built-in feature styling, base cards, host-facing Boxel UI, and Boxel-branded catalog material.
 - **Functional Palette** — Brand Guide field mapping brand intent to variables: `--brand-primary`, `--brand-secondary`, `--brand-accent`, `--brand-light`, and `--brand-dark`; Brand Guide maps these into semantic theme tokens when needed.
 - **Mark Usage / BrandLogo** — Brand Guide field for primary/secondary marks, greyscale marks, social profile icon, minimum heights, and clearance ratios. Emits `--brand-*-mark` variables for templates.
@@ -131,7 +131,9 @@ The five formats every CardDef can declare via `static <format> = class extends 
 - **custom theme variables** — Tokens outside the contract. `StructuredTheme` has no slot for them; they come from a `BrandGuide` (`customCssVariables` list, `brandColorPalette` names) or a theme card definition extended with its own fields. No `theme.css` default and no reset at the themed-card boundary, so they leak into nested cards and disappear when another theme card is linked. Never duplicate a named token this way; a template reading one needs a local fallback unless it only renders under that theme.
 - **shadcn/Boxel token mapping** — Boxel consumes shadcn-style tokens as paired surface/foreground contracts. `--primary` is an action surface or indicator, not ordinary text; `--spacing` is a quarter-unit that becomes `--boxel-sp` after runtime scaling. → `boxel-theme-development/references/shadcn-boxel-token-mapping.md`
 - **theme cascade** — Host injects the Theme card's `cssVariables` as CSS custom properties on the card root. Children inherit; cross-card delegated rendering retains the parent's theme unless overridden.
-- **theme-first workflow** — Choose/create a Theme BEFORE writing the card. Link via `cardInfo.theme`; templates use tokens from line one. → `theme-first-workflow`
+- **`data-theme`** — Attribute on `<html>` or any element that switches the semantic tokens to their `dark` or `light` defaults for that subtree. The only scheme switch with a `light` counterpart; there is no automatic `prefers-color-scheme` in `theme.css`. → `boxel/references/theme-design-system.md` §3.3
+- **`--boxel-color-scheme`** — Inherited signal (`light`/`dark`) set by `data-theme`. A Theme's `darkModeVariables` are emitted under a style container query on it, so a card's dark values follow the nearest ancestor's scheme. → `boxel/references/theme-design-system.md` §3.3
+- **theme-first workflow** — Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Link via `cardInfo.theme` only when a specific Theme is wanted; templates use tokens from line one. → `theme-first-workflow`
 - **drop-in CSS themes** — Per-theme CSS files override `--*` tokens at runtime; no JS branching. → `theme-css-token-redefinition`
 
 ## 7. Design playbook
@@ -140,7 +142,7 @@ The 4-stage recommended process for any user-facing card:
 
 1. **Stage 1 — Mockup with no variables.** Direct hex colors, named fonts, specific pixel sizes. Trust intrinsic taste. Pentagram art-director / internal-taste-maker brief.
 2. **Stage 2 — Extract theme DNA.** Audit the mockup; pull out color tokens, typography pair, spacing rhythm, asset direction.
-3. **Stage 3 — Tokenize.** Replace direct hexes/fonts/sizes with `var(--*)` references; build a Theme card to hold them.
+3. **Stage 3 — Tokenize.** Replace direct hexes/fonts/sizes with `var(--*)` references; build a Theme card whose fields hold them under the token contract names.
 4. **Stage 4 — Derive fitted + embedded.** Walk the 16 named fitted sizes, verify type hierarchy + composition holds; build embedded from the most rest-friendly cell.
 
 → `boxel/references/design-playbook.md`
@@ -159,7 +161,8 @@ The 4-stage recommended process for any user-facing card:
 - **`ImageDef`** — Image file-backed field; generic image type.
 - **`PngDef`, `JpgDef`, `WebpDef`, `AvifDef`, `GifDef`, `SvgImageDef`** — Format-specific image subtypes.
 - **`MarkdownDef`** — File-backed markdown asset (distinct from `MarkdownField`, which is a value).
-- **`--markdown-embedded-max-height` / `--markdown-embedded-mask`** — Custom properties the base `MarkdownDef` embedded format exposes to tune its bounded preview (defaults `200px` + a bottom fade). Set both to `none` on an ancestor for full content; the framework-driven embedded render can't take component args, so an inherited custom property is the cross-boundary lever. → `boxel-ui-guidelines/references/delegated-render-control.md`
+- **`--md-preview-background` / `--md-preview-foreground` / `--md-preview-padding`** — Custom properties the `MarkdownPreview` renderer (mounted by the shared FileDef shells that `MarkdownDef` inherits) exposes for its surface, text, and padding (defaults `--card`, `--card-foreground`, `--boxel-sp-lg`). Set them on an ancestor; the framework-driven embedded render can't take component args, so an inherited custom property is the cross-boundary lever. → `boxel-ui-guidelines/references/delegated-render-control.md`
+- **content-only preview components (`MarkdownPreview` / `ImagePreview` / `AudioPreview`)** — Render a file's content with no shell chrome (no file bar, metadata, or Download/Copy-link). Import from `@cardstack/base/file-formats/index`; pass the FileDef instance as `@model`, an optional `@format` (default `'embedded'`), and `@displayContainer={{false}}` to own the geometry. The supported alternative to rendering a FileDef field and hiding its shell with `:deep()`. → `boxel-file-def/references/rendering-file-fields-in-templates.md`
 - **`CsvFileDef`, `JsonFileDef`, `TextFileDef`, `TsFileDef`, `GtsFileDef`** — Text-format file-backed assets.
 - **`Base64ImageField`** — Legacy inlined-base64 image. **Don't use for new cards** — embeds binary in JSON. Use FileDef subtypes instead.
 - **No-inline-binary rule** — Never `data:`, `blob:`, base64, image bytes, MP3 bytes in `StringField`, `outputText`, notes, or any JSON attribute. Use FileDef subtypes; for generated bytes, write to a realm file via `WriteBinaryFileCommand` first. → `boxel-file-def/references/no-inline-binary.md`
@@ -262,7 +265,12 @@ Direct browser ESM imports for libraries Boxel realms don't bundle.
 - **`UseAiAssistantCommand`** — Host command that opens a multi-turn AI room with a skill card + attached cards pre-loaded. → `command-with-skill-card-ref`
 - **OpenRouter image generation** — Image-gen via OpenRouter chat completions with `modalities: ['image', 'text']`. Default model: `google/gemini-2.5-flash-image` (Gemini Flash Image). ChatGPT/OpenAI image models on request (`openai/gpt-5-image-mini`, `openai/gpt-5.4-image-2`). → `integrate-openrouter-image-generation`
 - **`GenerateThumbnailCommand`** — Composes OpenRouter image-gen + `WriteBinaryFileCommand` + optional `PatchCardInstanceCommand` to patch `cardInfo.cardThumbnail`. → `integrate-thumbnail-card-ai`
-- **`ScreenshotCardCommand`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool). **Point-in-time** snapshots kept as separate files; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
+- **`ScreenshotCardTool`** — Captures a settled PNG of any saved card at `isolated` or `embedded` format (Puppeteer-driven via prerender pool) and returns a durable served media-cache URL (`captures[0].url`); needs realm read only, writes no realm file. **Point-in-time** snapshots; for a card that should *always* carry a current picture of itself (thumbnails, og images), declare `static screenshots` instead. → `integrate-screenshot-card-format`, `automate-declared-screenshots`
+- **`type: 'pdf'`** — Capture-spec output encoding that paginates the settled render into a PDF document instead of a raster (default `type: 'png'`). Lives on the capture-spec surfaces (`_screenshot/` URL, `POST /_screenshot-card`), not on `ScreenshotCardTool`'s input. Bounded post-render at **20 pages / 10 MB** — over either is a capture error naming the cap, never a truncation. Singular-only; incompatible with `fullPage`/`clip`/`target`/`viewport`. → `integrate-screenshot-card-format`
+- **`media: 'print'`** — Capture-spec axis choosing the CSS media the render settles under (default `media: 'screen'`). `print` engages the card's `@page` (paper size), `@media print`, and `break-*` CSS — the paper-layout choice, most relevant to `type: 'pdf'`. No `@page { size }` rule ⇒ Chrome's Letter default. → `integrate-screenshot-card-format`
+- **durable PDF URL** — A `{realm}_screenshot/{card-path}?type=pdf[&media=print]` serving URL embedded in a card: served from MediaCache (ledger hit on repeat, capture on miss), re-captured when the source card is edited, so an embedded "download PDF" link is always current; served with `Content-Disposition: inline` and a filename derived from the card path. Prefer over storing one-off base64 bytes. Served behind realm read — on a private realm render it through `SignedCaptureLink` / `SignedCapture`, never a bare anchor or `<object>`. → `integrate-screenshot-card-format`
+- **signed capture URL** — A durable `_screenshot/` URL plus a short-lived `?token=` (15 min, bound to one realm, one URL, one user; `read-capture` scope) that authorizes that single GET without an `Authorization` header — for the loads the auth service worker cannot reach: `<object>`/`<embed>` embeds and new-tab navigations, which otherwise 401 on a private realm. Minted by `QUERY {realm}_sign-capture-urls` for callers who already hold realm read (public realms echo the URL unsigned). **Ephemeral view-layer value — never persist it**; the durable URL is the only storable reference. → `integrate-screenshot-card-format`
+- **`SignedCaptureLink` / `SignedCapture`** — Card-facing components from `@cardstack/boxel-host/lib/signed-capture` that hide signed-capture minting. `SignedCaptureLink` is an anchor whose `href` stays the durable URL and whose click opens a new tab with a fresh token (popup-blocker-safe). `SignedCapture` is a renderless provider yielding `[signedUrl, error]` for render-time attributes (`<object data>`, `<embed src>`); yields nothing during prerender. → `integrate-screenshot-card-format`
 - **Steerable image generation** — Multi-step iterative refinement using initial prompt + steering input + first/current image lineage. → `automate-image-steering`
 - **Skill cards** — Cards typed as `Skill` from `@cardstack/base/skill` that pre-load into AI rooms with their description as system context.
 
@@ -281,7 +289,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **AI** — `ai-assistant`, `create-ai-assistant-room`, `open-ai-assistant-room`, `send-ai-assistant-message`, `one-shot-llm-request`, `set-active-llm`, `sync-openrouter-models`, `update-room-skills`.
 - **HTTP / generic** — `send-request-via-proxy`, `authed-fetch`, `search-google-images`.
 - **Card I/O** — `save-card`, `patch-fields`, `patch-card-instance`, `apply-markdown-edit`, `write-text-file`, `copy-card`, `copy-source`, `copy-file-to-realm`, `transform-cards`, `read-file-for-ai-assistant`, `read-card-for-ai-assistant`, `fetch-card-json`, `get-card`, `read-source`, `serialize-card`.
-- **Search** — `search-cards`, `search-and-choose`.
+- **Search** — `search-entries` (discovery: Specs, files, full readMe on the hit), `search-cards`, `search-and-choose`.
 - **Realm-server** — `get-all-realm-metas`, `get-available-realm-urls`, `get-default-writable-realm`, `get-catalog-realm-urls`, `get-realm-of-url`, `can-read-realm`, `validate-realm`, `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job`, `invalidate-realm-identifiers`, `sanitize-module-list`.
 - **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`, `delete-workspace`.
 - **Store** — `store-add`.
@@ -290,11 +298,11 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 → `boxel-patterns/references/integration-surfaces.md` §3 for the full annotated table.
 
-**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getCardMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
+**Command invocation modes** — A Command can be exposed via direct call, reactive resource (`commandData<T>`), card menu item (`[getMenuItems]`), typed progress, optimistic pipeline (run-card history), one-shot AI processor, multi-turn AI assistant, CLI script (`npx boxel run-command`), or atomic transactional install. → `boxel/references/command-invocation-modes.md`
 
 ## 19. Boxel UI (`@cardstack/boxel-ui`)
 
-**`/components`** — `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Drawer`, `Toast`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
+**`/components`** — `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
 **`/helpers`** — Logic (`eq`/`not`/`and`/`or`/`gt`/`gte`/`lt`/`lte`/arithmetic), templates (`cn`/`cssVar`/`element`/`optional`/`pick`), formatters (`formatDateTime`/`formatNumber`/`formatCurrency`/...), markdown (`markdownEscape`), menus (`MenuItem`/`MenuItemOptions`).
 
@@ -335,7 +343,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`npx boxel lint [path] --realm <url>`** — Remote lint (single file or whole realm).
 - **`npx boxel parse [path]`** — Local Glint type-check plus JSON document validation.
 - **`npx boxel test`** — Run co-located `.test.gts` QUnit card tests against the local workspace (or `--realm <url>` for cards already on a remote realm). Test-file contract (`runTests()`, `setupCardTest`, `renderCard`, shimmed modules): → `boxel/references/qunit-testing.md`
-- **`npx boxel search '<query-json>' --realms <urls>`** — Federated search.
+- **`npx boxel search --realm <realm-url> --query '<json>' [--json]`** — Federated search. `--realm` is required and repeatable; omitting `--query` lists every card in the realm(s).
 - **`npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]`** — Execute a host command via the prerenderer. CLI invocation mode for Commands. → `automate-run-command-cli`
 - **`npx boxel consolidate-workspaces`** — Merge multiple watched workspaces (interactive).
 
@@ -358,7 +366,8 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-workspace-cardinal-rules`** — Silent-failure trap checklist (DateField vs DateTimeField formats, external URLs in relationship links, `linksToMany` indexed keys, …); partially overlaps the `boxel` skill's cardinal rules under its own numbering.
 - **`bxl-authoring`** — Writing BXL in a card's `computeVia`: tag choice (plain string / `fx` / `jq`), what the `derive` profile refuses at field-definition time, collecting an aggregate's iterating argument, blank-input and error-value behavior, query-backed aggregation staleness, cyclic graphs, dates, memoization, `{ as: FieldDef }` materialization.
 - **`query-backed-relationships`** — Declaring and sizing the `{ query }` form of `linksTo`/`linksToMany`: the bounded page it holds, `totalMatchCount` vs counting rows, declaring a larger page, `eager: false`, singular-`linksTo` arity, and when a search component is the right tool instead.
-- **`boxel-ui-component-discovery`** — Mandatory catalog Spec search before hand-rolling UI primitives; enumerate → one broad `boxel search` query → read `attributes.readMe` → self-audit.
+- **`boxel-ui-component-discovery`** — Mandatory catalog Spec search before hand-rolling UI primitives; enumerate → one broad component-Spec query → read `attributes.readMe` → self-audit.
+- **`catalog-reuse`** — Mandatory catalog search before writing any `.gts`. Three searches, by what you need back: **Listing** → an installable bundle (`install` / `remix`); **Spec** → a module export named by its `ref` (CardDef: `linksTo`/`linksToMany` or `extends`; FieldDef: `contains`/`containsMany` or `extends`; component: import into markup; command: import + invoke); **instance** → the thing itself, to point a `linksTo` at (themes, files, `linkedExamples`). Listing and Spec are asked on every build; the instance search is conditional. Queries use `specType` + `matches` (bare words are ANDed — one concept per query, `OR` for alternatives of comparable specificity), relevance-sorted 0–1, broaden once before declaring a gap. A `Spec` is the searchable *pointer*, never the thing. Every hit must be dispositioned. Declares the `search-entries` tool. The general form of `boxel-ui-component-discovery`.
 - **`ember-best-practices`** — Ember.js performance + accessibility rules, 59 `rules/*.md` files across 10 prefix-keyed categories, indexed in its SKILL.md.
 - **`catalog-listing`** — Catalog operations + submission via `SubmissionWorkflowCard`.
 - **`source-code-editing`** — Canonical realm runner edit transport.
@@ -367,7 +376,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 In rough priority order:
 
-- **Theme first.** Decide theme strategy before writing the card. Templates use `var(--*)` tokens, never hard-coded colors. → `theme-first-workflow`
+- **Theme first.** Decide whether Boxel defaults are sufficient or a specific Theme is wanted before writing the card. Templates use `var(--*)` tokens, never hard-coded colors; default styling needs no Theme link. → `theme-first-workflow`
 - **Boxel built-in feature work uses the Boxel Brand Guide.** Base cards, host-facing Boxel UI, and Boxel-branded catalog material use `@cardstack/base/Theme/boxel-brand-guide` as the style source.
 - **`cardInfo.theme` is the per-instance override** (wins over computed `cardTheme`).
 - **Override `cardTitle` when there's a primary field.** Respect `cardInfo.name` first.
@@ -441,7 +450,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`link-view-transition`** — `document.startViewTransition` + `view-transition-name`.
 - **`link-flip-card`** — CSS-only front/back flip primitive.
 - **`link-host-mode-paths`** — `realm.json` `hostRoutingRules` to route `/`, `/about`, `/blog` to cards.
-- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getCardMenuItems]`.
+- **`link-command-menu-item`** — Expose a Command as a card menu item via `[getMenuItems]`.
 
 ### Collaborate
 - **`collab-yjs-shared-document`** — Real-time co-editing over a Yjs websocket relay: everyone syncs, one committer peer with a realm JWT materializes settled content into the official card. Y.Text and Y.Map variants; contested state stays with ordered commands.
@@ -457,7 +466,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`integrate-openrouter-image-generation`** — OpenRouter chat completions with `modalities: ['image','text']`.
 - **`integrate-one-shot-llm`** — Single LLM call via `OneShotLlmRequestCommand`.
 - **`integrate-filedef-generated-image`** — Write generated bytes with `WriteBinaryFileCommand` + link `ImageDef`/`PngDef`.
-- **`integrate-screenshot-card-format`** — Real PNG capture of a rendered card via Puppeteer.
+- **`integrate-screenshot-card-format`** — Real PNG **or paged PDF** capture of a rendered card via Puppeteer; includes the durable `_screenshot/…?type=pdf` embed URL, the `media=screen|print` choice, and the `SignedCaptureLink`/`SignedCapture` components that make private-realm downloads and `<object>` embeds authorize.
 - **`integrate-thumbnail-card-ai`** — AI thumbnail via `GenerateThumbnailCommand` (with `cardInfo.cardThumbnail` auto-patch).
 - **`integrate-send-request-via-proxy`** — Generic third-party HTTP through the host proxy.
 - **`integrate-three-js-via-cdn`** — Three.js / Babylon.js / raw WebGL via ESM CDN + modifier lifecycle.

@@ -11,7 +11,7 @@ Use this for the theme artifact itself. Use `boxel-design` when the task is prim
 
 ## Read First
 
-1. `boxel/references/theme-design-system.md` for the Boxel theme hierarchy, Brand Guide fields, and Boxel Brand Guide rule.
+1. `boxel/references/theme-design-system.md` for the Boxel theme hierarchy, Brand Guide fields, the Boxel Brand Guide rule, and dark mode (§3.3: `data-theme`, `darkModeVariables`).
 2. `boxel-ui-guidelines/references/theme-token-contract.md` for the full list of tokens a theme must satisfy — the only inventory; nothing else lists them.
 3. `references/shadcn-boxel-token-mapping.md` before assigning semantic color, spacing, radius, or component-facing token values.
 4. `references/design-md-adapter.md` when the input or output is a Google `DESIGN.md` file, a brand brief, or a generic design-system document.
