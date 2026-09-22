@@ -1,6 +1,6 @@
 # Markdown Field Editing
 
-**SCOPE:** MarkdownField edits in card instances only. Use `patch-fields` for other fields, SEARCH/REPLACE for code.
+**SCOPE:** MarkdownField edits in card instances only. Use `patch-fields` for other fields, the `run-realm-code` tool for code.
 
 ## When to Use
 - Large markdown where full replacement risks truncation

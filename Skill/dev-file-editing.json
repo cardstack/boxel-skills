@@ -11,7 +11,7 @@
       "cardInfo": {
         "notes": null,
         "name": "File Editing",
-        "summary": "Pointer to the Source Code Editing skill, which defines the SEARCH/REPLACE format and edit-tracking convention",
+        "summary": "Pointer to the Source Code Editing skill, which defines the `run-realm-code` tool and edit-tracking convention",
         "cardThumbnailURL": null
       },
       "commands": []

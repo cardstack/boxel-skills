@@ -303,7 +303,7 @@ Your templates must handle:
 {{/if}}
 ```
 
-**Remember:** When implementing templates via SEARCH/REPLACE, include tracking markers ⁿ for style blocks
+**Remember:** When implementing templates via `run-realm-code` tool, include tracking markers ⁿ for style blocks
 
 ### Real-World Example: Shopping List with Featured Items
 
