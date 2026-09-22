@@ -41,9 +41,14 @@ So read it as your first action, before you plan the work or tell the user what 
 
 ```
 → Need file content? read-file-for-ai-assistant
-→ Use SEARCH/REPLACE. For NEW files: add "(new)" after the URL in the SEARCH/REPLACE block.
+→ Use `run-realm-code` when it is available: pass all target file URLs and make
+  edits with awaited `Realm.replaceCode` / `Realm.createFile` calls. For NEW
+  files, use `Realm.createFile` with the complete file contents.
+→ If `run-realm-code` is unavailable, use SEARCH/REPLACE. For NEW files: add
+  "(new)" after the URL in the SEARCH/REPLACE block.
 → Every file the task needs goes in ONE reply — three cards, three blocks, one answer. Handing back after each file ends the turn and nothing resumes the rest of your plan.
-→ For code-change intent, ALWAYS use SEARCH/REPLACE. Data/document commands are secondary.
+→ For code-change intent, prefer `run-realm-code` when available. Data/document
+  commands are secondary. Fall back to SEARCH/REPLACE for older hosts.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → preview-format_cb94 (opens module + shows card preview)

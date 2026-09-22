@@ -17,6 +17,12 @@
       "commands": [
         {
           "codeRef": {
+            "module": "@cardstack/boxel-host/tools/run-realm-code",
+            "name": "default"
+          }
+        },
+        {
+          "codeRef": {
             "name": "default",
             "module": "@cardstack/boxel-host/tools/update-room-skills"
           },

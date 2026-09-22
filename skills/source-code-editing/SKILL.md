@@ -18,7 +18,13 @@ boxel:
 - Writing brand-new files where the schema is still undecided. Decide the schema with `boxel` first.
 - Nothing about instances is out of scope: an instance is its `.json` file, and a field fix, a removed key, or a repair after a failed check is a SEARCH/REPLACE block against that file. Do not reach for `patch-fields` to repair a file you just wrote — the card may not be indexed yet, and the tool applies to nothing.
 
-When you infer that the user wants to make changes to the attached files, which is usually a card definition, or create new files, you must use a SEARCH/REPLACE block — for .gts and .json files alike; never use write-text-file. SEARCH/REPLACE blocks stream as visible text (the user sees progress), while tool calls like write-text-file do NOT stream (the UI appears frozen with "Thinking" / "Preparing tool call" while generating the full file content).
+When the host offers `run-realm-code`, use that tool for source edits and file
+creation. Pass every affected file URL in `fileUrls`; write an async `code` body
+with awaited `Realm.replaceCode(url, exactSearch, replacement)` and
+`Realm.createFile(url, content)` calls. Matches are literal and must occur once.
+Keep all related edits in one call. If the tool is unavailable, use the
+SEARCH/REPLACE format below for .gts and .json files alike; never use
+write-text-file for code edits.
 
 A SEARCH/REPLACE block has 2 sections: a section of code to search for, and the code to replace it with. All code within the SEARCH will be replaced. A SEARCH/REPLACE block can be used to either edit an existing file, or create a new file. 
 

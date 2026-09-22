@@ -157,6 +157,25 @@ Sibling skills:
 - `<input>` / `<textarea>` / `<select>` without a label → lint error (`require-input-label`). Add an `aria-label` (or associate a `<label for>`).
 - AI/image APIs returning `data:image/...;base64` → strip the prefix, write bytes with `WriteBinaryFileCommand`, and store `linksTo(ImageDef/PngDef/FileDef)`; never save the data URI in `outputImageUrl`, `outputText`, notes, JSON, or any string field.
 
+## 🧪 Experimental code editing tool
+
+When the `run-realm-code` tool is available, use it for code creation and
+editing instead of emitting SEARCH/REPLACE prose. Pass the URLs of every file
+the script will edit in `fileUrls`, then use an async `code` body:
+
+```js
+await Realm.replaceCode(fileUrl, exactTextToFind, replacementText);
+await Realm.createFile(newFileUrl, completeFileContents);
+```
+
+`replaceCode` requires one exact, non-empty match. `createFile` refuses an
+existing path. Await every call, keep related edits in one invocation, and
+re-read a file before retrying after a failure. The host stages the edits and
+saves them after the script succeeds; linting and indexing happen afterward.
+Keep file contents as JavaScript strings and escape quotes, backslashes, and
+newlines correctly. If the tool is unavailable, use the normal source-editing
+instructions below.
+
 ## ✅ Always
 
 - For code-generation/editing, use **SEARCH/REPLACE** as the primary mechanism (see `source-code-editing`).
