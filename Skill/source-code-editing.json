@@ -12,11 +12,11 @@
       "cardInfo": {
         "notes": null,
         "name": "Source Code Editing",
-        "summary": "A skill to guide models to create SEARCH/REPLACE blocks to edit code, modified from Aider - https://aider.chat/",
+        "summary": "A skill to guide models to create `run-realm-code` tool calls to edit code, modified from Aider - https://aider.chat/",
         "cardThumbnailURL": null
       },
       "commands": [],
-      "cardDescription": "A skill to guide models to create SEARCH/REPLACE blocks to edit code, modified from Aider - https://aider.chat/"
+      "cardDescription": "A skill to guide models to create `run-realm-code` tool calls to edit code, modified from Aider - https://aider.chat/"
     },
     "relationships": {
       "cardInfo.theme": {

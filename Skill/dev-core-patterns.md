@@ -152,7 +152,7 @@ export class AddressField extends FieldDef {
 
 ### 4. Templates with Proper Computation Patterns
 
-**Remember:** When implementing templates via SEARCH/REPLACE, track all major sections with ⁿ and include the post-block notation `╰ ⁿ⁻ᵐ`
+**Remember:** When implementing templates via `run-realm-code` tool, track all major sections with ⁿ and include the post-block notation `╰ ⁿ⁻ᵐ`
 
 ```gts
 static isolated = class Isolated extends Component<typeof BlogPost> { // ³⁰ Isolated format

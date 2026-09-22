@@ -57,7 +57,7 @@ A `contains` value is always in a card's search doc, so you can filter on it wit
 
 ### MANDATORY TECHNICAL REQUIREMENTS
 
-1. **Always use SEARCH/REPLACE with tracking for .gts files**
+1. **Always use the `run-realm-code` tool with tracking for .gts files**
 2. **Export ALL CardDef and FieldDef classes inline**
 3. **Never use reserved words as field names**
 4. **Keep computed fields simple and unidirectional**
@@ -67,7 +67,7 @@ A `contains` value is always in a card's search doc, so you can filter on it wit
 ### TECHNICAL VALIDATION CHECKLIST
 
 Before generating ANY code:
-- [ ] SEARCH/REPLACE blocks with tracking markers
+- [ ] `run-realm-code` tool calls with tracking markers
 - [ ] Every CardDef field uses `linksTo`/`linksToMany`
 - [ ] Every FieldDef field uses `contains`/`containsMany`
 - [ ] All classes have `export` keyword inline

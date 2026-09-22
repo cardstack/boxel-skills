@@ -3,7 +3,7 @@
 ### Creating Cards
 | Tool | Use When |
 |------|----------|
-| **SEARCH/REPLACE** | **Always use for .gts files** — new definitions, templates, any code file |
+| **realm runner** | **Always use for .gts files** — new definitions, templates, any code file |
 | **write-text-file** | New .json card instances from scratch (structured data, typically small) |
 | **copy-card + patch-fields** | Clone existing card as template, then modify |
 
@@ -12,21 +12,21 @@
 |------|----------|----------------|
 | **patch-fields_3e67** ⭐ | Field updates (nested paths, arrays, linksTo) — **preferred** | Card doesn't exist yet |
 | **patchCardInstance** | Full card replacement (use sparingly — replaces entire card) | Surgical edits |
-| **SEARCH/REPLACE** | Code (.gts), JSON structure, schema changes, new files | Small markdown edits in large docs |
+| **realm runner** | Code (.gts), JSON structure, schema changes, new files | Small markdown edits in large docs |
 | **ApplyMarkdownEdit** | Targeted edits in large markdown fields | Short fields, code files, non-markdown |
 
 **Quick Decision:**
 ```
 Card doesn't exist yet?
-├─ New .gts file → SEARCH/REPLACE with (new) marker (ALWAYS — never write-text-file for .gts)
+├─ New .gts file → `run-realm-code` with `Realm.createFile`
 ├─ New .json instance → write-text-file
 ├─ Clone + modify → copy-card → patch-fields
-└─ Code mode .json → SEARCH/REPLACE
+└─ Code mode .json → realm runner
 
 Card already exists?
 ├─ Update fields → patch-fields (preferred)
 ├─ Full replacement → patchCardInstance (sparingly)
-├─ Edit .gts or JSON structure → SEARCH/REPLACE
+├─ Edit .gts or JSON structure → realm runner
 └─ Small change in big markdown → ApplyMarkdownEdit
 ```
 

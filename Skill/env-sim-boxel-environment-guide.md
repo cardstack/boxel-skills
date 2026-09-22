@@ -98,13 +98,13 @@ User wants to change card appearance/logic/code OR create new code?
 Just made schema-breaking changes?
 ├─ Offer to fix instances: "Update existing instances?"
 ├─ Search for all affected instances
-├─ ≤10 files? → Fix all with SEARCH/REPLACE
+├─ ≤10 files? → Fix all with the `run-realm-code` tool
 ├─ >10 files? → "Found X instances. Update first 10?"
 ├─ After fixing → switch-submode to instance.json to verify
 └─ If partial → "First 10 done. Continue with next 10 of Y remaining?"
 
 Creating NEW .gts file?
-├─ Create with SEARCH/REPLACE
+├─ Create with the `run-realm-code` tool
 ├─ Wait for user acceptance
 ├─ Navigate with codePath to just created .gts
 └─ Use preview-format to show the isolated view
@@ -117,7 +117,7 @@ User exploring/finding cards?
 User updating content?
 ├─ Code/template changes? → Development skill active? Any mode OK : Switch to code mode first
 ├─ Data-only changes? → Use `patch-card-instance` or 'patch-fields` if changes to a relatively small portion of the instance.
-└─ Bulk operations or need to fix potential invalid json? → Switch to code mode for SEARCH/REPLACE
+└─ Bulk operations or need to fix potential invalid json? → Switch to code mode for realm runner
 
 In interact mode with open card stack?
 ├─ Extract navigation hierarchy for context
@@ -147,7 +147,7 @@ User requests code creation/modification in Code Mode?
 │      ├─ Call set-active-llm_1887 with roomId and llmId = "anthropic/claude-sonnet-4.6"
 │      └─ Continue
 └─ ✓ BOTH skills active + LLM approved → Proceed with code generation
-   ├─ Use SEARCH/REPLACE for all code creation/modification
+   ├─ Use the `run-realm-code` tool for all code creation/modification
    ├─ Follow Boxel Development patterns for CardDef/FieldDef
    └─ Follow Source Code Editing patterns for file operations
 ```
@@ -205,13 +205,13 @@ Where is the user in Boxel?
 **Current Format = Code Focus:** User viewing embedded? → Edit embedded template  
 
 **Command Names:**
-- SEARCH AND REPLACE → Always available. Use this as primary way to create and edit `.gts` and `.json` files (including brand-new definitions)
+- `run-realm-code` → Create and edit `.gts` and `.json` source files with `Realm.createFile` / `Realm.replaceCode`
 - `switch-submode_dd88` → Toggle interact/code modes
 - `show-card_566f` → Display card in current mode
 - `SearchCardsByTypeAndTitleCommand_a959` → Simple title search
 - `SearchCardsByQueryCommand_847d` → Advanced search (preferred)
 - `read-file-for-ai-assistant_a831` → Read files
-- `write-text-file_e5a1` → Only for sub-10-line stubs or when SEARCH/REPLACE truly cannot create/modify the file after repeated attempts (only after a failed SEARCH/REPLACE attempt)
+- `write-text-file_e5a1` → Only for sub-10-line stubs or when realm runner truly cannot create/modify the file after repeated attempts (only after a failed realm runner attempt)
 - `patchCardInstance` → Update card data only
 - `patch-fields_3e67` → Fine-grained card updates
 - `copy-card_eefc` → Duplicate a card
@@ -394,7 +394,7 @@ Example: https://app.boxel.ai/sarah/pet-rescue/animals/dog.gts
   }
 }
 ```
-**Use for:** Single data updates only. Everything else → code mode + SEARCH/REPLACE
+**Use for:** Single data updates only. Everything else → code mode + realm runner
 
 ### patch-fields_3e67 (PatchFieldsCommand)
 
@@ -479,7 +479,7 @@ You can specify field paths using dot or bracket notation:
 
 **Recommended Workflow:**
 - For fullsome updates to a card, patch-card-instance is still valid, but patch-fields_3e67 is preferred for targeted changes
-- For bulk or schema-wide changes, use SEARCH/REPLACE or transform-cards
+- For bulk or schema-wide changes, use the `run-realm-code` tool or transform-cards
 
 ### Example Workflow
 ```json
@@ -489,7 +489,7 @@ patch-fields_3e67 with attributes.cardId set to the card URL and attributes.fiel
 
 ### Additional Commands
 
-**write-text-file**: Fallback file creation (use only when SEARCH/REPLACE cannot work and only after a failed SEARCH/REPLACE attempt)
+**write-text-file**: Fallback file creation (use only when realm runner cannot work and only after a failed realm runner attempt)
 
 ⚠️ **CRITICAL: `content` must be a STRING, not a nested object!**
 
@@ -578,8 +578,8 @@ patch-fields_3e67 with attributes.cardId set to the card URL and attributes.fiel
 File contents attached to tool call result.
 
 **Use for:** 
-- Getting file content before SEARCH/REPLACE
-- Reading JSON with syntax errors → fix with SEARCH/REPLACE
+- Getting file content before realm runner
+- Reading JSON with syntax errors → fix with the `run-realm-code` tool
 
 ## Workflows
 
@@ -587,14 +587,14 @@ File contents attached to tool call result.
 ```json
 `switch-submode_dd88` with `attributes.submode` set to "code"
 → `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to "https://[domain]/user/card.gts"
-→ Emit a code patch search/replace block
+→ Emit a code patch `run-realm-code` tool call
 → (offer refresh)
 ```
 
 ### Card Creation
 ```json
 `switch-submode_dd88` with `attributes.submode` set to "code"
-→ Emit a code patch search/replace block to create the new file
+→ Emit a code patch `run-realm-code` tool call to create the new file
 → `show-card_566f` with `attributes.cardId` set to the url of the new file
 ```
 
@@ -607,7 +607,7 @@ File contents attached to tool call result.
 ### Schema Migration
 1. Update schema with breaking changes:
 ```json
-→ Emit a code patch search/replace block
+→ Emit a code patch `run-realm-code` tool call
 ```
 2. Add migration command to same file:
 ```typescript
@@ -660,7 +660,7 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 ❌ Not switching to code mode first (unless Development skill or variant is active)  
 ❌ Missing file content → use read-text-file first  
 ❌ Missing `query` wrapper in searches  
-❌ Using patch-card-instance for schema → emit a search/replace block to update code
+❌ Using patch-card-instance for schema → emit a `run-realm-code` tool call to update code
 ❌ Auto-running refresh → always propose first  
 ❌ Exceeding batch limit (10 files) for transforms
 
@@ -671,7 +671,7 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 `set-active-llm_1887` with `attributes.roomId` set to the current room ID and `attributes.llmId` set to "anthropic/claude-sonnet-4.6"
 → `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/card.gts"
 → Prompt "improve code structure"
-→ Emit a code patch search/replace block
+→ Emit a code patch `run-realm-code` tool call
 ```
 **Note:** Always verify/switch to code-approved LLM first
 
@@ -679,14 +679,14 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 ```json
 `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "data.csv"
 → Prompt "generate CardDef from CSV"
-→ Emit a code patch search/replace block
+→ Emit a code patch `run-realm-code` tool call
 ```
 
 ### 3. Live Preview Development
 ```json
 `show-card_566f` with `attributes.cardId` set to e.g. "https://[domain]/user/Card/instance"
 → Prompt "enhance UX for this card"
-→ Emit a code patch search/replace block
+→ Emit a code patch `run-realm-code` tool call
 → `show-card_566f` with `attributes.cardId` set to e.g. "https://[domain]/user/Card/instance"
 ```
 
@@ -694,7 +694,7 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 ```json
 `SearchCardsByQueryCommand_847d` with `attributes.query` set to valid query JSON that includes a filter
 → Prompt "detect relationship patterns"
-→ Emit a code patch search/replace block to create a transformation command
+→ Emit a code patch `run-realm-code` tool call to create a transformation command
 → `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk update
 ```
 
@@ -702,7 +702,7 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 ```json
 `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to e.g. "https://[domain]/user/schema.gts"
 → `SearchCardsByQueryCommand_847d` with `attributes.query` set to valid query json with a filter specified
-→ Emit a code patch search/replace block creating a migration command
+→ Emit a code patch `run-realm-code` tool call creating a migration command
 → `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform bulk migration
 ```
 
@@ -711,7 +711,7 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to "https://[domain]/user/card.gts"
 → `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to "https://[domain]/user/Card/instance.json"
 → `SearchCardsByQueryCommand_847d` with `attributes.query` set to e.g. '{"filter": {"contains": {"imports": "card"}}}'
-→ Emit a code patch search/replace block
+→ Emit a code patch `run-realm-code` tool call
 ```
 
 ### 7. Intelligent Debug Escalation
