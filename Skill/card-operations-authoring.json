@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "notes": null,
+        "name": "Card Operations Authoring",
+        "summary": "Declaring named actions on a card as plain data with @operation and invoking them through operations() — the nine base operations, the typed references, the sugar clauses and the bxl escape hatch, atomic batches and saved searches, what lowering refuses at index time, and the access posture",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/cardstack-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/card-operations-authoring/SKILL.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/card-operations-authoring/SKILL.md"
+        }
+      }
+    }
+  }
+}
