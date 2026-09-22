@@ -334,9 +334,9 @@ members simply take any payload.
 
 plus `lid` on a create **that a batch staged** — a single
 `operations(Class).create(…)` names no local id, so none comes back. A write
-reports identity and version rather than reprinting the document: the caller supplied the state, and reconciling against
-the version is the common case. A `read` answers its document. A `delete`
-answers `null`.
+reports identity and version rather than reprinting the document: the caller
+supplied the state, and reconciling against the version is the common case. A
+`read` answers its document. A `delete` answers `null`.
 
 ### Batches
 
@@ -382,9 +382,7 @@ get onThisUnit() {
 ```
 
 ```hbs
-{{#if this.onThisUnit}}
-  <@context.searchResultsComponent @query={{this.onThisUnit}} @mode='hover' />
-{{/if}}
+<@context.searchResultsComponent @query={{this.onThisUnit}} @mode='hover' />
 ```
 
 Calling it answers the resource; `.query()` answers the wire query, which is what
@@ -405,11 +403,19 @@ itself is not.
 **A search that compares against the caller answers nothing when the session
 cannot supply one** — nobody signed in, or a render, which authenticates as
 itself. That is the one silent case, and it applies only to a declaration that
-reads `actor()`: the search component treats the absent query as idle, which is
-what the `{{#if}}` above is for. A search that names no `actor()` always
-answers, so guarding one buys nothing. Everything else — a payload the
-declaration cannot resolve, a realm scope that will not resolve — is raised at
-the call rather than swallowed.
+reads `actor()` — which is the search worth guarding:
+
+```hbs
+{{#if this.myPatients}}
+  <@context.searchResultsComponent @query={{this.myPatients}} @mode='hover' />
+{{/if}}
+```
+
+The search component treats an absent query as idle, so a card may hand it over
+either way; the guard is what lets the surrounding markup say something else
+instead. A search that names no `actor()` always answers, so guarding one buys
+nothing. Everything else — a payload the declaration cannot resolve, a realm
+scope that will not resolve — is raised at the call rather than swallowed.
 
 **A saved search is as fresh as the index.** It reads the search index, which
 lags a write until that write is indexed. To read a card just written, read the
