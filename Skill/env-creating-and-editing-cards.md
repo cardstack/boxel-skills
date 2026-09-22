@@ -18,7 +18,7 @@
 **Quick Decision:**
 ```
 Card doesn't exist yet?
-├─ New .gts file → realm runner with (new) marker (ALWAYS — never write-text-file for .gts)
+├─ New .gts file → `run-realm-code` with `Realm.createFile`
 ├─ New .json instance → write-text-file
 ├─ Clone + modify → copy-card → patch-fields
 └─ Code mode .json → realm runner

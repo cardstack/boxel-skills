@@ -8,7 +8,7 @@ Choosing the right host-command combination for creating new cards or editing ex
 |------|----------|
 | **run-realm-code** | **Always — any new file**, `.gts` definitions and `.json` instances alike (use `Realm.createFile`) |
 | **copy-card + patch-fields** | Clone existing card as template, then modify |
-| **write-text-file** | Avoid — use the `run-realm-code` tool instead (tool calls don't stream and skip the code-patch pipeline) |
+| **write-text-file** | Use `run-realm-code` for source files; use a field-editing tool for card data. |
 
 ## Editing Cards
 
@@ -16,7 +16,7 @@ Choosing the right host-command combination for creating new cards or editing ex
 |------|----------|----------------|
 | **patch-fields_3e67** ⭐ | Field updates (nested paths, arrays, linksTo) — **preferred** | Card doesn't exist yet |
 | **patchCardInstance** | Full card replacement (use sparingly — replaces entire card) | Surgical edits |
-| **realm runner** | Code (.gts), JSON structure, schema changes, new files | Small markdown edits in large docs |
+| **run-realm-code** | Code (.gts), JSON structure, schema changes, new files | Small markdown edits in large docs |
 | **ApplyMarkdownEdit** | Targeted edits in large markdown fields | Short fields, code files, non-markdown |
 
 ## Quick Decision

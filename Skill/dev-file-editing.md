@@ -6,5 +6,5 @@ Key reminders:
 
 - ALWAYS use the `run-realm-code` tool for `.gts` files — never `write-text-file`.
 - Every `.gts` file starts with the `// ═══ [EDIT TRACKING: ON] Mark all changes with ⁿ ═══` banner; mark changed lines with sequential `// ⁿ` superscript comments. `.json` files never get tracking comments.
-- For new files, append `(new)` after the file URL line.
-- SEARCH text must match the existing file exactly; keep blocks small.
+- For new files, include the URL in `fileUrls` and call `Realm.createFile`.
+- For existing files, pass exact current text to `Realm.replaceCode`.

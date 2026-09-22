@@ -47,12 +47,12 @@
 ```
 
 ### Code Generation
-Two replies at most. First reply: `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to the file, so the SEARCH block matches its current content (skip this when you already have the content). Second reply, right after the result: one line of prose, then the `run-realm-code` tool call(s), then — if the user should see the result — a `show-card_566f` call for the instance, all in that same reply.
+Two replies at most. First reply: `read-file-for-ai-assistant_a831` with `attributes.fileUrl` set to the file, so `Realm.replaceCode` receives its current content (skip this when you already have the content). Second reply, right after the result: one line of prose, then the `run-realm-code` tool call(s), then — if the user should see the result — a `show-card_566f` call for the instance, all in that same reply.
 
 Switching to code mode is optional navigation for the user's benefit — at most once per task, with `switch-submode_dd88` (`attributes.submode` "code", `attributes.codePath` the file URL), and only when the tab is not already in code mode on that file. It is never a step of writing, and it never needs a reply of its own.
 
 ### Card Creation
-One reply: a `run-realm-code` tool call per file with `(new)` after each file URL — the definition and every instance together — plus, if wanted, a `show-card_566f` call with `attributes.cardId` set to an instance's URL (the `.json` path without the extension). The blocks create the files; no mode switch and no placeholder call comes first. If you switch to code mode so the user can watch, do it once, before the reply that carries the blocks.
+One reply: one `run-realm-code` tool call listing the definition and every instance in `fileUrls`, with `Realm.createFile` for each new file. Add a `show-card_566f` call if the user should see an instance. No mode switch or placeholder call creates files.
 
 ### Search & Modify
 ```json

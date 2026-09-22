@@ -205,7 +205,7 @@ Where is the user in Boxel?
 **Current Format = Code Focus:** User viewing embedded? → Edit embedded template  
 
 **Command Names:**
-- SEARCH AND REPLACE → Always available. Use this as primary way to create and edit `.gts` and `.json` files (including brand-new definitions)
+- `run-realm-code` → Create and edit `.gts` and `.json` source files with `Realm.createFile` / `Realm.replaceCode`
 - `switch-submode_dd88` → Toggle interact/code modes
 - `show-card_566f` → Display card in current mode
 - `SearchCardsByTypeAndTitleCommand_a959` → Simple title search

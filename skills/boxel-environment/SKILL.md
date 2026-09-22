@@ -41,8 +41,8 @@ So read it as your first action, before you plan the work or tell the user what 
 
 ```
 → Need file content? read-file-for-ai-assistant
-→ Use `run-realm-code` when it is available: pass all target file URLs and make
-  edits with awaited `Realm.replaceCode` / `Realm.createFile` calls. For NEW
+→ Use `run-realm-code`: pass all target file URLs and make edits with awaited
+  `Realm.replaceCode` / `Realm.createFile` calls. For NEW
   files, use `Realm.createFile` with the complete file contents.
 → Every file the task needs goes in ONE `run-realm-code` call — three cards, three
   files, one script. The tool call must include the complete file contents for
@@ -63,7 +63,7 @@ So read it as your first action, before you plan the work or tell the user what 
 ├─ Long markdown field (>500 chars)?  → ApplyMarkdownEditCommand_c112
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
-├─ Bulk / malformed JSON?              → Code mode + realm runner
+├─ Bulk / malformed JSON?              → `run-realm-code`
 └─ After change                        → show-card_566f to verify
 ```
 
