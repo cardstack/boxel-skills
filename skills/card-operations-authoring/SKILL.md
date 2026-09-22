@@ -85,21 +85,46 @@ delete: asking that card to delete itself archives it.
 answers it before it would consult a stored definition, so a declaration under
 it would never be reached.
 
-**Declaring an operation on a `FileDef` subclass is legal, and a stored file
-does not reach it.** A file names its type by its extension, matched against a
-fixed table of base file classes, so a `.txt` resolves to base's `TextFileDef`
-whichever subclass an author wrote. The declaration is well-formed and lowers
-cleanly; what is missing is the binding from a stored file to the author's
-class. Two consequences, and the second is the one that bites first: the name is
-never found at dispatch, and a file hydrated as the base class carries no such
-member, so `operations(log).record(…)` throws before any request is made.
+**A file's operations are the ones its class declares, and its class is the
+realm's to say.** A stored file names its type by its extension, and a realm
+binds an extension to a class of its own with `fileTypes` on the `RealmConfig`
+card at `realm.json`:
 
-Reach a file's bytes through the **base** `appendLine` and `update`, composing
-the line at the call site:
+```json
+"fileTypes": {
+  ".log": { "module": "./clinical/audit-log", "name": "AuditLog" }
+}
+```
+
+The class extends a base file class and declares operations like any card:
 
 ```ts
-b.on(this.record.auditLog).appendLine({ line: auditLine });
+export class AuditLog extends TextFileDef {
+  static displayName = 'Audit Log';
+  // Restated rather than inherited: `TextFileDef` accepts `.txt`/`.text`, so
+  // inheriting its list would leave the file picker unable to see the very
+  // files this type is for.
+  static acceptTypes = '.log,text/plain';
+
+  @operation static record = {
+    base: 'appendLine',
+    params: { what: StringField },
+    input: bxl`. + { line: (TEXT(NOW(); "yyyy-mm-dd hh:mm:ss") + " " + actor() + " " + params("what")) }`,
+  } satisfies OperationDeclaration;
+}
 ```
+
+```ts
+b.on(this.record.auditLog).record({ what: 'transferred to intensive care' });
+```
+
+**Without a binding a declaration is unreachable rather than broken.** An
+unbound extension resolves to a base file class, whose only writes are the base
+`update` and `appendLine`. A declaration on an author's own subclass then
+lowers, indexes, and is never found by name — and the instance carries no such
+member either, so the call throws before any request is made. A realm may
+re-bind an extension the base table already recognizes as a file; it cannot
+invent one.
 
 The names `atomic`, `on`, `find`, `parallel` and `serial` belong to the
 invocation surface and cannot name an operation. Neither can a name that already
@@ -207,6 +232,30 @@ values. `assert` guards **data state** — it is never an authorization check.
 
 `fill` and `set` differ only in which base carries them: `fill` populates a new
 card, `set` writes an existing one.
+
+### `input` — a value the caller cannot forge
+
+`input` runs first, over the payload the caller sent, and produces the payload
+the operation uses — so a value it supplies satisfies a declared param the
+caller left out. It reads `.` (that payload), `params()`, `actor()` and
+`realmConfig()`.
+
+That is the difference between a log the caller writes and a log the realm
+keeps. An `appendLine` declaring a `line` param hands the whole line to the
+caller, including the part naming who wrote it; an `input` program composes the
+line where a caller cannot reach it.
+
+Two things to get right, both quiet when wrong:
+
+- **`. +` merges into the payload; a bare object replaces it.** Writing
+  `{ line: … }` on its own drops every declared param.
+- **`NOW()` answers a spreadsheet serial, not a timestamp.** Format it —
+  `TEXT(NOW(); "yyyy-mm-dd hh:mm:ss")` — or the line carries a number like
+  `46023.518`.
+
+`input` is accepted on every base, including the two appends and a file's
+`update`, which carry no `transformations` program at all. So it is the only
+stage that can stamp a realm-supplied value into an appended line.
 
 ### The raw escape hatch
 
@@ -465,8 +514,10 @@ text.
 `packages/experiments-realm/clinical/` is a realm driven entirely by named
 operations: a program-guarded `transform`, an arithmetic one, a declarative
 `assert` over a link collection, a named `create` that links back through
-`instance('id')`, an `appendContainsMany` vitals log, a create-and-link `atomic`
-batch, a parallel transfer across three cards, and two saved searches rendered
-through `@context.searchResultsComponent`.
+`instance('id')`, an `appendContainsMany` vitals log, a declared `appendLine` on
+a realm-bound `FileDef` subclass whose `input` program stamps the timestamp and
+the actor, a create-and-link `atomic` batch, a parallel transfer across three
+cards, and two saved searches rendered through
+`@context.searchResultsComponent`.
 `packages/experiments-realm/clinical/patient-record.gts` is the file to copy
 from.
