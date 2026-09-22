@@ -102,7 +102,7 @@ The five formats every CardDef can declare via `static <format> = class extends 
 ## 5. Query system
 
 - **`Query`** — Type imported from `@cardstack/runtime-common`. Carries `filter`, `sort`, `realmURLs`.
-- **`getCards(this, queryThunk)`** — Component-level reactive query. Returns an object with `instances`, `isLoading`. Best inside `static isolated` Components.
+- **`getCards(this, queryThunk)`** — Component-level reactive query. Returns a resource (not a promise) with `instances`, `isLoading`; hold it as a class field and render off it. Best inside `static isolated` Components. → `boxel-patterns/patterns/resource-consume-from-context`
 - **`getCard(this, urlThunk)`** — Component-level reactive single-card fetch.
 - **`@context.searchResultsComponent`** — Preferred entry-rooted result-list surface (`<SearchResults>`); each yielded `entry.component` renders itself (prerendered HTML or live card, no branching). Build `@query` with `searchEntryWireQueryFromQuery` + `realms`; `@mode` controls hydration; `@overlays={{false}}` drops the operator-mode overlay and `@displayContainer={{false}}` drops each row's container chrome. Replaces the removed `PrerenderedCardSearch`. → `boxel/references/query-systems.md`
 - **`searchEntryWireQueryFromQuery` / `SearchEntryWireQuery`** — Helper + type (from `@cardstack/runtime-common`) that turn an ordinary query into the entry-rooted query `@context.searchResultsComponent` expects. → `boxel/references/query-systems.md`
@@ -438,6 +438,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 
 ### Automate / Compute
 - **`automate-linked-to-me-lookup`** — Schema-level query-backed `linksToMany` (preferred) or component-level `getCards()`. For circular `linksTo` between two CardDefs, both sides use the `() => Class` thunk form to avoid cyclic-import errors.
+- **`resource-consume-from-context`** — Read `getCards` / `getCard` / `getCardCollection` by rendering straight off the resource (`instances` + `isLoading`, `card` + `isLoaded` / `cardError`, `cards` + `cardErrors`). Never await, `.then`, copy into `@tracked`, or poll one.
 - **`resource-for-state`** — Wrap third-party library state in an ember-resources Resource.
 - **`automate-declared-screenshots`** — Self-refreshing screenshot slots via `static screenshots`, consumed as `@model.screenshotURLs.<name>`; a `useAsThumbnail: true` slot feeds `cardThumbnailURL` so grid tiles show the real rendering with zero template edits. Prefer over the imperative screenshot/thumbnail commands whenever the card should *always* have a current picture of itself.
 - **`automate-image-steering`** — Iteratively refine an image generation with initial prompt + steering input + first/current image lineage.
