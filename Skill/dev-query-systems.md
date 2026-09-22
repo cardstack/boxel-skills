@@ -109,9 +109,9 @@ get featured() { return (this.skills?.instances ?? []).slice(0, 3); } // derive 
 {{#if this.skills.isLoading}}Loading…{{else}}{{#each this.featured as |card|}}…{{/each}}{{/if}}
 ```
 
-`getCards` exposes `instances` / `instancesByRealm` / `meta` and `isLoading`; `getCard` exposes `card` and `isLoaded` + `cardError` (`isLoaded` is also true for a failed card, so check `cardError` first); `getCardCollection` exposes `cards` and `isLoaded` + `cardErrors`. `getCards` is not live unless you pass `{ isLive: true }`.
+`getCards` exposes `instances` / `instancesByRealm` / `meta` and `isLoading`; `getCard` exposes `card` and `isLoaded` + `cardError` (`isLoaded` is also true for a failed card, so check `cardError` first); `getCardCollection` exposes `cards` and `isLoaded` + `cardErrors`. `getCards` has no error property — a failed search looks empty except that `meta.incomplete` is set, so check it before reporting a count. An `undefined` id or id list reports `isLoaded: false` forever, so check your own input before showing a loading state. `getCards` is not live unless you pass `{ isLive: true }`.
 
-Smells — any of these means the resource is being fought instead of read: awaiting a resource; calling `.then` on one; copying `.instances` / `.card` / `.cards` into a `@tracked` field; holding a promise for one; polling one on a timer or racing it against a timeout; reading one from a constructor; creating one inside a getter (a new search per read); swallowing its error. A genuinely one-shot read inside a click handler or command uses the promise API instead — `await @context.store.search(...)` / `store.get(id)`.
+Smells — any of these means the resource is being fought instead of read: awaiting a resource; calling `.then` on one; copying `.instances` / `.card` / `.cards` into a `@tracked` field; holding a promise for one; polling one on a timer or racing it against a timeout; reading one from a constructor; creating one inside a getter (a new search per read); swallowing its error. A genuinely one-shot read inside a click handler or command uses the promise API instead — `await @context.store.search(...)` / `store.get(id)`; `store.get` resolves to the card or its error, so check which before using it.
 
 > `@context.prerenderedCardSearchComponent` / `<PrerenderedCardSearch>` no longer exist. Use `@context.searchResultsComponent`.
 

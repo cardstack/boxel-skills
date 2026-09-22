@@ -18,12 +18,13 @@ All three are reached through `@context` — none is a value import (importing `
 
 | Getter | Call | Properties to read | Loading / error |
 |---|---|---|---|
-| `getCards` | `getCards(this, () => query, () => realms, { isLive: true })` | `instances`, `instancesByRealm`, `meta` (`meta.page.total`) | `isLoading` |
+| `getCards` | `getCards(this, () => query, () => realms, { isLive: true })` | `instances`, `instancesByRealm`, `meta` (`meta.page.total`) | `isLoading`, `meta.incomplete` |
 | `getCard` | `getCard(this, () => id)` | `card`, `id` | `isLoaded` (true once the card **or its error** is in), `cardError` |
-| `getCardCollection` | `getCardCollection(this, () => ids)` | `cards`, `ids` | `isLoaded`, `cardErrors` |
+| `getCardCollection` | `getCardCollection(this, () => ids)` | `cards`, `ids` | `isLoaded` (false forever for an `undefined` id list — pass `[]`), `cardErrors` |
 
 - **`getCards` is not live unless you ask.** Without `{ isLive: true }` the search runs once per change to its query or realms. With it, the resource also subscribes to the searched realms and re-runs as their contents change. A live search costs a re-run per relevant realm change, so ask for it when the card is on screen and should follow writes — not by reflex on every list.
-- **`getCards` with no query is idle.** Return `undefined` from the query thunk to hold the search until its inputs exist; the resource then reports `isLoading: false` and no instances, so guard on your own input, not on the empty list.
+- **A failed `getCards` search looks empty.** It has no error property: a failure clears `instances`, sets `meta.page.total` to 0, and sets `meta.incomplete`. The same flag is set when a realm the search fanned out to did not answer, so the rows are a floor. Check `meta.incomplete` before reporting a count or "nothing here".
+- **An `undefined` query holds the search; it does not clear it.** Return `undefined` from the query thunk until the inputs exist, and the resource stays idle — `isLoading: false`, no instances — so guard on your own input, not the empty list. A query that *goes back* to `undefined` later leaves the last results in place (and a live search keeps re-running that last query on realm changes), so don't use `undefined` to mean "show nothing"; gate the template on your input instead.
 - **`getCard` reports an error as loaded.** Check `cardError` before trusting `card`: when the card's server state becomes an error, `card` can still hold the last good instance.
 - Want to render whole cards rather than read their fields? You probably want `@context.searchResultsComponent`, not `getCards` — see `show-list-prefer-prerendered`.
 
@@ -58,7 +59,7 @@ class Isolated extends Component<typeof Course> {
 
 `getCard` and `getCardCollection` read the same way — `this.instructor.card`, `this.members.cards` — guarded by `isLoaded` and their error property. See `example.gts` for all three side by side.
 
-**A genuinely one-shot, imperative read** — inside a click handler or a command, where the answer is consumed once and nothing renders from it — is a promise API, not a resource: `await this.args.context?.store.search(query, realms)` or `await this.args.context?.store.get(id)`. Choose that API; don't manufacture a promise out of a resource.
+**A genuinely one-shot, imperative read** — inside a click handler or a command, where the answer is consumed once and nothing renders from it — is a promise API, not a resource: `await this.args.context?.store.search(query, realms)` or `await this.args.context?.store.get(id)`. `store.get` resolves to the card **or its error** rather than rejecting, so check which you got before using it. Choose that API; don't manufacture a promise out of a resource.
 
 ## Smell list — check your own output against it
 
@@ -71,11 +72,11 @@ Any of these in a card means the resource is being fought instead of read. Repla
 5. **Polling a resource on a timer or racing it against a timeout** — `setInterval` / `setTimeout` / `requestAnimationFrame` loops that check `isLoading` or `instances.length`, or `Promise.race` with a deadline.
 6. **Reading a resource from a constructor** — the constructor runs once, before the data exists; whatever it derives stays empty. Create the resource as a class field and read it from the template or a getter.
 7. **Creating a resource inside a getter or template helper** — `get skills() { return this.args.context?.getCards(...) }` makes a new resource, and a new search, on every read. Create it once, as a class field.
-8. **Swallowing the resource's error** — `.catch(() => {})`, or rendering `card` without looking at `cardError` / `cardErrors`.
+8. **Swallowing the resource's error** — `.catch(() => {})`, rendering `card` without looking at `cardError` / `cardErrors`, or rendering an empty `getCards` result without looking at `meta.incomplete`.
 
 **Gotchas:**
 - The thunks are the tracking boundary: read `this.args.model.x` *inside* `() => …`, not before it. A value captured outside the thunk is fixed forever.
-- `getCard`'s `id` thunk returning `undefined` leaves the resource empty and `isLoaded: false` — that is "no id yet", not "still loading".
+- An empty input is not a load in progress. `getCard` with an `undefined` id, and `getCardCollection` with an `undefined` id list, report `isLoaded: false` forever. Check your own input before showing a loading state, and give `getCardCollection` `[]` for "no ids".
 - `@context` can be absent (a context-free render), so the field is `Resource | undefined`; read it with `?.` rather than asserting it.
 
 **Source:** Boxel monorepo — `packages/experiments-realm/blog-app.gts` (`getCard` held as a field, read through `resource.card`), `packages/experiments-realm/app-card.gts` (`getCardCollection` + `isLoaded`), `packages/base/commands/search-card-result.gts` (`cards` + `cardErrors`), and the contracts in `packages/runtime-common/index.ts` (`getCard` / `getCards` / `getCardCollection` types) and `packages/host/app/resources/{search,card-resource,card-collection}.ts`.

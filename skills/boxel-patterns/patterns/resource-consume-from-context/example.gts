@@ -59,22 +59,37 @@ export class CourseOverview extends CardDef {
       return (this.skills?.instances ?? []).slice(0, 3);
     }
 
+    // A failed search looks like an empty one — no instances, `page.total` 0 —
+    // except that `meta.incomplete` is set. It is also set when a realm the
+    // search fanned out to did not answer, so the rows are a floor, not the
+    // answer. Check it before reporting a count or "nothing here".
+    get skillsIncomplete() {
+      return Boolean(this.skills?.meta.incomplete);
+    }
+
     get skillCount() {
       return this.skills?.meta.page.total ?? 0;
     }
 
     // ── getCard: one card by id. `isLoaded` is also true when the card
-    // failed, so read `cardError` before trusting `card`.
+    // failed, so read `cardError` before trusting `card`. With no id,
+    // `isLoaded` stays false forever — check your own input first, or the
+    // template shows "Loading…" for a card that has none.
     instructor = this.args.context?.getCard(
       this,
       () => this.args.model?.instructorId ?? undefined,
     );
 
+    get hasInstructor() {
+      return Boolean(this.args.model?.instructorId);
+    }
+
     // ── getCardCollection: many cards by id. Failures land in `cardErrors`,
-    // not in `cards`.
+    // not in `cards`. Pass `[]`, not `undefined`, for "no ids": an undefined
+    // id list never loads, so `isLoaded` would stay false forever.
     members = this.args.context?.getCardCollection(
       this,
-      () => this.args.model?.memberIds ?? undefined,
+      () => this.args.model?.memberIds ?? [],
     );
 
     <template>
@@ -84,8 +99,10 @@ export class CourseOverview extends CardDef {
           <p>Couldn't load the instructor.</p>
         {{else if this.instructor.isLoaded}}
           <p>{{this.instructor.card.cardTitle}}</p>
-        {{else}}
+        {{else if this.hasInstructor}}
           <p>Loading…</p>
+        {{else}}
+          <p>No instructor assigned.</p>
         {{/if}}
       </section>
 
@@ -93,6 +110,8 @@ export class CourseOverview extends CardDef {
         <h2>Skills ({{this.skillCount}})</h2>
         {{#if this.skills.isLoading}}
           <p>Loading skills…</p>
+        {{else if this.skillsIncomplete}}
+          <p>Some skills couldn't be loaded.</p>
         {{else}}
           <ul>
             {{#each this.featuredSkills as |skill|}}
@@ -141,3 +160,4 @@ export class CourseOverview extends CardDef {
 // A genuinely one-shot read inside a click handler or command, where nothing
 // renders from the result, uses the promise API instead:
 //   let cards = await this.args.context?.store.search(query, [this.realm]);
+//   let card = await this.args.context?.store.get(id); // card OR its error
