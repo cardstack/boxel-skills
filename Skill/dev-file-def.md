@@ -23,6 +23,8 @@ FileDef                          → any file
   │     └── AvifDef              → .avif files
   ├── MarkdownDef                → .md / .markdown (adds title, excerpt, content)
   ├── TextFileDef                → .txt (adds title, excerpt, content)
+  │     ├── LogFile              → .log (declares a `record` operation that appends a stamped line)
+  │     └── JSONLFile            → .jsonl (declares a `record` operation that appends a stamped JSON entry)
   ├── TsFileDef                  → .ts (adds title, excerpt, content)
   ├── GtsFileDef                 → .gts (extends TsFileDef)
   ├── JsonFileDef                → .json (adds title, excerpt, content)
@@ -51,6 +53,8 @@ import AvifDef from '@cardstack/base/avif-image-def';
 // Document / text types
 import MarkdownDef from '@cardstack/base/markdown-file-def';
 import TextFileDef from '@cardstack/base/text-file-def';
+import LogFile from '@cardstack/base/log-file-def';
+import JSONLFile from '@cardstack/base/jsonl-file-def';
 import TsFileDef from '@cardstack/base/ts-file-def';
 import GtsFileDef from '@cardstack/base/gts-file-def';
 import JsonFileDef from '@cardstack/base/json-file-def';
@@ -79,6 +83,7 @@ Additional fields added by subtype:
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `ImageDef` + all image subtypes                                        | `width` (px), `height` (px)                                                 |
 | `MarkdownDef`, `TextFileDef`, `TsFileDef`, `GtsFileDef`, `JsonFileDef` | `title`, `excerpt`, `content` (full text)                                   |
+| `LogFile`, `JSONLFile`                                                 | inherited from `TextFileDef`                                                |
 | `CsvFileDef`                                                           | `title`, `excerpt`, `content`, `columns` (array), `columnCount`, `rowCount` |
 
 ---
