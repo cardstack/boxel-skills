@@ -116,9 +116,11 @@ invoke it by name on the linked instance:
 b.on(this.record.auditLog).record({ what: 'transferred to intensive care' });
 ```
 
-Naming `LogFile` (not `TextFileDef` or `FileDef`) on the field is what puts
-`record` on the instance. The base `update` and `appendLine` stay available on
-every file alongside it.
+The linked instance is a `LogFile` because its extension says so, whatever
+class the field names. Naming `LogFile` (not `TextFileDef` or `FileDef`) on the
+field is what types `record` on the linked value and keeps the file picker to
+`.log` files. The base `update` and `appendLine` stay available on every file
+alongside it.
 
 **A declaration on your own `FileDef` subclass is unreachable rather than
 broken.** No stored file resolves to an author's subclass, so an operation
