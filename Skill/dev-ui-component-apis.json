@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "name": "Prefer Component APIs; Write New Components When Needed",
+        "notes": null,
+        "summary": "Drive boxel-ui components through their args and CSS custom properties, and when none fits write a small typed component that could be contributed back",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/boxel-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/boxel-ui-guidelines/references/prefer-component-apis-write-new-components-when-needed.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/boxel-ui-guidelines/references/prefer-component-apis-write-new-components-when-needed.md"
+        }
+      }
+    }
+  }
+}

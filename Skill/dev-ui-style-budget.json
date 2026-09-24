@@ -8,29 +8,27 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Theme-First Design System",
       "cardInfo": {
+        "name": "Style Budget",
         "notes": null,
-        "name": "Theme-First Design System",
-        "summary": "Theming system with CSS variables and design tokens",
+        "summary": "Keep <style scoped> blocks at or under 40% of the file and deduplicate CSS across formats",
         "cardThumbnailURL": null
       },
-      "commands": [],
-      "cardDescription": "Theming system with CSS variables and design tokens"
+      "commands": []
     },
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "@cardstack/base/Theme/cardstack-brand-guide"
+          "self": "@cardstack/base/Theme/boxel-brand-guide"
         }
       },
       "instructionsSource": {
         "links": {
-          "self": "../skills/boxel/references/theme-design-system.md"
+          "self": "../skills/boxel-ui-guidelines/references/style-budget.md"
         },
         "data": {
           "type": "file",
-          "id": "../skills/boxel/references/theme-design-system.md"
+          "id": "../skills/boxel-ui-guidelines/references/style-budget.md"
         }
       }
     }

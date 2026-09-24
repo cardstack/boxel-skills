@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "name": "Use Container Queries, Not Viewport Units",
+        "notes": null,
+        "summary": "Cards live inside containers of unknown size, so layout responds to @container queries on the host-provided containers, never to vw/vh or @media viewport queries",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/boxel-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/boxel-ui-guidelines/references/use-container-queries-not-viewport-units.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/boxel-ui-guidelines/references/use-container-queries-not-viewport-units.md"
+        }
+      }
+    }
+  }
+}

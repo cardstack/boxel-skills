@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "name": "Delegated Render Control",
+        "notes": null,
+        "summary": "How the host wraps a child card render in CardContainer chrome and how the parent shapes it: the theme cascade, a class on the field, @displayContainer, the plural-field wrapper trap, and what the child must never decorate",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/boxel-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/boxel-ui-guidelines/references/delegated-render-control.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/boxel-ui-guidelines/references/delegated-render-control.md"
+        }
+      }
+    }
+  }
+}

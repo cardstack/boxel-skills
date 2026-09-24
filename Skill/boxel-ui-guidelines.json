@@ -18,8 +18,68 @@
       "relatedSkills": [
         {
           "inclusionMode": "full",
-          "contentSummary": "The single inventory of every CSS variable a Boxel theme provides and how the contract behaves at card boundaries",
+          "contentSummary": "The single inventory of every CSS variable a Boxel theme provides: colors, typography roles, spacing, radius, shadows, and how the contract behaves at card boundaries",
           "alternateTitle": "Theme Token Contract"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "How templates consume theme tokens: no fallbacks, no literals, surfaces paired once with their foreground, hues written through their ink token, tints via color-mix, and what a component that opts out of the theme does instead",
+          "alternateTitle": "Use Boxel Design Tokens for Theming"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Templates never @import a font; the Theme card derives Google Fonts links from its font stacks and other stylesheets go in customCssImports",
+          "alternateTitle": "Font Loading: Theme Card Owns Imports"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Render fields with <@fields.x />; read @model.x only for conditionals, HTML attributes, fallback values and JS getters",
+          "alternateTitle": "Field Rendering: @fields vs @model"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Isolated, embedded and fitted template shapes, the FittedCard component and its blocks, icons with intrinsic sizes, semantic markup, multi-stack DOM scoping, and entrance animations that never rest invisible",
+          "alternateTitle": "UI Template Patterns"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Multi-page host-mode printing, ancestor unclipping, SVG semantic marks, cross-browser fill rules, and PDF verification",
+          "alternateTitle": "Print and Published Output"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Cards live inside containers of unknown size, so layout responds to @container queries on the host-provided containers, never to vw/vh or @media viewport queries",
+          "alternateTitle": "Use Container Queries, Not Viewport Units"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Text and media stay inside their box: ellipsize, clamp, wrap and constrain instead of letting content escape the card",
+          "alternateTitle": "Prevent Content Overflow"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Drive boxel-ui components through their args and CSS custom properties, and when none fits write a small typed component that could be contributed back",
+          "alternateTitle": "Prefer Component APIs; Write New Components When Needed"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "The boxel-ui component reference, picking the variant instead of neutralizing a component, and the drag-and-drop quality bar",
+          "alternateTitle": "Use Boxel-UI Components"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "Keep <style scoped> blocks at or under 40% of the file and deduplicate CSS across formats",
+          "alternateTitle": "Style Budget"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "How the host wraps a child card render in CardContainer chrome and how the parent shapes it: the theme cascade, a class on the field, @displayContainer, the plural-field wrapper trap, and what the child must never decorate",
+          "alternateTitle": "Delegated Render Control"
+        },
+        {
+          "inclusionMode": "full",
+          "contentSummary": "The final tick list before a card template is done: components, tokens, pairings, selectors, semantics, and hooks",
+          "alternateTitle": "UI Checklist"
         }
       ]
     },
@@ -31,16 +91,76 @@
       },
       "instructionsSource": {
         "links": {
-          "self": "./boxel-ui-guidelines.md"
+          "self": "../skills/boxel-ui-guidelines/SKILL.md"
         },
         "data": {
           "type": "file",
-          "id": "./boxel-ui-guidelines.md"
+          "id": "../skills/boxel-ui-guidelines/SKILL.md"
         }
       },
       "relatedSkills.0.skill": {
         "links": {
           "self": "./dev-theme-token-contract"
+        }
+      },
+      "relatedSkills.1.skill": {
+        "links": {
+          "self": "./dev-ui-design-tokens"
+        }
+      },
+      "relatedSkills.2.skill": {
+        "links": {
+          "self": "./dev-ui-font-loading"
+        }
+      },
+      "relatedSkills.3.skill": {
+        "links": {
+          "self": "./dev-ui-fields-vs-model"
+        }
+      },
+      "relatedSkills.4.skill": {
+        "links": {
+          "self": "./dev-ui-template-patterns"
+        }
+      },
+      "relatedSkills.5.skill": {
+        "links": {
+          "self": "./dev-ui-print-and-published-output"
+        }
+      },
+      "relatedSkills.6.skill": {
+        "links": {
+          "self": "./dev-ui-container-queries"
+        }
+      },
+      "relatedSkills.7.skill": {
+        "links": {
+          "self": "./dev-ui-prevent-overflow"
+        }
+      },
+      "relatedSkills.8.skill": {
+        "links": {
+          "self": "./dev-ui-component-apis"
+        }
+      },
+      "relatedSkills.9.skill": {
+        "links": {
+          "self": "./dev-ui-components"
+        }
+      },
+      "relatedSkills.10.skill": {
+        "links": {
+          "self": "./dev-ui-style-budget"
+        }
+      },
+      "relatedSkills.11.skill": {
+        "links": {
+          "self": "./dev-ui-delegated-render-control"
+        }
+      },
+      "relatedSkills.12.skill": {
+        "links": {
+          "self": "./dev-ui-checklist"
         }
       }
     }

@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "name": "Use Boxel Design Tokens for Theming",
+        "notes": null,
+        "summary": "How templates consume theme tokens: no fallbacks, no literals, surfaces paired once with their foreground, hues written through their ink token, tints via color-mix, and what a component that opts out of the theme does instead",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/boxel-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/boxel-ui-guidelines/references/use-boxel-design-tokens-for-theming.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/boxel-ui-guidelines/references/use-boxel-design-tokens-for-theming.md"
+        }
+      }
+    }
+  }
+}

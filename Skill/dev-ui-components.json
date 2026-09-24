@@ -8,29 +8,27 @@
     },
     "type": "card",
     "attributes": {
-      "cardTitle": "Theme-First Design System",
       "cardInfo": {
+        "name": "Use Boxel-UI Components",
         "notes": null,
-        "name": "Theme-First Design System",
-        "summary": "Theming system with CSS variables and design tokens",
+        "summary": "The boxel-ui component reference, picking the variant instead of neutralizing a component, and the drag-and-drop quality bar",
         "cardThumbnailURL": null
       },
-      "commands": [],
-      "cardDescription": "Theming system with CSS variables and design tokens"
+      "commands": []
     },
     "relationships": {
       "cardInfo.theme": {
         "links": {
-          "self": "@cardstack/base/Theme/cardstack-brand-guide"
+          "self": "@cardstack/base/Theme/boxel-brand-guide"
         }
       },
       "instructionsSource": {
         "links": {
-          "self": "../skills/boxel/references/theme-design-system.md"
+          "self": "../skills/boxel-ui-guidelines/references/use-boxel-ui-components.md"
         },
         "data": {
           "type": "file",
-          "id": "../skills/boxel/references/theme-design-system.md"
+          "id": "../skills/boxel-ui-guidelines/references/use-boxel-ui-components.md"
         }
       }
     }

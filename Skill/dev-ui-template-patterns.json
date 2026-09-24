@@ -1,0 +1,36 @@
+{
+  "data": {
+    "meta": {
+      "adoptsFrom": {
+        "name": "SkillPlusMarkdown",
+        "module": "@cardstack/base/skill-plus"
+      }
+    },
+    "type": "card",
+    "attributes": {
+      "cardInfo": {
+        "name": "UI Template Patterns",
+        "notes": null,
+        "summary": "Isolated, embedded and fitted template shapes, the FittedCard component and its blocks, icons with intrinsic sizes, semantic markup, multi-stack DOM scoping, and entrance animations that never rest invisible",
+        "cardThumbnailURL": null
+      },
+      "commands": []
+    },
+    "relationships": {
+      "cardInfo.theme": {
+        "links": {
+          "self": "@cardstack/base/Theme/boxel-brand-guide"
+        }
+      },
+      "instructionsSource": {
+        "links": {
+          "self": "../skills/boxel-ui-guidelines/references/template-patterns.md"
+        },
+        "data": {
+          "type": "file",
+          "id": "../skills/boxel-ui-guidelines/references/template-patterns.md"
+        }
+      }
+    }
+  }
+}

@@ -73,6 +73,7 @@ import {
 - `Message` — chat/message bubbles
 - `ColorPalette` / `ColorPicker` — color selection
 - `KanbanPlane` — preferred drag-and-drop interface for boards. Do not hand-roll pointer drag in card templates unless no boxel-ui component exists for the interaction.
+- `DragAndDrop` — the lower-level drag-and-drop primitive `KanbanPlane` is built on, for interactions that are not a board
 
 ### Don't neutralize a component — pick the variant
 
