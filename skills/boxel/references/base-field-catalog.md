@@ -265,4 +265,4 @@ Need to point at another realm?
 └── RealmField
 ```
 
-**Source:** `~/Projects/boxel/packages/base/*.gts` — every field with a `displayName` + `extends FieldDef` is importable from `@cardstack/base/<file-stem>`.
+**Source:** `packages/base/*.gts` in the boxel monorepo — every field with a `displayName` + `extends FieldDef` is importable from `@cardstack/base/<file-stem>`.

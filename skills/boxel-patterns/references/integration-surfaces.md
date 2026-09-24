@@ -315,7 +315,7 @@ Headings, lists, code fences, tables, alerts (`> [!NOTE]`), task lists, striketh
 
 Local CLI for realm sync, watching, checkpoints, federated search, and scripted host commands.
 
-> **Note on versions.** If `/usr/local/bin/boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's a stale install. The full set below comes from the source at `~/Projects/boxel/packages/boxel-cli`. Rebuild + relink to get all commands.
+> **Note on versions.** If `/usr/local/bin/boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's a stale install. The full set below comes from the source at `packages/boxel-cli` in the boxel monorepo. Rebuild + relink to get all commands.
 
 ### Full subcommand surface
 
