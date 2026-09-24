@@ -138,8 +138,8 @@ The key trick: `commit()` walks BOTH the existing column order AND the new cards
 **New kanban note:** For new drag-and-drop kanban boards, prefer `layout-kanban-drag-drop` and `KanbanPlane` from `@cardstack/boxel-ui/components`. The `DndColumn` resource recipe above is useful legacy context for CRM/sprint-planner code, but new boards should persist placements separately and let `KanbanPlane` own pointer/keyboard drag behavior.
 
 **Source:**
-- `~/Projects/boxel/packages/experiments-realm/kanban-resource.gts` — DndColumn-based kanban with stable ordering.
-- `~/Projects/boxel/packages/experiments-realm/chess-game.gts:160-220` — wrapping `chess.js` with history navigation.
-- `~/Projects/boxel/packages/experiments-realm/components/base-task-planner.gts` — kanban consumer.
+- `packages/experiments-realm/kanban-resource.gts` — DndColumn-based kanban with stable ordering.
+- `packages/experiments-realm/chess-game.gts` — wrapping `chess.js` with history navigation.
+- `packages/experiments-realm/components/base-task-planner.gts` — kanban consumer.
 
 **See also:** `resource-consume-from-context` (reading a resource from a consumer — the same rules hold for one you author here), `automate-linked-to-me-lookup` (use a query-backed link instead when the state IS the search result), `command-data-resource` (the `commandData<T>` helper, a higher-level wrapper for command-driven async state), `integrate-chess-js-via-cdn` (the CDN loader for chess.js itself).

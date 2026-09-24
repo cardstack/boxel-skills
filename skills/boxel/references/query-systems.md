@@ -40,7 +40,7 @@ Rule of thumb: `on` appears *inside* `eq` / `contains` / `range` / `not` / `ever
 
 #### 2. Custom sort fields require `on: ref` — only three field names work without it
 
-Only `lastModified`, `createdAt`, and `cardURL` are valid sort keys without a scope (see `generalSortFields` in `~/Projects/boxel/packages/runtime-common/index-query-engine.ts`). Every other sort field — `lastName`, `dates.start`, `name`, anything custom — needs `on: ref` in the sort expression, or the query is rejected.
+Only `lastModified`, `createdAt`, and `cardURL` are valid sort keys without a scope (see `generalSortFields` in `packages/runtime-common/index-query-engine.ts`). Every other sort field — `lastName`, `dates.start`, `name`, anything custom — needs `on: ref` in the sort expression, or the query is rejected.
 
 ```ts
 // ❌ Rejected — `lastName` isn't a generalSortField
