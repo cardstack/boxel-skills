@@ -26,15 +26,13 @@ To test content changes against a real workspace, install the [Boxel CLI](https:
 
 Commit, push your branch, and raise a PR. Merged changes go to the staging realm; tagged releases go to production and become eligible for the plugin's version pin.
 
-Three invariants to keep by hand (nothing rewrites your files):
+Two invariants to keep by hand (nothing rewrites your files):
 
 - Self-references are realm-root-relative — `skills/<name>/…` — never absolute `https://…/skills/` URLs, so the realm stays cloneable to other hosts.
 - Every shipped `SKILL.md` carries `boxel.kind: skill` frontmatter; the `boxel-skill-authoring` skill documents the full contract.
-- **Author guidance into both `skills/` and `Skill/`.** The same conventions live in two hand-maintained trees — `skills/` (Claude Code plugin + boxel-cli) and `Skill/` (the in-app AI assistant's cards) — and nothing syncs them. Update only one and the two harnesses drift. This double-authoring is interim: it goes away once the assistant consumes skill markdown files directly ([CS-11809](https://linear.app/cardstack/issue/CS-11809)). A `Skill/<name>.json` card can avoid duplicating the *body* for a single topic by pointing its `instructionsSource` at `../skills/<name>/SKILL.md` instead of a sibling `.md` — see `Skill/source-code-editing.json` and `Skill/bxl-authoring.json`. One file then serves both harnesses. The chooser-facing metadata is still authored by hand in three places, and they do drift: the card's `cardInfo.name` / `cardInfo.summary`, the SKILL.md frontmatter `name` / `description`, and the catalog line in `index.md`.
 
 ## Layout
 
-- `skills/` — the skill trees (`<name>/SKILL.md` + `references/`), in the shape Claude Code consumes.
-- `Skill/` — legacy SkillPlusMarkdown cards (`<name>.json` + `<name>.md`) loaded by the **in-app AI assistant**. Overlaps in content with `skills/`, but nothing syncs the two — see the double-authoring invariant above.
+- `skills/` — the skill trees (`<name>/SKILL.md` + `references/`), read by Claude Code, boxel-cli and the in-app AI assistant.
 - `index.md` — the realm's entry document; `CLAUDE.md` and `AGENTS.md` are symlinks to it.
 - `.claude-plugin/plugin.json` — makes a checkout loadable via `claude --plugin-dir` for authoring. Not pushed to the realm (see `.boxelignore`).

@@ -65,7 +65,7 @@ The shared runtime layer. Available in any `.gts` or `.ts` in the realm.
 | `logger('namespace:operation')` | Realm-side structured logging. |
 | `join` | URL join helper. |
 | `loadCommandModule`, `ToolContext`, `Loader` | Command-loading internals. |
-| `baseRealm`, `devSkillLocalPath`, `envSkillLocalPath` | Base-realm constants. |
+| `baseRealm` | Base-realm constants. |
 
 ---
 
