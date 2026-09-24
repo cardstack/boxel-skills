@@ -344,7 +344,7 @@ supplied the state, and reconciling against the version is the common case. A
 await this.ops.atomic((b) => {
   let consult = b.requestConsult({ specialty, question });
   b.addConsult({ consult });
-  b.on(this.record.auditLog).appendLine({ line: auditLine });
+  b.on(this.record.auditLog).record({ what: 'consult requested' });
 });
 ```
 
