@@ -37,7 +37,6 @@ let result = await new WriteBinaryFileCommand(toolContext).execute({
   path: 'GeneratedImages/result.png',
   realm: realmUrl,
   base64Content,
-  contentType: 'image/png',
   useNonConflictingFilename: true,
 });
 
