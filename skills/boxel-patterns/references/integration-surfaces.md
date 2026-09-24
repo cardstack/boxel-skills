@@ -32,7 +32,7 @@ The Boxel base realm. Always available. Imports live at `@cardstack/base/<name>`
 | `base64-image` | `Base64ImageField` (legacy — avoid) | Inlined base64 image. **Don't use for new cards** — embeds binary in JSON. Use FileDef subtypes instead. |
 | `image-file-def`, `png-image-def`, `svg-image-def`, `gif-image-def`, `webp-image-def`, `avif-image-def`, `jpg-image-def` | `ImageDef`, `PngDef`, etc. | File-backed image fields (use `linksTo`). |
 | `markdown-file-def` | `MarkdownDef` | File-backed markdown asset (different from MarkdownField — that's a value, this is a file). |
-| `text-file-def`, `ts-file-def`, `gts-file-def`, `json-file-def`, `csv-file-def` | File-backed text-format assets | Linked file assets. |
+| `text-file-def`, `log-file-def`, `jsonl-file-def`, `ts-file-def`, `gts-file-def`, `json-file-def`, `csv-file-def` | File-backed text-format assets | Linked file assets. |
 | `file-api` | `FileDef` | Generic file-backed field base. |
 | `shared-state` | `sharedState()` | Cross-component reactive state. |
 | `skill`, `skill-plus`, `skill-set` | `Skill`, `SkillPlusMarkdown`, `SkillSet`, `SkillReference` | Boxel skill cards. |
