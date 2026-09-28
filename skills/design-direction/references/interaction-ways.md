@@ -4,13 +4,13 @@
 
 | Layer | Question | Written in | Applies to |
 |---|---|---|---|
-| **This file** → `DESIGN-DIRECTION.md` Interaction table and Narrative arc | *which* way, its budget, its fallback, whether it is CSS or a library capability | one line per action, three beats per arc | every unit |
-| [`motion-authoring`](../../motion-authoring/SKILL.md) → `MOTION.md` | *exactly how* — offsets, eases, the geometry the effect depends on, the library call | one row per beat | only units with an arc, a scrubbed subject, a direct-manipulation way or a library capability |
-| [`design-review`](../../design-review/SKILL.md) | *did it land* — captures at the arc's three points, motion-off pass | a score | after the build |
+| **This file** → `## Design direction` Interaction table and Narrative arc | *which* way, its budget, its fallback, whether it is CSS or a library capability | one line per action, three beats per arc | every unit |
+| `motion-authoring` → `## Motion` | *exactly how* — offsets, eases, the geometry the effect depends on, the library call | one row per beat | only units with an arc, a scrubbed subject, a direct-manipulation way or a library capability |
+| `design-review` | *did it land* — captures at the arc's three points, motion-off pass | a score | after the build |
 
-So "scroll parallax" is **named** here (with its cap), **specified** in `MOTION.md` (which layers,
+So "scroll parallax" is **named** here (with its cap), **specified** in `## Motion` (which layers,
 what rate, over which scroll range) and **checked** by review. If you are writing a `cubic-bezier`
-or a scroll offset in this file or in `DESIGN-DIRECTION.md`, you are one layer too deep.
+or a scroll offset in this file or in `## Design direction`, you are one layer too deep.
 
 How an action can present. Pick by budget, not by flavour. This is the Boxel-specific catalogue;
 for anything it does not cover, reason from the principles behind it — feedback, affordance,
@@ -182,7 +182,7 @@ only *a* scroller, and an isolated card has one — its root is `height: 100%; o
 the blocks scroll inside the card and the card's own scroller is the timeline. Nothing here needs
 the window, which is why this is achievable when the pinned and smooth-scroll ways are not.
 
-Two routes, and the choice is the builder's unless `DESIGN-DIRECTION.md` says otherwise:
+Two routes, and the choice is the builder's unless `## Design direction` says otherwise:
 
 | Route | Cost | Watch |
 |---|---|---|
@@ -199,7 +199,7 @@ Four rules:
 - **Once, not on every pass.** Derived, not asked: `repeat cost` above says what delights once
   irritates the hundredth time, and repeated unpredictable movement is the motion most likely to
   affect someone with a vestibular condition. Blocks do not re-hide on scroll-back. State it in the
-  `DESIGN-DIRECTION.md` Interaction row in one line — *"reveal on enter, once only (repeat cost)"* — so the
+  `## Design direction` Interaction row in one line — *"reveal on enter, once only (repeat cost)"* — so the
   decision is visible without being a question.
 - **Overriding it is a written decision**, not a build-time improvisation, because it selects the
   route: replay-on-re-entry means keeping the observer (or `view()`, which reverses anyway), while
@@ -213,7 +213,7 @@ Four rules:
 - **`isolated` only.** `fitted` and `embedded` render inside someone else's composition and are
   usually too small to have a meaningful scroll; a reveal there just means content that is not there.
 
-Record each narrative way in `DESIGN-DIRECTION.md` under **Narrative arc** with its achievability column. A
+Record each narrative way in `## Design direction` under **Narrative arc** with its achievability column. A
 way marked **library** is named here as a *capability* — "scroll-linked progress", "text split" —
 and the library choice is the build's, per upstream's
 [`external-libraries.md`](../../boxel/references/external-libraries.md), which owns how it is
@@ -223,7 +223,7 @@ loaded. This file never names a library, for the same reason Phase 4 never names
 start and end offsets, the easing, whether the subject lags the scroll, and the CSS geometry the
 effect depends on are not decided here and must not be improvised while the first screen is being built. When a unit records a
 Narrative arc, a scroll-scrubbed subject, a direct-manipulation way or any way marked *library*,
-[`motion-authoring`](../../motion-authoring/SKILL.md) writes those numbers into a `MOTION.md` beside `DESIGN-DIRECTION.md` before those beats are built.
+`motion-authoring` writes those numbers into a `## Motion` section on the same brief card, after `## Design direction`, before those beats are built.
 Units whose motion is all discrete feedback never get one — the Interaction table is their whole
 motion spec.
 

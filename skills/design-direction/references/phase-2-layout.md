@@ -21,7 +21,7 @@ Check the pick against [`references/layout-gravity.md`](layout-gravity.md) and n
 one deliberately if you say why. Never pick one whose regions are all equal weight; equal weight
 tells the reader nothing matters more than anything else, which is never true.
 
-Record per screen, in `DESIGN-DIRECTION.md`:
+Record per screen, in `## Design direction`:
 
 - the direction and **one line of reason**
 - the dominant object and its share of the viewport

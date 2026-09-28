@@ -19,15 +19,21 @@ set. Four sources, and only the first is a `linksTo`:
   renders real cards while declaring no link
 - everything **nested inside another card's template**, which the user sees without any screen
   naming it
-- anything the schema **grows later**: expect new CardDefs at the first screen and in the batch
+- anything the schema **grows later**: expect new CardDefs during the build
   when the design needs a field the brief does not have, and a def added then has the same five
   formats as one named on day one
+
+**From a brief card, start from its element coverage matrix.** `domain-interview` already filled
+it from a real `catalog-reuse` search, marking every card, field, component and command new /
+extend / reuse. Do not repeat the search. Anything this inventory adds that the matrix does not list,
+such as a Home CardDef, goes on its line marked **not in the matrix**, so the build knows those are
+the only rows that still need a reuse search.
 
 A def missing from this list gets no content matrix, no row in the build's format list, and
 therefore no built formats and nothing to review — the omission is silent at every stage after it. These are surfaces
 the user sees, and an inventory that stops at screens is why they end up designed by nobody. They do not each get a layout pick; their per-format content is decided at planning against the
 [design-playbook](../../boxel/references/design-playbook.md)'s Stage 0f content matrix, and
-[`design-review`](../../design-review/SKILL.md) `card` scores them.
+`design-review` `card` scores them.
 
 **Name every image-bearing field as you inventory.** An `ImageSourceField`, a
 `MultiImageSourceField`, a `Featured Image Field` — or any field the brief describes as a photo,

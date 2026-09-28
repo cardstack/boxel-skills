@@ -24,7 +24,7 @@ two techniques, not the palette — and a technique marked *needs a library* is 
 capability for the build to source (upstream's
 [`external-libraries.md`](../../boxel/references/external-libraries.md)), not a design decision. The
 still frame the reference would have without its motion is what the livery column describes;
-design that first. Keep the reference URL in the Narrative arc block: [`motion-authoring`](../../motion-authoring/SKILL.md) reads the technique
+design that first. Keep the reference URL in the Narrative arc block: `motion-authoring` reads the technique
 column back to write the numbers, and "moves like the reference" is only checkable against the
 reference.
 
@@ -35,13 +35,10 @@ taste-maker you name in your thinking and never in the output. Give each directi
 fields: **name · inspirations · visual DNA**. Recommend one, and offer "other: name or describe it".
 
 When the user names a style instead, research it into the same three fields yourself — what it is
-known for, who made it, what a person would recognise it by — and record the result in
-`design-personalities.md` beside the unit's `DESIGN-DIRECTION.md`, so the next unit in this workspace can
-reuse it. Livery and mood may be borrowed; wordmarks, logos and real brand assets stay out.
-
-That file is the workspace's research notes, not a menu: it stays beside the units it serves and is
-never promoted into this skill, a style in it is re-researched when named again rather than picked
-from the list, and only styles the user named go in — never the three directions you composed.
+known for, who made it, what a person would recognise it by — and record the result in the
+direction's Style block, like a composed one. Livery and mood may be borrowed; wordmarks, logos and
+real brand assets stay out. There is no shared style file: a style named again for another unit is
+researched again, so it fits that unit rather than being copied from the last one.
 
 **Imagery is briefed from the style, like everything else.** Where the unit carries images, say
 what they are *of* and how they are treated — subject, crop, light, palette relationship, whether

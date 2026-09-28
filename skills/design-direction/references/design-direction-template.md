@@ -1,4 +1,9 @@
-# DESIGN-DIRECTION.md — {unit name}
+# Design direction — {unit name}
+
+> **Written as a section of the unit's brief card**: this heading becomes `## Design direction`
+> and every `##` below becomes `###`. Under a `domain-interview` spec, `### Brief` keeps only the
+> feeling and what it inherits from, since who uses it and the first action are already in the spec
+> above it.
 
 Written by `design-direction` on {date}. Builder: follow this before styling — and hardcode
 everything; the theme is extracted later. Reviewer: tick the acceptance lines first.
@@ -8,7 +13,7 @@ everything; the theme is extracted later. Reviewer: tick the acceptance lines fi
 - **Who uses it**: {one line}
 - **First action**: {one line}
 - **Feeling it should leave**: "{quote}"
-- **Inherits from**: {parent DESIGN-DIRECTION.md, or none}
+- **Inherits from**: {the brief card whose `## Design direction` this unit sits inside, or none}
 
 ## Style: {name}
 - **Inspirations**: {composed for this unit in Phase 4, or researched from the style the user named}
@@ -30,7 +35,7 @@ everything; the theme is extracted later. Reviewer: tick the acceptance lines fi
 - **Ways and achievability**: {way — CSS | library → capability {name}, sourced by the build | not available}
 - **Serves**: {the signature treatment it reveals — it is never a second one}
 - **Reference for the motion**: {URL, or none — kept so "moves like it" can be checked}
-- **Numbers**: `MOTION.md`, written by [`motion-authoring`](../../motion-authoring/SKILL.md) — this block never carries eases, offsets or per-beat durations
+- **Numbers**: `## Motion`, written by `motion-authoring` — this block never carries eases, offsets or per-beat durations
 
 **Ornament budget** — the rung every surface is built at, decided here, not after a complaint
 
@@ -102,6 +107,7 @@ are each fine alone.
 - [ ] {e.g. every empty state names its first action}
 - [ ] {e.g. exactly one surface in the whole unit is L3; no other surface out-shouts it}
 - [ ] {e.g. rich baseline: every panel is grounded, and the two text-heavy surfaces named as troughs are not}
+- [ ] Navigation works on every build: every screen in the inventory is in the nav, every nav control navigates, and a screen not built yet opens a placeholder in the same shell (its name, its purpose line, and "designed in the next pass"), never a dead button or an error
 
 ## Views (cards)
 **Width**: `prefersWideFormat` {true | false} — {one line of reason}. Upstream's
@@ -137,32 +143,9 @@ build time); never restate its numbers here and never ask for a region a size do
 |---|---|---|
 | edit / embedded / atom | | |
 
-## Build order
-Read at every step below. Everything before theming is **hardcoded** — real hex, named fonts, real
-sizes, real sample content, no `var(--*)`, no queries, no commands — on **real CardDefs with real
-links** from the first screen. Defer style and data volume, never structure.
-
-> **Diverges from the design-playbook.** The playbook's Stage 4 derives `fitted` and `embedded`
-> from the tokenized `isolated`. Here every linked CardDef's five formats are built in the batch,
-> before theming, because a format derived after the user locked the language is a format the user
-> never judged. Utility cards with no design unit follow the playbook's order instead.
-
-- **Plan**: the [`catalog-reuse`](../../catalog-reuse/SKILL.md) search, then playbook Stage 0 —
-  including the Stage 0f content matrix for every CardDef the screens link to.
-- **First screen**: {which — the screen with the most of the domain's data on one surface, holding
-  the primary action; tie-break to the one rendering the most linked CardDefs. Usually Home / desk
-  for an app, the richest record when Home is a thin list} — {one line of reason}. Playbook Stage 1
-  as a real `.gts`, every primary action a real control. Push, stop. *Gate:* the user has looked and
-  the language is locked. Layout may be overruled here; rebuild this screen only. Then
-  `design-review` on this screen.
-- **The batch**: {remaining screens, in order} **and all five formats of every linked CardDef —
-  `isolated`, `embedded`, `fitted`, `atom`, `edit`** — built against the content matrix, static,
-  same language, one CardDef at a time, reported as counts (CardDefs × formats built of planned).
-  Push. Then `design-review set`, then `design-review card` per linked CardDef. *Gate:* the set
-  lines and each screen's and card's own.
-- **Theming and wiring**: playbook Stages 2–3 — extract the theme from the hardcoded values →
-  tokenize pixel-identical → live queries → the full sample-data set → every action wired to the
-  mechanism its content contract declared. *Gate:* clean against upstream's
-  [`theme-token-contract.md`](../../boxel-ui-guidelines/references/theme-token-contract.md) —
-  checked here, never earlier.
-- **Finish**: lint and push, per upstream [`boxel`](../../boxel/SKILL.md)'s lint workflow.
+## First screen
+- **Screen**: {which — the screen with the most of the domain's data on one surface, holding the
+  primary action; tie-break to the one rendering the most linked CardDefs. Usually Home / desk for
+  an app, the richest record when Home is a thin list} — {one line of reason}
+- **Why it goes first**: the user's first look at it locks the language; layout may be overruled
+  there, one screen at a time.

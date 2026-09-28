@@ -22,7 +22,7 @@ keep its place, is this moment paid for on every repeat. Motion flavour is not a
 only "click → panel" leaves the builder to decide how big the target is and whether anything marks
 it, and the default answer is "as big as the text" and "nothing" — which produces a screen whose
 controls work and cannot be found. Per control: **hit area** (44×44 CSS px, or 32×32 inside a dense
-row with 8px of separation — [`design-review`](../../design-review/SKILL.md) measures against these same numbers), **resting cue** (border, fill, underline, chevron — what says *press
+row with 8px of separation — `design-review` measures against these same numbers), **resting cue** (border, fill, underline, chevron — what says *press
 me* before the pointer arrives), **hover state**, and the focus ring. An invisible overlay that
 makes a whole row clickable is allowed only with a resting cue on the row and a hover state on it.
 `design-review` checks these under Affordance legibility.
@@ -31,5 +31,5 @@ Decide three beats per screen: the **moment** (the action that matters most), th
 (an invitation, not an apology), the **completion**. One orchestrated moment per screen.
 
 For anything the catalogue does not cover, reason from first principles — feedback, affordance,
-cognitive load, accessibility — and write the reasoning into `DESIGN-DIRECTION.md` so the reviewer can see
+cognitive load, accessibility — and write the reasoning into `## Design direction` so the reviewer can see
 what the pick was for.

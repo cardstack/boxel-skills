@@ -150,10 +150,10 @@ In bounds — all of it *placement and ornament within the regions a size alread
 Out of bounds — the ladder itself:
 
 - **do not move, restate or invent a breakpoint.** The sizes and what they show are upstream's;
-  a `DESIGN-DIRECTION.md` that repeats their numbers goes stale and then quietly contradicts them.
+  a `## Design direction` that repeats their numbers goes stale and then quietly contradicts them.
 - **do not ask for a region a size does not have.** "Show the badge on the smallest tile" is a
   request to break the contract, not an enrichment.
-- **do not fix spacing or type as a style decision in `DESIGN-DIRECTION.md`.** Where the composition needs
+- **do not fix spacing or type as a style decision in `## Design direction`.** Where the composition needs
   tightening, that is a `--fc-*` tune or a container-query override made at build time against the
   live document — not a number written down here.
 - **never `vw` / `vh`**, and nothing on the template root that the host owns.
@@ -169,7 +169,7 @@ Out of bounds — the ladder itself:
    below.
 3. **Name the moves for the surfaces above L0**, each traced to the style, each with its contrast
    and motion answer.
-4. **Write the budget map into `DESIGN-DIRECTION.md`** so the builder builds it that way the first time and
+4. **Write the budget map into `## Design direction`** so the builder builds it that way the first time and
    `design-review` has a standard to score against.
 
 At a Rich baseline, also answer the three costs above — which surfaces are the troughs, how the
@@ -179,7 +179,7 @@ signature still wins, and how many animated grounds a screen is allowed.
 
 1. **Name the surface** — which block, which screen, which format. One at a time; "the whole app is
    plain" is a Phase 4 style question, not this.
-2. **Read the unit's `DESIGN-DIRECTION.md`** — the style, its visual DNA, its anti-patterns, and where the L3
+2. **Read the unit's `## Design direction`** — the style, its visual DNA, its anti-patterns, and where the L3
    signature currently lives.
 3. **Say the current rung and the target** — one step, in either direction. *Too plain* is
    L0 → L1 or L1 → L2; *too busy / exhausting / nothing stands out* is the same move downward, and
@@ -187,7 +187,7 @@ signature still wins, and how many animated grounds a screen is allowed.
    enrichment outcome: the fix for "nothing stands out" is almost never adding more.
 4. **Pick moves the style earns**, with the line of visual DNA each came from, plus the contrast and
    motion answers each one owes.
-5. **Write it back into `DESIGN-DIRECTION.md`** — an `Enrichment` line on that surface, and an acceptance line
+5. **Write it back into `## Design direction`** — an `Enrichment` line on that surface, and an acceptance line
    a reviewer can tick. A move that is not written down is rebuilt away the next time that surface
    is touched, and `design-review` has no standard to score it against.
 6. **Rebuild that one surface.** Nothing else changes.

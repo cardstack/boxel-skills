@@ -1,6 +1,6 @@
 ---
 name: design-direction
-description: Decide how a Boxel unit — app, card, component or field — should look, move and respond BEFORE it is built, and record it as a DESIGN-DIRECTION.md a builder executes and a reviewer checks. Use it whenever something is about to be built or restyled, whenever a user names a style ("Mario style", "make it look like AirAsia"), calls a result boring, generic, too plain or too busy, or whenever a spec is about to go straight to code — even when nobody asks for design, because no direction means the default layout. It asks only the feeling and the style, decides layout itself with reasons written down, owns the gate where the user judges the built screen, and neither builds nor reviews.
+description: Decide how a Boxel unit — app, card, component or field — should look, move and respond BEFORE it is built, and record it as a Design direction section on the unit's brief card, for a builder to execute and a reviewer to check. Use it whenever something is about to be built or restyled, whenever a user names a style ("Mario style", "make it look like AirAsia"), calls a result boring, generic, too plain or too busy, or whenever a spec is about to go straight to code — even when nobody asks for design, because no direction means the default layout. It asks only the feeling and the style, decides layout itself with reasons written down and neither builds nor reviews.
 boxel:
   kind: skill
 ---
@@ -9,6 +9,12 @@ boxel:
 
 You are the design director for one unit. You decide how it looks before code exists, and you
 record the decision so a builder can execute it and a reviewer can check it without taste.
+
+| Contract | |
+|---|---|
+| **Reads** | A `domain-interview` brief card (its `content`), or a bare request for a card, component or field; any `## Design direction` section the card already has |
+| **Writes** | One `## Design direction` section in the unit's brief card `content`, and nothing else: no markdown files. With no brief, it first creates a small brief card to hold the section |
+| **Stops when** | The direction is written and read back, and the Phase 6 summary, motion line and first-screen pick are shown. It never builds and never reviews; what runs next is not this skill's call |
 
 ## Ask only what words can answer
 
@@ -44,7 +50,21 @@ never a menu you offer (see Never, below).
 | "This component is boring" | Component | Its states — rest, hover, active, loading, empty, error |
 | "Design this field" | Field | Its edit, embedded and atom presentations |
 
-A unit inside one that already has a `DESIGN-DIRECTION.md` inherits that style and decides only what is new.
+**Where the direction lives: always in a brief card, never in a file.** Each unit has one brief
+card, `Wiki/<slug>-brief.json`, and every stage adds its own section to that card's `content`:
+
+```
+# {Name} — brief        ← domain-interview (the spec)
+## Design direction     ← this skill
+## Motion               ← motion-authoring, when the direction asks for it
+```
+
+From a `domain-interview` brief, the direction goes into that same card, so the software factory
+reads the spec and the design together. With no brief (a single card, component or field), create a
+small brief card holding only this section. Everywhere in this skill and its phase files,
+`## Design direction` means that section. Phase 5 has the write steps.
+
+A unit inside one that already has a direction inherits that style and decides only what is new.
 Skip phases the unit does not need; a field has no screen inventory but still gets a style.
 
 ## Phase 0 — Brief
@@ -57,9 +77,10 @@ Briefs carry no feeling by design, so ask one question: **what feeling should th
 no brief at all, ask three things in one question: who uses it, what they do first, what feeling it
 should leave. Then move on.
 
-Check for an existing `DESIGN-DIRECTION.md` or `design-personalities.md` in the unit's folder or its parent.
+Check for an existing direction: a `## Design direction` section already in the unit's brief card,
+or in the brief card of the unit it sits inside.
 
-## Phases 1–7 (load each when you reach it)
+## Phases 1–6 (load each when you reach it)
 
 Run the phases in order, reading each file when you reach it rather than from memory. Skip the
 ones the unit does not need.
@@ -70,9 +91,8 @@ ones the unit does not need.
 | 2 — Layout | [`references/phase-2-layout.md`](references/phase-2-layout.md) | You decide, per screen: the direction and its reason, the dominant object, reading order, `prefersWideFormat` |
 | 3 — Interaction | [`references/phase-3-interaction.md`](references/phase-3-interaction.md) | How each primary action presents, its hit area and resting cue, and the moment / empty state / completion beats |
 | 4 — Style | [`references/phase-4-style.md`](references/phase-4-style.md) | The one question worth asking: three composed directions, the signature treatment, the ornament budget, the type line |
-| 5 — Write | [`references/phase-5-write.md`](references/phase-5-write.md) | `DESIGN-DIRECTION.md` from the template, with per-screen and set acceptance lines |
-| 6 — Hand off | [`references/phase-6-hand-off.md`](references/phase-6-hand-off.md) | The motion line, then the build order: first screen → the batch → theming and wiring |
-| 7 — After the build | [`references/phase-7-after-build.md`](references/phase-7-after-build.md) | The gate: the user looks first, then one outcome question |
+| 5 — Write | [`references/phase-5-write.md`](references/phase-5-write.md) | The direction from the template, with per-screen and set acceptance lines, appended to the brief card or written as `## Design direction` |
+| 6 — Hand off | [`references/phase-6-hand-off.md`](references/phase-6-hand-off.md) | The summary, the motion line and the first-screen pick, then stop. How it gets built is the builder's job |
 
 Phase 4 may run before Phase 2 when the user wants the mood settled first.
 
@@ -86,25 +106,23 @@ You do not build and you do not review.
 
 Read these live on each run rather than working from memory. Links are relative to this skill's folder.
 
-`motion-authoring` and `design-review` are upcoming skills that ship in follow-up PRs; until they land, their links here and in the phase files do not resolve.
-
 | What | Where | For |
 |---|---|---|
 | The brief card this reads | [`domain-interview`](../domain-interview/SKILL.md) | Phase 0 |
 | Design process, taste bar, brand/style source | [`boxel-design`](../boxel-design/SKILL.md) | Phase 4 |
-| The four-stage process itself, and the Stage 0f content matrix | [`design-playbook.md`](../boxel/references/design-playbook.md) | Phase 1, Phase 4 framing, Phase 6 hand-off |
+| The four-stage process itself, and the Stage 0f content matrix | [`design-playbook.md`](../boxel/references/design-playbook.md) | Phase 1, Phase 4 framing |
 | Anti-cliché checklist | [`critical-rules.md`](../boxel-design/references/critical-rules.md) | Phase 4 anti-patterns |
 | The `fitted` size ladder, `FittedCard`, `--fc-*` | [`container-query-fitted-layout.md`](../boxel/references/container-query-fitted-layout.md) | Any enrichment of a fitted view — authority, read live |
-| The theme card, once the build extracts it | [`boxel-theme-development`](../boxel-theme-development/SKILL.md) | Phase 6 hand-off |
-| Turning a Narrative arc, scrubbed subject or direct-manipulation way into build numbers | [`motion-authoring`](../motion-authoring/SKILL.md) — opt-in, only when the arc exists | after Phase 5 |
-| Scoring the result | [`design-review`](../design-review/SKILL.md) | Phase 7 |
+| Turning a Narrative arc, scrubbed subject or direct-manipulation way into build numbers | `motion-authoring` — opt-in, only when the arc exists | after Phase 5 |
+| After the build: the user's first look, the gate, and scoring | `design-review` | after Phase 6 |
 
 ## Never
 
 - Ask someone to choose a layout from wireframes.
 - Guess which dimension an unnamed complaint meant. Triage it.
-- Keep a style library of your own. Compose per unit; researched styles go in the unit's
-  `design-personalities.md`.
+- Keep a style library of your own. Compose per unit; a style the user named is researched into
+  that unit's Style block.
+- Write a markdown file. The direction is a section of the brief card, nothing else.
 - Pick an all-equal-weight grid.
 - Leave a unit's imagery out of the Views table, or reduce it to a thumbnail without saying why.
 - Recommend fonts, colours or motion before the layout is settled.
@@ -119,7 +137,7 @@ Read these live on each run rather than working from memory. Links are relative 
 
 Phases:
 
-- [`references/phase-1-inventory.md`](references/phase-1-inventory.md) · [`phase-2-layout.md`](references/phase-2-layout.md) · [`phase-3-interaction.md`](references/phase-3-interaction.md) · [`phase-4-style.md`](references/phase-4-style.md) · [`phase-5-write.md`](references/phase-5-write.md) · [`phase-6-hand-off.md`](references/phase-6-hand-off.md) · [`phase-7-after-build.md`](references/phase-7-after-build.md)
+- [`references/phase-1-inventory.md`](references/phase-1-inventory.md) · [`phase-2-layout.md`](references/phase-2-layout.md) · [`phase-3-interaction.md`](references/phase-3-interaction.md) · [`phase-4-style.md`](references/phase-4-style.md) · [`phase-5-write.md`](references/phase-5-write.md) · [`phase-6-hand-off.md`](references/phase-6-hand-off.md)
 - [`references/revisions.md`](references/revisions.md) — triage for an unnamed complaint, and the one-surface ornament correction
 
 Vocabulary the phases read:
@@ -129,4 +147,4 @@ Vocabulary the phases read:
 - [`references/interaction-ways.md`](references/interaction-ways.md) — how an action can present, and the narrative ways a composition can unfold — with what each is achievable with
 - [`references/enrichment-moves.md`](references/enrichment-moves.md) — the ornament budget: the baseline read off the style in Phase 4, the ladder every surface is assigned a rung on, the moves each style can earn, the correction run in both directions, and why `fitted` is upstream's call
 - [`references/signature-treatments.md`](references/signature-treatments.md) — the arresting element: what is buildable in a card with pure CSS, what each costs, and the four runtime constraints
-- [`references/design-direction-md-template.md`](references/design-direction-md-template.md) — the output, and the contract [`design-review`](../design-review/SKILL.md) checks
+- [`references/design-direction-template.md`](references/design-direction-template.md) — the output, and the contract `design-review` checks

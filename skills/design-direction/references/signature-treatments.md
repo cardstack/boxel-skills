@@ -28,7 +28,7 @@ with the same treatment, at least one of them was not designed.
 |---|---|---|
 | **Drifting gradient field** — two or three blurred radial gradients, `@keyframes` on `transform`, `filter: blur()` | yes | The default look; needs a reason. `filter: blur()` on a large surface is expensive and composites on every frame |
 | **Flowing text** — `background-clip: text` with an animated `background-position` | yes | Needs `color: transparent` — check the contrast fallback when the animation is off, and that selection/high-contrast mode still reads |
-| **Staggered reveal** — per-child `animation-delay`, `translateY`, and `opacity` only where the unit has no `MOTION.md` | yes | The base CSS must be the FINAL state; `from { opacity: 0 }` + `both` only. See the invisibility trap in upstream's [`template-patterns.md`](../../boxel-ui-guidelines/references/template-patterns.md). The `opacity` half makes screenshot review unreliable — a capture during the stagger reads as blank — which is why [`motion-authoring`](../../motion-authoring/SKILL.md) forbids it outright for a specified arc and asks for `transform` alone. Below that weight it is allowed, at that cost |
+| **Staggered reveal** — per-child `animation-delay`, `translateY`, and `opacity` only where the unit has no `## Motion` | yes | The base CSS must be the FINAL state; `from { opacity: 0 }` + `both` only. See the invisibility trap in upstream's [`template-patterns.md`](../../boxel-ui-guidelines/references/template-patterns.md). The `opacity` half makes screenshot review unreliable — a capture during the stagger reads as blank — which is why `motion-authoring` forbids it outright for a specified arc and asks for `transform` alone. Below that weight it is allowed, at that cost |
 | **Layered glass** — `backdrop-filter: blur()` over a moving ground, plus an inline SVG `feTurbulence` data URI for grain | yes | `backdrop-filter` is the other half of the default look. The grain data URI inflates the template; keep it small |
 | **Hover parallax tilt** — `:hover { transform: perspective() rotateX() }` | yes, no JS | Hover only — gives nothing on touch, and nothing to keyboard users unless paired with `:focus-visible` |
 | **Scroll-driven** — `animation-timeline: scroll()` / `view()` | Chromium only | **The card scrolls inside itself**, not the document, so the timeline must resolve to the card's scroll container. Fall back to `IntersectionObserver` with `root` set to that container — never the viewport default |
@@ -62,7 +62,7 @@ so decide these in Phase 4 rather than at build time:
 
 ## Spatial model — the control that was never defined
 
-`spatial model` is one of the five style controls every `DESIGN-DIRECTION.md` records, and until now it had
+`spatial model` is one of the five style controls every `## Design direction` records, and until now it had
 no vocabulary, so it got filled in as "flat" by default. Four options:
 
 | Spatial model | What it means | Fits |
@@ -119,6 +119,6 @@ The hero is not only an isolated concern:
   a colour band. Everything else is gone.
 - **`atom`** — text. The signature survives as wording, not decoration.
 
-Record the treatment in `DESIGN-DIRECTION.md` next to the layout pick, and in the stage-3 content matrix say
+Record the treatment in `## Design direction` next to the layout pick, and in the stage-3 content matrix say
 **which field is the hero** at each format — the matrix already lists fields in priority order; the
 hero is the one the format leads with.

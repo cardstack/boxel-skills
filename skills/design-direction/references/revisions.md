@@ -24,8 +24,8 @@ user can see what they are authorising:
 
 If the user's own words already name a surface or a dimension, skip the question and route.
 
-**A style change costs more after the batch.** At the first screen it is one question and one
-screen rebuilt. After the batch, every screen and every linked CardDef's five formats are hardcoded
+**A style change costs more once everything is built.** At the first screen it is one question and one
+screen rebuilt. Once every screen is built, every screen and every linked CardDef's five formats are hardcoded
 in the old style, so re-running Phase 4 means rebuilding all of them — and once the theme has been
 extracted, it was extracted from those values too. Say that cost out loud and get a yes before Phase 4 re-runs;
 switching to a one-surface ornament move is often what the user actually wanted.
@@ -38,8 +38,8 @@ that Phase 4 never assigned the rungs, and the fix is there.
 
 When someone names a surface that is plain, bare or boring — or, under a rich baseline, busy,
 exhausting or focus-less — run [`references/enrichment-moves.md`](enrichment-moves.md) against **that one surface**: read
-the unit's `DESIGN-DIRECTION.md` style and budget, move that surface **one rung**, up or down, pick moves the
-style can account for, write an `Enrichment` line and an acceptance line back into `DESIGN-DIRECTION.md`,
+the unit's `## Design direction` style and budget, move that surface **one rung**, up or down, pick moves the
+style can account for, write an `Enrichment` line and an acceptance line back into `## Design direction`,
 rebuild only that surface. Downward is a real outcome: the fix for "nothing stands out" is almost
 never adding more.
 
@@ -54,7 +54,7 @@ Two bounds keep it from turning into a redesign:
   field leads, which field sits in which region, the single mark where the head is all there is,
   whether there is a hero, and ornament inside a region — tuned through `--fc-*` and
   `@container fitted-card` overrides. Not in scope: moving or restating a breakpoint, asking for a
-  region a size does not have, or writing spacing and type numbers into `DESIGN-DIRECTION.md`. Where the two
+  region a size does not have, or writing spacing and type numbers into `## Design direction`. Where the two
   disagree, upstream wins.
 
 Being asked for the whole unit — "the app looks generic" — is a style question, not this. Go to
