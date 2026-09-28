@@ -152,8 +152,6 @@ The 4-stage recommended process for any user-facing card:
 
 → `boxel/references/design-playbook.md`
 
-- **Content contract** — per-screen purpose, mode, primary action + mechanism (navigate / write / work / read-only), must-contain in priority order, key moment, empty state. Written by `domain-interview`; the priority order is what the design step reads to decide layout. → `domain-interview/references/spec-template.md`
-
 ## 8. Lint workflow
 
 - **`npx boxel file lint <path> --realm <url> --file <local-file>`** — Local lint before push. Use during development.
@@ -364,7 +362,6 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-ui-guidelines`** — Template UI rules, `delegated-render-control.md`, `template-patterns.md`, `style-budget.md`, `prevent-content-overflow.md`.
 - **`boxel-design`** — Visual design + asset selection + critical anti-LLM-cliché rules.
 - **`boxel-theme-development`** — Theme/StyleReference/BrandGuide creation, DESIGN.md mapping, brand tokens, logo/mark capture, and audit workflow.
-- **`domain-interview`** — Interviews the user and writes a domain spec (primer, schema, coverage matrix, per-screen content contracts, flows, sample data) with no design decisions. Hands off to `boxel-design` and design-playbook Stage 0.
 - **`boxel-environment`** — Driving the live app + host commands; `workflows-and-orchestration.md`, `user-environment-awareness.md`, `assistant-persona.md`.
 - **`boxel-file-def`** — File-backed fields (`FileDef`, `ImageDef`, etc.).
 - **`boxel-flavored-markdown`** — BFM authoring with directives + fenced renderers.
