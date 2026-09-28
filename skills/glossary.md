@@ -152,6 +152,11 @@ The 4-stage recommended process for any user-facing card:
 
 → `boxel/references/design-playbook.md`
 
+- **`DESIGN-DIRECTION.md`** — a unit's recorded design decision: layout pick with reason, interaction ways with budgets, style, ornament budget, acceptance lines. Written by `design-direction`. → `design-direction/references/design-direction-md-template.md`
+- **Acceptance line** — a `DESIGN-DIRECTION.md` line a reviewer ticks without taste; set acceptance lines are checked across every screen at once.
+- **Ornament ladder (L0–L3)** — the rung each surface is built at: bare · marked · grounded · signature; one L3 per unit. → `design-direction/references/enrichment-moves.md`
+- **Signature treatment** — the one arresting treatment on the dominant object, earned by the style. → `design-direction/references/signature-treatments.md`
+
 ## 8. Lint workflow
 
 - **`npx boxel file lint <path> --realm <url> --file <local-file>`** — Local lint before push. Use during development.
@@ -361,6 +366,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-patterns`** — Outcome-indexed catalogue of 50+ working patterns + `integration-surfaces.md` (capability cheatsheet) + `libraries.md` (import-path catalogue) + `ai-image-models.md` (verified model IDs for image generation) + `pattern-authoring.md` (README template, naming conventions, `validated:` ladder, promotion bar) + `pattern-backlog.md` (reserved-but-unextracted slugs — do not chase).
 - **`boxel-ui-guidelines`** — Template UI rules, `delegated-render-control.md`, `template-patterns.md`, `style-budget.md`, `prevent-content-overflow.md`.
 - **`boxel-design`** — Visual design + asset selection + critical anti-LLM-cliché rules.
+- **`design-direction`** — Decides how a unit looks, moves and responds before it is built — asks only feeling and style, decides layout itself — and records it as a `DESIGN-DIRECTION.md` with tickable acceptance lines.
 - **`boxel-theme-development`** — Theme/StyleReference/BrandGuide creation, DESIGN.md mapping, brand tokens, logo/mark capture, and audit workflow.
 - **`boxel-environment`** — Driving the live app + host commands; `workflows-and-orchestration.md`, `user-environment-awareness.md`, `assistant-persona.md`.
 - **`boxel-file-def`** — File-backed fields (`FileDef`, `ImageDef`, etc.).
