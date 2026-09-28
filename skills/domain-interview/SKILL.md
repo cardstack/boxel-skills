@@ -14,6 +14,12 @@ boxel:
 
 _What the thing is, never how it looks._
 
+| Contract | |
+|---|---|
+| **Reads** | The user's answers, asked in rounds; the catalog, through a `catalog-reuse` search, for the coverage matrix |
+| **Writes** | One brief card in the target realm: `Wiki/<slug>-brief.json`, a software-factory `Wiki` card whose `content` is the spec |
+| **Stops when** | The brief card is written and read back. Give the user its URL and stop; what runs next is not this skill's call |
+
 **While this skill is active, the brief card is the only deliverable.** It replaces the build path
 for this conversation: do not run the design-playbook or its Stage 0 artifacts, do not pick a
 theme, do not write any `.gts`, and do not build a Home app — the index's build rules apply to
@@ -98,6 +104,11 @@ into a JSON string:
    `cardInfo.name`, `cardInfo.summary` and an empty `content`.
 2. **Fill `content`** with `patch-fields` on that card, passing the whole spec markdown as the
    value. The tool serializes it; do not escape newlines or quotes yourself.
+
+**Refining a brief that already exists.** Later stages add their own sections to the same card
+(`## Design direction`, `## Motion`), and `patch-fields` replaces the whole field. So read the
+current `content` first and patch the full value: the updated spec, then every later section
+unchanged. Never drop or rewrite another stage's section.
 
 **Then check it landed.** Read the card back. If `content` is empty or shorter than the spec you
 wrote, patch it again — never tell the user the brief is saved until the card you read back holds
