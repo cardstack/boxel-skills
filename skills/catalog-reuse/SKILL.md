@@ -43,7 +43,14 @@ tell you how to build well, not whether to build at all.
 ## Required workflow
 
 1. **Enumerate** every card, field, component, command, app, theme, and asset
-   the brief implies, in plain language.
+   the brief implies, in plain language. A noun that names an entity — "the
+   contact who was called", "the candidate", "the customer" — is one of those
+   cards: enumerate the entity itself and search for it. Spelling it out as the
+   two or three attributes you would otherwise type is how a card-sized need
+   gets searched for as nothing at all. This holds when the brief reaches the
+   entity only through its attributes — "the candidate's contact details", "the
+   customer's address" — a possessive names the entity as surely as a bare noun
+   does, and what it owns is the card's business, not yours to re-declare.
 2. **Search Listings** for the deliverable as a whole.
 3. **If no Listing answers the brief**, search Specs for each enumerated need.
    Skip this when an accepted Listing already covers the brief.
@@ -86,9 +93,9 @@ Take the target from the hit's `ref` (module + name) and wire **that**.
 | `app` | an AppCard family | ships as a **Listing** in practice → use the Listing anchor |
 | `file` | an asset | an **instance** → use the instance anchor |
 
-**A CardDef is *linked*; a FieldDef is *contained*.** `@field author =
-linksTo(Author)` is how you reuse a card definition; a FieldDef is contained,
-never linked.
+**How you declare the wiring is `boxel`'s call, not this skill's.** Its
+Cardinal Rules own CardDef-vs-FieldDef and `contains` vs `linksTo`. Here you
+decide *which* catalog unit answers the need; go there for how to write it.
 
 `specType` crosses these rows — four values name module exports, `app` is in
 practice a Listing, `file` is an instance. It is advisory and sometimes absent,
