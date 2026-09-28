@@ -198,9 +198,9 @@ So:
 - Add `searchable: true` to that declared link only when the rollup reads fields *of* the targets (summing `item.price`, not counting items) — that is what puts target data in the doc, and what makes each target a dependency.
 
 **When to use what to query cards:**
-- Efficient display-only → `@context.searchResultsComponent` (the `<SearchResults>` surface)
+- A section of an app or home card that lists a type's cards (a few hundred at most) → a `linksToMany` field (query-backed to include every card of the type) rendered with delegated render, `{{#each @fields.items as |Item|}}<Item @format='fitted' />{{/each}}`. This is the default for a home.
+- A long list, or one with search or filter UI → `@context.searchResultsComponent` (the `<SearchResults>` surface)
 - Need data manipulation → `getCards`
-- Treat query result as a field → query-backed fields
 
 ### No `@isLive` on result lists
 
@@ -228,7 +228,7 @@ For benchmark-style coverage, exercise both common query surfaces across the set
 The newer display surface for a list of results (the `<SearchResults>` component). Declare an **`entry`-rooted** query and render the yielded entries; each `entry.component` renders itself — prerendered HTML (inert, hydrated lazily on interaction) or a live card — so the card never branches on which.
 
 **When to use what to query cards** (this is a **cost** decision — the display surface is cheap, the instance getters hydrate every row; see the pattern `show-list-prefer-prerendered`):
-- Display a list of results (cards or files) → `@context.searchResultsComponent`. Prerendered HTML, hydrated lazily per row. **Default for anything you only render.**
+- Display a long list of results (cards or files), or one with search or filter UI → `@context.searchResultsComponent`. Prerendered HTML, hydrated lazily per row. For a home or app section of a few hundred cards at most, a `linksToMany` field with delegated render is simpler and is the default (see the pattern `app-card-home-with-search`).
 - Need the instances in JS (read / manipulate / mutate) → `getCards` / `getCardCollection` (reactive) or `@context.store.search` (imperative). These trigger server `loadLinks` + serialization + Store hydration for every matching row — reserve for genuine read/mutate, and scope to the current realm (`this.args.model?.[realmURL]?.href`), not the whole federation.
 - Treat a query result as a field → query-backed fields (`linksTo` / `linksToMany` with a `query`).
 

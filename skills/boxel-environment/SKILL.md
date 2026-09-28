@@ -45,14 +45,9 @@ So read it as your first action, before you plan the work or tell the user what 
 □ Source Code Editing skill active?
   └─ NO → activate via update-room-skills_3875
 → Need file content? read-file-for-ai-assistant
-→ Use `run-realm-code`: pass all target file URLs and make edits with awaited
-  `Realm.replaceCode` / `Realm.createFile` calls. For NEW
-  files, use `Realm.createFile` with the complete file contents.
-→ Every file the task needs goes in ONE `run-realm-code` call — three cards, three
-  files, one script. The tool call must include the complete file contents for
-  new files and every existing file being edited.
-→ For code-change intent, use `run-realm-code`. Data/document commands remain
-  available for card fields and long markdown values.
+→ Use `run-realm-code` tool. For NEW files, call `realm.fs.writeText` with the complete contents.
+→ Put every file the task needs in ONE `run-realm-code` call.
+→ For code-change intent, ALWAYS use the `run-realm-code` tool. Data/document commands are secondary.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → preview-format_cb94 (opens module + shows card preview)
@@ -62,7 +57,7 @@ So read it as your first action, before you plan the work or tell the user what 
 ### Step 4 — Data task
 
 ```
-├─ New .json instance?                 → `run-realm-code` with `Realm.createFile`
+├─ New .json instance?                 → `run-realm-code` with `realm.fs.writeText`
 ├─ Clone + modify?                     → copy-card → patch-fields
 ├─ Long markdown field (>500 chars)?  → ApplyMarkdownEditCommand_c112
 ├─ Small/targeted change?              → patch-fields_3e67
@@ -73,9 +68,7 @@ So read it as your first action, before you plan the work or tell the user what 
 
 Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
 
-> **File editing rule:** Every source file is created and edited with the
-> `run-realm-code` tool. Use `Realm.createFile` for new files and
-> `Realm.replaceCode` for existing files.
+> **File editing rule:** Use `realm.fs.writeText` for new files and `realm.fs.replace` for existing files through `run-realm-code`.
 
 ### Step 5 — Search / find
 
@@ -90,13 +83,13 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 ```
 ├─ INTERACT MODE:
 │   ├─ Display card                  → show-card_566f
-│   ├─ Create card / definition      → `run-realm-code` with `Realm.createFile`
+│   ├─ Create card / definition      → `run-realm-code` with `realm.fs.writeText`
 │   ├─ Switch to code                → switch-submode_dd88 (submode: "code"; pass codePath to target a specific realm — a bare switch stays in the current realm)
 │   ├─ Open workspace                → open-workspace_1696 (lands in interact mode)
 │   ├─ Create workspace              → create-workspace_cf0f (opens the new workspace; report its URL from the result context)
 │   └─ Delete workspace              → delete-workspace_a465 (permanent; confirm with the user first)
 ├─ CODE MODE:
-│   ├─ Create or edit a file         → `run-realm-code` tool call. Never call switch-submode_dd88 again for a file the tab already shows — the last tool result's `context.codeMode.currentFile` tells you where you are
+│   ├─ Create or edit a file         → `run-realm-code`. Never call switch-submode_dd88 again for a file the tab already shows — the last tool result's `context.codeMode.currentFile` tells you where you are
 │   ├─ Preview card + module         → preview-format_cb94
 │   ├─ Open file in editor           → update-code-path-with-selection_f749
 │   ├─ Switch to interact            → switch-submode_dd88 (submode: "interact")
@@ -111,7 +104,7 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 
 ```
 ├─ Search affected instances
-├─ ≤10 → Fix all with `run-realm-code`
+├─ ≤10 → Fix all with the `run-realm-code` tool
 ├─ >10 → "Found X. Fix first 10?"
 ├─ Verify → switch-submode to .json
 └─ Continue → "Next 10 of Y remaining?"

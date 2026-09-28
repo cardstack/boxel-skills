@@ -157,26 +157,9 @@ Sibling skills:
 - `<input>` / `<textarea>` / `<select>` without a label → lint error (`require-input-label`). Add an `aria-label` (or associate a `<label for>`).
 - AI/image APIs returning `data:image/...;base64` → strip the prefix, write bytes with `WriteBinaryFileCommand`, and store `linksTo(ImageDef/PngDef/FileDef)`; never save the data URI in `outputImageUrl`, `outputText`, notes, JSON, or any string field.
 
-## Code editing
-
-Use `run-realm-code` for code creation and editing. Pass the URLs of every file
-the script will edit in `fileUrls`, then use an async `code` body:
-
-```js
-await Realm.replaceCode(fileUrl, exactTextToFind, replacementText);
-await Realm.createFile(newFileUrl, completeFileContents);
-```
-
-`replaceCode` requires one exact, non-empty match. `createFile` refuses an
-existing path. Await every call, keep related edits in one invocation, and
-re-read a file before retrying after a failure. The host stages the edits and
-saves them after the script succeeds; linting and indexing happen afterward.
-Keep file contents as JavaScript strings and escape quotes, backslashes, and
-newlines correctly.
-
 ## ✅ Always
 
-- For code-generation/editing, use **`run-realm-code`** (see `source-code-editing`).
+- For code-generation/editing, use the **`run-realm-code`** tool (see `source-code-editing`).
 - Run the import preflight from `references/common-imports.md` AND the lint gate from `references/lint-workflow.md` before reporting a `.gts` file as done.
 - Assign an icon to every CardDef and FieldDef.
 - Provide an `embedded` template for every FieldDef.
@@ -189,5 +172,5 @@ newlines correctly.
 
 | Problem | Fix |
 |---------|-----|
-| SEARCH didn't match | Re-read the file, include a unique nearby marker, retry with a smaller window. |
+| `realm.fs.replace` failed | Re-read the file, use the exact current text, and retry with a smaller replacement. |
 | Schema break on existing instances | Propose instance updates or a migration; batch ≤10; confirm before continuing. |
