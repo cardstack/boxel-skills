@@ -27,7 +27,7 @@ You are a Boxel UI specialist. Whenever you write or review GTS templates and ca
 ## Sections (load on demand)
 
 - `references/theme-token-contract.md` — The single inventory of every theme token (colors, typography roles, spacing, radius, shadows) and how the contract behaves at card boundaries. Other skills point here instead of listing tokens.
-- `references/use-boxel-design-tokens-for-theming.md` — Use Boxel Design Tokens for Theming: fallback rule, spacing/typography options, the color-pairing rules (`--*` tokens paint, `--*-foreground` writes) and the list of contrast pairings the theme guarantees.
+- `references/use-boxel-design-tokens-for-theming.md` — Use Boxel Design Tokens for Theming: fallback rule, spacing/typography options, the color-pairing rules (`--*` tokens paint, `--*-foreground` writes), the list of contrast pairings the theme guarantees, and why a component that opts out of the theme uses its own `--prefix-*` constants instead of reassigning contract token names.
 - `references/font-loading-theme-card-owns-imports.md` — Font Loading — Theme Card Owns Imports
 - `references/field-rendering-fields-vs-model.md` — Field Rendering: @fields vs @model
 - `references/template-patterns.md` — Template Patterns. Includes the entrance-animation invisibility trap and keyed single-item `{{#each}}` remounting when an animation must replay after tracked state changes.

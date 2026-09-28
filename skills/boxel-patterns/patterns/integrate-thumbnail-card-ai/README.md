@@ -180,7 +180,6 @@ class MyCard extends CardDef {
 
 - Host command: `@cardstack/boxel-host/tools/generate-thumbnail` — `packages/host/app/tools/generate-thumbnail.ts` in the boxel monorepo.
 - Former production caller: `autoGenerateThumbnail` in the host's `listing-create` command, retired in CS-11372 (listing commands now live in the catalog realm).
-- Catalog-realm re-export: `packages/catalog-realm/commands/generate-thumbnail-command.gts` (one-line `export { default as GenerateThumbnailCommand } from '...'`).
 - Default LLM constant: `@cardstack/runtime-common/matrix-constants` → `DEFAULT_IMAGE_GENERATION_LLM`.
 - Composes: `SendRequestViaProxyCommand`, `WriteBinaryFileCommand`, `PatchCardInstanceCommand`.
 

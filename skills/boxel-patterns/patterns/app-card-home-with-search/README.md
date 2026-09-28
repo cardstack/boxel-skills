@@ -241,7 +241,7 @@ The home's outermost element (`.sg` in the example) MUST leave decoration to the
 2. **Custom-field sorts require `on: ref`.** Only `lastModified`, `createdAt`, and `cardURL` are valid sort keys without `on` (the `generalSortFields` list). Sorting on `lastName`, `dates.start`, anything custom — the sort expression MUST include `on: ref`.
 3. **Use `codeRef(here, path, name)`, not raw URL construction.** And import `realmURL` as a Symbol from `runtime-common` — don't write `Symbol.for('realmURL')` (it produces a different Symbol that doesn't match what the host injected).
 
-See `boxel/references/query-systems.md` for the canonical reference and `~/Projects/boxel/packages/runtime-common/query.ts` for the type definitions.
+See `boxel/references/query-systems.md` for the canonical reference and `packages/runtime-common/query.ts` for the type definitions.
 
 **Other gotchas:**
 - `import.meta.url` works in `.gts` at runtime but TS complains — declare `const here: string = import.meta.url;` once at top with `@ts-expect-error` on the line above.
