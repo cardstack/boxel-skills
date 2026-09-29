@@ -18,7 +18,7 @@ _What the thing is, never how it looks._
 |---|---|
 | **Reads** | The user's answers, asked in rounds; the catalog, through a `catalog-reuse` search, for the coverage matrix |
 | **Writes** | One brief card in the target realm: `Wiki/<slug>-brief.json`, a software-factory `Wiki` card whose `content` is the spec |
-| **Stops when** | The brief card is written and read back. Give the user its URL and stop; what runs next is not this skill's call |
+| **Stops when** | The brief card is written and read back, and the hand-off (`design-direction` or keep refining) is offered as a choice. It never decides which; what runs next is the user's call |
 
 **While this skill is active, the brief card is the only deliverable.** It replaces the build path
 for this conversation: do not run the design-playbook or its Stage 0 artifacts, do not pick a
@@ -164,14 +164,21 @@ Expect schema to grow at build time when the design needs something. That is not
 
 ## Finish
 
-The brief card is the whole deliverable. Give the user its URL and stop — do not offer to start
-building, and do not ask what happens next. If the brief still has open questions, say so in
-one line; the user refines it by asking again.
+The brief card is the whole deliverable. Give the user its URL. If the brief still has open
+questions, say so in one line before the hand-off.
+
+**Then hand off — offer the next stage, don't decide it.** Ask, with a structured choice tool
+where the environment supports it: move on to `design-direction` (decide how it looks before
+anything is built), or keep refining this brief. Recommend `design-direction` when the brief has
+no open questions left; recommend refining when it does. Do not start `design-direction` yourself
+and do not build anything — naming the next stage is as far as this skill goes.
 
 ## Pair with
 
 - **`catalog-reuse`** — the search behind the coverage matrix's reuse column.
 - **`boxel`** — the CardDef, FieldDef and link rules the schema has to respect.
+- **`design-direction`** — the hand-off after the brief; reads this brief card and adds a
+  `## Design direction` section to it. Never run it from inside this skill — only offer it.
 
 ## Don't use for
 
