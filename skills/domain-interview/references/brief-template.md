@@ -1,5 +1,8 @@
 # {Name} — brief
 
+> **Written into the brief card's `spec` field.** The title is `cardInfo.name`, so this `#`
+> heading is not part of the field; the field starts at the line below and its sections at `##`.
+
 Written by `domain-interview` on {date}. Contains no design decisions — layout, style and motion are decided by whatever builds from this brief.
 
 ## Overview

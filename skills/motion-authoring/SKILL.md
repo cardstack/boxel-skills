@@ -2,7 +2,7 @@
 name: motion-authoring
 description: >-
   Turn a `## Design direction` narrative arc, scroll-scrubbed signature or direct-manipulation way into a
-  `## Motion` section on the same brief card that a builder executes number-for-number — the still frame,
+  `motion` field on the same brief card that a builder executes number-for-number — the still frame,
   the engine, the load-bearing structure, every beat as target · property · from → to · trigger · duration
   · ease, and the three capture points. Opt-in: use it only when `## Design direction` already asked for
   narrative or continuous motion
@@ -21,9 +21,12 @@ _Write the motion the way the best prompt libraries do._
 
 | Contract | |
 |---|---|
-| **Reads** | The unit's brief card: its `## Design direction` section — Narrative arc, signature treatment, spatial model, Interaction table — and the layout block of the screen the arc lives on |
-| **Writes** | One `## Motion` section on that same brief card, and nothing else: no markdown files, and no edit to any other stage's section |
-| **Stops when** | The section is written and read back, each beat and library row is reported in one line, and the next stage is offered as a choice. It never builds and never scores |
+| **Reads** | The unit's brief card: its `designDirection` field — Narrative arc, signature treatment, spatial model, Interaction table — and the layout block of the screen the arc lives on |
+| **Writes** | The `motion` field of that same brief card, and nothing else: no markdown files, no other field |
+| **Stops when** | The field is written and read back, each beat and library row is reported in one line, and the next stage is offered as a choice. It never builds and never scores |
+
+Everywhere below, `## Design direction` means the brief card's `designDirection` field and
+`## Motion` its `motion` field.
 
 `design-direction` decides *whether* a unit moves and *what* the arc reveals. It records that as a
 Narrative arc — a still frame, three beats, a total budget, a way per beat with its achievability.
@@ -70,7 +73,7 @@ Say so in one line and hand back.
 
 After `## Design direction` is written and before the first screen is built — `design-direction`'s
 hand-off line `Motion: needed — <trigger>`, and the hand-off choice it offers alongside it, is what
-sends a unit here. `## Motion` is written onto the same brief card,
+sends a unit here. `## Motion` is written into the same brief card's `motion` field,
 and each library row names both the capability and its host. The first screen and the batch build
 the CSS-achievable beats from it with hardcoded numbers; theming and wiring load the library rows;
 `design-review` captures at the three points `## Net journey` names.
@@ -113,8 +116,7 @@ CSS; **scrub-welded** is CSS scroll timelines where supported plus the scrub mod
 
 ## Phase 3 — Write the `## Motion` section
 
-Use `references/motion-template.md`, with its headings demoted one level so its `##` blocks become
-`###` under `## Motion`. Sections, in the order the reference libraries use them and for the reasons
+Use `references/motion-template.md`. Sections, in the order the reference libraries use them and for the reasons
 each one earns its place:
 
 | Section | What goes in it | What it prevents |
@@ -152,11 +154,11 @@ Fold the results back into the `## Motion` section as concrete lines — `root: 
 One line per beat: name · engine · trigger · the one number that defines its feel, plus one line
 per library row with its host. The build then proceeds from `## Design direction` + `## Motion` together.
 
-**Writing it onto the brief card.** `patch-fields` replaces the whole `content` field, so read the
-card's current `content` first and patch the full value: the spec, `## Design direction` and every
-other section unchanged, then `## Motion` after them. If the card already has a `## Motion` section,
-replace that one rather than adding a second. Read the card back and check every section is still
-there before saying it is saved.
+**Writing it onto the brief card.** Read the card back first so it has resolved, then
+`patch-fields` the `motion` field with the whole section as the value — it is this skill's own
+field, so nothing else on the card is re-sent or at risk. A later change to one row is an
+`apply-markdown-edit` on `motion` with that row's block as `currentContent`. Read the card back and
+check the field holds it before saying it is saved.
 
 **Then hand off — offer the next stage, don't decide it.** Ask, with a structured choice tool where
 the environment supports it: build the first screen now that its numbers exist (recommended), or

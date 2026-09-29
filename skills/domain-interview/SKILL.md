@@ -3,9 +3,8 @@ name: domain-interview
 description: >-
   Use when someone asks for an app, kit or card in a domain ("build me a scheduling app for
   salons", "spec this out"), or when a brief is too vague to build from — even when the user sounds
-  confident. Interviews the user and writes a buildable brief as a Wiki card — schema, coverage
-  matrix, per-screen content contracts, flows, real sample data — that the software factory builds
-  from. NOT for layout, style or motion (boxel-design and the design-playbook own those).
+  confident. Interviews the user and writes a buildable brief as a brief card — schema, coverage
+  matrix, per-screen content contracts, flows, real sample data — that a builder builds from. NOT for layout, style or motion (boxel-design and the design-playbook own those).
 boxel:
   kind: skill
 ---
@@ -17,14 +16,14 @@ _What the thing is, never how it looks._
 | Contract | |
 |---|---|
 | **Reads** | The user's answers, asked in rounds; the catalog, through a `catalog-reuse` search, for the coverage matrix |
-| **Writes** | One brief card in the target realm: `Wiki/<slug>-brief.json`, a software-factory `Wiki` card whose `content` is the spec |
+| **Writes** | One brief card in the target realm: `Brief/<slug>.json`, a `BriefCard` whose `spec` field is the spec — and `brief-card.gts` beside it when the realm has no definition yet |
 | **Stops when** | The brief card is written and read back, and the hand-off (`design-direction` or keep refining) is offered as a choice. It never decides which; what runs next is the user's call |
 
 **While this skill is active, the brief card is the only deliverable.** It replaces the build path
 for this conversation: do not run the design-playbook or its Stage 0 artifacts, do not pick a
 theme, do not write any `.gts`, and do not build a Home app — the index's build rules apply to
-whatever builds from the brief, not to this skill. The only file you write is
-`Wiki/<slug>-brief.json`. Start with interview round 1 below; do not open with a design, a
+whatever builds from the brief, not to this skill. The only files you write are
+`Brief/<slug>.json` and, when the realm lacks it, `brief-card.gts`. Start with interview round 1 below; do not open with a design, a
 mockup or a schema.
 
 You are interviewing to find out what a practitioner in this domain actually does, then writing
@@ -74,43 +73,50 @@ continue in chat — don't force it.
 
 ## Output
 
-The spec is a **brief card**: a software-factory `Wiki` card at `Wiki/<slug>-brief.json` whose
-`content` is the spec markdown, written from `references/brief-template.md`. The card URL is the
-deliverable — it is what `pnpm factory:go --brief-url` takes.
+The spec is a **brief card**: a `BriefCard` instance at `Brief/<slug>.json`, its `spec` field
+written from `references/brief-template.md`. The card URL is the deliverable. The card has one
+MarkdownField per stage — `spec` (this skill), `designDirection` (`design-direction`), `motion`
+(`motion-authoring`) — so no stage ever touches another stage's text.
 
 **Where it goes.** In the realm the user named. If they named none, the current realm — the
 `realmUrl` in your context — when its `realmPermissions.canWrite` is true; otherwise ask which
 realm to use before writing.
 
-**The card.** `Wiki` lives in the software-factory realm, which has no `@cardstack/*` prefix, so
-`adoptsFrom` is an absolute URL: the target realm's **origin** plus `/software-factory/wiki` (for
-example `https://app.boxel.ai/software-factory/wiki`). Build it from the origin — never hardcode one
-environment's host. The factory reads only these attributes:
+**The definition.** `BriefCard` is `references/brief-card.gts`. Search the target realm for it
+first — `brief-card.gts` at the realm root, or any instance whose `adoptsFrom` names `BriefCard`.
+If the realm has none, write it there with one SEARCH/REPLACE block: the URL line is
+`<realm-url>brief-card.gts (new)` and the body is the reference file verbatim. Instances then adopt
+from `./brief-card`, so nothing crosses realms.
 
-| Attribute | Holds |
+| Field | Holds |
 |---|---|
-| `cardInfo.name` | the brief title — `{Name}`, without the "— brief" suffix |
+| `cardInfo.name` | the brief title — `{Name}`, without a "— brief" suffix |
 | `cardInfo.summary` | the Overview paragraph |
-| `content` | the whole spec markdown, from the template's first heading to Open questions |
-| `tags` | optional — a few domain words |
-| `sourceCardUrl` | leave empty for a new app; set it only when the brief adjusts an existing card |
+| `spec` | the spec markdown, from Overview to Open questions |
+| `designDirection` | empty — `design-direction` writes it |
+| `motion` | empty — `motion-authoring` writes it, and only when the direction asked for an arc |
 
-**Writing it in the Boxel AI assistant.** Two steps, so the spec markdown is never hand-escaped
-into a JSON string:
+**Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
+into a JSON string and never patched into a card that is not indexed yet:
 
-1. **Create the card** with one SEARCH/REPLACE block (read `source-code-editing` first if you have
-   not read it this session). The URL line is `<realm-url>Wiki/<slug>-brief.json (new)`; the body
-   is the card JSON with `adoptsFrom` `{ "module": "<origin>/software-factory/wiki", "name": "Wiki" }`,
-   `cardInfo.name`, `cardInfo.summary` and an empty `content`.
-2. **Fill `content`** with `patch-fields` on that card, passing the whole spec markdown as the
-   value. The tool serializes it; do not escape newlines or quotes yourself.
+1. **Create the instance** with one SEARCH/REPLACE block (read `source-code-editing` first if you
+   have not read it this session). The URL line is `<realm-url>Brief/<slug>.json (new)`; the body
+   is the card JSON with `adoptsFrom` `{ "module": "./brief-card", "name": "BriefCard" }`,
+   `cardInfo.name`, `cardInfo.summary`, and `spec`, `designDirection` and `motion` all `null`.
+2. **Wait until it is a card.** `patch-fields` applies only to an indexed card. Read the instance
+   back with `read-card-for-ai-assistant`; if it does not resolve yet, read again rather than
+   patching a card that is not there.
+3. **Fill `spec`** with `patch-fields` on that card, passing the whole spec markdown as the value.
+   The tool serializes it; do not escape newlines or quotes yourself. `spec` is this skill's own
+   field, so replacing it whole touches nothing another stage wrote.
 
-**Refining a brief that already exists.** Later stages add their own sections to the same card
-(`## Design direction`, `## Motion`), and `patch-fields` replaces the whole field. So read the
-current `content` first and patch the full value: the updated spec, then every later section
-unchanged. Never drop or rewrite another stage's section.
+**Refining a brief that already exists.** A change to one section of an existing `spec` — a
+screen's content contract, a schema row — is an `apply-markdown-edit` on the `spec` field with that
+section as `currentContent`, not a second full `patch-fields`: the field is long, and re-sending all
+of it to change one paragraph is how a paragraph elsewhere gets dropped. Other stages' fields are
+never yours to edit.
 
-**Then check it landed.** Read the card back. If `content` is empty or shorter than the spec you
+**Then check it landed.** Read the card back. If `spec` is empty or shorter than the spec you
 wrote, patch it again — never tell the user the brief is saved until the card you read back holds
 it.
 
@@ -177,8 +183,8 @@ and do not build anything — naming the next stage is as far as this skill goes
 
 - **`catalog-reuse`** — the search behind the coverage matrix's reuse column.
 - **`boxel`** — the CardDef, FieldDef and link rules the schema has to respect.
-- **`design-direction`** — the hand-off after the brief; reads this brief card and adds a
-  `## Design direction` section to it. Never run it from inside this skill — only offer it.
+- **`design-direction`** — the hand-off after the brief; reads this brief card's `spec` and
+  writes its `designDirection` field. Never run it from inside this skill — only offer it.
 
 ## Don't use for
 
@@ -188,4 +194,5 @@ and do not build anything — naming the next stage is as far as this skill goes
 
 ## Sections (load on demand)
 
-- `references/brief-template.md` — the brief's `content`, section by section
+- `references/brief-template.md` — the `spec` field, section by section
+- `references/brief-card.gts` — the `BriefCard` definition, written into a realm that has none

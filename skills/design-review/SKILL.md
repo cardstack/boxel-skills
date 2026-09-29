@@ -11,9 +11,12 @@ _Score what was built, from what it looks like._
 
 | Contract | |
 |---|---|
-| **Reads** | Captures of the built thing, and the unit's brief card — its `## Design direction` acceptance lines and anti-patterns, its `## Motion` numbers where one exists |
+| **Reads** | Captures of the built thing, and the unit's brief card — the acceptance lines and anti-patterns in its `designDirection` field, the numbers in its `motion` field where that is filled |
 | **Writes** | Nothing. The report is the deliverable: the brief card records decisions, not scores, so a review never edits it |
 | **Stops when** | The verdict is reported and the next step — fix, review another surface, revisit a decision, or stop — is offered as a choice |
+
+Everywhere below, `## Design direction` means the brief card's `designDirection` field and
+`## Motion` its `motion` field.
 
 You review a built thing against two standards: the `## Design direction` section that was decided for it, and an
 aesthetic bar that a competent-but-generic result does not clear. Where they conflict, `## Design direction`
@@ -41,7 +44,7 @@ service's batch and time budgets, where captures go, and the flakiness rules.
 
 ## Phase 1 — The design-direction gate
 
-When the brief card has a `## Design direction` section, it is the primary rubric.
+When the brief card's `designDirection` field is filled, it is the primary rubric.
 
 1. Read its acceptance lines, its set acceptance lines, and its anti-patterns block. Each
    anti-pattern counts as an acceptance line.
@@ -62,7 +65,7 @@ the named style were chosen deliberately, with reasons recorded. Score how well 
 If you think a decision itself was wrong, say so once, separately, as a note to the user — not as a
 score.
 
-With no `## Design direction` section, skip this phase and say the review ran without one.
+With `designDirection` empty, skip this phase and say the review ran without one.
 
 ## Phase 2 — The aesthetic gate
 

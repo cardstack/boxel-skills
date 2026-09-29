@@ -152,10 +152,10 @@ The 4-stage recommended process for any user-facing card:
 
 → `boxel/references/design-playbook.md`
 
-- **Brief card** — a unit's one source of truth: a software-factory `Wiki` card at `Wiki/<slug>-brief.json` whose `content` gains a section per stage (the spec from `domain-interview`, `## Design direction`, then `## Motion`). No stage writes a markdown file. The card URL is the factory's `--brief-url`.
+- **Brief card** — a unit's one source of truth: a `BriefCard` at `Brief/<slug>.json` with one MarkdownField per stage — `spec` from `domain-interview`, `designDirection`, then `motion`. No stage writes a markdown file or another stage's field. Definition: `domain-interview/references/brief-card.gts`.
 - **Content contract** — per-screen purpose, mode, primary action + mechanism (navigate / write / work / read-only), must-contain in priority order, key moment, empty state. Written by `domain-interview`; the priority order is what the design step reads to decide layout. → `domain-interview/references/brief-template.md`
-- **`## Design direction`** — the brief card section holding a unit's design decision: layout pick with reason, interaction ways with budgets, style, ornament budget, acceptance lines. Written by `design-direction`. → `design-direction/references/design-direction-template.md`
-- **`## Motion`** — the brief card section holding an arc's build numbers: motion system, engine per beat, load-bearing structure, effect rows, net journey. Written by `motion-authoring`, only for a unit whose direction asked for an arc. → `motion-authoring/references/motion-template.md`
+- **`designDirection`** — the brief card field holding a unit's design decision: layout pick with reason, interaction ways with budgets, style, ornament budget, acceptance lines. Written by `design-direction`. → `design-direction/references/design-direction-template.md`
+- **`motion`** — the brief card field holding an arc's build numbers: motion system, engine per beat, load-bearing structure, effect rows, net journey. Written by `motion-authoring`, only for a unit whose direction asked for an arc. → `motion-authoring/references/motion-template.md`
 - **Acceptance line** — a `## Design direction` line a reviewer ticks without taste; set acceptance lines are checked across every screen at once.
 - **Ornament ladder (L0–L3)** — the rung each surface is built at: bare · marked · grounded · signature; one L3 per unit. → `design-direction/references/enrichment-moves.md`
 - **Signature treatment** — the one arresting treatment on the dominant object, earned by the style. → `design-direction/references/signature-treatments.md`
@@ -369,11 +369,11 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-patterns`** — Outcome-indexed catalogue of 50+ working patterns + `integration-surfaces.md` (capability cheatsheet) + `libraries.md` (import-path catalogue) + `ai-image-models.md` (verified model IDs for image generation) + `pattern-authoring.md` (README template, naming conventions, `validated:` ladder, promotion bar) + `pattern-backlog.md` (reserved-but-unextracted slugs — do not chase).
 - **`boxel-ui-guidelines`** — Template UI rules, `delegated-render-control.md`, `template-patterns.md`, `style-budget.md`, `prevent-content-overflow.md`.
 - **`boxel-design`** — Visual design + asset selection + critical anti-LLM-cliché rules.
-- **`design-direction`** — Decides how a unit looks, moves and responds before it is built — asks only feeling and style, decides layout itself — and records it as a `## Design direction` section on the unit's brief card, with tickable acceptance lines.
-- **`motion-authoring`** — Opt-in, only when the direction asked for an arc: writes the `## Motion` section on the same brief card — one motion system, the engine per beat, the load-bearing CSS, an exhaustive effect table, and the three capture points.
+- **`design-direction`** — Decides how a unit looks, moves and responds before it is built — asks only feeling and style, decides layout itself — and records it in the `designDirection` field of the unit's brief card, with tickable acceptance lines.
+- **`motion-authoring`** — Opt-in, only when the direction asked for an arc: writes the `motion` field of the same brief card — one motion system, the engine per beat, the load-bearing CSS, an exhaustive effect table, and the three capture points.
 - **`design-review`** — Scores what was built, from captures only, against the brief card's acceptance lines and an aesthetic bar whose gate is 8.5. Three modes: one screen, `set` across an app, `card` across a CardDef's formats.
 - **`boxel-theme-development`** — Theme/StyleReference/BrandGuide creation, DESIGN.md mapping, brand tokens, logo/mark capture, and audit workflow.
-- **`domain-interview`** — Interviews the user and writes a brief (primer, schema, coverage matrix, per-screen content contracts, flows, sample data) as a software-factory Wiki card, with no design decisions. The card URL is the factory's `--brief-url`.
+- **`domain-interview`** — Interviews the user and writes a brief (primer, schema, coverage matrix, per-screen content contracts, flows, sample data) into a `BriefCard`'s `spec` field, with no design decisions.
 - **`boxel-environment`** — Driving the live app + host commands; `workflows-and-orchestration.md`, `user-environment-awareness.md`, `assistant-persona.md`.
 - **`boxel-file-def`** — File-backed fields (`FileDef`, `ImageDef`, etc.).
 - **`boxel-flavored-markdown`** — BFM authoring with directives + fenced renderers.

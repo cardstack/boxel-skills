@@ -12,8 +12,8 @@ record the decision so a builder can execute it and a reviewer can check it with
 
 | Contract | |
 |---|---|
-| **Reads** | A `domain-interview` brief card (its `content`), or a bare request for a card, component or field; any `## Design direction` section the card already has |
-| **Writes** | One `## Design direction` section in the unit's brief card `content`, and nothing else: no markdown files. With no brief, it first creates a small brief card to hold the section |
+| **Reads** | A `domain-interview` brief card (its `spec` field), or a bare request for a card, component or field; whatever its `designDirection` field already holds |
+| **Writes** | The `designDirection` field of the unit's brief card, and nothing else: no markdown files, no other field. With no brief, it first creates a brief card to hold it |
 | **Stops when** | The direction is written and read back, the Phase 4 summary, motion line and first-screen pick are shown, and the hand-off (build the first screen · `motion-authoring` when motion is needed · adjust the direction) is offered as a choice. It never builds, never reviews, and never decides which runs next |
 
 ## Ask only what words can answer
@@ -50,26 +50,27 @@ never a menu you offer (see Never, below).
 | "This component is boring" | Component | Its states — rest, hover, active, loading, empty, error |
 | "Design this field" | Field | Its edit, embedded and atom presentations |
 
-**Where the direction lives: always in a brief card, never in a file.** Each unit has one brief
-card, `Wiki/<slug>-brief.json`, and every stage adds its own section to that card's `content`:
+**Where the direction lives: always in the brief card, never in a file.** Each unit has one brief
+card, `Brief/<slug>.json` — a `BriefCard` with one MarkdownField per stage, so a stage only ever
+replaces its own text:
 
 ```
-# {Name} — brief        ← domain-interview (the spec)
-## Design direction     ← this skill
-## Motion               ← motion-authoring, when the direction asks for it
+spec              ← domain-interview (the spec)
+designDirection   ← this skill
+motion            ← motion-authoring, when the direction asks for it
 ```
 
-From a `domain-interview` brief, the direction goes into that same card, so the software factory
-reads the spec and the design together. With no brief (a single card, component or field), create a
-small brief card holding only this section. Everywhere in this skill and its phase files,
-`## Design direction` means that section. Phase 4 has the write steps.
+From a `domain-interview` brief, the direction goes into that same card's `designDirection`, so a
+builder reads the spec and the design together. With no brief (a single card, component or field),
+create a brief card holding only this field. Everywhere in this skill and its phase files,
+`## Design direction` means the `designDirection` field. Phase 4 has the write steps.
 
 A unit inside one that already has a direction inherits that style and decides only what is new.
 Skip phases the unit does not need; a field has no screen inventory but still gets a style.
 
 ## Phase 0 — Brief
 
-From a `domain-interview` brief card (`Wiki/<slug>-brief.json`, the spec in its `content` field),
+From a `domain-interview` brief card (`Brief/<slug>.json`, the spec in its `spec` field),
 take the overview, the per-screen **content contracts** (purpose, primary action, must-contain in
 priority order, key moment, empty state) and the flows. These are inputs; do not re-ask them.
 
@@ -77,8 +78,8 @@ Briefs carry no feeling by design, so ask one question: **what feeling should th
 no brief at all, ask three things in one question: who uses it, what they do first, what feeling it
 should leave. Then move on.
 
-Check for an existing direction: a `## Design direction` section already in the unit's brief card,
-or in the brief card of the unit it sits inside.
+Check for an existing direction: a filled `designDirection` on the unit's brief card, or on the
+brief card of the unit it sits inside.
 
 ## Phases 1–4 (load each when you reach it)
 

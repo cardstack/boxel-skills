@@ -1,9 +1,8 @@
 # Design direction — {unit name}
 
-> **Written as a section of the unit's brief card**: this heading becomes `## Design direction`
-> and every `##` below becomes `###`. Under a `domain-interview` spec, `### Brief` keeps only the
-> feeling and what it inherits from, since who uses it and the first action are already in the spec
-> above it.
+> **Written into the brief card's `designDirection` field.** This `#` heading is not part of the
+> field; sections start at `##`. Beside a `domain-interview` spec, `## Brief` keeps only the feeling
+> and what it inherits from, since who uses it and the first action are already in `spec`.
 
 Written by `design-direction` on {date}. Builder: follow this before styling — and hardcode
 everything; the theme is extracted later. Reviewer: tick the acceptance lines first.

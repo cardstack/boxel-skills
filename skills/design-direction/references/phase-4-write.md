@@ -4,26 +4,27 @@ Part of [`design-direction`](../SKILL.md). Links are relative to this file.
 
 ## Write the direction
 
-Write it from [`design-direction-template.md`](design-direction-template.md) as a
-`## Design direction` section on the unit's brief card, with the template's headings demoted one
-level (its `##` sections become `###`). It is never a markdown file: the software factory reads only
-the brief card's `content`, and its design-foundation turn builds from it, so a separate file would
-never reach it.
+Write it from [`design-direction-template.md`](design-direction-template.md) into the brief card's
+`designDirection` field. It is never a markdown file: a builder reads only the brief card, so a
+separate file would never reach it.
 
 **Which card:**
 
-- **From a `domain-interview` brief card:** that card. The section goes after the spec.
+- **From a `domain-interview` brief card:** that card.
 - **No brief (a single card, component or field):** create one first, the same way
-  `domain-interview` does. One SEARCH/REPLACE block creates `Wiki/<slug>-brief.json` with
-  `adoptsFrom` `{ "module": "<realm origin>/software-factory/wiki", "name": "Wiki" }`, `cardInfo.name`
-  set to the unit's name and an empty `content`. The section is then its only content, and its
-  `### Brief` keeps all its lines, since there is no spec above it.
+  `domain-interview` does. If the realm has no `brief-card.gts`, write it from
+  `domain-interview/references/brief-card.gts` with one SEARCH/REPLACE block; then one more creates
+  `Brief/<slug>.json` with `adoptsFrom` `{ "module": "./brief-card", "name": "BriefCard" }`,
+  `cardInfo.name` set to the unit's name, `cardInfo.summary` to one line naming the unit, its
+  feeling and its style, and every stage field `null`. `## Brief` then keeps all its lines, since
+  there is no spec beside it.
 
-**Writing the section.** `patch-fields` replaces the whole `content` field, so read the card's
-current `content` first and patch the full value: every other section unchanged, then this one. If
-the card already has a `## Design direction` section, replace that section rather than adding a
-second one; never touch another stage's section, such as the spec or `## Motion`. Read the card
-back and check that every section is still there before saying it is saved.
+**Writing the field.** Read the card back first so it has resolved, then `patch-fields` the
+`designDirection` field with the whole direction as the value. It is this skill's own field —
+replacing it whole touches no other stage's text, and there is nothing to read back and re-send. A
+later change to one block — a screen stub written out in full, a style line — is an
+`apply-markdown-edit` on `designDirection` with that block as `currentContent`, not a second full
+patch. Read the card back and check the field holds it before saying it is saved.
 
 It always carries the style in full — controls, reference, type line, palette, signature treatment,
 ornament budget — decided once for the whole unit and never rewritten per screen.
@@ -85,7 +86,7 @@ the environment supports it. The options depend on the motion line you just wrot
 
 - **Build the first screen** — the one named above. Recommend this when motion is not needed.
 - **Run `motion-authoring` first** — offer this only when the motion line says motion is needed,
-  and recommend it over building: it writes the `## Motion` section on this same brief card, and
+  and recommend it over building: it fills the `motion` field of this same brief card, and
   beats built before their numbers exist get rebuilt once the numbers arrive.
 - **Adjust the direction** — the style, or the first screen's layout, while nothing is built and
   changing it is still cheap.
