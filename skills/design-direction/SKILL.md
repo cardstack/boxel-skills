@@ -87,11 +87,11 @@ ones the unit does not need.
 
 | Phase | File | What it decides |
 |---|---|---|
-| 1 — Inventory | [`references/phase-1-inventory.md`](references/phase-1-inventory.md) | Apps only: every screen, every CardDef the user sees rendered, every image-bearing field |
+| 1 — Inventory | [`references/phase-1-inventory.md`](references/phase-1-inventory.md) | Single-surface or multi-object, decided from the schema. Multi-object only: every screen, every CardDef the user sees rendered, every image-bearing field |
 | 2 — Layout | [`references/phase-2-layout.md`](references/phase-2-layout.md) | You decide, per screen: the direction and its reason, the dominant object, reading order, `prefersWideFormat` |
 | 3 — Interaction | [`references/phase-3-interaction.md`](references/phase-3-interaction.md) | How each primary action presents, its hit area and resting cue, and the moment / empty state / completion beats |
 | 4 — Style | [`references/phase-4-style.md`](references/phase-4-style.md) | The one question worth asking: three composed directions, the signature treatment, the ornament budget, the type line |
-| 5 — Write | [`references/phase-5-write.md`](references/phase-5-write.md) | The direction from the template, with per-screen and set acceptance lines, appended to the brief card or written as `## Design direction` |
+| 5 — Write | [`references/phase-5-write.md`](references/phase-5-write.md) | The direction from the template: style in full, the first screen in full, every other screen a stub, set acceptance lines for multi-object units only |
 | 6 — Hand off | [`references/phase-6-hand-off.md`](references/phase-6-hand-off.md) | The summary, the motion line and the first-screen pick, then stop. How it gets built is the builder's job |
 
 Phase 4 may run before Phase 2 when the user wants the mood settled first.

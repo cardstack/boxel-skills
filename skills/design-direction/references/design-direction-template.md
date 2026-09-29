@@ -55,6 +55,10 @@ everything; the theme is extracted later. Reviewer: tick the acceptance lines fi
 
 ## Screens
 
+**First screen only** gets the full block below. Every other screen in the inventory is a stub —
+one line: `### {Screen name} — {screen type}: {purpose from the content contract}` — filled in the
+same way, just before it is built.
+
 ### {Screen name} — {screen type}
 **Primary action**: {what the user does here first}
 **Blocks consumed**: {cards, fields, components and their formats}
@@ -95,9 +99,9 @@ everything; the theme is extracted later. Reviewer: tick the acceptance lines fi
 - [ ] {e.g. no region row has three or more equal-width boxes}
 - [ ] {e.g. the metrics strip is grounded (L2) and still quieter than the hero}
 
-{repeat per screen}
+{repeat per screen, stub form after the first}
 
-## Set acceptance lines (apps)
+## Set acceptance lines (multi-object apps only — omit for single-surface units)
 Checked across every screen at once by `design-review set`. These are what catch five screens that
 are each fine alone.
 - [ ] {e.g. one display face throughout; the body face never sets a headline}

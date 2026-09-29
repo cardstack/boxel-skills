@@ -2,7 +2,18 @@
 
 Part of [`design-direction`](../SKILL.md). Links are relative to this file.
 
-Apps only. One line per screen: **screen type** · **primary user action** · **blocks consumed**.
+**First, decide single-surface or multi-object — this is what the schema already told you.**
+Read the brief's schema and coverage matrix, not the screen count: if every CardDef but one is
+only ever read through the one screen (no other card `linksTo`/`linksToMany` it, nothing routes to
+it on its own), the unit is **single-surface** — one screen, switched by tabs or filtered by
+controls that are all Interaction-table entries on that one screen, not separate screens. Write one
+line saying so and stop this phase there; Phase 2 gets one layout pick, and the nav set acceptance
+line below does not apply. If two or more CardDefs are genuinely linked to each other — the schema
+already called this out as `linksTo`/`linksToMany` rather than a contained copy — the unit is
+**multi-object**: those CardDefs need to work as independently linkable, embeddable cards, which a
+tab inside one screen cannot substitute for, so continue the inventory below.
+
+Apps only, and only once the unit is multi-object. One line per screen: **screen type** · **primary user action** · **blocks consumed**.
 Cards go straight to their five formats, components to their states, fields to their three
 presentations.
 
