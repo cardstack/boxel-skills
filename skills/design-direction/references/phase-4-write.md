@@ -80,5 +80,15 @@ Show:
    First screen.
 4. **Where the direction lives**: the brief card URL.
 
-Then stop. Do not offer to build, and do not ask what happens next. You do not build and you do
-not review.
+**Then hand off — offer the next stage, don't decide it.** Ask, with a structured choice tool where
+the environment supports it. The options depend on the motion line you just wrote:
+
+- **Build the first screen** — the one named above. Recommend this when motion is not needed.
+- **Run `motion-authoring` first** — offer this only when the motion line says motion is needed,
+  and recommend it over building: it writes the `## Motion` section on this same brief card, and
+  beats built before their numbers exist get rebuilt once the numbers arrive.
+- **Adjust the direction** — the style, or the first screen's layout, while nothing is built and
+  changing it is still cheap.
+
+Do not start any of them yourself. You do not build and you do not review; naming the next stage is
+as far as this skill goes.

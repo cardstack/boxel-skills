@@ -14,7 +14,7 @@ record the decision so a builder can execute it and a reviewer can check it with
 |---|---|
 | **Reads** | A `domain-interview` brief card (its `content`), or a bare request for a card, component or field; any `## Design direction` section the card already has |
 | **Writes** | One `## Design direction` section in the unit's brief card `content`, and nothing else: no markdown files. With no brief, it first creates a small brief card to hold the section |
-| **Stops when** | The direction is written and read back, and the Phase 4 summary, motion line and first-screen pick are shown. It never builds and never reviews; what runs next is not this skill's call |
+| **Stops when** | The direction is written and read back, the Phase 4 summary, motion line and first-screen pick are shown, and the hand-off (build the first screen · `motion-authoring` when motion is needed · adjust the direction) is offered as a choice. It never builds, never reviews, and never decides which runs next |
 
 ## Ask only what words can answer
 
@@ -91,7 +91,7 @@ no screen inventory at all.
 | 1 — Inventory | [`references/phase-1-inventory.md`](references/phase-1-inventory.md) | Single-surface or multi-object, decided from the schema. Multi-object only: every screen, every CardDef the user sees rendered, every image-bearing field |
 | 2 — First screen | [`references/phase-2-first-screen.md`](references/phase-2-first-screen.md) | For the screen in hand: the layout direction and its reason, the dominant object, reading order, `prefersWideFormat`, and how each primary action presents — hit area, resting cue, and the moment / empty state / completion beats |
 | 3 — Style | [`references/phase-3-style.md`](references/phase-3-style.md) | The one question worth asking: three composed directions, the signature treatment, the ornament budget, the type line |
-| 4 — Write and hand off | [`references/phase-4-write.md`](references/phase-4-write.md) | The direction from the template — style in full, the first screen in full, every other screen a stub, set acceptance lines for multi-object units only — then the summary, the motion line and the first-screen pick, and stop |
+| 4 — Write and hand off | [`references/phase-4-write.md`](references/phase-4-write.md) | The direction from the template — style in full, the first screen in full, every other screen a stub, set acceptance lines for multi-object units only — then the summary, the motion line, the first-screen pick, and the next stage offered as a choice |
 
 Phase 3 may run before Phase 2 when the user wants the mood settled first.
 
