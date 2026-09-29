@@ -2,7 +2,7 @@
 
 This file runs **twice**, and the first run is the one that matters:
 
-1. **Forward, in Phase 4** — the style declares an ornament *baseline*, and every surface in the
+1. **Forward, in Phase 3** — the style declares an ornament *baseline*, and every surface in the
    unit is assigned a rung before anything is built. This is what stops a first generation coming
    out as headings and paragraphs when the style was never plain to begin with.
 2. **As a correction, on demand** — someone looks at something built and says *this block is too
@@ -12,7 +12,7 @@ Both runs answer the same question: **given the style this unit already has, wha
 surface earn?**
 
 It does not pick a style, does not touch the layout, and does not produce a second arresting
-element. A style change is Phase 4; a layout change is judged on the built screen; the one
+element. A style change is Phase 3; a layout change is judged on the built screen; the one
 arresting thing is [`signature-treatments.md`](signature-treatments.md). This file is the vocabulary for everything that is
 *not* the signature — the surfaces that should not be bare and must not out-shout it.
 
@@ -27,7 +27,7 @@ gradient.
 
 ## The baseline — derived from the style, not asked
 
-A style is not neutral about ornament. Read the baseline off the style's visual DNA in Phase 4;
+A style is not neutral about ornament. Read the baseline off the style's visual DNA in Phase 3;
 it is a conclusion, not a question for the user.
 
 | Baseline | The style sounds like | Default rung for an ordinary surface |
@@ -47,7 +47,7 @@ one L3 per unit, on the dominant object.
 ### Rich costs more, in three specific ways
 
 A high baseline is not a licence; it buys three new failure modes that a restrained one does not
-have, and Phase 4 must answer them when it picks Rich:
+have, and Phase 3 must answer them when it picks Rich:
 
 - **Contrast needs troughs.** If every surface is grounded, nothing reads as important. A Rich
   unit must name the surfaces that sit **one rung below baseline** on purpose — the rests — and
@@ -73,7 +73,7 @@ have, and Phase 4 must answer them when it picks Rich:
 Three rules hold the budget:
 
 - **One L3 per unit**, whatever the baseline. A correction run raises a surface **by one rung at a
-  time** and never reaches L3 on its own. Promoting something to L3 means demoting the current L3 first, and that is a Phase 4
+  time** and never reaches L3 on its own. Promoting something to L3 means demoting the current L3 first, and that is a Phase 3
   decision the user makes, not a side effect of "this looks plain".
 - **No L2 may out-shout the signature.** If the enriched surface now competes, the move was too
   loud — take the quieter version of the same idea, not a different idea.
@@ -160,7 +160,7 @@ Out of bounds — the ladder itself:
 
 **Where this file and upstream disagree about fitted, upstream wins.**
 
-## How a forward run goes (Phase 4)
+## How a forward run goes (Phase 3)
 
 1. **Read the baseline off the style** — restrained, balanced or rich, with the line of visual DNA
    that decided it.
@@ -178,7 +178,7 @@ signature still wins, and how many animated grounds a screen is allowed.
 ## How a correction run goes (on demand)
 
 1. **Name the surface** — which block, which screen, which format. One at a time; "the whole app is
-   plain" is a Phase 4 style question, not this.
+   plain" is a Phase 3 style question, not this.
 2. **Read the unit's `## Design direction`** — the style, its visual DNA, its anti-patterns, and where the L3
    signature currently lives.
 3. **Say the current rung and the target** — one step, in either direction. *Too plain* is

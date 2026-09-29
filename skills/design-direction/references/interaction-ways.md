@@ -217,7 +217,7 @@ Record each narrative way in `## Design direction` under **Narrative arc** with 
 way marked **library** is named here as a *capability* — "scroll-linked progress", "text split" —
 and the library choice is the build's, per upstream's
 [`external-libraries.md`](../../boxel/references/external-libraries.md), which owns how it is
-loaded. This file never names a library, for the same reason Phase 4 never names a style menu.
+loaded. This file never names a library, for the same reason Phase 3 never names a style menu.
 
 **The arc is a brief, not a build.** Three beats and a budget tell a builder *what* unfolds; the
 start and end offsets, the easing, whether the subject lags the scroll, and the CSS geometry the

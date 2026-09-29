@@ -14,7 +14,7 @@ record the decision so a builder can execute it and a reviewer can check it with
 |---|---|
 | **Reads** | A `domain-interview` brief card (its `content`), or a bare request for a card, component or field; any `## Design direction` section the card already has |
 | **Writes** | One `## Design direction` section in the unit's brief card `content`, and nothing else: no markdown files. With no brief, it first creates a small brief card to hold the section |
-| **Stops when** | The direction is written and read back, and the Phase 6 summary, motion line and first-screen pick are shown. It never builds and never reviews; what runs next is not this skill's call |
+| **Stops when** | The direction is written and read back, and the Phase 4 summary, motion line and first-screen pick are shown. It never builds and never reviews; what runs next is not this skill's call |
 
 ## Ask only what words can answer
 
@@ -34,7 +34,7 @@ Interaction sits in between: ask only where the options change what the user can
 it looks.
 
 **Where you do ask, ask with selectable options, not a blank prompt, whenever the environment
-supports it.** The feeling question, an interaction fork, and Phase 4's three composed style
+supports it.** The feeling question, an interaction fork, and Phase 3's three composed style
 directions all have a small, nameable answer set — that is exactly what a structured choice tool
 (e.g. Claude Code's `AskUserQuestion`) is for, and it reads easier than free text for a user with
 no design vocabulary. Always include a recommended option and an "other: describe it" escape
@@ -62,7 +62,7 @@ card, `Wiki/<slug>-brief.json`, and every stage adds its own section to that car
 From a `domain-interview` brief, the direction goes into that same card, so the software factory
 reads the spec and the design together. With no brief (a single card, component or field), create a
 small brief card holding only this section. Everywhere in this skill and its phase files,
-`## Design direction` means that section. Phase 5 has the write steps.
+`## Design direction` means that section. Phase 4 has the write steps.
 
 A unit inside one that already has a direction inherits that style and decides only what is new.
 Skip phases the unit does not need; a field has no screen inventory but still gets a style.
@@ -80,21 +80,20 @@ should leave. Then move on.
 Check for an existing direction: a `## Design direction` section already in the unit's brief card,
 or in the brief card of the unit it sits inside.
 
-## Phases 1–6 (load each when you reach it)
+## Phases 1–4 (load each when you reach it)
 
 Run the phases in order, reading each file when you reach it rather than from memory. Skip the
-ones the unit does not need.
+ones the unit does not need — a single-surface unit stops Phase 1 after one line, and a field has
+no screen inventory at all.
 
 | Phase | File | What it decides |
 |---|---|---|
 | 1 — Inventory | [`references/phase-1-inventory.md`](references/phase-1-inventory.md) | Single-surface or multi-object, decided from the schema. Multi-object only: every screen, every CardDef the user sees rendered, every image-bearing field |
-| 2 — Layout | [`references/phase-2-layout.md`](references/phase-2-layout.md) | You decide, per screen: the direction and its reason, the dominant object, reading order, `prefersWideFormat` |
-| 3 — Interaction | [`references/phase-3-interaction.md`](references/phase-3-interaction.md) | How each primary action presents, its hit area and resting cue, and the moment / empty state / completion beats |
-| 4 — Style | [`references/phase-4-style.md`](references/phase-4-style.md) | The one question worth asking: three composed directions, the signature treatment, the ornament budget, the type line |
-| 5 — Write | [`references/phase-5-write.md`](references/phase-5-write.md) | The direction from the template: style in full, the first screen in full, every other screen a stub, set acceptance lines for multi-object units only |
-| 6 — Hand off | [`references/phase-6-hand-off.md`](references/phase-6-hand-off.md) | The summary, the motion line and the first-screen pick, then stop. How it gets built is the builder's job |
+| 2 — First screen | [`references/phase-2-first-screen.md`](references/phase-2-first-screen.md) | For the screen in hand: the layout direction and its reason, the dominant object, reading order, `prefersWideFormat`, and how each primary action presents — hit area, resting cue, and the moment / empty state / completion beats |
+| 3 — Style | [`references/phase-3-style.md`](references/phase-3-style.md) | The one question worth asking: three composed directions, the signature treatment, the ornament budget, the type line |
+| 4 — Write and hand off | [`references/phase-4-write.md`](references/phase-4-write.md) | The direction from the template — style in full, the first screen in full, every other screen a stub, set acceptance lines for multi-object units only — then the summary, the motion line and the first-screen pick, and stop |
 
-Phase 4 may run before Phase 2 when the user wants the mood settled first.
+Phase 3 may run before Phase 2 when the user wants the mood settled first.
 
 **When the user reacts to something already built** — "I don't like it", "this is too plain",
 "this is exhausting" — read [`references/revisions.md`](references/revisions.md): triage an unnamed
@@ -109,12 +108,12 @@ Read these live on each run rather than working from memory. Links are relative 
 | What | Where | For |
 |---|---|---|
 | The brief card this reads | [`domain-interview`](../domain-interview/SKILL.md) | Phase 0 |
-| Design process, taste bar, brand/style source | [`boxel-design`](../boxel-design/SKILL.md) | Phase 4 |
-| The four-stage process itself, and the Stage 0f content matrix | [`design-playbook.md`](../boxel/references/design-playbook.md) | Phase 1, Phase 4 framing |
-| Anti-cliché checklist | [`critical-rules.md`](../boxel-design/references/critical-rules.md) | Phase 4 anti-patterns |
+| Design process, taste bar, brand/style source | [`boxel-design`](../boxel-design/SKILL.md) | Phase 3 |
+| The four-stage process itself, and the Stage 0f content matrix | [`design-playbook.md`](../boxel/references/design-playbook.md) | Phase 1, Phase 3 framing |
+| Anti-cliché checklist | [`critical-rules.md`](../boxel-design/references/critical-rules.md) | Phase 3 anti-patterns |
 | The `fitted` size ladder, `FittedCard`, `--fc-*` | [`container-query-fitted-layout.md`](../boxel/references/container-query-fitted-layout.md) | Any enrichment of a fitted view — authority, read live |
-| Turning a Narrative arc, scrubbed subject or direct-manipulation way into build numbers | `motion-authoring` — opt-in, only when the arc exists | after Phase 5 |
-| After the build: the user's first look, the gate, and scoring | `design-review` | after Phase 6 |
+| Turning a Narrative arc, scrubbed subject or direct-manipulation way into build numbers | `motion-authoring` — opt-in, only when the arc exists | after Phase 4 |
+| After the build: the user's first look, the gate, and scoring | `design-review` | after Phase 4 |
 
 ## Never
 
@@ -137,7 +136,7 @@ Read these live on each run rather than working from memory. Links are relative 
 
 Phases:
 
-- [`references/phase-1-inventory.md`](references/phase-1-inventory.md) · [`phase-2-layout.md`](references/phase-2-layout.md) · [`phase-3-interaction.md`](references/phase-3-interaction.md) · [`phase-4-style.md`](references/phase-4-style.md) · [`phase-5-write.md`](references/phase-5-write.md) · [`phase-6-hand-off.md`](references/phase-6-hand-off.md)
+- [`references/phase-1-inventory.md`](references/phase-1-inventory.md) · [`phase-2-first-screen.md`](references/phase-2-first-screen.md) · [`phase-3-style.md`](references/phase-3-style.md) · [`phase-4-write.md`](references/phase-4-write.md)
 - [`references/revisions.md`](references/revisions.md) — triage for an unnamed complaint, and the one-surface ornament correction
 
 Vocabulary the phases read:
@@ -145,6 +144,6 @@ Vocabulary the phases read:
 - [`references/screen-types.md`](references/screen-types.md) — layout directions per screen type
 - [`references/layout-gravity.md`](references/layout-gravity.md) — defaults to resist
 - [`references/interaction-ways.md`](references/interaction-ways.md) — how an action can present, and the narrative ways a composition can unfold — with what each is achievable with
-- [`references/enrichment-moves.md`](references/enrichment-moves.md) — the ornament budget: the baseline read off the style in Phase 4, the ladder every surface is assigned a rung on, the moves each style can earn, the correction run in both directions, and why `fitted` is upstream's call
+- [`references/enrichment-moves.md`](references/enrichment-moves.md) — the ornament budget: the baseline read off the style in Phase 3, the ladder every surface is assigned a rung on, the moves each style can earn, the correction run in both directions, and why `fitted` is upstream's call
 - [`references/signature-treatments.md`](references/signature-treatments.md) — the arresting element: what is buildable in a card with pure CSS, what each costs, and the four runtime constraints
 - [`references/design-direction-template.md`](references/design-direction-template.md) — the output, and the contract `design-review` checks

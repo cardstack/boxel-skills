@@ -1,4 +1,4 @@
-# Phase 4 — Style (the one question worth asking)
+# Phase 3 — Style (the one question worth asking)
 
 Part of [`design-direction`](../SKILL.md). Links are relative to this file.
 
@@ -84,5 +84,5 @@ Record with the pick:
 - the **anti-patterns** block, including anything this style specifically refuses. Pull what
   applies from upstream's [`critical-rules.md`](../../boxel-design/references/critical-rules.md).
 
-Phase 4 may run before Phase 2 when the user wants the mood settled first; the layout pick then
+Phase 3 may run before Phase 2 when the user wants the mood settled first; the layout pick then
 reads the style's density.

@@ -16,7 +16,7 @@ everything; the theme is extracted later. Reviewer: tick the acceptance lines fi
 - **Inherits from**: {the brief card whose `## Design direction` this unit sits inside, or none}
 
 ## Style: {name}
-- **Inspirations**: {composed for this unit in Phase 4, or researched from the style the user named}
+- **Inspirations**: {composed for this unit in Phase 3, or researched from the style the user named}
 - **Visual DNA**: {the cues that make it recognisable}
 - **Style controls**: motion character {…} · type system {…} · colour strategy {…} · spatial model {flat | layered | perspective | scene} · visual density {…}
 - **Reference**: {one real site, poster or screenshot — URL or file}

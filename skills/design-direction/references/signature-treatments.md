@@ -42,7 +42,7 @@ assembled. It is what a reader remembers, and it is worth reaching for when the 
 to present that object.
 
 It is also the treatment most likely to be asked for and most likely to be built the expensive way,
-so decide these in Phase 4 rather than at build time:
+so decide these in Phase 3 rather than at build time:
 
 - **One element, `transform` and `opacity` only.** `rotate`, `scale`, `translate` and opacity are
   compositor properties — they animate without layout or paint. Scrubbing `width`, `top`, `filter`
