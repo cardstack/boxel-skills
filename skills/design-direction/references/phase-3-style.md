@@ -28,6 +28,16 @@ design that first. Keep the reference URL in the Narrative arc block: `motion-au
 column back to write the numbers, and "moves like the reference" is only checkable against the
 reference.
 
+**Sweep the market first — only where the market is the benchmark.** A landing, marketing,
+pricing or onboarding screen is judged against the best of its kind before anyone reads a word, so
+compose against the field, not from a blank page: name three to five real sites in the domain's own
+world, one line each — what to borrow, and whether it is livery or technique. Where the harness can
+search the web (Claude Code's `WebSearch` / `WebFetch`), look, and say you looked. Where it cannot —
+the Boxel assistant has no page fetch; its proxy forwards only to whitelisted APIs — name them from
+what you know, say so, and pull the one real reference as a screenshot with `search-google-images`.
+Five lines at most, and a record page, a desk or a form gets no sweep. The lines land in the Style
+block's Inspirations and Reference, nowhere else.
+
 Then **compose three directions yourself** — there is no style menu to pick from, deliberately,
 because a curated list caps the result at whatever the list's author imagined. Hold the
 [design-playbook](../../boxel/references/design-playbook.md)'s Stage 1 framing while you compose: a brand-focused art director, judged by a
