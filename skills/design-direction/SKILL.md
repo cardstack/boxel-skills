@@ -112,8 +112,8 @@ Read these live on each run rather than working from memory. Links are relative 
 | The four-stage process itself, and the Stage 0f content matrix | [`design-playbook.md`](../boxel/references/design-playbook.md) | Phase 1, Phase 3 framing |
 | Anti-cliché checklist | [`critical-rules.md`](../boxel-design/references/critical-rules.md) | Phase 3 anti-patterns |
 | The `fitted` size ladder, `FittedCard`, `--fc-*` | [`container-query-fitted-layout.md`](../boxel/references/container-query-fitted-layout.md) | Any enrichment of a fitted view — authority, read live |
-| Turning a Narrative arc, scrubbed subject or direct-manipulation way into build numbers | `motion-authoring` — opt-in, only when the arc exists | after Phase 4 |
-| After the build: the user's first look, the gate, and scoring | `design-review` | after Phase 4 |
+| Turning a Narrative arc, scrubbed subject or direct-manipulation way into build numbers | [`motion-authoring`](../motion-authoring/SKILL.md) — opt-in, only when the arc exists | after Phase 4 |
+| After the build: the user's first look, the gate, and scoring | [`design-review`](../design-review/SKILL.md) | after Phase 4 |
 
 ## Never
 
