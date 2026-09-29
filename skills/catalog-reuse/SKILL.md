@@ -30,7 +30,8 @@ that kind.** Everything below is that one idea, made operational.
 3. **Never conclude a gap after one failed query.** Broaden once (step 5) before
    declaring anything missing.
 4. **Never pass over a suitable result without recording why.** Every hit is
-   adopted, or refused in writing naming what mismatched.
+   adopted, or refused in writing naming what mismatched. A Listing you answered
+   by referencing its parts counts as adopted — say which parts, and move on.
 5. **Never copy what you can reference.** Catalog modules import directly, so a
    definition can be used without taking a copy of it. Install or remix a
    Listing when the user wants their own bundle — and when you do take a copy,
@@ -54,8 +55,10 @@ tell you how to build well, not whether to build at all.
    capacity" — a possessive names the entity as surely as a bare noun does, and
    what it owns is the card's business, not yours to re-declare.
 2. **Search Specs** for each enumerated need, and reference what you find.
-3. **Search Listings** when the brief asks for a bundle of the user's own — one
-   they will keep, rename, and change.
+3. **Search Listings only when the user asked to own something**, and be able
+   to quote the words that asked — "our own", "a copy we can change",
+   "independent of theirs". No such words, no Listing search. That a Listing
+   exists and fits is not a reason to install it: nobody asked for a copy.
 4. **Search instances** when a need is content-shaped — a particular author,
    theme, config, image, or a sample to start from.
 5. **Evaluate** each hit against the need; broaden once before calling anything
@@ -87,6 +90,12 @@ ordinary card types, and so is `Author`. What differs is what a hit **denotes**.
 Nothing exports a Listing, so no CodeRef names one: **a Spec query can never
 return a Listing, and a Listing query can never return a bare definition.**
 Different anchors, because they describe different kinds of thing.
+
+**A Listing that fits is not a Listing you have to take.** What it bundles are
+Specs, and referencing those answers the same need without handing over a copy —
+the parts arrive wired to the catalog instead of forked from it. Choosing the
+parts over the bundle is not passing over a suitable result; it is taking the
+same result by the binding that keeps working.
 
 ### Parts: what each `specType` entitles you to
 
