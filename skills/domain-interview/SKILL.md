@@ -16,14 +16,14 @@ _What the thing is, never how it looks._
 | Contract | |
 |---|---|
 | **Reads** | The user's answers, asked in rounds; the catalog, through a `catalog-reuse` search, for the coverage matrix |
-| **Writes** | One brief card in the target realm: `Brief/<slug>.json`, a `BriefCard` whose `spec` field is the spec — and `brief-card.gts` beside it when the realm has no definition yet |
+| **Writes** | One brief card in the target realm: `Brief/<slug>.json`, a catalog `Brief` whose `spec` field is the spec |
 | **Stops when** | The brief card is written and read back, and the hand-off (`design-direction` or keep refining) is offered as a choice. It never decides which; what runs next is the user's call |
 
 **While this skill is active, the brief card is the only deliverable.** It replaces the build path
 for this conversation: do not run the design-playbook or its Stage 0 artifacts, do not pick a
 theme, do not write any `.gts`, and do not build a Home app — the index's build rules apply to
-whatever builds from the brief, not to this skill. The only files you write are
-`Brief/<slug>.json` and, when the realm lacks it, `brief-card.gts`. Start with interview round 1 below; do not open with a design, a
+whatever builds from the brief, not to this skill. The only file you write is
+`Brief/<slug>.json`. Start with interview round 1 below; do not open with a design, a
 mockup or a schema.
 
 You are interviewing to find out what a practitioner in this domain actually does, then writing
@@ -73,7 +73,7 @@ continue in chat — don't force it.
 
 ## Output
 
-The spec is a **brief card**: a `BriefCard` instance at `Brief/<slug>.json`, its `spec` field
+The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
 written from `references/brief-template.md`. The card URL is the deliverable. The card has one
 MarkdownField per stage — `spec` (this skill), `designDirection` (`design-direction`), `motion`
 (`motion-authoring`) — so no stage ever touches another stage's text.
@@ -82,11 +82,8 @@ MarkdownField per stage — `spec` (this skill), `designDirection` (`design-dire
 `realmUrl` in your context — when its `realmPermissions.canWrite` is true; otherwise ask which
 realm to use before writing.
 
-**The definition.** `BriefCard` is `references/brief-card.gts`. Search the target realm for it
-first — `brief-card.gts` at the realm root, or any instance whose `adoptsFrom` names `BriefCard`.
-If the realm has none, write it there with one SEARCH/REPLACE block: the URL line is
-`<realm-url>brief-card.gts (new)` and the body is the reference file verbatim. Instances then adopt
-from `./brief-card`, so nothing crosses realms.
+**The definition.** `Brief` is a catalog card, `@cardstack/catalog/cards/projects/brief`; the
+instance adopts from that alias and nothing is written to the realm but the instance itself.
 
 | Field | Holds |
 |---|---|
@@ -101,7 +98,7 @@ into a JSON string and never patched into a card that is not indexed yet:
 
 1. **Create the instance** with one SEARCH/REPLACE block (read `source-code-editing` first if you
    have not read it this session). The URL line is `<realm-url>Brief/<slug>.json (new)`; the body
-   is the card JSON with `adoptsFrom` `{ "module": "./brief-card", "name": "BriefCard" }`,
+   is the card JSON with `adoptsFrom` `{ "module": "@cardstack/catalog/cards/projects/brief", "name": "Brief" }`,
    `cardInfo.name`, `cardInfo.summary`, and `spec`, `designDirection` and `motion` all `null`.
 2. **Wait until it is a card.** `patch-fields` applies only to an indexed card. Read the instance
    back with `read-card-for-ai-assistant`; if it does not resolve yet, read again rather than
@@ -195,4 +192,3 @@ and do not build anything — naming the next stage is as far as this skill goes
 ## Sections (load on demand)
 
 - `references/brief-template.md` — the `spec` field, section by section
-- `references/brief-card.gts` — the `BriefCard` definition, written into a realm that has none

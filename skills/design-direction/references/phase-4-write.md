@@ -12,9 +12,8 @@ separate file would never reach it.
 
 - **From a `domain-interview` brief card:** that card.
 - **No brief (a single card, component or field):** create one first, the same way
-  `domain-interview` does. If the realm has no `brief-card.gts`, write it from
-  `domain-interview/references/brief-card.gts` with one SEARCH/REPLACE block; then one more creates
-  `Brief/<slug>.json` with `adoptsFrom` `{ "module": "./brief-card", "name": "BriefCard" }`,
+  `domain-interview` does: one SEARCH/REPLACE block creates `Brief/<slug>.json` with
+  `adoptsFrom` `{ "module": "@cardstack/catalog/cards/projects/brief", "name": "Brief" }`,
   `cardInfo.name` set to the unit's name, `cardInfo.summary` to one line naming the unit, its
   feeling and its style, and every stage field `null`. `## Brief` then keeps all its lines, since
   there is no spec beside it.

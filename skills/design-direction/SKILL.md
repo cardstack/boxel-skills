@@ -51,7 +51,7 @@ never a menu you offer (see Never, below).
 | "Design this field" | Field | Its edit, embedded and atom presentations |
 
 **Where the direction lives: always in the brief card, never in a file.** Each unit has one brief
-card, `Brief/<slug>.json` — a `BriefCard` with one MarkdownField per stage, so a stage only ever
+card, `Brief/<slug>.json` — a catalog `Brief` with one MarkdownField per stage, so a stage only ever
 replaces its own text:
 
 ```

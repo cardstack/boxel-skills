@@ -152,7 +152,7 @@ The 4-stage recommended process for any user-facing card:
 
 → `boxel/references/design-playbook.md`
 
-- **Brief card** — a unit's one source of truth: a `BriefCard` at `Brief/<slug>.json` with one MarkdownField per stage — `spec` from `domain-interview`, `designDirection`, then `motion`. No stage writes a markdown file or another stage's field. Definition: `domain-interview/references/brief-card.gts`.
+- **Brief card** — a unit's one source of truth: a catalog `Brief` (`@cardstack/catalog/cards/projects/brief`) at `Brief/<slug>.json` with one MarkdownField per stage — `spec` from `domain-interview`, `designDirection`, then `motion`. No stage writes a markdown file or another stage's field.
 - **Content contract** — per-screen purpose, mode, primary action + mechanism (navigate / write / work / read-only), must-contain in priority order, key moment, empty state. Written by `domain-interview`; the priority order is what the design step reads to decide layout. → `domain-interview/references/brief-template.md`
 - **`designDirection`** — the brief card field holding a unit's design decision: layout pick with reason, interaction ways with budgets, style, ornament budget, acceptance lines. Written by `design-direction`. → `design-direction/references/design-direction-template.md`
 - **`motion`** — the brief card field holding an arc's build numbers: motion system, engine per beat, load-bearing structure, effect rows, net journey. Written by `motion-authoring`, only for a unit whose direction asked for an arc. → `motion-authoring/references/motion-template.md`
@@ -373,7 +373,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`motion-authoring`** — Opt-in, only when the direction asked for an arc: writes the `motion` field of the same brief card — one motion system, the engine per beat, the load-bearing CSS, an exhaustive effect table, and the three capture points.
 - **`design-review`** — Scores what was built, from captures only, against the brief card's acceptance lines and an aesthetic bar whose gate is 8.5. Three modes: one screen, `set` across an app, `card` across a CardDef's formats.
 - **`boxel-theme-development`** — Theme/StyleReference/BrandGuide creation, DESIGN.md mapping, brand tokens, logo/mark capture, and audit workflow.
-- **`domain-interview`** — Interviews the user and writes a brief (primer, schema, coverage matrix, per-screen content contracts, flows, sample data) into a `BriefCard`'s `spec` field, with no design decisions.
+- **`domain-interview`** — Interviews the user and writes a brief (primer, schema, coverage matrix, per-screen content contracts, flows, sample data) into a catalog `Brief`'s `spec` field, with no design decisions.
 - **`boxel-environment`** — Driving the live app + host commands; `workflows-and-orchestration.md`, `user-environment-awareness.md`, `assistant-persona.md`.
 - **`boxel-file-def`** — File-backed fields (`FileDef`, `ImageDef`, etc.).
 - **`boxel-flavored-markdown`** — BFM authoring with directives + fenced renderers.
