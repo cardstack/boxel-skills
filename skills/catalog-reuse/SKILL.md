@@ -44,13 +44,13 @@ tell you how to build well, not whether to build at all.
 
 1. **Enumerate** every card, field, component, command, app, theme, and asset
    the brief implies, in plain language. A noun that names an entity — "the
-   contact who was called", "the candidate", "the customer" — is one of those
-   cards: enumerate the entity itself and search for it. Spelling it out as the
-   two or three attributes you would otherwise type is how a card-sized need
-   gets searched for as nothing at all. This holds when the brief reaches the
-   entity only through its attributes — "the candidate's contact details", "the
-   customer's address" — a possessive names the entity as surely as a bare noun
-   does, and what it owns is the card's business, not yours to re-declare.
+   venue we booked", "the supplier", "the workshop" — is one of those cards:
+   enumerate the entity itself and search for it. Spelling it out as the two or
+   three attributes you would otherwise type is how a card-sized need gets
+   searched for as nothing at all. This holds when the brief reaches the entity
+   only through its attributes — "the supplier's payment terms", "the venue's
+   capacity" — a possessive names the entity as surely as a bare noun does, and
+   what it owns is the card's business, not yours to re-declare.
 2. **Search Listings** for the deliverable as a whole.
 3. **If no Listing answers the brief**, search Specs for each enumerated need.
    Skip this when an accepted Listing already covers the brief.
@@ -79,6 +79,10 @@ ordinary card types, and so is `Author`. What differs is what a hit **denotes**.
 Nothing exports a Listing, so no CodeRef names one: **a Spec query can never
 return a Listing, and a Listing query can never return a bare definition.**
 Different anchors, because they describe different kinds of thing.
+
+**Prefer a reference to a copy.** Linking, containing and extending all keep the
+catalog dependency; a copy cannot be re-attached once taken. Copy when the brief
+asks for ownership, or when the change has to go past what the parent guarantees.
 
 ### Parts: what each `specType` entitles you to
 
