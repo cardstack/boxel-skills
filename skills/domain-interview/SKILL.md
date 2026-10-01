@@ -1,9 +1,10 @@
 ---
 name: domain-interview
 description: >-
-  Use when someone asks for an app, kit or card in a domain ("build me a scheduling app for
-  salons", "spec this out"), or when a brief is too vague to build from — even when the user sounds
-  confident. Interviews the user and writes a buildable brief as a brief card — schema, coverage
+  Use when the user asks for a spec or a brief ("spec this out", "help me think this through"),
+  picks "plan it with me first" at the index's routing question, or asks for an app, kit or card in a
+  domain with rules a builder would not know ("build me a scheduling app for salons"). Not when
+  the user wants a quick mockup of something generic, and not when a brief already exists. Interviews the user and writes a buildable brief as a brief card — schema, coverage
   matrix, per-screen content contracts, flows, real sample data — that a builder builds from. NOT for layout, style or motion (boxel-design and the design-playbook own those).
 boxel:
   kind: skill
@@ -38,11 +39,77 @@ whether the job needs one, and the design step cannot do its job on a spec that 
 
 ## Interview
 
-Research the domain first if you can — real workflows, real terminology, what practitioners
-complain about. Arriving with context makes the interview shorter and better, and the user
-usually cannot list what they have never had to name.
+**The first call asks two things: what it is, and who it's for.** Ask both before researching
+anything, because research done on a wrong guess makes every later question wrong.
 
-Ask in rounds, not all at once. Each round should change what you ask next.
+1. **What it is.** A short request often has a word with more than one reading: "spa" could be a
+   single-page app or a day spa, and "clinic" a vet, a dentist or a physio. Don't ask about the
+   word. Offer the readings as the answers, written as what the user is making, with the most
+   likely one first.
+2. **Who it's for.** The setting changes the build more than anything else, and it tells you
+   who the user is without asking them to describe themselves. Never ask for a job title or
+   "what's your role".
+
+For "spa - portfolio landing page":
+
+> **What are you making?**
+> - A one-page site to show my work (Recommended)
+> - A landing page for a spa or salon
+> - Not sure, suggest for me
+>
+> **Who's it for?**
+> - Just me
+> - My team or company
+> - My customers or the public
+> - A school or portfolio project
+
+| They pick | What it changes |
+|---|---|
+| Just me | No sign-in, no roles; keep it simple |
+| My team or company | Roles and permissions, shared data |
+| My customers or the public | A polished front page, trust signals, sign-up or enquiry |
+| A school or portfolio project | Good-looking sample data matters more than production detail |
+
+When the request already says what it is, the first question asks the most useful thing still
+missing. When it already says who it's for, skip the second.
+
+### Size the interview from the answers, never by asking
+
+**Never ask the user how much they know, or how deep to go.** "How well do you know what this page
+needs to contain?" costs a question and tells the build nothing. Ask the real question instead,
+starting with the main input: what the thing is for, and who it serves. The way the user answers
+shows how much they know, and that sets the depth.
+
+**Every question the user might not know the answer to gets a "Not sure, suggest for me" option** after the real options. Leave it off questions everyone can answer, like "Who's it for?". It is the
+signal. A user who picks real options, or types specifics into "Other", knows the domain. A user
+who picks "Not sure" on a topic needs that topic taught: the next question on it explains the
+concept in its option descriptions and recommends an answer.
+
+| What the answers show | Depth | Rounds | At most | The `spec` holds |
+|---|---|---|---|---|
+| The prompt or first answers already give names, numbers, sections or domain terms | **Quick** | 1 and 4 | 3 calls | Overview · Scope (Must only) · Schema · Content contracts · Sample data · Open questions |
+| Real answers, but gaps the user has not thought about | **Standard** | 1, 2 and 4 | 6 calls | Every section. The primer is the glossary alone, and the unwritten rules come from your research, not a round |
+| "Not sure" on most questions, or a domain with regulation, money, safety or specialist vocabulary | **Deep** | 1–4, with upskilling throughout | 10 calls | Every section, in full |
+
+Calls hold at most two questions each. **The call counts are ceilings, not targets.** Stop asking
+and write the brief as soon as you could build from what you have, even one call in. Every
+question past that point costs the user time and changes nothing in the build. Start every
+interview as Quick. Go deeper only when the answers ask for it, and only on the topics the user was
+unsure about. Do not re-ask what they already answered well.
+
+Depth changes how much you ask, not the rules. Quick still confirms the reading, still asks through
+the choice UI, and still writes real sample data. What it drops is the domain primer, the flows and
+the element coverage matrix. For those, the spec says in one line that the build's `catalog-reuse`
+search fills the reuse column. Going deeper needs no permission question; the user sees it only as
+the next question being more guided. Say which depth the brief was written at in its header line.
+
+Then research the domain you just confirmed, if you can — real workflows, real terminology, what practitioners
+complain about. Arriving with context makes the interview shorter and better, and the user
+usually cannot list what they have never had to name. Quick needs only enough research to write
+the options for its questions.
+
+Ask in rounds, not all at once. Each round should change what you ask next. Run the rounds your
+depth lists.
 
 1. **Who and what** — who uses this, what job it does for them, what they use today and what is
    wrong with it.
@@ -57,19 +124,50 @@ Ask in rounds, not all at once. Each round should change what you ask next.
 sentence and ask whether it applies. A spec the user cannot evaluate is a spec that gets
 approved and then rebuilt.
 
-**Ask with selectable options, not a blank prompt, whenever the environment supports it.** Most
-of this interview's questions have a small, nameable set of likely answers ("shared stock across
-platforms, or separate per platform?", "full status lifecycle, or a simple resolved/unresolved
-flag?"). When the harness offers a structured choice tool (e.g. Claude Code's `AskUserQuestion`),
-use it for these instead of typing the question as prose the user must answer from scratch — it
-is friendlier to someone who is not a domain expert and does not yet have the vocabulary to
-compose an answer, and naming the options is itself part of upskilling them. Always include a
-recommended option and leave room for free text (the tool's "Other" is enough). Reserve plain
-open-ended chat questions for the ones no short option list could represent — "walk me through a
-real order end to end," "what's the worst version of this you've dealt with." Batch a round's
-related questions into one multi-question call rather than one at a time. If a question call is
-rejected or the user wants to answer in free text instead, drop the tool for that round and
-continue in chat — don't force it.
+### Ask every round through the choice UI
+
+**Every round goes to the user as selectable options, not as prose questions.** When the harness
+has a structured choice tool (Claude Code's `AskUserQuestion`, which renders as radio buttons and
+checkboxes), a round is one call to it, not a numbered list of questions typed into chat. Almost
+every question here has a small, nameable set of likely answers ("shared stock across platforms,
+or separate per platform?", "full status lifecycle, or a simple resolved/unresolved flag?"). A
+user who is not a domain expert can pick from a list long before they could write the answer, and
+naming the options teaches them the domain.
+
+Shape of each call:
+
+- **At most two questions per call**, each with two to four options. A round usually takes two
+  or three calls. Keep them small so each answer can change the next question. A batch of four
+  written up front goes wrong all at once when the first answer turns out different from what
+  you guessed. Never split a round by falling back to prose.
+- **Build each call on the last answers.** Before writing the next call, re-read what the user
+  just picked. Drop any question it made irrelevant, and put their words into the options you
+  write next.
+- **Single-select (radio) by default.** Use `multiSelect: true` only when the answers really can
+  combine: "which of these does your team do today?", "which edge cases apply?". A question
+  like "which one approach?" stays single-select.
+- **Recommended option first**, with "(Recommended)" at the end of its label, when you have a
+  basis to recommend one. Its description says why in one line.
+- **Each option's description teaches.** Say what choosing it means for the build, and define any
+  domain term the label uses. That description is where the upskilling happens.
+- **A short header chip** per question (≤12 characters: "Stock", "Lifecycle", "Who").
+- **No "Other" option.** The tool adds a free-text "Other" automatically.
+- **Write it so the user doesn't have to think.** Each question is one short, plain sentence,
+  the way a friend would ask it ("Who's it for?", not "Please specify your target audience
+  segment"). Each option label is something the user might say themselves ("Just me", "My
+  customers"), not a category name. Keep domain terms out of labels; if one is needed, explain it
+  in the description. The user should be able to answer by recognising their situation, not by
+  working anything out.
+
+Round 1 goes through the tool as well. Offer the likely users, jobs and current tools as
+options rather than asking "who uses this?" as a blank question; your research beforehand is what
+makes those options guessable. Keep plain chat for the few questions a short list cannot hold,
+such as "walk me through one real order end to end" in round 2. Ask it on its own, then go back to
+the tool for the follow-ups its answer raises.
+
+If the call is rejected, or the user says they would rather type, ask that round in chat. Do the
+same when no choice tool is available: lettered options (a / b / c, recommended marked) the user
+can answer with one letter. Try the tool again next round unless the user asked you to stop.
 
 ## Output
 
@@ -117,7 +215,7 @@ never yours to edit.
 wrote, patch it again — never tell the user the brief is saved until the card you read back holds
 it.
 
-It carries:
+It carries the sections below, trimmed to the depth the answers set (see Size the interview from the answers):
 
 - **Overview** — one paragraph: what it does, who for, the single deliverable.
 - **Domain primer** — enough for an engineer with no domain knowledge to make sensible calls:
@@ -170,8 +268,8 @@ Expect schema to grow at build time when the design needs something. That is not
 The brief card is the whole deliverable. Give the user its URL. If the brief still has open
 questions, say so in one line before the hand-off.
 
-**Then hand off — offer the next stage, don't decide it.** Ask, with a structured choice tool
-where the environment supports it: move on to `design-direction` (decide how it looks before
+**Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
+the choice UI (same rules as the interview rounds): move on to `design-direction` (decide how it looks before
 anything is built), or keep refining this brief. Recommend `design-direction` when the brief has
 no open questions left; recommend refining when it does. Do not start `design-direction` yourself
 and do not build anything — naming the next stage is as far as this skill goes.

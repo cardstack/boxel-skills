@@ -3,7 +3,12 @@
 > **Written into the brief card's `spec` field.** The title is `cardInfo.name`, so this `#`
 > heading is not part of the field; the field starts at the line below and its sections at `##`.
 
-Written by `domain-interview` on {date}. Contains no design decisions — layout, style and motion are decided by whatever builds from this brief.
+> **Depth decides which sections appear.** Quick writes Overview, Scope (Must rows only), Schema,
+> Content contracts, Sample data and Open questions, plus one line saying the build's
+> `catalog-reuse` search fills the reuse column. Standard writes every section, with the primer
+> cut to the glossary. Deep writes every section in full.
+
+Written by `domain-interview` on {date}, at {Quick | Standard | Deep} depth. Contains no design decisions — layout, style and motion are decided by whatever builds from this brief.
 
 ## Overview
 {One paragraph: what it does, who for, the single deliverable.}
