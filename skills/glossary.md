@@ -157,6 +157,7 @@ The 4-stage recommended process for any user-facing card:
 - **`designDirection`** — the brief card field holding a unit's design decision: layout pick with reason, interaction ways with budgets, style, ornament budget, acceptance lines. Written by `design-direction`. → `design-direction/references/design-direction-template.md`
 - **`motion`** — the brief card field holding an arc's build numbers: motion system, engine per beat, load-bearing structure, effect rows, net journey. Written by `motion-authoring`, only for a unit whose direction asked for an arc. → `motion-authoring/references/motion-template.md`
 - **Acceptance line** — a `## Design direction` line a reviewer ticks without taste; set acceptance lines are checked across every screen at once.
+- **Story (`## Story`)** — the unit written as a story before any style, layout or motion: the feeling as one image, a named reader, a voice, a scene per screen/band/format/state with *what they feel* and *never*, and the one rule. Phase 0b of `design-direction`; every later phase is argued from it. → `design-direction/references/phase-0b-story.md`
 - **Ornament ladder (L0–L3)** — the rung each surface is built at: bare · marked · grounded · signature; one L3 per unit. → `design-direction/references/enrichment-moves.md`
 - **Signature treatment** — the one arresting treatment on the dominant object, earned by the style. → `design-direction/references/signature-treatments.md`
 

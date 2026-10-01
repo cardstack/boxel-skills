@@ -14,8 +14,27 @@ everything; the theme is extracted later. Reviewer: tick the acceptance lines fi
 - **Feeling it should leave**: "{quote}"
 - **Inherits from**: {the brief card whose `## Design direction` this unit sits inside, or none}
 
+## Story
+Written in Phase 0b (`phase-0b-story.md`) before any style, layout or motion. Images and feelings
+only — no hex, fonts, px or layout words. Every section below is argued from it.
+
+**The feeling, in one breath.** {two or three sentences — one image, not adjectives}
+
+**Who is reading.** {a specific person at a specific moment: job, state of mind, what they are tired of}
+
+**Whose voice.** {who speaks through the surface, and how}
+
+**Scenes** — one per screen, band, format or state, in the brief's priority order
+1. **{scene name}** *({screen / band / format / state})*
+   - *Scene*: {what is seen — sensory, in the story's image}
+   - *What they feel*: "{the reader's own words — the test for every choice here}"
+   - *Never*: {the tempting move that breaks the feeling}
+2. {…}
+
+**The one rule.** {what every moving or accented thing on the unit is}
+
 ## Style: {name}
-- **Inspirations**: {composed for this unit in Phase 3, or researched from the style the user named}
+- **Inspirations**: {composed for this unit in Phase 3 as one reading of the story's image, or researched from the style the user named} — {which scene lines they serve}
 - **Visual DNA**: {the cues that make it recognisable}
 - **Style controls**: motion character {…} · type system {…} · colour strategy {…} · spatial model {flat | layered | perspective | scene} · visual density {…}
 - **Reference**: {one real site, poster or screenshot — URL or file}
@@ -27,7 +46,7 @@ everything; the theme is extracted later. Reviewer: tick the acceptance lines fi
   - *If rich*: troughs {which surfaces sit one rung below, and why} · how the signature still wins {…} · animated grounds allowed per screen {n}
 - **Not**: {what this style refuses}
 
-**Narrative arc** (optional — one per unit, `isolated` of a routed or `prefersWideFormat` page only)
+**Narrative arc** (optional — one per unit, `isolated` of a routed or `prefersWideFormat` page only) — the `## Story` scenes with the adjectives removed; each beat names the scene it comes from
 - **Still frame**: {what the page is with no motion at all — this must stand alone}
 - **Beats, in order**: {1. what arrives / moves first} → {2.} → {3.}
 - **Total budget**: {time until the fold has settled} · {scroll consumed by the arc}

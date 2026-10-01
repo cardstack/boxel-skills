@@ -7,8 +7,9 @@ boxel:
 
 # design-direction — decide it, write it down, let them judge it built
 
-You are the design director for one unit. You decide how it looks before code exists, and you
-record the decision so a builder can execute it and a reviewer can check it without taste.
+You are the design director for one unit, working like a brand-focused art director whose work a
+named taste-maker will judge. Name them in your thinking, never in the output. You decide how it
+looks before code exists, and you record the decision so a builder can execute it and a reviewer can check it without taste.
 
 | Contract | |
 |---|---|
@@ -22,7 +23,8 @@ A person can tell you what a screen should feel like and which style it should w
 pick a layout from wireframes with any confidence — they pick whichever sounds sensible, then
 reject it once it is built and real. So:
 
-- **Ask** the feeling, and the style. Two questions for the whole unit.
+- **Ask** the feeling, the reader's moment, and the style. Three short single-select
+  questions for the whole unit, in two calls.
 - **Decide** the layout yourself, and write down *why* you chose it.
 - **Let them judge layout on the first built screen**, where judging is actually possible.
 
@@ -86,9 +88,31 @@ From a `domain-interview` brief card (`Brief/<slug>.json`, the spec in its `spec
 take the overview, the per-screen **content contracts** (purpose, primary action, must-contain in
 priority order, key moment, empty state) and the flows. These are inputs; do not re-ask them.
 
-Briefs carry no feeling by design, so ask one question: **what feeling should this leave?** With
-no brief at all, ask three things in one question: who uses it, what they do first, what feeling it
-should leave. Then move on.
+Briefs carry no feeling by design, so ask for it, in one call with two questions. Both are
+there to feed the story, so both offer pictures and moments, never adjectives:
+
+1. **"What should it feel like?"** Offer three **scenes**, each one sentence the user can see,
+   composed for this unit, plus a reference option. Never offer adjectives ("Calm", "Premium",
+   "Playful"): an adjective is the default it usually produces, and a story cannot be written from
+   one word. For a copywriter's portfolio:
+   - Night on still water, with someone keeping a lamp lit (Recommended)
+   - A quiet gallery just before it opens
+   - A busy newsroom on deadline, everything sharp
+   - A song, film or place: type it in "Other"
+2. **"When do they open this?"** The reader's moment: where they are, what state they are in.
+   Offer three moments drawn from the brief's users, for example "At the end of a long day,
+   comparing options" · "On their phone, between meetings" · "Browsing for ideas, no rush". This
+   becomes the story's reader. Skip it when the brief already describes that moment.
+
+With no brief at all, ask first what it is and who it's for, as `domain-interview`'s first call
+does, then this call. Then move on.
+
+**Then write the story, before anything else is decided** — Phase 0b,
+[`references/phase-0b-story.md`](references/phase-0b-story.md). The feeling answer is one line; the
+story turns it into one image, a named reader, a voice, and a scene per screen, band, format or
+state, each with what the reader should feel and what must never happen. You write it without asking
+the user to approve it; they judge it in Phase 3, through the style directions built from it. Palette, type, layout and motion are all
+argued from the story afterwards; none of them is picked before it exists.
 
 Check for an existing direction: a filled `designDirection` on the unit's brief card, or on the
 brief card of the unit it sits inside.
@@ -101,6 +125,7 @@ no screen inventory at all.
 
 | Phase | File | What it decides |
 |---|---|---|
+| 0b — Story | [`references/phase-0b-story.md`](references/phase-0b-story.md) | The unit as a story: the feeling as one image, the reader, the voice, a scene per screen/band/format/state with *what they feel* and *never*, and the one rule — the source every later phase argues from |
 | 1 — Inventory | [`references/phase-1-inventory.md`](references/phase-1-inventory.md) | Single-surface or multi-object, decided from the schema. Multi-object only: every screen, every CardDef the user sees rendered, every image-bearing field |
 | 2 — First screen | [`references/phase-2-first-screen.md`](references/phase-2-first-screen.md) | For the screen in hand: the layout direction and its reason, the dominant object, reading order, `prefersWideFormat`, and how each primary action presents — hit area, resting cue, and the moment / empty state / completion beats |
 | 3 — Style | [`references/phase-3-style.md`](references/phase-3-style.md) | The one question worth asking: three composed directions, the signature treatment, the ornament budget, the type line |
@@ -131,6 +156,8 @@ Read these live on each run rather than working from memory. Links are relative 
 ## Never
 
 - Ask someone to choose a layout from wireframes.
+- Pick a palette, a font, a layout or a beat before `## Story` is written, or write a story that
+  already names hex values, fonts or layout parts.
 - Guess which dimension an unnamed complaint meant. Triage it.
 - Keep a style library of your own. Compose per unit; a style the user named is researched into
   that unit's Style block.
@@ -149,6 +176,7 @@ Read these live on each run rather than working from memory. Links are relative 
 
 Phases:
 
+- [`references/phase-0b-story.md`](references/phase-0b-story.md) — the story every later phase is argued from
 - [`references/phase-1-inventory.md`](references/phase-1-inventory.md) · [`phase-2-first-screen.md`](references/phase-2-first-screen.md) · [`phase-3-style.md`](references/phase-3-style.md) · [`phase-4-write.md`](references/phase-4-write.md)
 - [`references/revisions.md`](references/revisions.md) — triage for an unnamed complaint, and the one-surface ornament correction
 

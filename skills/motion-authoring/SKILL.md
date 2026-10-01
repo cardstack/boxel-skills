@@ -121,7 +121,7 @@ each one earns its place:
 
 | Section | What goes in it | What it prevents |
 |---|---|---|
-| **Goal** | one paragraph: what the reader sees at rest, what moves when they scroll or wait, where it ends. Bold the signature move | a list of features instead of a scene |
+| **Goal** | one paragraph: what the reader sees at rest, what moves when they scroll or wait, where it ends — written from the direction's `## Story` scenes when it has one. Bold the signature move | a list of features instead of a scene |
 | **Engine** | the system name; per beat, **CSS** (which property, which timeline) or **library** (the capability, the import shape, the plugin list, what is *not* used, and the host — pinned CDN URL or realm bundle) | a `<script>` on the first screen with no host decided; SplitText pulled in for one headline |
 | **Load-bearing structure** | the DOM as an indented tree with the hooks the code binds to (`data-*`, never classes), then the CSS geometry the effect depends on — runway height, sticky viewport, track width, anchor positions, `will-change`, `isolation` — marked **may not change** | a builder "tidying" the `calc(100% / var(--screens))` that makes sticky work |
 | **Effect — exhaustive** | one row per beat: target · property · from → to · trigger (load / scroll `start` → `end` / pointer) · duration · ease · stagger · once or replay. For a library beat, the actual call. For a mapping, the formula and its bounds | adjectives. "Parallax" is not a spec; a 3:4 rate difference between two triggers is |

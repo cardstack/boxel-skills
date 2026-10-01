@@ -30,7 +30,8 @@ tells the reader nothing matters more than anything else, which is never true.
 
 Record for this screen, in `## Design direction`:
 
-- the direction and **one line of reason**
+- the direction and **one line of reason** — naming the `## Story` scene it serves and that
+  scene's *what they feel* line
 - the dominant object and its share of the viewport
 - reading order (single column, F, Z, spotlight)
 - where the primary action sits

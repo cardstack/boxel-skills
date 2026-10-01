@@ -38,11 +38,40 @@ what you know, say so, and pull the one real reference as a screenshot with `sea
 Five lines at most, and a record page, a desk or a form gets no sweep. The lines land in the Style
 block's Inspirations and Reference, nowhere else.
 
-Then **compose three directions yourself** — there is no style menu to pick from, deliberately,
+Then **compose three directions yourself, each one a different reading of the `## Story` image**
+(`phase-0b-story.md`) — the same night-on-water story can be read as an editorial nocturne, a
+faded postcard or a monochrome seascape, and each reading says which scene lines its palette and
+type serve. The signature treatment is the story's one image made buildable. There is no style
+menu to pick from, deliberately,
 because a curated list caps the result at whatever the list's author imagined. Hold the
 [design-playbook](../../boxel/references/design-playbook.md)'s Stage 1 framing while you compose: a brand-focused art director, judged by a
 taste-maker you name in your thinking and never in the output. Give each direction the same three
-fields: **name · inspirations · visual DNA**. Recommend one, and offer "other: name or describe it".
+fields: **name · inspirations · visual DNA**.
+
+**Derive each direction's palette and type from the story, then show them.** Every colour has a
+job in the story's image: the ground is the story's setting, the accent is the one image, and
+the text colour is the voice. For the night-on-water story: ground = deep ink water, accent = the
+lamplight, text = moonlight grey. Write down the role of each colour, not only its hex, so the
+build and the reviewer can check it against the story.
+
+Offer the three directions as one single-select question in the choice UI, recommended first.
+Each option carries a **preview** (the choice tool's side-by-side preview box) with the concrete
+things a user can judge at a glance:
+
+```
+Editorial nocturne
+Story: the lamp seen from the shore, steady and far.
+Palette  ground  #0E1726  deep ink water
+         accent  #F2B35B  lamplight
+         text    #C9D1DC  moonlight
+Type     Fraunces (display) · Inter (text)
+Feels    quiet, trusted, unhurried
+```
+
+This is where the user checks the story: each preview shows how that direction reads it, next to
+a palette they can react to. The tool's automatic "Other" is where the user names or describes a
+style of their own, or says the story itself is off, in which case rewrite `## Story` and
+compose the three again.
 
 When the user names a style instead, research it into the same three fields yourself — what it is
 known for, who made it, what a person would recognise it by — and record the result in the
