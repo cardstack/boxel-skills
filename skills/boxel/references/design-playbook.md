@@ -231,6 +231,8 @@ brand DNA (palette, voice, reference vocabulary)
 
 For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-tone background, oak browns, no high contrast), composition constraint (lower-third negative space for headline overlay), and visual reference (Made Thought monograph aesthetic). Generic prompts ("Inset Shaker kitchen") produced generic photos.
 
+To source and link the images, follow [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md). It covers when to generate, when a stock photo or a placeholder is the better call, and how each one reaches the instance.
+
 **What "designed" looks like in stage 1 — non-negotiables:**
 
 - **Schema rich enough to compose with.** A card with 3-4 thin fields will look thin no matter the layout. If the design needs `cuisine`, `subtitle`, `rating`, `reviews`, `author`, `keyIngredient`, `difficulty`, `calories`, `description`, `imageUrl` — add them. Don't be precious about schema size.

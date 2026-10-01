@@ -27,7 +27,7 @@ Two fields, one logical concept, template-side resolution.
 import { CardDef, Component, contains, field, linksTo } from '@cardstack/base/card-api';
 import StringField from '@cardstack/base/string';
 import UrlField from '@cardstack/base/url';
-import ImageDef from '@cardstack/base/image';
+import ImageDef from '@cardstack/base/image-file-def';
 
 export class Property extends CardDef {
   static displayName = 'Property';

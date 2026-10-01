@@ -67,3 +67,4 @@ Need to reference an image / document / file asset?
 - `references/markdowndef-vs-markdownfield.md` — MarkdownDef vs MarkdownField
 - `references/filedef-vs-base64imagefield.md` — FileDef vs Base64ImageField
 - `references/no-inline-binary.md` — Mandatory no-inline-media rule, generated image workflow, and A Million Dreams MP3 FileDef example
+- `references/sample-images.md` — Build-time sample images: pick a source by scenario (the user's own, AI-generated with `generate-thumbnail`, stock via `download-file-to-realm`, or a placeholder URL), then link it without breaking the realm

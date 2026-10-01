@@ -61,6 +61,14 @@ boxel:
         name: default
       requiresApproval: true
     - codeRef:
+        module: '@cardstack/boxel-host/tools/generate-thumbnail'
+        name: default
+      requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/download-file-to-realm'
+        name: default
+      requiresApproval: true
+    - codeRef:
         module: '@cardstack/boxel-host/tools/update-room-skills'
         name: default
       requiresApproval: false
@@ -88,6 +96,11 @@ Quick lookup of every command available to this skill, what it does, and notable
 - `copy-card_eefc` — Duplicate a card (requires approval).
 - `copy-source_5d09` — Duplicate a file (requires approval).
 - `transform-cards_33d7` — Bulk update with a command (requires approval).
+
+## Media
+
+- `generate-thumbnail` — Generate one image through OpenRouter (default `google/gemini-2.5-flash-image`) and save it into a realm as an image file (requires approval: it writes a file and spends OpenRouter credit). Despite the name it makes any image, not only thumbnails. Inputs: `prompt` and `targetRealmIdentifier` (required); `targetPath` (folder, e.g. `Images`), `cardName` (names the file), `sourceImageUrl` (reference image for image-to-image), `llmModel`. It returns `imageDefIdentifier`, the URL of the new file. Passing `targetCardId` links the image to that card's `cardInfo.cardThumbnail` and nowhere else. For any other image field, omit it and write the returned URL into the instance's `relationships` yourself. Full recipe: [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md).
+- `download-file-to-realm` — Download a file from a URL and save it into a realm (requires approval: it writes a file). Inputs: `sourceUrl` and `path` (required; give `path` the right extension, e.g. `Images/kitchen.jpg`, because the realm infers the file type from it), `realm`, `useNonConflictingFilename`. It returns `fileIdentifier`. Use it to bring a stock photo or a user-supplied image into the realm, then link it in `relationships`. Never pass it a guessed URL. Recipe: [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md).
 
 ## Reading
 
@@ -124,4 +137,4 @@ Quick lookup of every command available to this skill, what it does, and notable
 ## Approval requirements
 
 The following require user approval before execution:
-- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `create-workspace_cf0f`, `delete-workspace_a465`
+- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `generate-thumbnail`, `download-file-to-realm`, `create-workspace_cf0f`, `delete-workspace_a465`
