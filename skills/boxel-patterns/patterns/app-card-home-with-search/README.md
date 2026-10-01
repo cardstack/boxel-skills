@@ -4,7 +4,7 @@ validated: source-proven
 
 # app-card-home-with-search — Every card family needs a home
 
-**What this gives you:** A `Home` CardDef (typically named after the brand — `Surge`, `RowAndRail`, `BoxelHome`) that sits at the top of a card family and lists every Meet / Listing / Project / etc. in the realm. Each list is a `linksToMany` field on the home, rendered with delegated render (`<@fields.meets @format='fitted' />`). `prefersWideFormat = true` so it opens edge-to-edge. The user lands on it, sees the realm at a glance, drills in from there.
+**What this gives you:** A `Home` CardDef (typically named after the brand — `Surge`, `RowAndRail`, `BoxelHome`) that sits at the top of a card family and lists every Meet / Listing / Project / etc. in the realm. Each list is a `linksToMany` field on the home, rendered with delegated render, one item at a time (`{{#each @fields.meets as |Meet|}}<Meet @format='fitted' />{{/each}}`). `prefersWideFormat = true` so it opens edge-to-edge. The user lands on it, sees the realm at a glance, drills in from there.
 
 **When to use:** Whenever you build a card *family* — 2+ related CardDefs (Meet + Swimmer + Club, Project + Task + Person, Show + Listing + Venue, etc.). Building a single utility card? Skip this pattern. Building anything where the user will accumulate instances over time? Build the home.
 

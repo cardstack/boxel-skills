@@ -172,5 +172,5 @@ Sibling skills:
 
 | Problem | Fix |
 |---------|-----|
-| `realm.fs.replace` failed | Re-read the file, use the exact current text, and retry with a smaller replacement. |
+| `realm.fs.replace` failed | Re-read the file and copy the search text from it exactly. If it matched more than once, include more surrounding lines. |
 | Schema break on existing instances | Propose instance updates or a migration; batch ≤10; confirm before continuing. |
