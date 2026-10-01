@@ -183,7 +183,7 @@ Three more obligations, two of them specific to running inside a card:
 
 ## Verifying it
 
-The staging screenshot service captures at scroll 0, so it can never see either effect. To check a
+The staging capture service captures at scroll 0, so it can never see either effect. To check a
 scrub's in-between states, drive `--progress` manually from the console across `0 → 1` and look, or
 render the frames into a filmstrip and rasterise with headless Chrome. To check the reveal's failure
 mode, delete the modifier from the template and confirm the page still renders complete — if

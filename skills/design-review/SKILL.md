@@ -172,7 +172,7 @@ this list, so it was specified and then never built or scored. Run it for **ever
 to**, not only the ones that have their own screen — a card reached through `linksToMany` is a
 surface the user sees, and it is the surface that gets written in passing.
 
-1. **Capture all five** in one batch per module through the screenshot service where it can —
+1. **Capture all five** in one batch per module through the capture service where it can —
    `atom` and `edit` need the MCP browser, per `references/capture.md`. Fitted needs the sizes the
    app actually renders, not all sixteen.
 2. **Tick the content matrix** — the
@@ -278,7 +278,7 @@ Read these live on each run. Links are relative to this skill's folder.
 | The per-format content matrix a card is scored against | `boxel/references/design-playbook.md` — the Stage 0f `## <CardName> · content matrix` block |
 | The motion numbers an arc is captured against | the brief card's `## Motion` section, written by `motion-authoring` |
 | Whether an isolated view needed the full viewport | `boxel/references/prefers-wide-format.md` |
-| The screenshot service behind the captures | `integrate-screenshot-card-format` |
+| The capture service behind the captures | `integrate-capture-card-format` |
 
 ## Don't use for
 
@@ -288,4 +288,4 @@ Read these live on each run. Links are relative to this skill's folder.
 
 ## Sections (load on demand)
 
-- `references/capture.md` — which tool captures which view, the screenshot service's batch and time budgets, where captures go, and the blank-region and selector flakiness rules
+- `references/capture.md` — which tool captures which view, the capture service's batch and time budgets, where captures go, and the blank-region and selector flakiness rules

@@ -52,7 +52,7 @@ against this list.
 
 ## 3. Entrance beats are `transform`-only — the capture is at a fixed moment
 
-The `_screenshot` capture is produced by the indexer at one deterministic moment relative to the
+The `_capture` image is produced by the indexer at one deterministic moment relative to the
 render — three fetches return byte-identical PNGs even mid-arc — and that moment **moves when the
 page gets slower** (a `StructuredTheme` pulling Google Fonts pushed one build's capture straight
 into its animation window). There is no safe set of delays because the safe window is unknown.

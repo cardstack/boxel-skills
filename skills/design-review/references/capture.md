@@ -6,7 +6,7 @@ You cannot judge a design from CSS. Capture before scoring, and stop if you cann
 
 | View | Tool | Notes |
 |---|---|---|
-| isolated, embedded, fitted | screenshot service (`POST /_screenshot-card`, host `ScreenshotCardTool`) | one batch per module — `captures: [{name}]`, ≤ 12 entries, inside the 25 s budget. Capture-only: bytes return as base64, nothing persists server-side |
+| isolated, embedded, fitted | capture service (`POST /_capture-card`, host `CaptureCardTool`) | one batch per module — `captures: [{name}]`, ≤ 12 entries, inside the 25 s budget. Capture-only: bytes return as base64, nothing persists server-side |
 | app isolated with tabs, atom, edit | MCP browser (chrome-devtools) | the service cannot click a tab, or capture atom and edit on demand. One shot each; click tabs in turn |
 
 Service first for everything it supports, browser only for the rest. If the browser is unavailable
