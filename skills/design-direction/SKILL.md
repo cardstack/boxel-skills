@@ -33,13 +33,25 @@ lands on the default. Keep the decision; move the judging to where it works.
 Interaction sits in between: ask only where the options change what the user can *do*, never how
 it looks.
 
-**Where you do ask, ask with selectable options, not a blank prompt, whenever the environment
-supports it.** The feeling question, an interaction fork, and Phase 3's three composed style
-directions all have a small, nameable answer set — that is exactly what a structured choice tool
-(e.g. Claude Code's `AskUserQuestion`) is for, and it reads easier than free text for a user with
-no design vocabulary. Always include a recommended option and an "other: describe it" escape
-hatch; never let this apply to the layout pick itself, which stays a decision you make and record,
-never a menu you offer (see Never, below).
+**Every question you do ask goes through the choice UI, not prose.** When the harness has a
+structured choice tool (Claude Code's `AskUserQuestion`, which renders as radio buttons and
+checkboxes), the feeling question, an interaction fork, Phase 3's three composed style directions,
+a revision's scope and the hand-off are each a call to it, never questions typed into chat. A user
+with no design vocabulary can pick from a list long before they could describe what they want.
+
+- **One call per ask**, up to four related questions, two to four options each.
+- **Single-select (radio) by default.** Use `multiSelect: true` only when answers really combine,
+  such as Phase 3's "which of these techniques matter here?".
+- **Recommended option first**, with "(Recommended)" at the end of its label.
+- **Each option's description says what picking it commits the build to**, in one line.
+- **A short header chip** per question (≤12 characters).
+- **No hand-written "other" option.** The tool's automatic "Other" is the "describe it" escape
+  hatch.
+
+If the call is rejected or no choice tool exists, ask in chat as lettered options (a / b / c,
+recommended marked), and try the tool again at the next ask. None of this applies to the layout
+pick itself, which stays a decision you make and record, never a menu you offer (see Never,
+below).
 
 ## What you are given
 

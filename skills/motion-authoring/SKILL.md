@@ -160,8 +160,8 @@ field, so nothing else on the card is re-sent or at risk. A later change to one 
 `apply-markdown-edit` on `motion` with that row's block as `currentContent`. Read the card back and
 check the field holds it before saying it is saved.
 
-**Then hand off — offer the next stage, don't decide it.** Ask, with a structured choice tool where
-the environment supports it: build the first screen now that its numbers exist (recommended), or
+**Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in the
+choice UI (`AskUserQuestion` in Claude Code; lettered options in chat when no choice tool exists): build the first screen now that its numbers exist (recommended), or
 adjust the arc before anything is built. Do not start either yourself.
 
 When a built arc comes back "not like the reference": re-read the reference's technique column,

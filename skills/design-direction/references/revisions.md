@@ -11,7 +11,7 @@ dimension. Do not guess which one they meant: every correction path below has a 
 and guessing wrong either changes something the user was happy with or leaves the thing they
 disliked untouched.
 
-Ask which it is, as a structured choice, and state each option's scope in the option itself so the
+Ask which it is, as one single-select question in the choice UI, and state each option's scope in the option itself so the
 user can see what they are authorising:
 
 | They pick | Path | What changes |
