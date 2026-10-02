@@ -107,7 +107,7 @@ Take the target from the hit's `ref` (module + name) and wire **that**.
 | `field` | a **FieldDef** | `contains` / `containsMany` · `extends` to specialize |
 | `component` | a Glimmer component | import into your template's markup |
 | `command` | a Command | import and invoke, or run through your session's command mechanism |
-| `app` | an AppCard family | ships as a **Listing** in practice → use the Listing anchor |
+| `app` | an AppCard family | ships as a **Listing** in practice → reference its Specs; use the Listing anchor only when the user wants the app as their own |
 | `file` | an asset | an **instance** → use the instance anchor |
 
 **How you declare the wiring is `boxel`'s call, not this skill's.** Its
