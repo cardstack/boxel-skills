@@ -152,6 +152,14 @@ background-color: hsl(var(--background));   /* DO NOT wrap in hsl() */
 - Scrims and veils use `--overlay` / `--hover`, or `color-mix()` with literal `black`/`white`, never `rgba()` on a themed color and never `--foreground` (it inverts in dark mode).
 - A shell that owns a toggle stamps `data-theme={{if this.isDarkMode 'dark' 'light'}}` on a wrapper *above* the themed content, defaults to the visitor's `prefers-color-scheme`, persists the choice (e.g. `localStorage`), and never bakes a machine's preference into prerendered HTML.
 
+**Scheme islands.** An island is one region of a card rendered in the opposite scheme from its surroundings: a dark hero band or media panel in a light card, a light callout in a dark one. Stamp `data-theme='dark'` (or `'light'`) on the island's root element, nothing else. The island gets the card's own palette in the other scheme: the linked Theme's `darkModeVariables` (or root variables for a light island) when `cardInfo.theme` is set, Boxel's defaults otherwise. The runtime handles this (`themeScopedCss` in boxel-ui re-emits the Theme's variables onto islands, stopping at nested cards that link their own Theme), and boxel-ui buttons and switches inside the island keep following the card's tokens. The template does nothing beyond the attribute.
+
+- The "do not toggle the scheme from a card template" rule is about the whole card. A bounded island for a design reason is fine; a card that flips itself wholesale is not.
+- Flipping tokens paints nothing. The island root sets its own surface, `background: var(--background)` or `var(--card)` with the paired `-foreground`, and everything inside inherits as usual.
+- Islands replace scheme-specific selectors. Never write `.dark .hero {}` or `[data-theme='dark'] .hero {}` in `<style scoped>`; stamp the attribute and let the tokens do the work.
+- Islands need `darkModeVariables`. Under a light-only Theme, a dark island keeps the Theme's light values for every token the Theme defines and only the omitted tokens fall to the dark defaults, so it reads as broken rather than dark.
+- Never use a `.dark` class for this. It works in `theme.css` but has no light counterpart, and the host toggles and theme editors key off `data-theme`.
+
 ### CSS Safety (All Formats)
 - Always use `<style scoped>`; only `/* */` comments (never `//`).
 - No global selectors (`:root`, `body`, `html`). Define variables at component root.

@@ -2,11 +2,12 @@
 
 Before finalizing any card template, verify:
 
-- [ ] No raw `<button>` — use `<Button>` component
-- [ ] No raw `<input>` — use `<BoxelInput>` or `<FieldContainer>` + `<BoxelInput>`
-- [ ] No raw `<select>` — use `<BoxelSelect>` or `<BoxelMultiSelect>`
+- [ ] No raw `<button>` — use Pret UI `Button` (`IconButton` with `@label` when icon-only), imported from `@cardstack/pretui/components/<name>`
+- [ ] No raw `<input>` — use Pret UI `Input`, inside a `Field` when it needs a label
+- [ ] No raw `<select>` — use Pret UI `Select` or `MultiSelect`
 - [ ] Every color is a theme token, never a literal (`#hex`, `rgb()`, named colors — inside `linear-gradient()` and SVG `fill`/`stroke` too); semi-transparent variants come from `color-mix()` on a token, not `rgba()`. Exception: a component that deliberately opts out of the theme (a content-keyed capture, a print sheet) owns its colors under its own prefix, pointed at the fixed `--boxel-*` primitives — a literal only for an exact value the primitives do not carry — and never reassigns a contract token name (see `use-boxel-design-tokens-for-theming.md`)
 - [ ] Every text, icon, border, and rule color sits on a surface the theme guarantees it against: a `--*-foreground` on its own `--*` fill, `--foreground` on `--background`/`--card`/`--muted`/the neutral surfaces, `--muted-foreground` or a `--*-ink` on `--background`/`--card`/`--muted`, or no color at all so `currentColor` inherits. An action/surface token (`--primary`, `--accent`, `--muted`, …) is never a foreground — it paints, its `--*-foreground` writes
+- [ ] Focus outlines use `--ring` (`outline: 2px solid var(--ring)`), not `--primary` or another fill; a hue used as link or selected-state text takes its `--*-ink` token
 - [ ] Scoped styles use `<style scoped>` in templates
 - [ ] No hand-written `style` attribute: never a literal `style='…'` or a concatenated `style='width: {{x}}%'` (fails `no-inline-styles` and `style-concatenation`; Glimmer also warns in development when a non-`SafeString` is bound to `style`). Dynamic values go through the safe helper for the job — `cssVar` for custom properties, `setBackgroundImage` for a background URL, `sanitizeHtmlSafe` for model-supplied CSS text, or an `htmlSafe` getter for a computed declaration — and static values live in `<style scoped>`
 - [ ] No `@import url(...)` inside `<style scoped>` — font imports belong to the Theme card (`references/font-loading-theme-card-owns-imports.md`)
@@ -22,9 +23,9 @@ Before finalizing any card template, verify:
 - [ ] `data-test-*` attributes are absolutely last on an element, after all other attributes and modifiers
 - [ ] DOM queries in interactions/animations are scoped to the component's own subtree (`element.closest('.boxel-card-container')` as query root), never the document — the same card can render in multiple stacks on one page; JS query hooks are dedicated data attributes, not class names and not `data-test-*` (tests only)
 - [ ] Prefers `<@fields.field />` for all simple field rendering; `@model.x` for conditionals, HTML attributes, context-specific fallback value, and JS getters
-- [ ] Custom HTML/CSS replaced with existing boxel-ui components wherever possible
-- [ ] No overrides that cancel a boxel-ui component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Pill`/`Button`) — pick the `@kind`/`@variant`/`@size` that already has no chrome (e.g. `Button @kind='link-muted'`) and keep only genuinely bespoke declarations
+- [ ] Custom HTML/CSS replaced with existing Pret UI components wherever possible, boxel-ui only where Pret UI has no equivalent (`use-boxel-ui-components.md`)
+- [ ] No overrides that cancel a component's own defaults (`padding: 0`, `background: none`, `border: none` on a `Button`/`Chip`) — pick the `@variant`, `@tone` × `@appearance` or `@size` that already has no chrome (e.g. `Button @variant='link'`) and keep only genuinely bespoke declarations
 - [ ] Chrome on a single linked card is styled through a class on `<@fields.link class='…' />` (forwarded to its `CardContainer` via `...attributes`), not through `:deep(.boxel-card-container)`
 - [ ] No `:deep()` / `display: contents` on plural-field or atom DOM — a plural field is looped (`{{#each @fields.plural as |Item|}}<Item class='…' />`) so there is no host wrapper, and an atom takes a `class`; a wrapper FieldDef you own (especially a `containsMany` of wrappers each holding one item, or anything needing a cross-scope selector into a child's `<style scoped>`) gets deleted, not flattened
 - [ ] Kanban/status boards use `KanbanPlane` and persisted placements; no hand-rolled pointer drag in card templates
-- [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/boxel-ui/components`
+- [ ] Any new reusable component has a typed `Signature`, uses design tokens, and is noted with a TODO to contribute to `@cardstack/pretui/components`
