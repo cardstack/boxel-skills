@@ -11,13 +11,16 @@ margin: 0  (on a p or heading rule)         cursor: pointer  (on a Button-hosted
 align-items: center / display: inline-flex / font-family: inherit / :focus-visible  (on a Button-hosted class)
 a class in <style> that no element in <template> carries
 --[a-z-]+: var(--        (flag only a value that is a bare var(), the alias layer; calc() and color-mix() built on a token are fine)
+var(--[a-z]+-[a-z-]+, var(--   (a private name read with a theme variable as its fallback)
 color: var(--*-ink)  /  color: var(--*-foreground)   (on a descendant, not the surface root)
 :deep(.boxel-card-container)   :deep(.field-component-card)   :deep(
-font:                          [0-9.]+px (outside borders, outlines, underline offsets and CQ breakpoints)
+font:                          [0-9.]+px (outside borders, outlines, underline offsets and CQ breakpoints; a var() fallback counts)
 var(--[a-z-]+, #               #[0-9a-f]{3,8}                 rgba?(
 <button                        <input                         <select
 style='                        [0-9]v[hw]                     @media (other than prefers-reduced-motion)
 <[A-Z][A-Za-z]*Icon (without width= and height=)
+overflow-wrap: anywhere         word-break: break-all          word-break: break-word
+@variant=                       (and any other argument a component's contract marks deprecated)
 ```
 
 ### 1. Decide the theme posture, then hold it
@@ -28,6 +31,7 @@ Either the template follows the realm's theme, or it is pinned to a fixed theme.
 
 - Replace every private color name with the contract token for its role, read directly (`var(--foreground)`, `var(--card)`, `var(--hover)`, `var(--border)`), not through an alias layer.
 - Remove every `var(--token, fallback)` on a contract token or a `--boxel-*` primitive.
+- A private name with a theme variable as its fallback is the same alias layer, inlined at the use site: `color: var(--pretui-destructive-ink, var(--boxel-danger))` is `color: var(--destructive-ink)`. Read the contract token for the role directly, and drop both the private name and the fallback. This holds for every theme variable, not only colors: `var(--x-radius, var(--radius))` is `var(--radius)`, and `var(--x-shadow, var(--shadow-sm))` is `var(--shadow-sm)`. The one exception is a per-instance knob the component documents in its contract (`--pretui-button-radius`, `--pretui-button-h`): callers set those on purpose, so the knob stays, and only a fallback that bypasses the contract is corrected.
 - Wherever a rule sets a surface, set its paired ink in the same rule, once, and let descendants inherit it. A `color:` on a child that repeats the surface's ink (`.setup-name { color: var(--attention-ink) }` under a bar already painted with the attention surface) is a miss: delete it, and if the surface root lacks the pairing, add it there. Neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) take `--foreground`.
 - A hue used as text, icon, link or hover border is its `--*-ink`; the fill is for backgrounds only. Focus outlines are `--ring`. Selected rows are `--selected`.
 - Tints come from `color-mix()` on the token over the surface it sits on, declared once on the root under the component prefix; they and motion durations are the only private variables left.
@@ -47,10 +51,12 @@ Either the template follows the realm's theme, or it is pinned to a fixed theme.
 - Shadows take `--shadow-*`.
 - A private variable whose value is just a contract token or a `--boxel-*` primitive (`--wp-radius: var(--boxel-border-radius-lg)`) is an alias layer: it buys nothing and hides which token a rule reads. Delete it and read the token at each use site. What earns a component-prefixed variable is a value the system has no name for — a metric off the ladder, a fluid `clamp()`, a tint, a duration. A whole private scale is that case only when its steps do not land on the ladder; check the values before assuming either way.
 - Stays in px: borders and rules at any width, outlines and their offsets, text-decoration thickness and underline offsets, sub-pixel transforms. Container-query breakpoints may stay in px.
+- Nothing else is in px: no font size, padding, gap, radius, width or height, and no px inside a `var()` fallback. `var(--text-ui-md, 12.5px)`, `var(--space-4, 11px)` and `border-radius: 6px` are all hardcoded px: replace each with the ladder or role token it stands for (`var(--boxel-font-size-sm)`, `var(--boxel-sp-sm)`, `var(--boxel-border-radius-sm)`), the nearest step when none matches exactly. Count every px hit from step 0 that falls outside the exceptions above, including ones the change did not introduce, and report each one.
 
 ### 5. Geometry and icons
 
 - Fixed widths and heights the layout is built around (rails, search boxes, column templates, max-widths) are hoisted onto the root as component-prefixed rem variables. Small dots and boxes are rem in place.
+- Long words and identifiers wrap with `overflow-wrap: break-word`, paired with `min-width: 0` on the flex or grid item that holds them. `overflow-wrap: anywhere` also counts every character as a break when sizing the box, so in a content-sized track it can collapse to one character wide; use it only when that shrinking is the point. `word-break: break-all` breaks every word, not just the ones that overflow, and `word-break: break-word` is a deprecated, nonstandard value; replace both.
 - Icons get `width` and `height` attributes on the component and no size in CSS. CSS on an icon is for color only, and usually inherits.
 - No `vh`/`vw`; the isolated root is `height: 100%; overflow-y: auto`.
 
@@ -65,7 +71,7 @@ Either the template follows the realm's theme, or it is pinned to a fixed theme.
 Controls come from Pret UI, imported by name from `@cardstack/pretui/components/<name>` (`import { Button } from '@cardstack/pretui/components/button';`). Read the component's contract in the `<name>.md` beside its `.gts` before using it.
 
 - Raw `<button>` becomes `Button`; icon-only buttons become `IconButton` with its required `@label` and a `@cardstack/boxel-icons` glyph as the child; raw `<input>` becomes `Input`; raw `<select>` becomes `Select`. Mutually exclusive choices styled as buttons are a `SegmentedControl` with a `@label`, radio buttons a `RadioGroup`, an action menu a `Menu`.
-- Each visual state becomes a treatment chosen per instance: `@variant` (`primary`, `secondary`, `ghost`, `destructive`, `link`, …), or `@tone` × `@appearance` when no variant names the look (`@variant={{if isActive 'primary' 'ghost'}}`). The size is `@size` (`xs`, `s`, `m`, `l`, `xl`), which sets font-size only; height, padding and radius scale from it in `em`. Shape is `@shape` (`rounded`, `pill`, `square`). A button that navigates takes `@href` and renders an `<a>`; a pending action takes `@busy`, with `@busyLabel` when the label doesn't say so. Whatever still differs goes through the component's per-instance custom properties on your class (`--pretui-button-h`, `--pretui-button-min-w`, `--pretui-button-px`, `--pretui-button-radius` on every appearance; the color knobs depend on the appearance, see "Replacing a raw control" in `use-boxel-ui-components.md`). Plain `padding`, `font-*`, `color` or `background-color` on a component's class, a parent-qualified selector written to out-rank the component, or a blanket `inherit` reset over converted controls means the component has not been used.
+- Each visual state becomes a treatment chosen per instance: `@tone` (`neutral`, `primary`, `info`, `success`, `warning`, `danger`, `attention`) × `@appearance` (`accent`, `filled`, `outlined`, `filled-outlined`, `plain`, `link`), for example `@appearance={{if isActive 'accent' 'plain'}}`. Never pass a deprecated argument: `@variant` is deprecated sugar over the two axes (`primary` is `primary`/`accent`, `secondary` is `neutral`/`outlined`, `ghost` is `neutral`/`plain`, `destructive` is `danger`/`accent`), so replace it with the pair, and treat any other argument a component's contract or usage page marks deprecated the same way. The size is `@size` (`xs`, `s`, `m`, `l`, `xl`), which sets font-size only; height, padding and radius scale from it in `em`. Shape is `@shape` (`rounded`, `pill`, `square`). A button that navigates takes `@href` and renders an `<a>`; a pending action takes `@busy`, with `@busyLabel` when the label doesn't say so. Whatever still differs goes through the component's per-instance custom properties on your class (`--pretui-button-h`, `--pretui-button-min-w`, `--pretui-button-px`, `--pretui-button-radius` on every appearance; the color knobs depend on the appearance, see "Replacing a raw control" in `use-boxel-ui-components.md`). Plain `padding`, `font-*`, `color` or `background-color` on a component's class, a parent-qualified selector written to out-rank the component, or a blanket `inherit` reset over converted controls means the component has not been used.
 - Compute a state once with `{{#let}}` and feed it to both the variant and a `cn` modifier class; icons inside a labeled control are `aria-hidden`.
 - A look that no variant, tone, appearance, size or knob can reach is a gap in the component. Add the knob or variant to Pret UI rather than overriding.
 

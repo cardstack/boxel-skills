@@ -14,7 +14,7 @@ Use a boxel-ui component only where Pret UI has no equivalent yet; those are lis
 
 ### Pret UI replacements for boxel-ui components
 
-Use the Pret UI component in the right column, not the boxel-ui one on the left. Their args differ (`@kind` becomes `@variant`, `@size='extra-small'` becomes `@size='xs'`, and so on), so read the Pret UI contract instead of carrying the boxel-ui args over.
+Use the Pret UI component in the right column, not the boxel-ui one on the left. Their args differ (`@kind` becomes `@tone` × `@appearance`, `@size='extra-small'` becomes `@size='xs'`, and so on), so read the Pret UI contract instead of carrying the boxel-ui args over.
 
 | boxel-ui | Pret UI |
 | --- | --- |
@@ -75,13 +75,13 @@ Import these from `@cardstack/boxel-ui/components`.
 
 ### Don't neutralize a component — pick the variant
 
-If styling a component requires cancelling its own defaults (`padding: 0`, `background: none`, `border: none` on its class), you picked the wrong component or the wrong variant. Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's contract first and look through `@variant`, `@tone` × `@appearance` and `@size` before writing a single override.
+If styling a component requires cancelling its own defaults (`padding: 0`, `background: none`, `border: none` on its class), you picked the wrong component or the wrong variant. Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's contract first and look through `@tone` × `@appearance` and `@size` before writing a single override.
 
 ### Replacing a raw control: state picks the variant, size picks the size, knobs do the rest
 
 When a raw `<button>` (or `<input>`, `<select>`) becomes a Pret UI component, the old hand-written CSS does not move onto the component's class. It gets re-expressed through the component's API, in this order:
 
-1. **Each visual state is a treatment.** A selected tab, a filled call to action, a quiet row: those are `@variant` values (`primary`, `secondary`, `ghost`, `destructive`, `link`, …), or `@tone` × `@appearance` when no variant names the look, chosen per instance. A state that changes the look changes the variant: `@variant={{if isActive 'primary' 'ghost'}}`. Never keep an `.active` class that repaints background and text by hand; the component already owns those pairings and their hover states.
+1. **Each visual state is a treatment.** A selected tab, a filled call to action, a quiet row: those are `@tone` × `@appearance` pairs, chosen per instance. A state that changes the look changes the pair: `@appearance={{if isActive 'accent' 'plain'}}`. Never pass `@variant`: it is deprecated sugar over the two axes, as is any argument a component's contract marks deprecated. Never keep an `.active` class that repaints background and text by hand; the component already owns those pairings and their hover states.
 2. **The size is an `@size`.** `xs`, `s`, `m`, `l` and `xl` set the host font-size only; height, padding, gap and radius scale from it in `em`. `@shape` (`rounded`, `pill`, `square`) sets the corner shape.
 3. **Whatever still differs goes through the component's per-instance custom properties, on your class.** `Button` reads `--pretui-button-h`, `--pretui-button-min-w`, `--pretui-button-px` and `--pretui-button-radius` on every appearance; `--pretui-button-bg` and `--pretui-button-fg` only on `accent` (`primary`, `destructive`) and `link`; `--pretui-button-secondary-bg` on `outlined` (`secondary`). A knob the chosen appearance does not read does nothing. Read the component source for the current list; the knobs are the API.
 4. **Layout that belongs to the parent stays on your class as plain properties**: `position`, `margin`, `flex` sizing, a `transition: none`. Nothing that the component paints.
