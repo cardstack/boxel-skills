@@ -213,6 +213,8 @@ Push to the realm after each stage so you can compare visually.
 
 > Do a design exploration and generate only the above-the-fold view in isolated, framed as such. Write sample content for this use case and fit the elements in there as a design challenge executed by a brand-focused art director of Pentagram, judged by the preeminent taste maker in that field. (Specify who in your thinking, not your final summary.)
 
+Name the layout in the words of [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) (bento, 40/60 split, masonry, bleed, …) rather than "make it look premium"; pick two or three moves, not all.
+
 Hold the taste-maker in your head as you work. Bierut, Sagmeister, Paula Scher, Khoi Vinh, Massimo Vignelli, Mark Boulton — whoever fits the brief. The internal critic raises the bar; do NOT name them in your code or commit messages.
 
 ### Brand-guided imagery during mockup (not as a late asset fill)
@@ -230,6 +232,8 @@ brand DNA (palette, voice, reference vocabulary)
 ```
 
 For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-tone background, oak browns, no high contrast), composition constraint (lower-third negative space for headline overlay), and visual reference (Made Thought monograph aesthetic). Generic prompts ("Inset Shaker kitchen") produced generic photos.
+
+To source and link the images, follow [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md). It covers when to generate, when a stock photo or a placeholder is the better call, and how each one reaches the instance.
 
 **What "designed" looks like in stage 1 — non-negotiables:**
 
@@ -356,6 +360,12 @@ A single line, maybe with a chip. Use atom format when the card appears inline i
 **Edit** — usually leave to host default unless your design truly demands a custom form layout.
 
 Push each format.
+
+---
+
+## After stage 4 — automatic design review (not optional)
+
+When the build is done, run [`design-review`](../../design-review/SKILL.md) without being asked: `set` mode across the app and `card` mode on every CardDef the build produced, scored against the brief's acceptance lines and an award-site benchmark. Fix the top gaps, re-capture and re-score, at most two rounds, and report whether it cleared 8.5. Skip only for a utility card with no user-facing surface.
 
 ---
 

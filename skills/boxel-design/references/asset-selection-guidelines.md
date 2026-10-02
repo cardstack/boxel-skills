@@ -31,84 +31,30 @@
 | **Luxury/Fashion** | High contrast, dramatic lighting, premium textures | Unsplash, Burst (lifestyle), Pexels (fashion) |
 | **Data/Scientific** | Charts, diagrams, technical imagery | NASA, NOAA, USGS |
 
-### Quick URL Patterns for LLM Generation
+### Getting the image into a card
 
-**⚠️ Note: LLM constructs URLs based on patterns below - no search capability, just pattern-based generation**
+Where the photo comes from (the user's own, AI-generated, a stock photo, or a placeholder) and how
+it reaches a card instance are covered in
+[`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md).
+The short version:
 
-```html
-<!-- Pexels Photo Pattern -->
-https://images.pexels.com/photos/[6-7 DIGITS]/pexels-photo-[SAME DIGITS].jpeg?auto=compress&cs=tinysrgb&w=1920
-<!-- Try sequential IDs like: 1271619, 2102416, 3184292, 4145354 -->
+- **Field choice.** An image that can be uploaded or linked externally belongs in an
+  `ImageSourceField` (it wraps `ImageDef` and a URL, and computes `resolvedUrl`); upload-only is
+  `linksTo(ImageDef)`. Order and recipe: [`critical-rules.md`](critical-rules.md) *Images in templates*.
 
-<!-- Heroicons (reliable icon names) -->
-https://unpkg.com/heroicons@2/24/outline/[ICON].svg
-<!-- Common: star, heart, user, menu, search, home, settings, trash, plus, x, check, bell, mail -->
-
-<!-- unDraw Illustrations (consistent slugs) -->
-https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/illustrations/[SLUG].svg
-<!-- Common: designer, developer, team_work, data_processing, mobile_app, dashboard, analytics -->
-
-<!-- SVG Patterns (predictable names) -->
-https://www.svgbackgrounds.com/[PATTERN].svg?color=%23[HEX]&opacity=[0.1-1]
-<!-- Patterns: topography, circuit-board, hexagons, temple, jupiter, overlapping-circles -->
-
-<!-- Pixabay Fallback -->
-https://cdn.pixabay.com/photo/2020/[01-12]/[01-31]/[ID]_640.jpg
-<!-- Structure: year/month/day/id - try common dates and 7-digit IDs -->
-
-<!-- NASA Public Domain -->
-https://images-assets.nasa.gov/image/[MISSION-ID]/[MISSION-ID]~thumb.jpg
-<!-- Common: PIA12345, as11-40-5874, hubble-arp273 -->
-
-<!-- Placeholder Services (always work) -->
-https://via.placeholder.com/[WIDTH]x[HEIGHT]/[BG-HEX]/[TEXT-HEX]?text=[TEXT]
-https://picsum.photos/[WIDTH]/[HEIGHT]
-https://source.unsplash.com/[WIDTH]x[HEIGHT]/?[KEYWORD]
-```
-
-### LLM Strategy for Asset Selection
-
-1. **Start with placeholder services** for guaranteed working images
-2. **Use common icon names** from Heroicons (star, heart, user, etc.)
-3. **Try sequential Pexels IDs** in the millions range (1000000-9999999)
-4. **Apply SVG patterns** with predictable names for backgrounds
-5. **Fallback to solid colors** or gradients if external assets fail
-
-### Working Examples (high success rate)
-
-```html
-<!-- Reliable hero images -->
-<img src="https://picsum.photos/1920/1080" alt="Hero image">
-<img src="https://source.unsplash.com/1920x1080/?technology" alt="Tech hero">
-
-<!-- Common icons that exist -->
-<img src="https://unpkg.com/heroicons@2/24/outline/star.svg" alt="Star">
-<img src="https://unpkg.com/heroicons@2/24/outline/menu.svg" alt="Menu">
-
-<!-- SVG patterns that work -->
-<div style="background-image: url('https://www.svgbackgrounds.com/topography.svg?color=%23e0e0e0&opacity=0.4')">
-
-<!-- Safe placeholder with custom text -->
-<img src="https://via.placeholder.com/800x400/6366f1/ffffff?text=Welcome" alt="Welcome banner">
-```
-
-### Quick Integration Patterns
-
-```html
-<!-- Hero image with fallback -->
-<img 
-  src="https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=1920"
-  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1920 1080\'%3E%3Crect fill=\'%23f3f4f6\' width=\'1920\' height=\'1080\'/%3E%3C/svg%3E'"
-  alt="Descriptive text"
-/>
-
-<!-- Optimized background pattern -->
-<div style="background-image: url('https://www.svgbackgrounds.com/topography.svg?color=%23000000&opacity=0.1')">
-
-<!-- Icon with local fallback -->
-<img src="https://unpkg.com/heroicons@2/24/outline/star.svg" 
-     onerror="this.textContent='★'" />
-```
+- **Never guess an image URL.** A made-up Pexels or Pixabay ID either 404s or loads an unrelated
+  photo that looks deliberate. Use a URL the user gave you, or one from a photo page you actually
+  opened.
+- **Placeholders that work for any value** (checked 2026-09-30):
+  - `https://picsum.photos/seed/<slug>/<w>/<h>`: a real photo, stable per seed, random subject
+  - `https://placehold.co/<w>x<h>/<bg-hex>/<text-hex>?text=<label>`: a labelled box
+- **Dead patterns, never use:** `source.unsplash.com` (shut down), `via.placeholder.com` (no
+  response), the rackcdn unDraw URLs and `svgbackgrounds.com/<pattern>.svg` (404).
+- **Icons:** `https://unpkg.com/heroicons@2/24/outline/<name>.svg` works. In a Boxel card, prefer
+  the icon sets boxel-ui already ships.
+- **Public-domain science imagery:** `https://images-assets.nasa.gov/image/<id>/<id>~thumb.jpg`,
+  with a real NASA id.
+- **Fallback:** a solid colour or gradient from the theme's tokens beats a broken image.
 
 ### Asset Don'ts
 - Using celebrity/branded content without permission

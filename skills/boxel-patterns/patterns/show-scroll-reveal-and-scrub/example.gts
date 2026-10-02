@@ -1,0 +1,299 @@
+import {
+  CardDef,
+  Component,
+  field,
+  contains,
+  StringField,
+} from '@cardstack/base/card-api';
+import { modifier } from 'ember-modifier';
+
+// 🧩 PATTERN: Scroll reveal + scroll scrub inside a Boxel card.
+//
+// The card scrolls inside itself — `height: 100%; overflow-y: auto` in a host
+// pane — so the window is never the timeline. Every measurement here is taken
+// against the card's own scroller, found by walking up the computed overflow.
+//
+// Read README.md for why each of these is the way it is. The short version:
+//   1. IntersectionObserver `root` = the card's scroller, never null
+//   2. the MODIFIER hides the element, the CSS does not (resting = finished)
+//   3. once means unobserve() at the hit, not disconnect() at teardown
+//   4. no vw/vh — track length comes from the scroller's measured height
+//   5. data-* attributes are the JS hooks; classes are for styling only
+
+// ---------------------------------------------------------------------------
+// Shared: find the card's scroll container.
+// ---------------------------------------------------------------------------
+
+function findScroller(element: HTMLElement): HTMLElement | null {
+  let node: HTMLElement | null = element.parentElement;
+  while (node) {
+    const overflowY = getComputedStyle(node).overflowY;
+    if (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  // No scroller yet (a card rendered in a pane that never scrolls). Callers
+  // must treat this as "show the finished state", not as an error.
+  return null;
+}
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// ---------------------------------------------------------------------------
+// 1. revealOnScroll — a block animates in ONCE as it enters the card's view.
+//
+//    Sets `--reveal` from 0 to 1. The CSS fallback is 1, so with no JS at all
+//    every block renders complete. Deleting this modifier must never make
+//    content disappear — that is the test.
+// ---------------------------------------------------------------------------
+
+export const revealOnScroll = modifier(
+  (
+    element: HTMLElement,
+    _positional: [],
+    named: { threshold?: number; repeat?: boolean },
+  ) => {
+    const threshold = named.threshold ?? 0.25;
+    const repeat = named.repeat ?? false;
+
+    const show = () => element.style.setProperty('--reveal', '1');
+    const hide = () => element.style.setProperty('--reveal', '0');
+
+    const scroller = findScroller(element);
+    if (prefersReducedMotion() || !scroller) {
+      show();
+      return;
+    }
+
+    // The modifier owns the hidden state, so a missing modifier is harmless.
+    hide();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            show();
+            // Once-only is the default: stop watching at the hit, not at
+            // teardown, or the callback runs on every re-entry forever.
+            if (!repeat) observer.unobserve(entry.target);
+          } else if (repeat) {
+            hide();
+          }
+        }
+      },
+      { root: scroller, threshold },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  },
+);
+
+// ---------------------------------------------------------------------------
+// 2. scrollScrub — one subject's state follows scroll position, both ways.
+//
+//    Applied to the TRACK. Writes `--progress` (0 → 1) on the track and
+//    `--scroller-h` (px) so the CSS can size the track without vw/vh.
+//    Expects one `[data-scrub-stage]` descendant, which is `position: sticky`.
+// ---------------------------------------------------------------------------
+
+export const scrollScrub = modifier(
+  (
+    track: HTMLElement,
+    _positional: [],
+    named: { restProgress?: number },
+  ) => {
+    const restProgress = named.restProgress ?? 0;
+
+    const stage = track.querySelector('[data-scrub-stage]') as HTMLElement | null;
+    // Host mode: the card IS the page. No scroller exists above the root (or the
+    // root was never height-constrained), so fall back to the document scroller,
+    // flag the root, and let CSS size the runway in dvh under [data-page].
+    const root = track.closest('[data-motion-root]') as HTMLElement | null;
+    const found = findScroller(track);
+    const isPage =
+      !found || (root ? root.offsetHeight > window.innerHeight * 1.5 : false);
+    const scroller = found ?? (document.scrollingElement as HTMLElement | null);
+    root?.toggleAttribute('data-page', isPage);
+
+    const write = (progress: number) =>
+      track.style.setProperty('--progress', progress.toFixed(4));
+
+    // The still frame carries the composition — a subject whose composition
+    // only works mid-scrub has no composition.
+    if (!stage || !scroller || prefersReducedMotion()) {
+      write(restProgress);
+      return;
+    }
+
+    const measure = () => {
+      track.style.setProperty('--scroller-h', `${scroller.clientHeight}px`);
+    };
+
+    const update = () => {
+      // Relative to the SCROLLER's box, not the viewport's. Using the raw
+      // viewport top only works when the scroller happens to start at the top
+      // of the screen, which is exactly the bug that survives local testing —
+      // except in page mode, where the viewport is the scroller.
+      const top = isPage
+        ? track.getBoundingClientRect().top
+        : track.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+      const travel = Math.max(1, track.offsetHeight - stage.offsetHeight);
+      write(Math.min(1, Math.max(0, -top / travel)));
+    };
+
+    // Coalesce to one measure per frame; a scroll listener can otherwise run
+    // several times between paints.
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        update();
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      measure();
+      update();
+    });
+    resizeObserver.observe(scroller);
+
+    measure();
+    update();
+    const target: EventTarget = isPage ? window : scroller;
+    target.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      target.removeEventListener('scroll', onScroll);
+      resizeObserver.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Usage
+// ---------------------------------------------------------------------------
+
+class Isolated extends Component<typeof ScrollMotionExample> {
+  reveal = revealOnScroll;
+  scrub = scrollScrub;
+
+  <template>
+    <section class='piece' data-motion-root>
+      <header class='intro' data-reveal {{this.reveal}}>
+        <h1>{{@model.title}}</h1>
+        <p>{{@model.standfirst}}</p>
+      </header>
+
+      {{! The scrubbed subject: one element, transform only. }}
+      <div class='track' data-scrub-track {{this.scrub}}>
+        <div class='stage' data-scrub-stage>
+          <div class='subject' aria-hidden='true'></div>
+          <p class='readout'>{{@model.caption}}</p>
+        </div>
+      </div>
+
+      <div class='notes'>
+        <p data-reveal {{this.reveal}}>Blocks arrive as you read them.</p>
+        <p data-reveal {{this.reveal}}>They never leave again.</p>
+      </div>
+    </section>
+
+    <style scoped>
+      /* The card's own scroller. The host owns the outermost box — no radius,
+         border or shadow here. */
+      .piece {
+        height: 100%;
+        overflow-y: auto;
+        container-type: inline-size;
+        background: #0e0f12;
+        color: #f2f0ea;
+      }
+      /* host mode (see README §1b): the viewport is the container */
+      .piece[data-page] {
+        height: auto;
+        overflow: visible;
+      }
+      .piece[data-page] [data-scrub-track] {
+        height: calc(100dvh * var(--scrub-length, 2.4));
+      }
+      .piece[data-page] [data-scrub-stage] {
+        height: 100dvh;
+      }
+
+      /* ---- reveal ----------------------------------------------------- */
+      /* Fallback is the FINISHED state: no modifier, no JS, no observer —
+         still fully visible. The modifier is what hides it. */
+      [data-reveal] {
+        opacity: var(--reveal, 1);
+        transform: translateY(calc((1 - var(--reveal, 1)) * 20px));
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-reveal] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+
+      /* ---- scrub ------------------------------------------------------ */
+      /* Track length is measured screenfuls of the CARD's scroller, not vh.
+         --scrub-length is the one knob: how much scroll the arc is worth. */
+      [data-scrub-track] {
+        position: relative;
+        height: calc(var(--scroller-h, 600px) * var(--scrub-length, 2.4));
+      }
+
+      [data-scrub-stage] {
+        position: sticky;
+        top: 0;
+        display: grid;
+        place-items: center;
+        height: var(--scroller-h, 600px);
+        overflow: hidden;
+      }
+
+      /* transform and opacity only — both composite without layout or paint. */
+      .subject {
+        width: 40cqi;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #cfe8ff, #37506b);
+        transform: translateY(calc((var(--progress, 0) - 0.5) * 60cqi))
+          rotate(calc(var(--progress, 0) * 180deg))
+          scale(calc(0.7 + var(--progress, 0) * 0.5));
+      }
+
+      .readout {
+        position: absolute;
+        bottom: 1.5rem;
+        opacity: calc(0.25 + var(--progress, 0) * 0.75);
+      }
+
+      .intro,
+      .notes {
+        padding: 2rem;
+      }
+    </style>
+  </template>
+}
+
+export class ScrollMotionExample extends CardDef {
+  static displayName = 'Scroll Motion Example';
+
+  @field standfirst = contains(StringField);
+  @field caption = contains(StringField);
+
+  static isolated = Isolated;
+  // No scrub, no reveal in embedded/fitted/atom — they render inside someone
+  // else's composition and have no meaningful scroll of their own.
+}
