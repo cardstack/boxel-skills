@@ -10,22 +10,22 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
 - **Single Font Monotony** — Mix typefaces purposefully (serif heads + sans body, or one display + one mono). One typeface for everything is a tell.
 - **Accent Border Laziness** — No thick left/top borders as "design." A 4px accent stripe is the LLM default and it always looks like one.
 - **Center-All Disease** — Asymmetry creates visual interest. Centering every element flattens hierarchy.
-- **Card Grid Autopilot** — Break the predictable 3-column-card layout. Editorial grids, single-column long-reads, asymmetric layouts all read more intentional.
+- **Card Grid Autopilot** — Break the predictable 3-column-card layout. Editorial grids, single-column long-reads, asymmetric layouts all read more intentional. Named replacements (bento, masonry, 40/60 split, editorial type, bleed, sticky scroll) and how each is built in a card: [`layout-vocabulary.md`](layout-vocabulary.md).
 - **Shadow Everything** — Strategic depth, not universal drop-shadows. Use shadow as punctuation, not as default chrome.
 - **Icon Sprinkles** — Icons should enhance meaning, not fill space. An eyebrow + section heading without an icon is often stronger.
 - **Safe Spacing** — Push extremes: ultra-tight or magazine-wide margins. The "comfortable middle" is the LLM default.
 - **Gradient Overuse** — Not every element needs a gradient. Gradients are the 2024 over-used signature; flat color with intentional contrast often wins.
 - **Average Quality Trap** — Aim for top 1% execution, not median competence. The design-playbook's "internal taste-maker" framing exists to push past the default.
 
-### Image URL in templates
+### Images in templates
 
-When using image URLs, route them through the field system so instances can override them:
+Never put a relationship in `src`: `<img src={{@model.heroImage}}>` is wrong when `heroImage` is `linksTo(ImageDef)`, because that value is a card, not a URL. Pick the field by what the image needs, in this order:
 
-```hbs
-<img src={{@model.heroImage}} alt='Hero' />
-```
+1. **Uploads and external URLs both** — `ImageSourceField` (`@cardstack/catalog/fields/image-source/image-source`). It wraps an `ImageDef` link and a `UrlField` and computes `resolvedUrl`. Use `{{@model.hero.resolvedUrl}}`, or `<@fields.hero @format='embedded' />`. For several images, `MultiImageSourceField`.
+2. **Uploads only** — `linksTo(ImageDef)`, rendered with `<@fields.hero @format='embedded' />`.
+3. **Neither fits** — the `linksTo(ImageDef)` + `contains(UrlField)` pair, with the template choosing between them. Recipe: [`base-field-catalog.md`](../../boxel/references/base-field-catalog.md).
 
-This keeps the image editable per-instance, and the CardDef provides a sensible default URL or fallback handling.
+An external URL never goes in `relationships.<field>.links.self` (Cardinal Rule 12). All three routes keep the image editable per instance.
 
 ### Design Excellence Mindset
 

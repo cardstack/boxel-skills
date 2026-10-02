@@ -164,7 +164,7 @@ Read these live on each run rather than working from memory. Links are relative 
 - Write a markdown file. The direction is a section of the brief card, nothing else.
 - Pick an all-equal-weight grid.
 - Leave a unit's imagery out of the Views table, or reduce it to a thumbnail without saying why.
-- Recommend fonts, colours or motion before the layout is settled.
+- Treat fonts, colours or motion as final before the layout is settled. Phase 3 may run first to settle the mood, but its palette and type are revised once the layout is picked.
 - Write a theme card, or reference `var(--*)`. The theme is extracted from the build, later.
 - Write easing curves, scroll offsets or per-beat durations into the Narrative arc. Name the beats
   and the budget; `motion-authoring` writes the numbers, and only for units that asked for an arc.
@@ -184,6 +184,7 @@ Vocabulary the phases read:
 
 - [`references/screen-types.md`](references/screen-types.md) — layout directions per screen type
 - [`references/layout-gravity.md`](references/layout-gravity.md) — defaults to resist
+- [`boxel-design/references/layout-vocabulary.md`](../boxel-design/references/layout-vocabulary.md) — eight named layout moves (layered surface, bento, masonry, 40/60, edge overlap, editorial type, bleed, sticky scroll) and how each is built inside a card
 - [`references/interaction-ways.md`](references/interaction-ways.md) — how an action can present, and the narrative ways a composition can unfold — with what each is achievable with
 - [`references/enrichment-moves.md`](references/enrichment-moves.md) — the ornament budget: the baseline read off the style in Phase 3, the ladder every surface is assigned a rung on, the moves each style can earn, the correction run in both directions, and why `fitted` is upstream's call
 - [`references/signature-treatments.md`](references/signature-treatments.md) — the arresting element: what is buildable in a card with pure CSS, what each costs, and the four runtime constraints

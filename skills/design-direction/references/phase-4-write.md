@@ -83,7 +83,7 @@ Show:
 **Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
 the choice UI (rules in `SKILL.md`, under the interaction paragraph). The options depend on the motion line you just wrote:
 
-- **Build the first screen** — the one named above. Recommend this when motion is not needed.
+- **Build the first screen** — the one named above. Every build is followed by the automatic `design-review` loop over the app and each linked card (at most two fix rounds), so there is no separate no-review option. Recommend this when motion is not needed.
 - **Run `motion-authoring` first** — offer this only when the motion line says motion is needed,
   and recommend it over building: it fills the `motion` field of this same brief card, and
   beats built before their numbers exist get rebuilt once the numbers arrive.

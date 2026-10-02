@@ -22,7 +22,7 @@ only — no hex, fonts, px or layout words. Every section below is argued from i
 
 **Who is reading.** {a specific person at a specific moment: job, state of mind, what they are tired of}
 
-**Whose voice.** {who speaks through the surface, and how}
+**Whose voice.** *(optional — omit when the brief settles it)* {who speaks through the surface, and how}
 
 **Scenes** — one per screen, band, format or state, in the brief's priority order
 1. **{scene name}** *({screen / band / format / state})*

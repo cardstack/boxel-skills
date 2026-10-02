@@ -15,7 +15,7 @@ reference), and the reader's-moment answer. Ask nothing more before writing. Whe
 is a reference rather than a scene (a song, a film, a painting, a lyric pasted in full), read it
 yourself and write from that reading; Phase 3's style pick confirms it.
 
-**Don't ask the user to approve the story.** A paragraph is hard to judge before anything exists,
+**Don't ask the user to approve the story** (inside this skill; the index's quick "Just build it" path instead shows its two-sentence story so the user can redirect it, because no style step follows to judge it). A paragraph is hard to judge before anything exists,
 the same way a wireframe is. Build from it straight away. The user checks it in Phase 3, where
 each of the three style directions shows its reading of the story next to a real palette and
 type pairing. Picking a direction is picking a reading of the story.
@@ -28,8 +28,8 @@ Write it into `## Story`, directly under `## Brief` in the `designDirection` fie
 |---|---|---|
 | **The feeling, in one breath** | an *image*, not adjectives — the one picture the whole unit keeps returning to | two or three sentences |
 | **Who is reading** | a specific person at a specific moment, drawn from the brief's users: their job, their state of mind, what they are tired of | two sentences |
-| **Whose voice** | who is speaking through the surface, and in what register | one or two sentences |
-| **Scenes** | one per screen (a multi-object app), one per band of the page (a single-surface page), one per format (a card), one per state (a component) — in the brief's priority order | a short paragraph each |
+| **Whose voice** *(optional)* | only when the copy's register is not already settled by the brief; skip it otherwise | one sentence |
+| **Scenes** | one per screen (a multi-object app), one per band of the page (a single-surface page), one per format (a card), one per state (a component) — in the brief's priority order | three lines each, no more |
 | **The one rule** | what every moving or accented thing on the unit *is* — the thread that ties the scenes to one image | one sentence |
 
 Each scene has the same three lines:
@@ -56,6 +56,17 @@ for the part of a unit that has to be most trusted — prices, a legal line, a c
   marketing lead at a bank, tab six of eight, tired of copy that comes back needing a lawyer" is.
 - **Write the never lines.** They are what stop the build from reaching for the default, and they
   become acceptance lines almost unchanged.
+
+## Keep it short, and hand off
+
+The story fixes the **feeling and the Never lines**. It does not decide composition, and a story
+alone does not produce a good layout: that happens in Phase 2, where each scene is given a named
+move from [`layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) (bento, 40/60 split, bleed and so on) and
+the pick's **Why** cites the scene. If a scene has no move named for it by the end of Phase 2, the
+story has not reached the page yet.
+
+Trim anything that does not change a later decision. A story longer than the screen it governs is
+decoration.
 
 ## What derives from it
 

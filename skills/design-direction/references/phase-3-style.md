@@ -50,7 +50,7 @@ fields: **name · inspirations · visual DNA**.
 
 **Derive each direction's palette and type from the story, then show them.** Every colour has a
 job in the story's image: the ground is the story's setting, the accent is the one image, and
-the text colour is the voice. For the night-on-water story: ground = deep ink water, accent = the
+the text colour is the reader's register (the `## Story` voice line, when it has one). For the night-on-water story: ground = deep ink water, accent = the
 lamplight, text = moonlight grey. Write down the role of each colour, not only its hex, so the
 build and the reviewer can check it against the story.
 

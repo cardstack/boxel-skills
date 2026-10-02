@@ -161,6 +161,7 @@ The 4-stage recommended process for any user-facing card:
 - **Acceptance line** — a `## Design direction` line a reviewer ticks without taste; set acceptance lines are checked across every screen at once.
 - **Story (`## Story`)** — the unit written as a story before any style, layout or motion: the feeling as one image, a named reader, a voice, a scene per screen/band/format/state with *what they feel* and *never*, and the one rule. Phase 0b of `design-direction`; every later phase is argued from it. → `design-direction/references/phase-0b-story.md`
 - **Ornament ladder (L0–L3)** — the rung each surface is built at: bare · marked · grounded · signature; one L3 per unit. → `design-direction/references/enrichment-moves.md`
+- **Layout vocabulary** — eight named layout moves (layered surface, bento, masonry, 40/60 split, edge overlap, editorial type, bleed, sticky scroll), each with its in-card CSS and its limit. → `boxel-design/references/layout-vocabulary.md`
 - **Signature treatment** — the one arresting treatment on the dominant object, earned by the style. → `design-direction/references/signature-treatments.md`
 
 ## 8. Lint workflow
@@ -375,7 +376,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-design`** — Visual design + asset selection + critical anti-LLM-cliché rules.
 - **`design-direction`** — Decides how a unit looks, moves and responds before it is built — asks only the feeling (as a scene), the reader's moment and the style, decides layout itself — and records it in the `designDirection` field of the unit's brief card, with tickable acceptance lines.
 - **`motion-authoring`** — Opt-in, only when the direction asked for an arc: writes the `motion` field of the same brief card — one motion system, the engine per beat, the load-bearing CSS, an exhaustive effect table, and the three capture points.
-- **`design-review`** — Scores what was built, from captures only, against the brief card's acceptance lines and an aesthetic bar whose gate is 8.5. Three modes: one screen, `set` across an app, `card` across a CardDef's formats.
+- **`design-review`** — Scores what was built, from captures only, against the brief card's acceptance lines and an aesthetic bar whose gate is 8.5. Four modes: one screen, `set` across an app, `card` across a CardDef's formats, and `refine` (independent review against an Awwwards/Webby/FWA benchmark, fix). Runs automatically after every build over the app and each related card, with a two-round cap. → `design-review/references/benchmark-and-refine.md`
 - **`boxel-theme-development`** — Theme/StyleReference/BrandGuide creation, DESIGN.md mapping, brand tokens, logo/mark capture, and audit workflow.
 - **`domain-interview`** — Interviews the user and writes a brief (primer, schema, coverage matrix, per-screen content contracts, flows, sample data) into a catalog `Brief`'s `spec` field, with no design decisions.
 - **`boxel-environment`** — Driving the live app + host commands; `workflows-and-orchestration.md`, `user-environment-awareness.md`, `assistant-persona.md`.

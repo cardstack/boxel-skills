@@ -38,6 +38,10 @@ it reaches a card instance are covered in
 [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md).
 The short version:
 
+- **Field choice.** An image that can be uploaded or linked externally belongs in an
+  `ImageSourceField` (it wraps `ImageDef` and a URL, and computes `resolvedUrl`); upload-only is
+  `linksTo(ImageDef)`. Order and recipe: [`critical-rules.md`](critical-rules.md) *Images in templates*.
+
 - **Never guess an image URL.** A made-up Pexels or Pixabay ID either 404s or loads an unrelated
   photo that looks deliberate. Use a URL the user gave you, or one from a photo page you actually
   opened.

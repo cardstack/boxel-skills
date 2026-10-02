@@ -1,6 +1,6 @@
 ---
 name: boxel-design
-description: Use when DECIDING a Boxel card's visual language — mood, palette, typography direction, asset direction, one visual signature, the design-playbook process. This is the taste/decision layer. NOT for implementing tokens or CSS inside templates (that's boxel-ui-guidelines) and NOT for creating/editing Theme, StyleReference, or BrandGuide card artifacts (that's boxel-theme-development).
+description: Use when DECIDING a Boxel card's visual language quickly — mood, palette, typography direction, layout moves, asset direction, the design-playbook process. For a planned build with a brief, the decision is recorded by design-direction instead. This is the taste/decision layer. NOT for implementing tokens or CSS inside templates (that's boxel-ui-guidelines) and NOT for creating/editing Theme, StyleReference, or BrandGuide card artifacts (that's boxel-theme-development).
 boxel:
   kind: skill
 ---
@@ -18,7 +18,7 @@ Visual decisions for Boxel cards.
 3. **Stage 3 — Tokenize isolated** with `var(--*)` references. Pixel-identical to stage 1.
 4. **Stage 4 — Derive embedded + fitted** from the established visual identity. Fitted MUST feature the card's media if any.
 
-Read it in full before any user-facing card design. This skill (`boxel-design`) used to host a menu-driven discovery process; that was removed because curated style menus cap intrinsic LLM design taste at the menu authors' ceiling. Stage 1's "internal taste-maker held in mind" is the antidote — trust the model's taste, push past defaults.
+Read it in full before any user-facing card design. Stage 1's "internal taste-maker held in mind" is the antidote to curated style menus, which cap design taste at their authors' ceiling — trust the model's taste, push past defaults. For layout, name the moves from [`references/layout-vocabulary.md`](references/layout-vocabulary.md) in the mockup.
 
 ## Brand and Style Source
 
@@ -30,6 +30,9 @@ Choose the governing style source before stage 1:
 
 ## Pair with
 
+- **`design-direction`** — when a brief card exists or the user wants the look decided and recorded before building. This skill is the quick mockup path; `design-direction` is the planned one, and it reads this skill's rules and layout vocabulary.
+- **`domain-interview`** — when the domain needs interviewing first; its brief card is what `design-direction` reads.
+- **`design-review`** — the last design step: runs automatically after every build, scoring the app (`set`) and each related card (`card`) from captures, with at most two fix rounds. This skill decides; it is not the end of the line.
 - **`boxel-ui-guidelines`** — turns design intent into working markup (template-level rules, `@fields` vs `@model`, delegated-render control, format-choice).
 - **`boxel-theme-development`** — turns design-system source material into a Theme, Style Reference, Detailed Style Reference, or Brand Guide artifact.
 - **`boxel`** — once the design is decided and you're implementing the card. Also hosts the playbook itself.
@@ -40,9 +43,8 @@ Choose the governing style source before stage 1:
 - Template syntax decisions (`@fields` vs `@model`, container queries) — that's `boxel-ui-guidelines`.
 - Schema or query work — that's `boxel`.
 
-## References this skill still owns
+## References this skill owns
 
-- [`references/critical-rules.md`](references/critical-rules.md) — anti-LLM-cliché checklist ("Rounded Rectangle Syndrome", "Center-All Disease", "Card Grid Autopilot", etc.) + image-URL field-routing rule + design-excellence mindset. Read alongside design-playbook stage 1 to sharpen the internal taste-maker.
+- [`references/critical-rules.md`](references/critical-rules.md) — anti-LLM-cliché checklist ("Rounded Rectangle Syndrome", "Center-All Disease", "Card Grid Autopilot", etc.) + how to put images in templates + design-excellence mindset. Read alongside design-playbook stage 1 to sharpen the internal taste-maker.
+- [`references/layout-vocabulary.md`](references/layout-vocabulary.md) — eight named layout moves (layered surface, bento, masonry, 40/60 split, edge overlap, editorial type, bleed, sticky scroll) and how each is built inside a card. Name the move you use; "make it look premium" gives a builder nothing to execute.
 - [`references/asset-selection-guidelines.md`](references/asset-selection-guidelines.md) — concrete image-handling guidance: priority order for asset integration, format choices, fit semantics. Useful regardless of process.
-
-The previous five files (`style-reference.md`, `design-controls.md`, `design-discovery-process.md`, `the-design-challenge-standard.md`, `base-theme-variables.md`) were removed — superseded by the design-playbook's stages 1–2.

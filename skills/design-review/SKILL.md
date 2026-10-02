@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Score a built Boxel screen, card or whole app against its `## Design direction` and an aesthetic bar, from screenshots — never from code. Use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), right after a screen is built and before more are, when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists; for deciding a direction first, use design-direction.
+description: Score a built Boxel screen, card or whole app against its `## Design direction` and an aesthetic bar, from screenshots — never from code. Runs automatically after every build of an app, card family or user-facing card (set and card modes, at most two fix rounds). Also use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), right after a screen is built and before more are, when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists; for deciding a direction first, use design-direction.
 boxel:
   kind: skill
 ---
@@ -22,11 +22,33 @@ You review a built thing against two standards: the `## Design direction` sectio
 aesthetic bar that a competent-but-generic result does not clear. Where they conflict, `## Design direction`
 wins on *what was decided* and you judge only *how well it was executed*.
 
-**Three modes.** Default reviews one screen. `design-review set` reviews every screen of an app
+**Runs after every build, automatically** — see *Automatic review after every build* below. **Four modes.** `design-review refine` builds, scores and fixes in a loop until the unit clears the gate — see [`references/benchmark-and-refine.md`](references/benchmark-and-refine.md). Default reviews one screen. `design-review set` reviews every screen of an app
 together — reach for that whenever more than one screen exists, because coherence across screens is
 the thing no single-screen review can see. `design-review card <CardDef>` reviews one card's
 formats as a family, and is the mode nobody remembers to run: in an app, the cards behind the links
 are the surfaces that get built in passing and scored by nothing.
+
+## Automatic review after every build
+
+`boxel-design` and the design-playbook decide and build; this is the last design step, and it is
+not optional or offered. When a build of an app, a card family or a single user-facing card
+finishes, run this loop without being asked, over **everything the build produced**:
+
+1. **Capture and review the whole unit**: `set` mode across every screen, and `card` mode on every
+   CardDef the build produced or the screens link to — the cards behind the links are the surfaces
+   that get written in passing and scored by nothing. A single card is reviewed in `card` mode.
+2. **Score** with the benchmark (reuse it across rounds) and the brief's acceptance lines.
+3. **Fix the top gaps only**, at most three per round, on the failing screens or cards alone. Report
+   what changed and what was left alone.
+4. **Re-capture and re-score.** At most **two fix rounds**. Stop early when every acceptance line is
+   ticked and the score is at or above 8.5, when the score did not rise, or when a failure traces
+   to the direction itself (surface that as a choice; do not loop on it).
+5. **One report at the end**: the tally and score per round, what is still short of the bar and why,
+   and the next step as a structured choice. Say plainly if it did not clear the gate.
+
+Where the harness can spawn a subagent, an independent reviewer does steps 1–2 each round (see
+`references/benchmark-and-refine.md`); otherwise say the scores are provisional. Skip the loop only
+for a utility card with no user-facing surface, and say so in one line.
 
 ## Capture first — there is no review without it
 
@@ -71,6 +93,13 @@ With `designDirection` empty, skip this phase and say the review ran without one
 
 The bar is work that would be singled out, not work that is inoffensive. A result that is
 professional, polished and forgettable sits around 6–7; the gate is **8.5**.
+
+**Anchor the number to the field.** For a unit with an award-style category (portfolio, landing page,
+product page, editorial), first run the benchmark in
+[`references/benchmark-and-refine.md`](references/benchmark-and-refine.md): three recent winners from
+Awwwards, the Webby Awards or FWA, captured at the unit's width, compared dimension by dimension.
+Compare composition and type, not WebGL or page-wide motion a card cannot do. Without a benchmark,
+say the scores are unanchored.
 
 Score and name the specific thing behind each number:
 
@@ -236,7 +265,7 @@ app rather than an app, and it predicts exactly what wiring will find.
 
 ## Fix loop
 
-If the user wants one, cap it at two rounds. Each round reports what it changed and what it left
+If the user wants one, cap it at two rounds. (The automatic loop above runs it by default, with an independent reviewer each round and the same two-round cap; see `references/benchmark-and-refine.md`.) Each round reports what it changed and what it left
 alone — a round that silently rewrites things nobody objected to makes the next review meaningless.
 
 **After reporting a verdict, ask what happens next as a structured choice**, the same choice-tool
@@ -288,4 +317,5 @@ Read these live on each run. Links are relative to this skill's folder.
 
 ## Sections (load on demand)
 
+- `references/benchmark-and-refine.md` — the award-site benchmark, and `refine` mode and the automatic loop: independent review, fix, to the 8.5 gate with a two-round cap
 - `references/capture.md` — which tool captures which view, the capture service's batch and time budgets, where captures go, and the blank-region and selector flakiness rules
