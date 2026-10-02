@@ -120,8 +120,9 @@ OperationGrant(FieldDef)  operation = contains(StringField)
 ```
 
 An instance adopts from `@cardstack/catalog/realm-policy/realm-policy`, name
-`RealmPolicy`. Write it as JSON — the card's edit view cannot edit a rule's
-grants.
+`RealmPolicy`. Write it as JSON. A rule is a field holding a `containsMany` of
+grants, and the card API renders no editor for a `containsMany` nested inside a
+field, so the card's edit view can't reach a rule's grants.
 
 **`targetType`** is a code ref, `{ "module", "name" }`. The module is an
 absolute URL, a prefix form (`@cardstack/base/card-api`), or a path relative to
@@ -205,7 +206,8 @@ teacher both open and list their classrooms, grant both (§6).
 `delete` or `create` admits `PATCH`, `DELETE` and `POST` on the card+json
 routes — unless the type redeclares that operation, in which case the verb is
 refused to a caller the permissions declined, and the grant is used only
-through `_operations`.
+through `_operations`. A card+json write that side-loads cards in `included` is
+refused to such a caller too, whatever the grants say.
 
 **A granted `read` serves the card's whole representation**, as the type's own
 `read` declaration shapes it for every caller: under the default `links:
@@ -362,9 +364,17 @@ is a bug in the policy, not a refusal: guard the value (`.title != null and
 ## 6. `query` grants and search
 
 A `query` grant is never evaluated card by card. Its predicate is compiled into
-a search filter, and every search by a caller the realm's permissions decline
-— the realm's `_search` and `_federated-search`, which the host's search
-components use — is narrowed by it. A predicate the filter compiler can't express records
+a search filter, and every ad-hoc search by a caller the realm's permissions
+decline — the realm's `_search` and `_federated-search` — is narrowed by it.
+
+**A grant on a named query is a different grant.** A grant whose `operation`
+names a `query` operation the type declares (`listMySchedules`) compiles its
+`where` the same way, and its filter narrows only that saved search, invoked by
+name. It never admits an ad-hoc search, and a grant on `query` never admits the
+saved one: granting a saved search is not granting the freedom to write any
+filter over its type. Prefer the named form when the type's `query`
+declaration narrows what each row carries (its `links`), since an ad-hoc search
+serves every row with its whole link closure. A predicate the filter compiler can't express records
 `policy-not-filterable`, and the grant admits nothing.
 
 What compiles:
@@ -393,6 +403,7 @@ What doesn't compile, and records `policy-not-filterable`:
   comparable. The gate accepts `.lead == null`; a search filter doesn't.
 - Any field of a linked card (`.lead.name`), even with `snapshot: true`.
 - A query-backed field, in any form.
+- Bindings (`. as $c`) and variables, though the gate accepts them.
 - `true`/`false` literals, fields of any other type (`BooleanField`, `DateField`,
   custom fields), a whole list (`.teacherIds == […]`), a list position
   (`.teacherIds[0]`), lists of numbers, arithmetic, `//`, `if`, and one field
@@ -400,9 +411,11 @@ What doesn't compile, and records `policy-not-filterable`:
 
 How a filter and its predicate can differ:
 
-- **The filter can be narrower.** It admits no card where the field is unset:
-  `.roomNumber < 200` holds in BXL for a classroom with no room number
-  (`null < 200`), and the filter does not list it.
+- **The filter can be narrower.** A comparison BXL holds for an unset value
+  doesn't list a card that has none: `.roomNumber < 200` holds in BXL for a
+  classroom with no room number (`null < 200`), and `.providerId != actor()`
+  for one with no provider, and the filter lists neither. Say `== null` when
+  you mean those cards — `.providerId == null` compiles.
 - **A subtype that redeclares a field the filter compares is kept out of that
   comparison**, so its cards aren't judged by a field that means something else
   there. If the realm can't name such a subtype in a filter, the grant records
@@ -555,6 +568,15 @@ Some cards decide who may do what. No grant reaches them:
   } satisfies OperationDeclaration;
   ```
 
+**These refusals cover an operation invoked on one of these cards, not a card
+carried inside another's answer.** A granted `read`, or a row a `query` grant
+admits, is served with its whole link closure. If a granted type links to the
+config card or a policy card, every caller the grant admits receives that card
+— the policy's whole rule list — in `included`. The realm records
+`grant-reaches-ungranted-type` against such a grant (§8). Don't link to these
+cards from a granted type, or declare a narrower `links` on the read or the
+named query that serves it.
+
 Only the realm's own writers can change these cards. **Keep the field a
 predicate reads out of reach of the grant it authorizes**: a grant that lets a
 teacher `update` a classroom whose `teacherIds` admits them lets them add
@@ -572,6 +594,10 @@ How the realm refuses depends on whether the caller may read the realm:
 | A predicate threw and no other grant held   | 500 `policy-predicate-failed`                     | 404, identical to "not found"           |
 | The policy won't compile                    | 500 `internal-error`, "Policy unavailable" (on writes) | 500 `internal-error`, "Policy unavailable" |
 | Nobody signed in, on a gated route          | —                                                 | 401 `actor-required`                    |
+
+The codes are the `code` on an `_operations` error. A card+json route answers
+with the same status and a title, and its body carries no `code`, so over those
+routes the status is the whole answer.
 
 A caller who may not read the realm learns nothing about what exists: a card
 that isn't there and a card a grant refuses answer the same bytes. A realm with
