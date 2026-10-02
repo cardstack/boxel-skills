@@ -1,23 +1,51 @@
-## Use Boxel-UI Components
+## Use Pret UI and Boxel-UI Components
 
-**Important**: When using a boxel-ui component imported from `@cardstack/boxel-ui/components`, ALWAYS READ THE API. This will make sure you're using the correct variable names and values.
-
-Always prefer boxel-ui components over raw HTML elements. Import from `@cardstack/boxel-ui/components`:
+**Pret UI first.** Controls and display primitives come from Pret UI, one import per component from `@cardstack/pretui/components/<name>`:
 
 ```gts
-import {
-  Button,
-  CardContainer,
-  FieldContainer,
-  Header,
-  BoxelInput,
-  KanbanPlane,
-  Pill,
-  // ... other components as needed
-} from '@cardstack/boxel-ui/components';
+import { Button } from '@cardstack/pretui/components/button';
+import { Input } from '@cardstack/pretui/components/input';
+import { Select } from '@cardstack/pretui/components/select';
 ```
 
-### Component Reference
+**Important**: ALWAYS READ THE API before using a component. For Pret UI that is the `<name>.md` contract beside its `.gts`, with worked examples in `<name>.usage.gts`. For boxel-ui, read the component's signature in `@cardstack/boxel-ui/components`.
+
+Use a boxel-ui component only where Pret UI has no equivalent yet; those are listed under "boxel-ui components with no Pret UI equivalent" below. Pret UI is growing, so check its component list before reaching for boxel-ui. Never hand-roll a raw HTML control when either library has a component for it.
+
+### Pret UI replacements for boxel-ui components
+
+Use the Pret UI component in the right column, not the boxel-ui one on the left. Their args differ (`@kind` becomes `@tone` × `@appearance`, `@size='extra-small'` becomes `@size='xs'`, and so on), so read the Pret UI contract instead of carrying the boxel-ui args over.
+
+| boxel-ui | Pret UI |
+| --- | --- |
+| `Button` | `Button` |
+| `IconButton` | `IconButton` (required `@label`) |
+| `CopyButton` | `CopyButton` |
+| `BoxelInput` | `Input` |
+| `EmailInput` / `PhoneInput` | `EmailInput` / `PhoneInput` |
+| `BoxelSelect` / `BoxelMultiSelect` | `Select` / `MultiSelect` |
+| `RadioInput` | `RadioGroup` |
+| `Switch` | `Switch` |
+| `FieldContainer` | `Field` |
+| `Label` | `Label` |
+| `DateRangePicker` | `DateRangePicker` |
+| `Alert` | `Alert` |
+| `LoadingIndicator` / `CircleSpinner` | `Spinner` |
+| `ProgressBar` / `ProgressRadial` | `ProgressBar` / `ProgressRadial` |
+| `SkeletonPlaceholder` | `Skeleton` |
+| `Tooltip` | `Tooltip` |
+| `Accordion` | `Accordion` |
+| `Pill` (a status or tag value) | `Chip` |
+| `Swatch` | `Swatch` |
+| `Avatar` | `Avatar` |
+| `EntityDisplayWithIcon` / `EntityDisplayWithThumbnail` | `EntityDisplay` |
+| `Menu` | `Menu` |
+| `Modal` | `Dialog` (`AlertDialog` for a destructive confirmation) |
+| `ColorPalette` / `ColorPicker` | `ColorPalette` / `ColorPicker` |
+
+### boxel-ui components with no Pret UI equivalent
+
+Import these from `@cardstack/boxel-ui/components`.
 
 **Layout & Containers:**
 - `CardContainer` — wraps card content with correct border/shadow/padding. all cards are already wrapped in this.
@@ -32,84 +60,37 @@ import {
 - `TabbedHeader` — headers with tabs
 - `CardHeader` — card-specific header with icon, title, actions
 
-**Inputs & Forms:**
-- `BoxelInput` — most inputs
-- `EmailInput` / `PhoneInput` — specialized inputs
-- `BoxelSelect` / `BoxelMultiSelect` — dropdowns (single and multi-value; `BoxelMultiSelectBasic` for the unstyled multi-select)
-- `RadioInput` — radio buttons
-- `Switch` — toggle switch
-- `FieldContainer` — wraps a label + input with consistent spacing (use `@vertical={{true}}` for vertical)
-- `Label` — standalone label
-- `DateRangePicker` — date range selection
-
 **Buttons & Actions:**
-- `Button` — primary action button. `@kind` for primary/secondary/muted/destructive/text-only/primary-dark **and the chromeless link kinds `link`/`link-primary`/`link-muted`** (no background, no border, no min-height — the right choice for text that should read as a link, not a control). `@size` for `auto, base, extra-small, small, tall, touch`. `@as` picks the rendered element: `'button'` (default), `'anchor'` (+ `@href`), or `'link-to'` (+ `@route`/`@models`/`@query`).
-- `IconButton` — icon-only button (use `@variant` for primary/secondary/muted/destructive/text-only, `@size` for `auto, base, extra-small, small, tall, touch)
 - `ContextButton` — contextual action button (`@icon` for add, edit, close, delete, context-menu, context-menu-vertical; `@variant` for highlight, highlight-icon, ghost, destructive, destructive-icon)
-- `CopyButton` — copy-to-clipboard
-
-**Feedback & Status:**
-- `Alert` — informational alerts (use `@type` for warning/error)
-- `LoadingIndicator` — loading spinner
-- `CircleSpinner` — compact spinner
-- `ProgressBar` — linear progress
-- `ProgressRadial` — circular progress
-- `SkeletonPlaceholder` — loading skeleton
-- `Tooltip` — hover tooltips
 
 **Display & Data:**
-- `Accordion` — collapsible sections
-- `Pill` — inline status/badge (`@variant` for primary, secondary, accent, muted, destructive; use `@kind='button'` to make it a button)
-- `Swatch` — color swatch display
-- `Avatar` — user/entity avatar
-- `EntityDisplayWithIcon` / `EntityDisplayWithThumbnail` — entity visuals
+- `Pill` — only as a clickable pill (`@kind='button'`); a status or tag value is Pret UI `Chip`
 - `RealmIcon` — realm icon display
-- `FilterList` — filterable list
+- `FilterList` — flat or nested filter rows. Each `Filter` may carry a `count` (rendered at the row's end) and an `id` (the row's stable key; required when two filters can share a display name, and what keeps focus across a rebuild of the array). The `<:action as |filter|>` block renders a per-row control after the button, such as an `IconButton` with a `Tooltip`. Restyle through `--boxel-filter-*` knobs (`selected-background`, `hover-background`, `count-foreground`, …), never through its classes
 - `SortDropdown` — sort controls
 - `ViewSelector` — view mode toggle
-- `Menu` — dropdown menu
-- `Modal` — overlay dialogs
 - `BoxelDropdown` — dropdown container
 - `Message` — chat/message bubbles
-- `ColorPalette` / `ColorPicker` — color selection
 - `KanbanPlane` — preferred drag-and-drop interface for boards. Do not hand-roll pointer drag in card templates unless no boxel-ui component exists for the interaction.
 
 ### Don't neutralize a component — pick the variant
 
-If styling a boxel-ui component requires cancelling its own defaults, you picked the wrong component or the wrong variant. The tell is a `<style scoped>` block that zeroes out what the component brought:
+If styling a component requires cancelling its own defaults (`padding: 0`, `background: none`, `border: none` on its class), you picked the wrong component or the wrong variant. Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's contract first and look through `@tone` × `@appearance` and `@size` before writing a single override.
 
-**Wrong** — `Pill` stripped down to plain text, then re-styled from scratch:
-```gts
-<Pill class='meta-link' @tag={{if @model.url.length 'a'}} href={{@model.url}}>
-  <:default><@fields.label /></:default>
-</Pill>
-<style scoped>
-  .meta-link {
-    padding: 0;          /* fighting the component */
-    background: none;    /* fighting the component */
-    border: none;        /* fighting the component */
-    color: var(--boxel-500);
-    font-size: 0.75rem;
-  }
-</style>
-```
+### Replacing a raw control: state picks the variant, size picks the size, knobs do the rest
 
-**Right** — a variant that already has no chrome, leaving only genuinely bespoke declarations:
-```gts
-<Button class='meta-link' @as='anchor' @kind='link-muted' @size='extra-small' @href={{@model.url}}>
-  <@fields.label />
-</Button>
-<style scoped>
-  .meta-link {
-    font-family: var(--font-mono);
-    text-transform: uppercase;   /* nothing the component already provides */
-  }
-</style>
-```
+When a raw `<button>` (or `<input>`, `<select>`) becomes a Pret UI component, the old hand-written CSS does not move onto the component's class. It gets re-expressed through the component's API, in this order:
 
-Each cancelling declaration is invisible coupling to the component's current internals: it rots silently when the component changes, and it hides the fact that a purpose-built variant exists. Read the component's API first (see the top of this file) and look through `@kind` / `@variant` / `@size` before writing a single override.
+1. **Each visual state is a treatment.** A selected tab, a filled call to action, a quiet row: those are `@tone` × `@appearance` pairs, chosen per instance. A state that changes the look changes the pair: `@appearance={{if isActive 'accent' 'plain'}}`. Never pass `@variant`: it is deprecated sugar over the two axes, as is any argument a component's contract marks deprecated. Never keep an `.active` class that repaints background and text by hand; the component already owns those pairings and their hover states.
+2. **The size is an `@size`.** `xs`, `s`, `m`, `l` and `xl` set the host font-size only; height, padding, gap and radius scale from it in `em`. `@shape` (`rounded`, `pill`, `square`) sets the corner shape.
+3. **Whatever still differs goes through the component's per-instance custom properties, on your class.** `Button` reads `--pretui-button-h`, `--pretui-button-min-w`, `--pretui-button-px` and `--pretui-button-radius` on every appearance; `--pretui-button-bg` and `--pretui-button-fg` only on `accent` (`primary`, `destructive`) and `link`; `--pretui-button-secondary-bg` on `outlined` (`secondary`). A knob the chosen appearance does not read does nothing. Read the component source for the current list; the knobs are the API.
+4. **Layout that belongs to the parent stays on your class as plain properties**: `position`, `margin`, `flex` sizing, a `transition: none`. Nothing that the component paints.
 
-**Component args are not portable between components.** `@as` and `@href` are `Button`'s args. `Pill` has no `@as` — it takes `@tag` (a raw HTML tag name) and receives `href` as a plain attribute through `...attributes`. Never carry one component's arg names to another; check the signature.
+A rewrite that keeps `padding`, `font-size`, `font-weight`, `color` or `background-color` as plain declarations on the component's class, qualifies its selectors with a parent to out-rank the component's own rules, or adds a shared `font-family: inherit; line-height: inherit` reset over every converted control has not used the component. It has re-implemented the old button on top of it, and the two stylesheets now fight at every change to the component. Pret UI component styles sit in `@layer PretComponent`, so unlayered caller CSS always wins: an override never fails loudly, it just quietly replaces the component.
+
+Compute a state once with `{{#let}}` and feed it to the variant, a `cn` modifier class and any `aria-current` or `aria-pressed`; an icon inside a labeled control is `aria-hidden`. Buttons that switch which panel shows inside one card are `Tabs` unless the tabs need icons or badges, which `Tabs` cannot carry (its options are `{ value, label }` only); a set of mutually exclusive values (a view mode, a unit) is a `SegmentedControl` with a `@label`. For worked examples, read the component's `<name>.usage.gts` beside its `.md`, and `<name>.examples.gts` where there is one. When a look cannot be reached through variants, tones, appearances, sizes and knobs, that is a gap in the component, not a license to override it: add the knob or variant to Pret UI.
+
+**Component args are not portable between components.** Pret UI's `Button` takes `@href` to render an `<a>` and has no `@as`; boxel-ui's `@kind`, `@as` and `@rectangular` mean nothing to it. Never carry one component's arg names to another; check the signature.
 
 ### Drag/drop quality bar
 
@@ -121,14 +102,14 @@ For kanban/status/deal/task boards:
 - Include empty states, column counts, hidden/collapsed-column behavior, and WIP limits when the domain has limits.
 - If changing the reusable component, require pure engine tests and live component tests.
 
-### When a component is missing from boxel-ui
+### When a component is missing from both libraries
 
-If no existing component satisfies your need, write a self-contained Glimmer component in the same file (or a co-located file) that is structured so it could be contributed to the boxel-ui library later:
+If no existing component satisfies your need, write a self-contained Glimmer component in the same file (or a co-located file) that is structured so it could be contributed to Pret UI later:
 
-- Give it a clear, generic name (e.g. `StatusBadge`, `SectionHeader`, `AvatarGroup`)
+- Give it a clear, generic name (e.g. `SectionHeader`, `MetricTile`)
 - Declare a typed `interface Signature` block
 - Use only design tokens — no hardcoded colors
 - Use `<style scoped>` so styles do not leak
 - Keep component arguments minimal and semantic
 
-Add a TODO comment noting it should be moved to `@cardstack/boxel-ui/components` when it matures.
+Add a TODO comment noting it should be moved to `@cardstack/pretui/components` when it matures.

@@ -44,6 +44,8 @@ For a **declared** link, `isLoaded` means nothing is being fetched right now: ev
 Expose `isLoading` through a getter and bind it. The flagship case is a **query-backed `linksToMany`**, which runs a search to resolve:
 
 ```gts
+import { Spinner } from '@cardstack/pretui/components/spinner';
+
 class Matchmaker extends CardDef {
   @field cardTitle = contains(StringField);
   @field matches = linksToMany(() => Person, {
@@ -60,7 +62,7 @@ class Matchmaker extends CardDef {
   static isolated = class extends Component<typeof Matchmaker> {
     <template>
       {{#if @model.matchesLoading}}
-        <LoadingIndicator data-test-loading />
+        <Spinner aria-label='Loading matches' data-test-loading />
       {{/if}}
       {{#each @model.matches as |match|}}
         <PersonPill @person={{match}} />

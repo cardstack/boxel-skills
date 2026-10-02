@@ -263,6 +263,8 @@ When status pills need distinct colors per value, map each value onto one of the
 .status-pill.done  { background-color: var(--success); color: var(--success-foreground); }
 ```
 
+For a status or tag value with no icon, Pret UI `Chip` (`@cardstack/pretui/components/chip`) derives fill, ink, and hairline from one hue, so the map holds hues instead of classes: `<Chip @label={{get STATUS_LABELS @model.status}} @hue={{get STATUS_HUES @model.status}} />` with `STATUS_HUES = { done: 'var(--success)', … }`. Chip has no icon slot; keep the hand-rolled pill above when the value needs one.
+
 A status *word* on a neutral surface (no pill) takes the hue's ink token instead: `color: var(--success-ink)`. Both forms follow the Theme, so the per-status palette stays swappable. Tokens outside the contract (`--status-todo-bg`) have no default and no boundary reset, so they paint nothing under any theme that does not define them.
 
 ### Common mistake — ladder of `{{#if (eq …)}}`

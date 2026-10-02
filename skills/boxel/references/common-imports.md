@@ -2,7 +2,7 @@
 
 Use this before writing or finalizing `.gts` files. Missing imports compile late and usually cost a server render/lint repair turn, so treat import preflight as part of authoring.
 
-Research note: a May 2026 scan of active `boxel-workspaces` realm/source `.gts` files found the most common modules were `@cardstack/base/card-api`, base fields, `@cardstack/boxel-ui/helpers`, `@glimmer/tracking`, `@ember/modifier`, `@cardstack/boxel-ui/components`, `@ember/helper`, `@ember/object`, `ember-modifier`, and `ember-concurrency`. The common missing-import failures are template helpers/modifiers: `{{on ...}}`, `(fn ...)`, `concat`, `get`, `array`, `hash`, and Boxel helper predicates/formatters. `perform` is not a safe template helper in strict-mode realm GTS: do not import `ember-concurrency/helpers/perform`, and do not write `(perform this.someTask)`.
+Research note: a May 2026 scan of active `boxel-workspaces` realm/source `.gts` files found the most common modules were `@cardstack/base/card-api`, base fields, `@cardstack/boxel-ui/helpers`, `@glimmer/tracking`, `@ember/modifier`, `@cardstack/boxel-ui/components`, `@ember/helper`, `@ember/object`, `ember-modifier`, and `ember-concurrency` (that scan predates Pret UI; new controls import from `@cardstack/pretui/components/<name>`). The common missing-import failures are template helpers/modifiers: `{{on ...}}`, `(fn ...)`, `concat`, `get`, `array`, `hash`, and Boxel helper predicates/formatters. `perform` is not a safe template helper in strict-mode realm GTS: do not import `ember-concurrency/helpers/perform`, and do not write `(perform this.someTask)`.
 
 ## Import Preflight
 
@@ -184,42 +184,47 @@ startSave = () => {
 <Button {{on 'click' this.startSave}}>Save</Button>
 ```
 
-Boxel UI components:
+Pret UI components (controls and display primitives come from here first; one import per component, see `boxel-ui-guidelines/references/use-boxel-ui-components.md`):
+
+```gts
+import { Accordion } from '@cardstack/pretui/components/accordion';
+import { Avatar } from '@cardstack/pretui/components/avatar';
+import { Button } from '@cardstack/pretui/components/button';
+import { Chip } from '@cardstack/pretui/components/chip';
+import { ColorPicker } from '@cardstack/pretui/components/color-picker';
+import { CopyButton } from '@cardstack/pretui/components/copy-button';
+import { EmailInput } from '@cardstack/pretui/components/email-input';
+import { Field } from '@cardstack/pretui/components/field';
+import { IconButton } from '@cardstack/pretui/components/icon-button';
+import { Input } from '@cardstack/pretui/components/input';
+import { Menu } from '@cardstack/pretui/components/menu';
+import { MultiSelect } from '@cardstack/pretui/components/multi-select';
+import { PhoneInput } from '@cardstack/pretui/components/phone-input';
+import { ProgressBar } from '@cardstack/pretui/components/progress-bar';
+import { ProgressRadial } from '@cardstack/pretui/components/progress-radial';
+import { RadioGroup } from '@cardstack/pretui/components/radio-group';
+import { Select } from '@cardstack/pretui/components/select';
+import { Skeleton } from '@cardstack/pretui/components/skeleton';
+import { Spinner } from '@cardstack/pretui/components/spinner';
+import { Swatch } from '@cardstack/pretui/components/swatch';
+import { Switch } from '@cardstack/pretui/components/switch';
+import { Tooltip } from '@cardstack/pretui/components/tooltip';
+```
+
+Boxel UI components (only those with no Pret UI equivalent yet):
 
 ```gts
 import {
-  Accordion,
-  Avatar,
   BoxelContainer,
-  BoxelInput,
-  BoxelMultiSelect,
-  BoxelSelect,
-  Button,
-  CircleSpinner,
-  ColorPicker,
   ContextButton,
-  CopyButton,
   BoxelDropdown,
-  EmailInput,
-  FieldContainer,
   FilterList,
   FittedCard,
   FittedCardContainer,
   GridContainer,
-  IconButton,
-  LoadingIndicator,
-  Menu,
-  PhoneInput,
-  Pill,
-  ProgressBar,
-  ProgressRadial,
-  RadioInput,
-  SkeletonPlaceholder,
+  Pill, // only as a clickable pill; a status or tag value is Pret UI Chip
   SortDropdown,
-  Swatch,
-  Switch,
   TabbedHeader,
-  Tooltip,
   ViewSelector,
 } from '@cardstack/boxel-ui/components';
 ```

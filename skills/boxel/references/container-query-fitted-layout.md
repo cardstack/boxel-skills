@@ -36,10 +36,11 @@ For standard fitted compositions — image/placeholder + eyebrow + title + subti
 
 ```gts
 import { FittedCard } from '@cardstack/boxel-ui/components';
+import { Chip } from '@cardstack/pretui/components/chip';
 
 <FittedCard @imageUrl={{@model.imageUrl}} @imageAlt={{@model.cardTitle}}>
   <:placeholder><BookOpen width='24' height='24' /></:placeholder>
-  <:badgeLeft><Pill @size='extra-small'>New</Pill></:badgeLeft>
+  <:badgeLeft><Chip @label='New' /></:badgeLeft>
   <:eyebrow>Non-fiction</:eyebrow>
   <:title><@fields.cardTitle /></:title>
   <:subtitle><@fields.cardDescription /></:subtitle>

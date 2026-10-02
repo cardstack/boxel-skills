@@ -232,9 +232,9 @@ static isolated = class Isolated extends Component<typeof BlogPost> { // Isolate
       
       {{#if (gt @model.commentCount 0)}}
       <div>
-        <Button 
-          @kind="text-only" 
-          @size="extra-small" 
+        <Button
+          @variant="ghost"
+          @size="xs"
           class="comment-button"
           {{on 'click' this.toggleComments}}
         >
