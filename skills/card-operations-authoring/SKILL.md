@@ -1069,8 +1069,11 @@ not-found. Until a write's grant is decided, anything else the realm would
 answer about the write is masked the same way, unless the grant's predicate
 holds against the card as stored: a card+json write's 400 for a body it can't
 use, its 405, its 412 for a conditional write whose version moved, its 415.
-A predicate that throws is logged on the realm's `realm:policy` channel, which
-is where the policy's author finds it.
+A predicate that throws is hidden from such a caller behind that 404; the
+policy's author finds it by explaining the decision, which answers
+`predicate-threw` (see
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md)), or as a
+caller who may read the realm, who gets the 500.
 
 **Nobody signed in.** On the routes that consume the outcome of the realm's
 permissions — the ones a grant can reach — in a realm that names a policy, a
