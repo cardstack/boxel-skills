@@ -20,9 +20,9 @@ values in here — this file is the card-side vocabulary, not a mirror.
 |---|---|---|---|---|---|
 | **discrete-feedback** | an event; fixed duration | CSS `transition` | `ease-out` (`cubic-bezier(0,0,.2,1)`) / `ease-in-out` / `ease-in` | 120 / 200 / 280 ms | 0 / 40 / 60 ms |
 | **staged-arrival** | load, or the screen's one moment | CSS `@keyframes` + `animation-delay`, `both` | `cubic-bezier(.22,1,.36,1)` / `cubic-bezier(.65,0,.35,1)` / `cubic-bezier(.4,0,1,1)` | 240 / 480 / 900 ms | 60 / 90 / 140 ms |
-| **scrub-welded** | scroll position, 1:1 | CSS `animation-timeline: view()` where supported; the scrub modifier from `show-scroll-reveal-and-scrub` writing `--progress` | `none` — the scrollbar is the ease | — (the runway length is the duration) | per-element offset in scroll %, not ms |
-| **scrub-lagged** | scroll position through a filter | a per-frame loop: `--progress` lerped at 0.1 per frame, or a library `scrub: 1` + a 0.5 s `power3.out` catch-up tween | `power2.out` / `none` / `power2.in` | 300 / 600 / 1370 ms catch-up | 75 / 100 / 250 ms |
-| **pointer-follow** | a live input through a filter | a per-frame loop: target lerped at 0.12–0.18 per frame | `power2.out` / `power2.inOut` / `power2.inOut` | 250 / 300 / 2000 ms | 75 / 100 / 100 ms |
+| **scrub-welded** | scroll position, 1:1 | the scrub modifier from `show-scroll-reveal-and-scrub` writing `--progress`; `animation-timeline: view()` only as an `@supports` enhancement on an element the modifier does not drive | `none` — the scrollbar is the ease | — (the runway length is the duration) | per-element offset in scroll %, not ms |
+| **scrub-lagged** | scroll position through a filter | the scrub modifier with `lag` (a damping time constant): `{{scrollScrub lag=160}}`. Always JS — CSS scroll timelines cannot lag | `cubic-bezier(.215,.61,.355,1)` / `none` / `cubic-bezier(.55,.055,.675,.19)` | `lag` 100 / 200 / 450 ms | 75 / 100 / 250 ms |
+| **pointer-follow** | a live input through a filter | a per-frame loop in a modifier stepping with the pattern's `damp()`, τ 85–130 ms | `cubic-bezier(.215,.61,.355,1)` / `cubic-bezier(.645,.045,.355,1)` / `cubic-bezier(.645,.045,.355,1)` | 250 / 300 / 2000 ms | 75 / 100 / 100 ms |
 
 **discrete-feedback is what the Interaction table already specifies.** A unit whose motion is all
 discrete has this system implicitly and never needs a `## Motion` section. It is listed so the other four
@@ -36,14 +36,13 @@ same vocabulary as its arc.
   way → **scrub-welded** by default. It is the cheap one: no per-frame JS after the measure, CSS
   where supported, reversible for free, and it reads as *precise*.
 - The reference site has the trailing, momentum-like glide (you stop scrolling and the subject
-  keeps travelling ~1 s) → **scrub-lagged**, and it is a **library** or per-frame-loop row. Say so
-  in the Engine table; it is the single most common difference between "moves" and "moves like the
-  reference", and the single most common reason a library gets pulled in.
+  keeps travelling ~1 s) → **scrub-lagged**, the scrub modifier with `lag`. Say so in the Engine table; it is
+  the single most common difference between "moves" and "moves like the reference".
 - **Orbit**, **camera parallax**, a cursor-following element → **pointer-follow**. It never ends
   by itself; the modifier must stop the loop on `willDestroy` and when the card leaves view.
 - **Scroll parallax**, a **reading-progress line**, **scroll snap** → they ride on whichever scrub
   system the unit already has (parallax and progress are `--progress` consumers; snap is a CSS
-  property on the scroller). They never justify a system of their own or a library row.
+  property on the scroller). They never justify a system or a loop of their own.
 - **Marquee** is the one continuous loop with no input — it belongs to no system. Linear, one lap
   20–40 s, paused under reduced motion and on hover; write it as its own Effect row with
   `trigger: none (loop)` so the reviewer's motion-off pass knows to expect it stopped.
@@ -55,9 +54,14 @@ short enough that the difference does not read.
 ## Custom eases
 
 Name one per unit at most, define it once on the root (`--ease-hop: cubic-bezier(.8,0,.1,1)`),
-and reference it by that property everywhere. A library `CustomEase.create('hop', …)` is global to
-the page and collides with any other card that registers the same name — prefix it with the unit
-(`'{unit}-hop'`).
+and reference it by that property everywhere. Prefix the name with the unit (`--{unit}-ease-hop`)
+when the card can render inside another that defines its own. `element.animate()` does not accept
+`var()` as `easing`; a JS beat reads the value first:
+`getComputedStyle(root).getPropertyValue('--ease-hop').trim()`.
+
+**Lag and duration columns.** For scrub-lagged and pointer-follow, the ease and duration columns
+govern their discrete state changes (a panel opening inside the scene); the follow itself has no
+ease or duration, only its time constant: `lag` for the scrub, τ for pointer-follow.
 
 ## Writing the numbers into rows
 

@@ -15,7 +15,7 @@ against this list.
 - **Scroll-linked motion measures against the card's scrolling element.** `IntersectionObserver`
   with `root: null` observes the viewport, which does not move when the card's content scrolls; it
   fires at the wrong time or never, with no error. Walk up to the nearest ancestor whose computed
-  `overflow-y` is `auto`/`scroll`. A library's `scroller:` option gets the same element.
+  `overflow-y` is `auto`/`scroll`.
 - **Do not intercept the wheel.** From inside the card you lose; the page scrolls vertically and
   nothing moves. Build a runway instead (§2) so wheel, trackpad, keyboard, touch and the scrollbar
   all work untouched.
@@ -65,7 +65,8 @@ into its animation window). There is no safe set of delays because the safe wind
 - Where a fade is genuinely the design, put it on a state the user triggers — hover, selection, a
   scroll-linked crossfade driven by a custom property with a default of 1:
   `opacity: calc(0.12 + 0.88 * var(--presence, 1))`. No modifier, no JS, a pre-frame capture → 1.
-- A library `from()` entrance has the same problem. Keep one constant (`ENTRANCE_WINDOW_MS`) that
+- A JS entrance (`element.animate()`) has the same problem. Give it `fill: 'backwards'`, so the
+  element's own CSS stays the resting state once it ends. Keep one constant (`ENTRANCE_WINDOW_MS`) that
   disables it, so the final layout can be verified with a push + touch + capture and restored.
 
 ## 4. Size against the container, never the viewport
@@ -110,29 +111,39 @@ The host uses no iframes; a card can be open in two stacks. So:
   instance data**. Shapes or values that come from linked cards are interpolated in JS (a
   ~30-line lerp over the number lists of two path `d` strings, exact when every shape shares one
   command sequence) and written to a custom property or attribute.
-- A library global (`CustomEase.create('hop')`, `gsap.registerPlugin`) is page-global. Prefix
-  names with the unit; register plugins idempotently.
+- `@property` registrations and `@keyframes` names can be page-global. Prefix them with the unit,
+  or register `@property` identically everywhere.
 - Per-frame loops (`scrub-lagged`, `pointer-follow`) stop on `willDestroy` and when the card leaves
   view; nothing in a reference component does this because nothing there is ever unmounted.
 
-## 6. Loading a library
+## 6. No animation libraries
 
-- Decided in `## Motion` as a library row naming the host; loaded once theming and wiring begin.
-  `boxel/references/external-libraries.md` has the async CDN modifier
-  shape; the realm-bundled route is
-  `boxel-patterns/references/integration-surfaces.md` §6.
-- gsap loads the Leaflet way and works: fetch
-  `https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js`, evaluate with
-  `new Function('module','exports', code)`, take `exports.gsap`; plugins the same, then
-  `registerPlugin`. Start the fetch at module evaluation so it is ready by first render. Pin the
-  version in the URL and record it in the library row.
+A card's motion is CSS, or plain JS in a modifier. No gsap, ScrollTrigger, SplitText, Lenis, and no
+script fetched from a CDN for motion: each one is third-party code running in every viewer's
+browser, weight on every card that ships it, and a page-global registry that a second card can
+collide with. Evaluating fetched code (`new Function`, `eval`) also needs `unsafe-eval`, which any
+strict CSP blocks. The supported card-motion vocabulary does not need one.
+
+A helper copied from a repo pattern — `damp()` and the modifiers in
+`show-scroll-reveal-and-scrub` — is plain JS, not a library. Reuse it.
+
 - Reference components use bare specifiers (`import gsap from "gsap"`) and absolute asset paths
-  (`/c/<slug>/img.jpg`); neither resolves in a card. Translate the import; host the assets on the
-  realm or an `ImageSourceField`.
-- Before pulling a library, check the beat is not already CSS: a single scrubbed subject is
-  `animation-timeline: view()` plus the scrub modifier fallback; a text split is pre-split spans;
-  a reveal is the reveal modifier. The library row is for **scrub-lagged**, **pointer-follow**,
-  Flip-style layout transitions, and a canvas.
+  (`/c/<slug>/img.jpg`); neither resolves in a card. Port the *effect*, not the import, and host
+  the assets on the realm or an `ImageSourceField`.
+- What each library job becomes:
+
+  | The reference uses | In a card |
+  |---|---|
+  | a scrubbed subject, `ScrollTrigger` `scrub: true` | the scrub modifier writing `--progress` (welded). `animation-timeline: view()` only as an `@supports` enhancement on an element the modifier does not drive |
+  | `scrub: 1`, a trailing catch-up | the scrub modifier with `lag` — `{{scrollScrub lag=160}}`, a time constant in ms. Always JS: CSS scroll timelines cannot lag |
+  | a pinned section | `position: sticky` in the runway (§2) |
+  | `SplitText` | spans split in the template, or by a few lines of JS in a modifier |
+  | a reveal | the reveal modifier from `show-scroll-reveal-and-scrub` |
+  | cursor follow, orbit | a rAF loop stepping with the pattern's `damp()` at τ 85–130 ms, stopped on `willDestroy` and when the card leaves view |
+  | `Flip` layout transitions | View Transitions (`link-view-transition`) or `element.animate()` |
+  | a canvas effect | a `<canvas>` drawn with plain JS (2D) in a modifier |
+  | `MorphSVG` | **not available**: two paths with the same command sequence can be interpolated in JS (§5); otherwise a crossfade or a mask reveal |
+  | `CustomEase` | one `cubic-bezier()` on a root custom property (`motion-systems.md` → *Custom eases*) |
 
 ## 7. Rendering linked cards inside the scene
 

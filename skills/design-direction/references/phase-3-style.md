@@ -17,7 +17,7 @@ two different things, and the skill used to read only the first:
 | Column | What goes in it | What happens to it |
 |---|---|---|
 | **Livery** | palette, type, spacing, imagery treatment, density | borrowable — feeds the three fields below |
-| **Technique** | how it moves and unfolds: scroll-linked progress, pinned sequences, text splitting, ambient canvas, smooth scroll, each marked **CSS-achievable / needs a library / not available in a card** per [`references/interaction-ways.md`](interaction-ways.md) → *Narrative ways* | shown to the user as a structured choice — which of these matter here? |
+| **Technique** | how it moves and unfolds: scroll-linked progress, pinned sequences, text splitting, ambient canvas, smooth scroll, each marked **CSS-achievable / needs JS / not available in a card** per [`references/interaction-ways.md`](interaction-ways.md) → *Narrative ways* | shown to the user as a structured choice — which of these matter here? |
 
 Ask that one question with the technique column, because "like this site" usually means one or
 two techniques, not the palette — and a technique marked *needs a library* is named as a

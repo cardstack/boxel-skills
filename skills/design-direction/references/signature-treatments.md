@@ -47,11 +47,12 @@ so decide these in Phase 3 rather than at build time:
 - **One element, `transform` and `opacity` only.** `rotate`, `scale`, `translate` and opacity are
   compositor properties — they animate without layout or paint. Scrubbing `width`, `top`, `filter`
   or a box-shadow instead is the same effect at many times the cost, and it is what makes a
-  scroll page feel heavy. Pure CSS handles this with `animation-timeline: view()` and `@keyframes`
-  on the transform; **no library is needed for a single subject.**
+  scroll page feel heavy. The scrub modifier writing `--progress` drives the transform in every
+  browser (`animation-timeline: view()` only as an `@supports` enhancement); **no library is needed
+  for a single subject.**
 - **A frame sequence is a different, much larger thing.** The Apple-style effect where the object is
   really a few hundred pre-rendered stills swapped by scroll position is a canvas plus a preload
-  budget, not a transform — it becomes a library capability the build sources, and a real weight decision.
+  budget, not a transform — it becomes a JS way (a canvas drawn in a modifier), and a real weight decision.
   Say which of the two you mean; they are not interchangeable and the cheap one is usually enough.
 - **The still frame carries the composition.** The subject must be well placed and well cropped at
   its resting pose, because that is what a reduced-motion reader, a screenshot and every capture in

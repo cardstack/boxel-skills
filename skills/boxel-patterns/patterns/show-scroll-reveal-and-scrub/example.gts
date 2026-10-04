@@ -42,6 +42,20 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+// Frame-rate-independent exponential damping. `tauMs` is the time constant:
+// after tauMs the value has covered 63% of the distance, after 3 × tauMs 95%.
+// A per-frame factor (`current += (target - current) * 0.1`) settles twice as
+// fast on a 120 Hz screen as on 60 Hz; this does not. Shared by the lagged
+// scrub below and by any pointer-follow loop.
+export function damp(
+  current: number,
+  target: number,
+  tauMs: number,
+  dtMs: number,
+): number {
+  return current + (target - current) * (1 - Math.exp(-dtMs / tauMs));
+}
+
 // ---------------------------------------------------------------------------
 // 1. revealOnScroll — a block animates in ONCE as it enters the card's view.
 //
@@ -98,15 +112,26 @@ export const revealOnScroll = modifier(
 //    Applied to the TRACK. Writes `--progress` (0 → 1) on the track and
 //    `--scroller-h` (px) so the CSS can size the track without vw/vh.
 //    Expects one `[data-scrub-stage]` descendant, which is `position: sticky`.
+//
+//    `lag` (ms, default 0) is the scrub-lagged system: `--progress` trails the
+//    scroll position and keeps travelling after the reader stops, damped with
+//    time constant `lag`. 0 is welded (1:1). CSS scroll timelines cannot lag,
+//    so a lagged scrub is always this modifier.
+//
+//    This modifier is the default scrub engine. `animation-timeline: view()`
+//    is an optional enhancement only: if a card uses it, put it under
+//    `@supports (animation-timeline: view())` and do not also apply this
+//    modifier to the same element, so two engines never drive one property.
 // ---------------------------------------------------------------------------
 
 export const scrollScrub = modifier(
   (
     track: HTMLElement,
     _positional: [],
-    named: { restProgress?: number },
+    named: { restProgress?: number; lag?: number },
   ) => {
     const restProgress = named.restProgress ?? 0;
+    const lag = named.lag ?? 0;
 
     const stage = track.querySelector('[data-scrub-stage]') as HTMLElement | null;
     // Host mode: the card IS the page. No scroller exists above the root (or the
@@ -133,7 +158,7 @@ export const scrollScrub = modifier(
       track.style.setProperty('--scroller-h', `${scroller.clientHeight}px`);
     };
 
-    const update = () => {
+    const scrollProgress = () => {
       // Relative to the SCROLLER's box, not the viewport's. Using the raw
       // viewport top only works when the scroller happens to start at the top
       // of the screen, which is exactly the bug that survives local testing —
@@ -142,33 +167,52 @@ export const scrollScrub = modifier(
         ? track.getBoundingClientRect().top
         : track.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
       const travel = Math.max(1, track.offsetHeight - stage.offsetHeight);
-      write(Math.min(1, Math.max(0, -top / travel)));
+      return Math.min(1, Math.max(0, -top / travel));
     };
 
-    // Coalesce to one measure per frame; a scroll listener can otherwise run
-    // several times between paints.
+    // One step per frame; a scroll listener can otherwise run several times
+    // between paints. Welded: write the measured value. Lagged: damp toward
+    // it and keep stepping until it lands, then stop — no idle loop.
+    let current: number | null = null;
     let frame = 0;
-    const onScroll = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        update();
-      });
+    let last = 0;
+    const step = (now: number) => {
+      frame = 0;
+      const target = scrollProgress();
+      if (!lag || current === null) {
+        // The first step snaps, so a capture or a restored scroll position
+        // shows the right state at once instead of gliding in from 0.
+        current = target;
+      } else {
+        const dt = last ? Math.min(now - last, 64) : 16.7; // clamp tab-inactive gaps
+        current = damp(current, target, lag, dt);
+        if (Math.abs(target - current) < 0.0005) current = target; // land exactly
+      }
+      write(current);
+      if (current !== target) {
+        last = now;
+        frame = requestAnimationFrame(step);
+      } else {
+        last = 0;
+      }
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(step);
     };
 
     const resizeObserver = new ResizeObserver(() => {
       measure();
-      update();
+      schedule();
     });
     resizeObserver.observe(scroller);
 
     measure();
-    update();
-    const target: EventTarget = isPage ? window : scroller;
-    target.addEventListener('scroll', onScroll, { passive: true });
+    step(performance.now());
+    const scrollTarget: EventTarget = isPage ? window : scroller;
+    scrollTarget.addEventListener('scroll', schedule, { passive: true });
 
     return () => {
-      target.removeEventListener('scroll', onScroll);
+      scrollTarget.removeEventListener('scroll', schedule);
       resizeObserver.disconnect();
       if (frame) cancelAnimationFrame(frame);
     };

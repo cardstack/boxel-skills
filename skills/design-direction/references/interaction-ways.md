@@ -5,8 +5,8 @@
 | Layer | Question | Written in | Applies to |
 |---|---|---|---|
 | [`boxel-design/references/motion-baseline.md`](../../boxel-design/references/motion-baseline.md) | the CSS motion every build ships: arrival, scroll reveal, hover feedback, one ambient loop | automatic, in the style family's motion character | every user-facing unit |
-| **This file** → `## Design direction` Interaction table and Narrative arc | *which* way, its budget, its fallback, whether it is CSS or a library capability | one line per action, three beats per arc | every unit |
-| `motion-authoring` → `## Motion` | *exactly how* — offsets, eases, the geometry the effect depends on, the library call | one row per beat | only units with an arc, a scrubbed subject, a direct-manipulation way or a library capability |
+| **This file** → `## Design direction` Interaction table and Narrative arc | *which* way, its budget, its fallback, whether it is CSS or JS | one line per action, three beats per arc | every unit |
+| `motion-authoring` → `## Motion` | *exactly how* — offsets, eases, the geometry the effect depends on, the JS loop | one row per beat | only units with an arc, a scrubbed subject, a direct-manipulation way or a JS way |
 | `design-review` | *did it land* — captures at the arc's three points, motion-off pass | a score | after the build |
 
 So "scroll parallax" is **named** here (with its cap), **specified** in `## Motion` (which layers,
@@ -163,11 +163,12 @@ of the budgets above apply to it. Its own rules:
 |---|---|---|
 | **Staggered arrival** — regions enter in reading order on load | the page assembling itself | CSS: `@keyframes` + `animation-delay`, `animation-fill-mode: both` |
 | **Scroll-triggered reveal** — each block animates in as it enters view | the page arriving as you read it | **no library needed** — either CSS `animation-timeline: view()`, or an `IntersectionObserver` in a Modifier. See the note below |
-| **Scroll-linked progress** — an element's state follows scroll position | the reader drives the story | CSS scroll-driven animations (`animation-timeline: scroll()` / `view()`) where supported; otherwise a **library**. When what follows the scroll is the unit's one subject — a bottle turning, a device scaling — that is a signature decision: see *The scroll-scrubbed subject* in [`signature-treatments.md`](signature-treatments.md) |
+| **Scroll-linked progress** — an element's state follows scroll position | the reader drives the story | **JS**: the scrub modifier in `show-scroll-reveal-and-scrub`, which works in every browser. CSS `animation-timeline: scroll()` / `view()` only as an `@supports` enhancement, never on an element the modifier also drives. When what follows the scroll is the unit's one subject — a bottle turning, a device scaling — that is a signature decision: see *The scroll-scrubbed subject* in [`signature-treatments.md`](signature-treatments.md) |
 | **Pinned sequence** — a region holds while content passes | a chapter | CSS `position: sticky` for the hold; the passing content is scroll-linked as above |
-| **Text split reveal** — a headline arrives by word or character | emphasis | CSS on pre-split spans; splitting itself is a **library** or a build-time step |
-| **Ambient canvas** — particles, grain, shader | atmosphere | a `<canvas>` in a Modifier; a **library** for anything beyond drawing points |
+| **Text split reveal** — a headline arrives by word or character | emphasis | CSS on spans split in the template, or by a few lines of **JS** in a Modifier |
+| **Ambient canvas** — particles, grain | atmosphere | **JS**: a `<canvas>` drawn in a Modifier, plain 2D drawing |
 | **Smooth / inertial scroll** — the scroller itself eased | polish | **not available** in a card — the host owns the pane's scroll physics |
+| **Shape morph** — one SVG shape becoming a different one | transformation | **not available** in a card, unless both paths share one command sequence (then **JS** interpolation). Otherwise a crossfade or a mask reveal |
 | **Scroll parallax** — fore, mid and back layers travel at different rates | depth while reading | scroll-linked progress on two or three layers, `transform` only. **Amplitude is capped**: the fastest layer moves at most 1.25× the slowest, and the background never more than 8% of the stage height over the whole runway — past that it reads as the page sliding apart, and it is the commonest way a scroll page makes people ill |
 | **Reading progress** — a thin line or figure that fills as the page is read | orientation on a long page | **CSS only**: `transform: scaleX(var(--progress))` on a 2px line, fed by the same `--progress` the scrub modifier already writes. Belongs on a long `isolated` read; never on a screen shorter than two stages |
 | **Scroll snap** — the scroller aligns to a chapter or card after each scroll | chapters, a horizontal set | **CSS only**: `scroll-snap-type` on the card's own scroller, `scroll-snap-align` on each chapter. **Mutually exclusive with a runway / pinned sequence** — snap points and a sticky stage fight over the same scroll position. `proximity`, never `mandatory`, on any pane that also holds text taller than one stage |
@@ -215,15 +216,14 @@ Four rules:
   usually too small to have a meaningful scroll; a reveal there just means content that is not there.
 
 Record each narrative way in `## Design direction` under **Narrative arc** with its achievability column. A
-way marked **library** is named here as a *capability* — "scroll-linked progress", "text split" —
-and the library choice is the build's, per upstream's
-[`external-libraries.md`](../../boxel/references/external-libraries.md), which owns how it is
-loaded. This file never names a library, for the same reason Phase 3 never names a style menu.
+way marked **JS** is named here as a *capability* — "scroll-linked progress", "pointer-follow" —
+and `motion-authoring` writes how it runs. No way needs an animation library: a card's motion is
+CSS, or plain JS in a Modifier.
 
 **The arc is a brief, not a build.** Three beats and a budget tell a builder *what* unfolds; the
 start and end offsets, the easing, whether the subject lags the scroll, and the CSS geometry the
 effect depends on are not decided here and must not be improvised while the first screen is being built. When a unit records a
-Narrative arc, a scroll-scrubbed subject, a direct-manipulation way or any way marked *library*,
+Narrative arc, a scroll-scrubbed subject, a direct-manipulation way or any way marked *JS*,
 `motion-authoring` writes those numbers into a `## Motion` section on the same brief card, after `## Design direction`, before those beats are built.
 Units whose motion is all discrete feedback never get one — the Interaction table is their whole
 motion spec.

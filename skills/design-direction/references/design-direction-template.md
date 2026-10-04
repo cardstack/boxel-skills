@@ -53,7 +53,7 @@ only — no hex, fonts, px or layout words. Every section below is argued from i
 - **Still frame**: {what the page is with no motion at all — this must stand alone}
 - **Beats, in order**: {1. what arrives / moves first} → {2.} → {3.}
 - **Total budget**: {time until the fold has settled} · {scroll consumed by the arc}
-- **Ways and achievability**: {way — CSS | library → capability {name}, sourced by the build | not available}
+- **Ways and achievability**: {way — CSS | JS → capability {name} | not available}
 - **Serves**: {the signature treatment it reveals — it is never a second one}
 - **Reference for the motion**: {URL, or none — kept so "moves like it" can be checked}
 - **Numbers**: `## Motion`, written by `motion-authoring` — this block never carries eases, offsets or per-beat durations

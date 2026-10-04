@@ -123,7 +123,7 @@ Score and name the specific thing behind each number:
   the score at 8 however good the static work is. When `## Design direction` records a **Narrative arc**,
   score against it: do the beats arrive in the recorded order, does the still frame stand alone
   with motion off, does the arc reveal the signature rather than compete with it, and is any way
-  marked *library* actually loaded rather than approximated. Capture at least three points along
+  marked *JS* actually running rather than approximated. Capture at least three points along
   the arc — a single screenshot cannot show a sequence. When a the `## Motion` section from `motion-authoring` sits
   beside it, the three points are its **Net journey** lines (start / mid / end), the numbers to
   check are its Effect rows, and the `## Assumed` list names the numbers nobody chose — read those

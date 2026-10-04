@@ -11,11 +11,11 @@ A page with no motion at all reads as unfinished. What it ships is small, cheap 
 | Layer | What | Owner |
 |---|---|---|
 | **Baseline** (this file) | CSS only: staggered arrival, scroll reveal, hover and press feedback, at most one ambient loop | `boxel-design`, applied automatically |
-| **Heavy** | a scroll-scrubbed subject, a pinned sequence, a library, pointer-follow, a spatial scene | [`motion-authoring`](../../motion-authoring/SKILL.md), only when `## Design direction` or the user asks for it |
+| **Heavy** | a scroll-scrubbed subject, a pinned sequence, a per-frame JS loop, pointer-follow, a spatial scene | [`motion-authoring`](../../motion-authoring/SKILL.md), only when `## Design direction` or the user asks for it |
 
 If a unit has a `## Motion` section, its motion system governs: baseline rows that disagree with it
-yield, and no baseline row may use a second ease or duration set. Baseline never adds a library,
-a `<script>` or a per-frame loop.
+yield, and no baseline row may use a second ease or duration set. Baseline never adds a `<script>`
+or a per-frame loop, and no layer adds an animation library.
 
 ## Pick the character from the family
 

@@ -109,6 +109,13 @@ element, and on an attribute that a later restyle will not rename out from under
 - **Coalesce with `rAF`.** A scroll listener that measures and writes synchronously can run several
   times per frame. Guard with a pending-frame flag and cancel it in teardown. Listen `passive: true`
   — the scrub never calls `preventDefault`.
+- **Lag is a time constant, not a per-frame factor.** `{{scrollScrub lag=160}}` makes `--progress`
+  trail the scroll and keep travelling after the reader stops (the scrub-lagged feel). It uses the
+  exported `damp()`, which settles in the same time at 60 Hz and 120 Hz; a per-frame factor like
+  `* 0.1` settles twice as fast on a 120 Hz screen. `0.1` per frame at 60 Hz ≈ `lag=160`. The loop
+  stops once it lands, and the first step snaps, so a capture never catches it mid-glide.
+- **This modifier is the default scrub engine.** CSS `animation-timeline: view()` is optional, behind
+  `@supports`, and never on an element this modifier also drives.
 - **Scrub `transform` and `opacity` only.** They composite without layout or paint. Scrubbing
   `width`, `top`, `filter` or a box-shadow is the same effect at many times the cost, and it is what
   makes a scroll page feel heavy.
@@ -147,7 +154,7 @@ If the subject is a video and scroll is meant to drive playback, the target of t
 one precondition that decides whether any of it works.
 
 ```js
-// inside the rAF loop, with `target` already lerped toward the scroll progress
+// inside the rAF step, with `target` already damped toward the scroll progress
 if (!video.seeking && Math.abs(video.currentTime - target) > 0.01) {
   video.currentTime = target;
 }
@@ -157,8 +164,8 @@ if (!video.seeking && Math.abs(video.currentTime - target) > 0.01) {
 decoder has finished delivering the last one. Without it every frame of the loop queues another
 seek, the decoder is flooded, and the result is freezing, black frames and stutter — the exact
 symptom the effect is supposed to avoid. The `0.01` epsilon stops a seek being issued for a
-difference too small to see. Pair it with the same lerp the transform variant uses
-(`current += (target - current) * 0.08`); the easing is what gives the scrub weight instead of snap.
+difference too small to see. Pair it with the same damping the lagged transform uses
+(`damp(current, target, lag, dt)`, `lag` ≈ 200 ms); the damping is what gives the scrub weight instead of snap.
 
 **The precondition, and the reason most scrub video stutters anyway.** A normally-encoded MP4 places
 keyframes every few seconds, so seeking to an arbitrary time decodes forward from the last one. No
@@ -171,7 +178,7 @@ Three more obligations, two of them specific to running inside a card:
 
 - **Weight is a decision, not a detail.** A keyframe-dense scrub asset is commonly 5–20 MB. In a
   realm that is a FileDef with a real cost, or a remote URL with a real dependency — either way it
-  belongs in the `## Motion` section's library rows beside any other external asset, not slipped in as "the hero video".
+  belongs in the `## Motion` section's Engine table as a named asset with its size, not slipped in as "the hero video".
 - **The poster frame is the resting state.** With the loop never running — reduced motion, a
   capture, an error — the element shows one frame. Choose it deliberately with a `poster`, because
   frame 0 of a scrub asset is usually black. Same rule as every other motion here: the still state

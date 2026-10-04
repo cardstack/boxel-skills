@@ -7,7 +7,7 @@ description: >-
   · ease, and the three capture points. Opt-in: use it only when `## Design direction` already asked for
   narrative or continuous motion
   (a Narrative arc, a scroll-scrubbed subject, a spatial model of perspective or scene, an Interaction
-  row marked library, or a reference site the user wants "to move like"), after the `## Design direction` section is written
+  row marked JS, or a reference site the user wants "to move like"), after the `## Design direction` section is written
   and before those beats are built, or when a built arc "doesn't feel like the reference". Not for
   the baseline motion every build already ships (`boxel-design/references/motion-baseline.md`), and not for
   motion that is only discrete feedback under 400 ms — and not for deciding whether a unit moves (that
@@ -24,7 +24,7 @@ _Write the motion the way the best prompt libraries do._
 |---|---|
 | **Reads** | The unit's brief card: its `designDirection` field — Narrative arc, signature treatment, spatial model, Interaction table — and the layout block of the screen the arc lives on |
 | **Writes** | The `motion` field of that same brief card, and nothing else: no markdown files, no other field |
-| **Stops when** | The field is written and read back, each beat and library row is reported in one line, and the next stage is offered as a choice. It never builds and never scores |
+| **Stops when** | The field is written and read back, each beat is reported in one line, and the next stage is offered as a choice. It never builds and never scores |
 
 Everywhere below, `## Design direction` means the brief card's `designDirection` field and
 `## Motion` its `motion` field.
@@ -65,7 +65,7 @@ also what most units do not want. Open this skill only when the `## Design direc
 | Signature treatment = **scroll-scrubbed subject** | one element's transform follows scroll — the mapping is the design |
 | Spatial model = **perspective** or **scene** | a camera has parameters nobody wrote down |
 | An Interaction row whose way is **direct manipulation** (orbit, sequence scrub, explode, camera parallax) | input → value mapping, bounds and release behaviour |
-| Any way marked **library** | a library loads once theming and wiring begin; its call and its host have to be written somewhere |
+| Any way marked **JS** | a per-frame loop or observer runs in a modifier; its damping, its stop condition and its cleanup have to be written somewhere |
 | The user gave a **reference site** for how it moves | the Technique column of `design-direction`'s reference inventory needs numbers |
 
 A unit whose Interaction table is all discrete ways — navigate, panel, reflow, stamp, crossfade,
@@ -76,9 +76,9 @@ Say so in one line and hand back.
 
 After `## Design direction` is written and before the first screen is built — `design-direction`'s
 hand-off line `Heavy motion: needed — <trigger>`, and the hand-off choice it offers alongside it, is what
-sends a unit here. `## Motion` is written into the same brief card's `motion` field,
-and each library row names both the capability and its host. The first screen and the batch build
-the CSS-achievable beats from it with hardcoded numbers; theming and wiring load the library rows;
+sends a unit here. `## Motion` is written into the same brief card's `motion` field.
+The first screen and the batch build
+the CSS beats from it with hardcoded numbers; theming and wiring add the JS modifiers;
 `design-review` captures at the three points `## Net journey` names.
 `## Motion` is read at every one of those and changed at none of them without a note saying why.
 
@@ -113,9 +113,10 @@ beats on one page with two eases read as two products. Fix the system, then ever
 its `base` duration and `primary` ease unless the row says otherwise and says why.
 
 The system also decides the engine class: a **staged-arrival** or **discrete-feedback** system is
-CSS; **scrub-welded** is CSS scroll timelines where supported plus the scrub modifier in
-`show-scroll-reveal-and-scrub`;
-**scrub-lagged** and **pointer-follow** need a per-frame loop and are usually the library row.
+CSS; **scrub-welded** is the scrub modifier in `show-scroll-reveal-and-scrub` (CSS scroll
+timelines only as an `@supports` enhancement); **scrub-lagged** is the same modifier with `lag`;
+**pointer-follow** is a per-frame loop with the pattern's `damp()`. All plain JS in a modifier,
+never an animation library.
 
 ## Phase 3 — Write the `## Motion` section
 
@@ -125,7 +126,7 @@ each one earns its place:
 | Section | What goes in it | What it prevents |
 |---|---|---|
 | **Goal** | one paragraph: what the reader sees at rest, what moves when they scroll or wait, where it ends — written from the direction's `## Story` scenes when it has one. Bold the signature move | a list of features instead of a scene |
-| **Engine** | the system name; per beat, **CSS** (which property, which timeline) or **library** (the capability, the import shape, the plugin list, what is *not* used, and the host — pinned CDN URL or realm bundle) | a `<script>` on the first screen with no host decided; SplitText pulled in for one headline |
+| **Engine** | the system name; per beat, **CSS** (which property, which timeline) or **JS** (which modifier, what it writes — a custom property or a transform — and when it stops) | an animation library or a `<script>` pulled in for one beat; a loop that never stops |
 | **Load-bearing structure** | the DOM as an indented tree with the hooks the code binds to (`data-*`, never classes), then the CSS geometry the effect depends on — runway height, sticky viewport, track width, anchor positions, `will-change`, `isolation` — marked **may not change** | a builder "tidying" the `calc(100% / var(--screens))` that makes sticky work |
 | **Effect — exhaustive** | one row per beat: target · property · from → to · trigger (load / scroll `start` → `end` / pointer) · duration · ease · stagger · once or replay. For a library beat, the actual call. For a mapping, the formula and its bounds | adjectives. "Parallax" is not a spec; a 3:4 rate difference between two triggers is |
 | **Net journey** | three lines — start / mid / end — of what is on screen. These are `design-review`'s capture points | a review that captures scroll 0 only and passes an arc that never moved |
@@ -154,8 +155,7 @@ Fold the results back into the `## Motion` section as concrete lines — `root: 
 
 ## Phase 5 — Hand back
 
-One line per beat: name · engine · trigger · the one number that defines its feel, plus one line
-per library row with its host. The build then proceeds from `## Design direction` + `## Motion` together.
+One line per beat: name · engine · trigger · the one number that defines its feel. The build then proceeds from `## Design direction` + `## Motion` together.
 
 **Writing it onto the brief card.** Read the card back first so it has resolved, then
 `patch-fields` the `motion` field with the whole section as the value — it is this skill's own
@@ -177,7 +177,8 @@ existence — that is `design-direction`'s triage row for **Motion**.
   the spec.
 - Decide whether a unit moves, add a beat `## Design direction` did not name, or promote motion to the
   arresting thing. The arc serves the signature.
-- Name a library without its host, or a host without the capability it serves.
+- Load an animation library (gsap, ScrollTrigger, SplitText, Lenis and kin) or any script from a
+  CDN for motion. Every beat is CSS or plain JS in a modifier — `references/card-constraints.md` §6.
 - Use `vh`/`vw`, `document.querySelector`, a document-level listener, `root: null`, or
   `container-type: size` on the root — `references/card-constraints.md`.
 - Ship an entrance that animates `opacity`, on a card reviewed from stills — `transform` alone.
@@ -198,7 +199,6 @@ Read live; never restate their content here. Local links are relative to this sk
 | Whether and what — the arc, the ways, achievability | `design-direction/references/interaction-ways.md` → *Narrative ways*, *Direct manipulation* | Phase 1 |
 | The scrubbed subject and the spatial model | `design-direction/references/signature-treatments.md` | Phase 1 |
 | Reveal and scrub modifiers with `root`, `unobserve`, reduced-motion already applied | `show-scroll-reveal-and-scrub` | Engine — start from it, never rewrite the observer |
-| Async CDN load; which URL; realm-bundled route | `boxel/references/external-libraries.md`, `boxel-patterns/references/integration-surfaces.md` §6 and §8 | Engine → library rows |
 | Resting state is the final state | `boxel-ui-guidelines/references/template-patterns.md` | Behaviour notes |
 | Capturing the three points, the motion-off pass | `design-review/references/capture.md` | Net journey |
 
@@ -215,4 +215,4 @@ September 2026). Do not fetch them; the open sources above carry the same struct
 
 - `references/motion-template.md` — the output, and what `design-review` captures against
 - `references/motion-systems.md` — the five token sets, one per unit, and how each maps to an engine
-- `references/card-constraints.md` — what a card runtime does to motion written for a document: scroller, sizing, capture timing, double-mount, library loading
+- `references/card-constraints.md` — what a card runtime does to motion written for a document: scroller, sizing, capture timing, double-mount, no animation libraries

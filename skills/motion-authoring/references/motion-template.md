@@ -23,10 +23,10 @@ format: `isolated` of {card}, `prefersWideFormat` {true | false}.}
 | Beat | Engine | Detail |
 |---|---|---|
 | {1. name} | CSS | `{property}` on `{timeline: load @keyframes | animation-timeline: view() | transition}` |
-| {2. name} | library → capability **{name}** | {import shape, e.g. `gsap` + `ScrollTrigger` only — no SplitText, no smooth-scroll}; host: {CDN URL pinned | realm bundle} |
+| {2. name} | JS → modifier **{name}** | {what it runs — `scrollScrub lag={ms}` / a `damp()` loop / an `IntersectionObserver` / `element.animate()`}; writes {a custom property}; stops on {landing, `willDestroy`, leaving view}; reduced motion: {snap to rest value / static final frame / off} |
 | {3. name} | ready: `show-scroll-reveal-and-scrub` `{reveal | scrub}` | {which options} |
 
-Not used, and why: {e.g. Lenis — the host owns scroll physics; a frame sequence — the transform is enough}.
+Not used, and why: {e.g. smooth scroll — the host owns scroll physics; a frame sequence — the transform is enough}. No animation library, ever (`card-constraints.md` §6).
 
 ## Load-bearing structure
 
@@ -60,16 +60,24 @@ Every consumer has a default that renders the final state: `opacity: calc(0.12 +
 | 3 | {chapter presence} | `[data-chapter]` | `opacity` via `--presence` | 0.12 → 1 | scroll: chapter centre within ±40% of stage | — | none | — | reversible | default 1, so no-JS renders full |
 | 4 | {…} | | | | | | | | | `assumed` — {why this number} |
 
-For a library beat, the call itself:
+For a JS beat, the binding and the CSS it feeds. JS writes only `--progress`; the geometry stays in
+CSS, where **Load-bearing structure** already marks it:
 
-```js
-// beat 2 — pinned horizontal pan (only if `## Design direction` asked for a pinned sequence)
-ScrollTrigger.create({
-  scroller: root,                 // the card's scroller, never window
-  trigger: stage, start: 'top top', end: `+=${(frames - 1) * 100}%`,
-  scrub: 1, pin: true,
-  onUpdate: (self) => gsap.to(track, { x: -(frames - 1) * self.progress * track.clientWidth, duration: 0.5, ease: 'power3.out' }),
-});
+```hbs
+{{! beat 2 — pinned horizontal pan, lagged (only if `## Design direction` asked for a pinned sequence) }}
+<div data-runway data-scrub-track {{scrollScrub lag=160}}>  {{! writes --progress 0–1, damped; restProgress under reduced motion }}
+  <div data-stage data-scrub-stage>                         {{! position: sticky; top: 0 — the pin }}
+    <div data-track>…</div>
+  </div>
+</div>
+```
+
+```css
+[data-track] {
+  width: calc(100% * var(--screens));
+  /* the default renders the final state, per the resting-state rule */
+  transform: translateX(calc(var(--progress, 1) * -100% * (var(--screens) - 1) / var(--screens)));
+}
 ```
 
 For a direct-manipulation beat, the mapping:

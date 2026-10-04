@@ -172,6 +172,8 @@ To read a task's result reactively in a template without awaiting it, use the ta
 
 **When to Use External Libraries:** Sometimes you need specialized functionality like 3D graphics (Three.js), data visualization (D3), or charts. Boxel plays well with external libraries when you follow the right patterns.
 
+**Not for motion.** Card animation never loads a library (gsap, ScrollTrigger, Lenis and kin): it is CSS or plain JS in a modifier. See [`motion-authoring/references/card-constraints.md`](../../motion-authoring/references/card-constraints.md) §6.
+
 **Key Rules:**
 1. **Always use Modifiers for DOM access** - Never manipulate DOM directly
 2. **Use ember-concurrency tasks** for async operations like loading libraries

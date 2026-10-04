@@ -67,7 +67,7 @@ Show:
 
 1. **A two-line summary per screen**: layout pick and reason · style · the moment.
 2. **One line for motion**: `Baseline: <character> (automatic)`, then `Heavy motion: needed — <which trigger: arc / scrubbed subject / direct
-   manipulation / library way / reference site>` or `Heavy motion: not needed`. The baseline is never "not needed"; only the heavy layer is a decision.
+   manipulation / JS way / reference site>` or `Heavy motion: not needed`. The baseline is never "not needed"; only the heavy layer is a decision.
    This is the only place the user sees whether `motion-authoring`
    will run before those beats are built; a hand-off that skips the line skips the decision. You
    never write the `## Motion` section yourself.
