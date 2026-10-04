@@ -531,8 +531,8 @@ refusal answers the whole batch with that entry's error and zero writes. An
 entry the realm's policy decides is judged inside the write lock, against what
 the entries before it in a serial run left (in a parallel group, against what
 the group started from), so a write that follows another to the same card is
-judged by the card that write leaves. A create is judged by the card it would
-mint.
+judged by the card that write leaves. A create against a type is judged by the
+card it would mint; a create anchored on a card is judged by that card.
 
 Under a policy, for a caller the realm's permissions decline:
 
@@ -545,8 +545,9 @@ Under a policy, for a caller the realm's permissions decline:
   grants.
 - **A found card the entry's operation refuses answers a 404
   `target-not-found` that names no card**: no `id`, the detail
-  `no such target`, and the entry only by position — `[0]` for `expect: 'one'`,
-  `[0].boxel:target[n]` for the nth card an `expect: 'many'` found.
+  `no such target`, and the entry only by position — its own position (`0`
+  for a top-level entry) for `expect: 'one'`, `[0].boxel:target[n]` for the
+  nth card an `expect: 'many'` found.
 - **The realm mints the ids of the cards the batch creates.** A `lid` still
   links cards within the batch and comes back beside the minted id as
   `{ lid, id }`, but it does not name the file: a caller who could pick the
@@ -630,9 +631,10 @@ payload says about anyone. The declared filter replaces the caller's — even
 where the declaration writes none — and a declared `sort` or `page` stands over
 the caller's. The caller still supplies the fieldset, `cardUrls`, `scope`, the
 `htmlQuery` binding in its filter, and `sort` / `page` where the declaration
-names none; which rows match is never theirs to choose. The filter lowered here
-only feeds the host's client-side search arm, so a stale definition on the
-client can skew that arm's matches, never what the realm returns.
+names none; which rows match is never theirs to choose. The host ignores the
+filter, sort and page lowered here; what this side's lowering still decides is
+which realms the request names, so a stale definition on the client can change
+which realms are searched, never which rows they return.
 
 **Only the realms the request names are searched.** A declaration that names
 its own `realms` is narrowed to the ones the request names; one that names none
@@ -647,7 +649,7 @@ ad-hoc searches — see
 | -------------------------------------------------------------------- | --------------------------- |
 | An operation the type does not declare                               | 404 `unknown-operation`     |
 | An `on` the realm cannot resolve                                     | 404 `target-not-found`      |
-| An operation that is not a query, the bare base name `query` included | 400 `invalid-params`        |
+| An operation that is not a query, the bare base name `query` included | 400 `invalid-params`, or the refusal invoking it would get (405 `operation-not-allowed` for one the type doesn't carry, 404 `unknown-operation` for one it doesn't declare) |
 | A declaration carrying lowering findings                             | 422 `invalid-operation`     |
 | No `on`, `params` that is not an object, a declared param left out   | 400 `invalid-params`        |
 | A declaration reading `actor()`, and nobody authenticated or a render the realm runs as itself | 401 `actor-required` |
@@ -677,16 +679,18 @@ in `_federated-search` contributes:
 | One the caller reads                                    | Every matching row; no policy is loaded                      |
 | Unreadable, with a policy but no grant for this search  | No rows, 200 — byte-identical to a grant that matches nothing |
 | Unreadable, with no policy                              | No rows; the realm is not mounted, and its `realm.json` is read from disk |
-| Unreadable, and its policy cannot be judged — the realm won't mount, the policy won't load or compile, or a grant's filter won't translate | Counted failed: its rows are withheld, the other realms answer, and the result carries `meta.incomplete: true` |
+| Unreadable, and its policy cannot be judged — the realm won't mount, the policy won't load or compile, or a compiled grant filter throws when the search runs (a grant recording `policy-not-filterable` just contributes nothing) | Counted failed: its rows are withheld, the other realms answer, and the result carries `meta.incomplete: true` |
 | Archived                                                | No rows                                                      |
 | Not public, from an anonymous caller                    | 401 for the whole request                                    |
 | A URL the registry does not know                        | 404 `Realms not found`                                       |
 
-**A realm's own `_search` differs in two cases.** A realm with no policy answers
-a caller who cannot read it with the permissions' 403, where
+**A realm's own `_search` differs from `_federated-search`.** A realm with no
+policy answers a caller who cannot read it with the permissions' 403, where
 `_federated-search` answers no rows. A realm whose policy won't load or compile
 refuses such a caller with a 500 "Policy unavailable", where
-`_federated-search` counts it failed.
+`_federated-search` counts it failed. An archived realm that names a policy
+answers a caller its policy reaches with the archived 403 whenever their grant
+would return a row, where `_federated-search` answers no rows.
 
 **What a search is authorized as.** A saved search is invoked under its own
 name, on the type that declares it. An ad-hoc search is invoked as `query` on
