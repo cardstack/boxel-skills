@@ -363,7 +363,7 @@ caveat above: anyone who can write into `handouts/` decides what it serves.
 
 Module source is never grantable:
 
-- **`.ts`, `.gts`, `.js` and `.gjs` resolve to no type**, so no rule can name
+- **`.ts`, `.gts`, `.js` and `.gjs` resolve to no type**, so no rule reaches
   them. Neither the transpiled module a browser's `import` loads nor a
   directory listing has a type either. Other script extensions (`.mjs`,
   `.cjs`) are not module source to the realm: they are data files a `FileDef`
@@ -661,8 +661,9 @@ of a type no rule lets a caller read. Its `path` is the grant's, and its
 the **field path** the closure took (`lead.office`). Each reached type gets its
 own issue.
 
-- **The strategy that governs it.** A `read` grant is served under the granted
-  type's own `read` declaration; a named query grant under that query's `links`.
+- **The strategy that governs it.** A grant on a `read`-based operation is
+  served under that operation's declaration — the type's own `read` unless it
+  names another; a named query grant under that query's `links`.
   An ad-hoc `query` grant has no declaration, so it is always `full`. Only
   `full` assembles anything, so only a `full` document is walked.
 - **What counts as granted.** A reached type is readable when a rule on it, or
@@ -677,7 +678,7 @@ The fix goes on the **granted** side:
 
 | The grant is                | To send only the links                                                    |
 | --------------------------- | ------------------------------------------------------------------------- |
-| `read`                      | `links: 'ids'` on the granted type's `read` declaration                   |
+| `read`-based                | `links: 'ids'` on the granted operation's declaration                     |
 | A named query               | `links: 'ids'` (or `'none'`) on that query                                |
 | The ad-hoc `query`          | Grant a named query that declares `links: 'ids'` instead — the ad-hoc search can't be narrowed |
 
