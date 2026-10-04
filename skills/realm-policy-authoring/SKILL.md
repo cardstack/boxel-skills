@@ -859,6 +859,7 @@ How each refusal reads:
 | Situation                                                                 | Answer                                         |
 | ------------------------------------------------------------------------- | ---------------------------------------------- |
 | The caller can't read the policy card's realm or the target's realm, the session is revoked or delegated, the target doesn't exist, its realm isn't served here, or its realm is archived | 404 `target-not-found`, the same bytes in every case |
+| The request sends no credentials                                          | 401 before explain runs (`actor-required` where the policy card's realm names a policy) |
 | The target's realm doesn't name this policy card                          | 422 `policy-not-in-force`                      |
 | A draft names a type in a realm the caller can't read                     | 403 `operation-not-permitted`, refused whole   |
 | The question is malformed, or asks about more than 100 decisions          | 400 `invalid-params`                           |
@@ -903,7 +904,7 @@ the card, §8), and an `outcome`:
 | `held`          | The predicate evaluated to `true`                                              |
 | `did-not-hold`  | It evaluated to anything else                                                  |
 | `threw`         | It threw (§6)                                                                  |
-| `not-evaluated` | The gate decided without it: an earlier grant admitted, or a refusal came first. On a search, every grant |
+| `not-evaluated` | The gate decided without it: an earlier grant admitted, or a refusal came first. On a search, every grant with a `where` |
 
 | `reason`                       | Means                                                                       |
 | ------------------------------ | --------------------------------------------------------------------------- |
@@ -940,8 +941,9 @@ it runs in:
 | A named query         | Its name (`listMine`)   | `{ "on": <type that declares it>, "params": { … } }`, `params` optional |
 | An ad-hoc search      | `query`                 | `{ "filter": <the filter it sends> }`     |
 
-A search refuses nobody; it returns rows, or none. So `denied` on a search
-carries no `refusal`, and means the search has no rows:
+A search refuses nobody it can run for; it returns rows, or none. So `denied`
+on a search means the search has no rows, and carries a `refusal` only where
+the search itself would be refused:
 
 | `decision` / `reason`        | The search                                                                |
 | ---------------------------- | ------------------------------------------------------------------------- |
@@ -950,6 +952,7 @@ carries no `refusal`, and means the search has no rows:
 | `denied` / `no-grant`        | Returns nothing: no grant on its operation compiled a filter               |
 | `denied` / `non-grantable`   | Returns nothing: a grant compiled, and a declaration keeps the query out of every policy |
 | `denied` / `not-resolved`    | Is refused as sent: no such named query, or a filter the search grammar rejects. `refusal` is the search's own |
+| `denied` / `actor-required`  | Is refused 401: `actor` is `""` and the realm's permissions want someone |
 | `failed` / `policy-unloadable` | Fails: the realm can't load its policy                                  |
 
 The answer's `search` holds `operation`; `types`, the types whose rules count
@@ -1000,7 +1003,10 @@ The `draft` param is a policy document: an object holding the `rules` a
 - **The answer carries `draft.issues`**: what compiling the draft recorded, in
   the shape of the policy's own issues (§9). An empty list means it compiled
   cleanly. A grant an issue takes out is missing from `rules`, and a draft with
-  a card-level issue answers every question `failed` / `policy-unloadable`.
+  a card-level issue answers `failed` / `policy-unloadable` for every question
+  the policy would decide; an actor the realm's permissions admit still gets
+  `allowed` / `acl`, and an operation that doesn't resolve still gets
+  `not-resolved`.
 
 **Before widening a rule, explain the draft.** Edit the rules as a draft,
 explain the cases you care about — a caller the change should admit, one it
