@@ -498,7 +498,8 @@ Bindings (`. as $c`), `IF(…)`, `has(…)`, `length`, `tonumber`, case folding 
 A predicate that throws on a card — `(.title | tonumber) > 0` on a title that
 isn't a number — **denies**, unless another grant holds. When none does, the
 caller gets 500 `policy-predicate-failed` if they may read the realm, and the
-same 404 as any refusal if not; the fault is logged on `realm:policy`. A throw
+same 404 as any refusal if not; explaining the decision answers
+`predicate-threw` (§10). A throw
 is a bug in the policy, not a refusal: guard the value (`.title != null and
 …`) rather than relying on it.
 
@@ -726,8 +727,6 @@ the linked cards. A `read` grant serves no rendering and never records it.
   `path`. A rule or grant missing from `rules` is inactive; a grant carrying
   `admitsNothing: "unfilterable"` is kept but admits nothing. Only a caller who
   can read the policy card's realm, and every realm the compile read, may ask.
-- **The log**: each compile writes one `realm:policy` warning listing the
-  inactive issues, and an info line for the warnings.
 
 **An edit reaches the gate within seconds.** The compiled policy is
 revalidated when the index of the policy card, or of a type its rules read,
