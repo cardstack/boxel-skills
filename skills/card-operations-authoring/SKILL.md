@@ -335,7 +335,7 @@ the card through its own read.
 **On a `read`, a strategy governs only reads rooted at the declaring card.** A
 linked card's own declaration is never consulted: a `full` read carries a
 linked card whole — its relationships and what they link to — even when that
-card's type declares `none` or `ids` for itself.
+card's type declares `ids` for itself.
 
 **On a `query`, it governs every result row alike**, whatever each row's type
 says in its own `read`. It narrows each row's card, never the entry the row is
@@ -344,9 +344,9 @@ HTML, which draws the links whatever the strategy. A search run by a render is
 exempt and keeps each row's stored links, because what it draws becomes part of
 the rendering card's own HTML.
 
-**An ad-hoc search has no declaration, so it always serves `full`.** No
-declaration narrows a `_search` or `_federated-search`; only a declared,
-named query does.
+**An ad-hoc search has no declaration, so nothing narrows it below what the
+request asks for.** No declaration narrows a `_search` or
+`_federated-search`; only a declared, named query does.
 
 **The request may narrow further, never wider.** When the realm sheds load, or
 a consumer asks for links only, the request asks for `ids`; the realm serves
@@ -380,7 +380,9 @@ shared markup, so serving it hands the linked content to whoever receives it.
 Nothing is rendered a second time or per caller; the format's markup is simply
 withheld.
 
-- **On a `read`** it governs reads rooted at the card: its single-card HTML
+- **On a `read`** — the type's operation named `read`; an `html` on any other
+  `read`-based operation is never consulted — it governs reads rooted at the
+  card: its single-card HTML
   read, the last-known-good markup an errored read carries, and the markup a
   host-mode page for the card is served with.
 - **On a `query`** it governs every row alike, whatever each row's type
