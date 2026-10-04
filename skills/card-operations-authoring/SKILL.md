@@ -344,11 +344,14 @@ broken declaration never becomes grantable by breaking.
 @operation static update = { base: 'update', nonGrantable: true };
 ```
 
-A redeclaration with no clauses is the built-in behavior. Redeclaring
-`update`, `create` or `delete` also takes the card+json verb of that name
-away from a caller the realm admits through a grant, since a verb reaches the
-built-in only (§6). `readSource` and the name `query` cannot be declared, so
-neither can be marked.
+A redeclaration with no clauses is the built-in behavior, so `update` and
+`delete` (and a clause-free `appendContainsMany`) can be marked this way. The
+built-in `create` can't: the decorator requires `of` on every `create`, and a
+`create` with `of` is a declared create of that type, not the built-in one.
+Any `update`, `create` or `delete` a type declares also takes the card+json
+verb of that name away from a caller the realm admits through a grant, since a
+verb reaches the built-in only (§6). `readSource` and the name `query` cannot
+be declared, so neither can be marked.
 
 The value must be a boolean. Anything else is refused by the decorator when
 the class is defined.
@@ -504,8 +507,8 @@ findings has no runnable form, and invoking it is refused with
 | `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
 
 The decorator refuses several of these where the class is defined — a
-reserved name, a base the def type does not carry, a malformed `nonGrantable`
-— so author code rarely records them. Lowering checks them again because a
+reserved name, a base the def type does not carry — so author code rarely
+records them. Lowering checks them again because a
 stored definition outlives the code that built it. `lowering-failed` costs
 only the operation it hit: the entry stays stored, invalid and with its
 `nonGrantable` kept, so its name never falls back to a grantable built-in.
@@ -566,7 +569,7 @@ try {
 | `target-not-found`         | Nothing at the target's URL                                   |
 | `target-not-indexed`       | Written but not yet indexed — waiting resolves it             |
 | `target-errored`           | The target's index row is an error row                        |
-| `actor-required`           | The operation reads the caller, or the realm names a policy, and the request authenticated nobody |
+| `actor-required`           | The operation reads the caller, or the realm names a policy and its permissions want someone, and the request authenticated nobody |
 | `operation-not-permitted`  | The realm's permissions declined the caller and no policy grant admits the operation |
 | `policy-predicate-failed`  | No grant admitted the operation and a policy predicate threw  |
 | `conflicting-targets`      | Two members of a parallel group write the same file           |
@@ -598,7 +601,7 @@ the card+json routes:
 | No such operation, a declaration with findings, an unresolvable type, nothing at the URL | Its own refusal — 404 `unknown-operation`, 422 `invalid-operation`, 404 `target-not-found` | 404 `target-not-found` |
 | A predicate threw and no other grant held              | 500 `policy-predicate-failed`                    | 404 `target-not-found` |
 | The policy won't load or compile                       | 500 `internal-error`, "Policy unavailable"       | 500 `internal-error`, "Policy unavailable" |
-| A create whose type names another realm                | 400 `invalid-params`                             | 404 `target-not-found` |
+| A create whose `meta.realmURL` names another realm     | 400 `invalid-params`                             | 404 `target-not-found` |
 | A create naming its type by a relative module          | 400 `invalid-params`                             | 400 `invalid-params` |
 
 A caller who may read the realm reaches the policy only by writing — their
@@ -606,8 +609,11 @@ reads are the permissions' to allow — so a policy that won't load is a 500 to
 them on writes alone. A realm writer never reaches the policy at all.
 
 **A caller who may not read the realm learns nothing about what exists.**
-Every refusal their invocation meets before it is admitted, resolution
-failures included, answers the same bytes a target that isn't there does.
+Every refusal that depends on what the realm holds — the target, its type,
+the declaration, a grant, a predicate — resolution failures included, answers
+the same bytes a target that isn't there does. A request malformed on its face
+(a relative module, a bad envelope) and an unloadable policy are refused as
+the table shows.
 Over `_operations` that is `title: 'Not found'`, `detail: 'no such target'`,
 and nothing of `meta` beyond `meta.entry`; over card+json it is the route's own
 not-found. Until a write's grant is decided, anything else the realm would
