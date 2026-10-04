@@ -4,6 +4,7 @@
 
 | Layer | Question | Written in | Applies to |
 |---|---|---|---|
+| [`boxel-design/references/motion-baseline.md`](../../boxel-design/references/motion-baseline.md) | the CSS motion every build ships: arrival, scroll reveal, hover feedback, one ambient loop | automatic, in the style family's motion character | every user-facing unit |
 | **This file** → `## Design direction` Interaction table and Narrative arc | *which* way, its budget, its fallback, whether it is CSS or a library capability | one line per action, three beats per arc | every unit |
 | `motion-authoring` → `## Motion` | *exactly how* — offsets, eases, the geometry the effect depends on, the library call | one row per beat | only units with an arc, a scrubbed subject, a direct-manipulation way or a library capability |
 | `design-review` | *did it land* — captures at the arc's three points, motion-off pass | a score | after the build |

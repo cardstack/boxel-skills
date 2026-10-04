@@ -66,7 +66,13 @@ Palette  ground  #0E1726  deep ink water
          text    #C9D1DC  moonlight
 Type     Fraunces (display) · Inter (text)
 Feels    quiet, trusted, unhurried
+Main screen  the shop's front page: one wide image band, the three rooms
+             as large tiles, prices in plain rows below
 ```
+
+**Every preview shows the app's big-picture screen** (its Home, desk or main page), as a one-line
+`Main screen` composition beside the palette and type, never a single product card or record. The
+user is choosing the language of the whole app; a small object cannot show them that.
 
 This is where the user checks the story: each preview shows how that direction reads it, next to
 a palette they can react to. The tool's automatic "Other" is where the user names or describes a
@@ -107,7 +113,7 @@ as wording. A shrunken copy of the hero is not a treatment.
 
 Record with the pick:
 
-- the five style controls: motion character, type system, colour strategy, **spatial model**, visual density — [`references/signature-treatments.md`](signature-treatments.md) defines the spatial-model options (flat · layered · perspective · scene) and what each costs; "flat" is a choice, not the absence of one
+- the style controls: **style family** (chosen on purpose from [`boxel-design/references/style-families.md`](../../boxel-design/references/style-families.md) — never the editorial default unless the brief asked for it), motion character (from [`motion-baseline.md`](../../boxel-design/references/motion-baseline.md)), type system, colour strategy, **spatial model**, visual density — [`references/signature-treatments.md`](signature-treatments.md) defines the spatial-model options (flat · layered · perspective · scene) and what each costs; "flat" is a choice, not the absence of one
 - the **signature treatment** and what it reduces to at each format
 - the **ornament budget** — [`references/enrichment-moves.md`](enrichment-moves.md), and it is decided **here, before
   anything is built**, not after someone complains. Read the **baseline** off the style you just
@@ -118,7 +124,7 @@ Record with the pick:
   the **rests** — the surfaces deliberately one rung below — or nothing reads as important
 - **one real reference** — a site, poster or screenshot. A style name alone reads differently to
   every builder; the reference removes the guess.
-- the **type line**: display font, body font, one weight contrast, the hero size jump. Without a
+- the **type line**: display font, body font, the family's weight contrast, the hero size jump, and what the display role does at `fitted` and `atom`. Both families must be on Google Fonts so the Theme can load them. Without a
   font decision the builder defaults to Inter.
 - the **anti-patterns** block, including anything this style specifically refuses. Pull what
   applies from upstream's [`critical-rules.md`](../../boxel-design/references/critical-rules.md).

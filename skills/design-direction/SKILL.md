@@ -50,6 +50,16 @@ with no design vocabulary can pick from a list long before they could describe w
 - **No hand-written "other" option.** The tool's automatic "Other" is the "describe it" escape
   hatch.
 
+**Every question can be skipped, and the rest can be skipped.** Put one line above each call
+(*"Say 'skip' to let me decide this one, or 'skip the rest' and I'll finish it."*) and end each
+question with a **"Skip, you decide"** option when its real options are three or fewer. A skipped
+question is answered by the Recommended option, else by the brief and the story; the rest is decided
+the same way. The rules, the guards (never invent the user's facts, never spend or commit for them,
+conservative where a rule cannot be verified) and the recording format are in
+[`domain-interview`](../domain-interview/SKILL.md) → *Skipping*; this skill follows them. Record
+each decision you made in the direction's `## Assumed` list. The **hand-off is the one question a
+skip does not answer**: skipping it means stay where you are, since this skill never chooses the next stage.
+
 If the call is rejected or no choice tool exists, ask in chat as lettered options (a / b / c,
 recommended marked), and try the tool again at the next ask. None of this applies to the layout
 pick itself, which stays a decision you make and record, never a menu you offer (see Never,
@@ -87,6 +97,15 @@ Skip phases the unit does not need; a field has no screen inventory but still ge
 From a `domain-interview` brief card (`Brief/<slug>.json`, the spec in its `spec` field),
 take the overview, the per-screen **content contracts** (purpose, primary action, must-contain in
 priority order, key moment, empty state) and the flows. These are inputs; do not re-ask them.
+
+**Ask about the whole app, not a small piece of it.** For an app (or any multi-surface unit), every
+design question before the build is about the **big-picture screen** a person lands on and uses: the
+Home, desk or main page that holds the most of the domain at once. The scenes, the moments and
+the three style directions are all framed at that scale ("the shop's front page", "the studio
+dashboard"), never at a single product card, row or detail record. Item-level screens and cards
+inherit the language afterwards and are decided later, one at a time, when they are about to be
+built. A question phrased around one small object gets an answer that fits that object and
+misleads the rest.
 
 Briefs carry no feeling by design, so ask for it, in one call with two questions. Both are
 there to feed the story, so both offer pictures and moments, never adjectives:

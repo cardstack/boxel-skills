@@ -9,6 +9,7 @@ description: >-
   (a Narrative arc, a scroll-scrubbed subject, a spatial model of perspective or scene, an Interaction
   row marked library, or a reference site the user wants "to move like"), after the `## Design direction` section is written
   and before those beats are built, or when a built arc "doesn't feel like the reference". Not for
+  the baseline motion every build already ships (`boxel-design/references/motion-baseline.md`), and not for
   motion that is only discrete feedback under 400 ms — and not for deciding whether a unit moves (that
   is design-direction).
 boxel:
@@ -53,6 +54,8 @@ should not exist. If a beat here has no parent line in `## Design direction`, de
 
 ## Opt-in: most units never get a `## Motion` section
 
+This skill covers **heavy** motion only. Every build already carries the CSS baseline (staggered arrival, scroll reveal, hover feedback, one ambient loop) from [`boxel-design/references/motion-baseline.md`](../boxel-design/references/motion-baseline.md), applied automatically and never handed here. A unit with only baseline motion has nothing to write.
+
 Motion of this weight is expensive to build, to review from stills, and to make accessible. It is
 also what most units do not want. Open this skill only when the `## Design direction` section already contains one of:
 
@@ -72,7 +75,7 @@ Say so in one line and hand back.
 ## Where it sits in the build
 
 After `## Design direction` is written and before the first screen is built — `design-direction`'s
-hand-off line `Motion: needed — <trigger>`, and the hand-off choice it offers alongside it, is what
+hand-off line `Heavy motion: needed — <trigger>`, and the hand-off choice it offers alongside it, is what
 sends a unit here. `## Motion` is written into the same brief card's `motion` field,
 and each library row names both the capability and its host. The first screen and the batch build
 the CSS-achievable beats from it with hardcoded numbers; theming and wiring load the library rows;

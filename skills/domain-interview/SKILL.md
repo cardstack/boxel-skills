@@ -169,6 +169,48 @@ If the call is rejected, or the user says they would rather type, ask that round
 same when no choice tool is available: lettered options (a / b / c, recommended marked) the user
 can answer with one letter. Try the tool again next round unless the user asked you to stop.
 
+### Skipping: one question, or the rest
+
+The user can hand any decision back to you, at any point. Two forms, and both are always available:
+
+- **Skip this question.** Choosing the **"Skip, you decide"** option, or typing "skip", "you
+  decide" or the like into "Other", means *you* answer that one question and carry on.
+- **Skip the rest.** "Skip the rest", "just decide everything", "you finish it" means stop asking
+  and write the brief from what you have.
+
+**Make both visible.** Put one plain line above every call: *"Say 'skip' to let me decide this one,
+or 'skip the rest' and I'll finish it."* Give each question a final **"Skip, you decide"** option
+when its real options are three or fewer; at four, leave it to the typed words and the line above.
+This is not the "Not sure, suggest for me" option: that one asks to be *taught* (the next question
+explains the concept), a skip asks you to *decide* and move on, with no teaching round.
+
+**What you decide with.** The option marked Recommended; if none was, the prompt and the first
+answers; if still none, your research on the domain; and where those disagree, the conservative
+choice. Never decide by asking the user again. A skip is never re-asked.
+
+**Record every decision you made for them**, in a `## Assumptions` section of the `spec`, one line
+each: *the question · what you chose · why*. Keep it separate from Open questions, which are things
+nobody knows yet.
+
+**What a skip never does** (guards):
+
+- **It never invents the user's facts.** A business name, a price, a licence number, a person's
+  details are not yours to decide. Use an obvious placeholder and put the item in **Open
+  questions**, marked as needing the user.
+- **It never decides a rule you cannot verify.** In a domain with regulation, money, safety or
+  specialist rules, a skipped question gets the conservative default, and the Assumptions line says
+  *"placeholder: confirm against the real rule"*. Say once, in the Finish line, that the brief has
+  unverified domain defaults.
+- **It never spends or commits for them.** A skipped question about credit, cost or an irreversible
+  action takes the free or reversible option.
+- **It cannot skip what the brief cannot exist without.** If "skip the rest" arrives before you know
+  what the thing is, read it off the prompt; if the prompt does not say, pick the most plausible
+  reading, state it in the first line of the brief, and make it the first Assumption.
+
+**After "skip the rest"**, write the brief at Quick depth with every unasked topic decided as above,
+and in the Finish line say how many decisions you made, so the user can read the Assumptions and
+change any of them. Do not offer the interview again unless they ask.
+
 ## Output
 
 The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
@@ -194,10 +236,12 @@ instance adopts from that alias and nothing is written to the realm but the inst
 **Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
 into a JSON string and never patched into a card that is not indexed yet:
 
-1. **Create the instance** with one SEARCH/REPLACE block (read `source-code-editing` first if you
-   have not read it this session). The URL line is `<realm-url>Brief/<slug>.json (new)`; the body
-   is the card JSON with `adoptsFrom` `{ "module": "@cardstack/catalog/cards/projects/brief", "name": "Brief" }`,
-   `cardInfo.name`, `cardInfo.summary`, and `spec`, `designDirection` and `motion` all `null`.
+1. **Create the instance** with one `run-realm-code` call (read `source-code-editing` first if you
+   have not read it this session): `await realm.fs.writeText('Brief/<slug>.json', JSON.stringify(card, null, 2))`,
+   where `card` is an object with `adoptsFrom` `{ "module": "@cardstack/catalog/cards/projects/brief", "name": "Brief" }`,
+   `cardInfo.name`, `cardInfo.summary`, and `spec`, `designDirection` and `motion` all `null`. Building
+   the object and stringifying it means nothing is hand-escaped; the long markdown comes later, through
+   `patch-fields`. `writeText` refuses a file that already exists, so an existing brief is read, never recreated.
 2. **Wait until it is a card.** `patch-fields` applies only to an indexed card. Read the instance
    back with `read-card-for-ai-assistant`; if it does not resolve yet, read again rather than
    patching a card that is not there.
@@ -266,7 +310,8 @@ Expect schema to grow at build time when the design needs something. That is not
 ## Finish
 
 The brief card is the whole deliverable. Give the user its URL. If the brief still has open
-questions, say so in one line before the hand-off.
+questions, say so in one line before the hand-off. If you decided anything for the user (a skip), say how many
+decisions are in `## Assumptions`, in the same line.
 
 **Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
 the choice UI (same rules as the interview rounds): move on to `design-direction` (decide how it looks before

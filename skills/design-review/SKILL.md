@@ -103,9 +103,8 @@ say the scores are unanchored.
 
 Score and name the specific thing behind each number:
 
-- **Typography** — does the pairing look chosen? Weight rhythm (large at light weight, small at
-  bold), or everything between 500 and 600? Is there tracking on uppercase micro-labels?
-- **Colour** — one accent doing real work in at most two places, or three to five things competing?
+- **Typography** — does the pairing look chosen? Read the declared **style family** first and score against *its* check in [`boxel-design/references/style-families.md`](../boxel-design/references/style-families.md): editorial wants large-light against small-bold, playful and vibrant want a heavy display against a plain body, brutalist wants hard and heavy. In every family, everything between 500 and 600 with a small step is a fail. Is there tracking on uppercase micro-labels where the family uses them? With no family declared, say so and judge on role clarity.
+- **Colour** — against the declared colour strategy. Restrained families: one accent in at most two places. Playful, vibrant, vintage: several colours are right when each has a named role and none competes for the same job. Colours with no assigned role fail in any family.
 - **Composition** — does something dominate, or is it a row of equals? Is the reading order legible
   in the screenshot alone? Name the signature treatment on the dominant object and say whether it
   belongs to this style — `design-direction/references/signature-treatments.md` is the authority on
@@ -119,7 +118,7 @@ Score and name the specific thing behind each number:
   image field is itself a finding — the decision was never made.
 - **Detail** — the editorial micro-objects that signal care: an eyebrow with a rule, a stat slab
   bounded by lines rather than boxed, a fold cue. Two or three, not all of them.
-- **Motion** — entrance, feedback, state change. Fade-only or instant swaps read as unfinished;
+- **Motion** — first check the **baseline** from [`boxel-design/references/motion-baseline.md`](../boxel-design/references/motion-baseline.md): arrival or scroll reveal on the `isolated` view, hover and focus feedback on controls, timing matching the declared motion character with one ease and one duration set, nothing missing with motion off. A unit missing the baseline caps at 8. Then entrance, feedback, state change. Fade-only or instant swaps read as unfinished;
   spatial motion with character reads as designed. If motion is absent or purely functional, cap
   the score at 8 however good the static work is. When `## Design direction` records a **Narrative arc**,
   score against it: do the beats arrive in the recorded order, does the still frame stand alone

@@ -65,5 +65,9 @@ Written by `domain-interview` on {date}, at {Quick | Standard | Deep} depth. Con
 ### {CardDef}
 - {real name, real numbers, real dates — written as content, not placeholders}
 
+## Assumptions
+*(Only when the user skipped a question or the rest. One line each; omit the section otherwise.)*
+- {question} · {what was chosen} · {why: recommended option / prompt / research / conservative default}
+
 ## Open questions
 - [ ] {what the user still needs to decide}

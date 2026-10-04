@@ -16,7 +16,7 @@ puts imagery in the mockup pass, not after it.
 |---|---|---|---|
 | **The user's own** | The image shows something real: their product, their team, their place | none | They upload it, or give a URL you download |
 | **AI-generated** | The image must match the style exactly, or no photo of the subject exists (a fictional product, a styled scene) | OpenRouter credit, one approval per image | `generate-thumbnail` writes it to the realm |
-| **Stock photo** (Unsplash, Pexels) | Real-looking photos of generic subjects: food, interiors, landscapes, people at work | free | `download-file-to-realm` saves it to the realm |
+| **Stock photo** (Unsplash, Pexels) | Real-looking photos of generic subjects: food, interiors, landscapes, people at work | free | **First draft: the photo's URL goes straight into the URL half of the field, no download.** Final: `download-file-to-realm` saves it to the realm |
 | **Placeholder** (Lorem Picsum, placehold.co) | A wireframe or first mockup, where only the image's size and position matter | free | External URL in the URL half of the field |
 
 Choose by the scenario:
@@ -24,8 +24,8 @@ Choose by the scenario:
 - **Something real**: the user's company, product or people. Ask for their own images. Never
   generate or pick a stock photo that claims to be a real person, product or place. Until they
   provide one, use a placeholder and say so.
-- **A mockup the user wants to see quickly** (the "Just build it" path): stock photos when you can
-  find real ones (see below), otherwise placeholders.
+- **A mockup the user wants to see quickly** (the "Just build it" path): stock photos by URL when
+  you can find real ones (see below), otherwise placeholders. No downloads in the first draft.
 - **A styled, brand-heavy design** where the image carries the look (a design direction with an
   imagery treatment): AI-generated.
 - **Unclear, and the choice costs credit**: ask once, as a single-select question in the choice
@@ -80,7 +80,29 @@ the instance's own data      (Beaumont Kitchen, 1924 Craftsman, white oak, Inset
 See `boxel/references/design-playbook.md`, "Brand-guided imagery during mockup", for a worked
 example.
 
-## Stock photo: `download-file-to-realm`
+## Stock photo: URL first, download at the end
+
+**First draft: use the URL, skip the download.** Put the photo's image URL in the URL half of the
+field (an `ImageSourceField` in `sourceMode: url`, or the URL half of the pair pattern), in
+`attributes`. No tool call, no approval, nothing written to the realm, so the first screen is not
+waiting on a download per image. Same rule as a placeholder (below): it never goes in
+`relationships` (Cardinal Rule 12).
+
+The URL must still be a real one: from the user, or from a photo page you opened (see *Never guess
+an image URL*). Size it for its slot (`https://images.unsplash.com/photo-…?w=1600`).
+
+**What the URL costs, and when to pay it.** A hotlinked photo can move or disappear, and the index
+cannot track it, so nothing notices when it breaks. That is fine for a draft and not for a shipped
+card. Before the work is finalised, or as soon as the user keeps a draft, download the photos that
+stay and switch each field to the file: `download-file-to-realm`, then `sourceMode: file` with the
+file on the `file` sub-field (see *Link it to the instance*). With an `ImageSourceField` this is a
+field-value change, not a schema change, which is why it is the better field for a draft that will
+grow up. A plain `linksTo(ImageDef)` field cannot hold a URL at all, so it cannot take this shortcut.
+
+### Downloading, when it is time
+
+Also declared in `host-commands-reference.md`. Download the photo into the realm so the card keeps
+working if the remote URL changes, and the image is a real `ImageDef` the index can track.
 
 Also declared in `host-commands-reference.md`. Download the photo into the realm instead of
 hotlinking it, so the card keeps working if the remote URL changes, and the image is a real
@@ -163,9 +185,10 @@ a URL half: an `ImageSourceField`, or the pair pattern in `boxel-patterns/patter
 ## Order of work
 
 1. Pick the source for the scenario (above).
-2. Write the instance JSON first, with the image relationship left out. Placeholders can go in
-   right away, since they need no tool call.
-3. Call the tool once per image.
+2. Write the instance JSON first, with the image relationship left out. Placeholders and stock
+   photo URLs go in right away, in the URL half of the field, since they need no tool call.
+3. Call the tool once per image, only for the sources that produce a file: generated images, and
+   stock photos at the final download step. A first draft that uses only URLs skips steps 3 and 4.
 4. Add each returned URL to its instance's `relationships`, editing the instance JSON the way
    the environment writes files. Edit all of them in one pass.
 5. Read one instance back and open it: the image must render. A broken image means the path is

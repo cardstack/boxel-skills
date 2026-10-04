@@ -61,6 +61,8 @@ it: a repeated action gets the cheap way, under 200 ms and without attention-gra
 screen's one moment gets the staged way. Record trigger, response, duration budget, easing
 character, reduced-motion fallback, and repeat cost.
 
+**Baseline motion is not decided here and is not a hand-off.** Staggered arrival, scroll reveal and hover feedback come with every build from [`boxel-design/references/motion-baseline.md`](../../boxel-design/references/motion-baseline.md), in the motion character Phase 3 records. This table records only the *actions*; do not write a `cubic-bezier` for the baseline.
+
 Ask only where the ways change what the user can do — does the list stay visible, does the item
 keep its place, is this moment paid for on every repeat. Motion flavour is not a question.
 

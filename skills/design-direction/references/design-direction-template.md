@@ -7,6 +7,9 @@
 Written by `design-direction` on {date}. Builder: follow this before styling — and hardcode
 everything; the theme is extracted later. Reviewer: tick the acceptance lines first.
 
+## Assumed
+*(Only when the user skipped a question or the rest. One line each: the question · what was chosen · why. Omit otherwise.)*
+
 ## Brief
 - **Unit**: app | card | component | field
 - **Who uses it**: {one line}
@@ -36,7 +39,7 @@ only — no hex, fonts, px or layout words. Every section below is argued from i
 ## Style: {name}
 - **Inspirations**: {composed for this unit in Phase 3 as one reading of the story's image, or researched from the style the user named} — {which scene lines they serve}
 - **Visual DNA**: {the cues that make it recognisable}
-- **Style controls**: motion character {…} · type system {…} · colour strategy {…} · spatial model {flat | layered | perspective | scene} · visual density {…}
+- **Style controls**: style family {one or a named mix, from `boxel-design/references/style-families.md`} · motion character {calm | springy | snappy | slow | gentle, from `boxel-design/references/motion-baseline.md`} · type system {display + body + label roles, with the pair} · colour strategy {the family's strategy, with each colour's role} · spatial model {flat | layered | perspective | scene} · visual density {…}
 - **Reference**: {one real site, poster or screenshot — URL or file}
 - **Type**: display {font} · body {font} · weight contrast {e.g. 700 vs 400} · hero size jump {e.g. 56px vs 16px}
 - **Palette**: {colours by role, as hex — these are written into the templates directly}

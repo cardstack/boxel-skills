@@ -18,7 +18,7 @@ Visual decisions for Boxel cards.
 3. **Stage 3 — Tokenize isolated** with `var(--*)` references. Pixel-identical to stage 1.
 4. **Stage 4 — Derive embedded + fitted** from the established visual identity. Fitted MUST feature the card's media if any.
 
-Read it in full before any user-facing card design. Stage 1's "internal taste-maker held in mind" is the antidote to curated style menus, which cap design taste at their authors' ceiling — trust the model's taste, push past defaults. For layout, name the moves from [`references/layout-vocabulary.md`](references/layout-vocabulary.md) in the mockup.
+Read it in full before any user-facing card design. Stage 1's "internal taste-maker held in mind" is the antidote to curated style menus, which cap design taste at their authors' ceiling — trust the model's taste, push past defaults. For layout, name the moves from [`references/layout-vocabulary.md`](references/layout-vocabulary.md) in the mockup. For type and colour, choose a family from [`references/style-families.md`](references/style-families.md) on purpose, from the brief, rather than settling on the editorial look. Ship the CSS motion in [`references/motion-baseline.md`](references/motion-baseline.md) in the same pass; it is automatic and needs no hand-off.
 
 ## Brand and Style Source
 
@@ -47,4 +47,6 @@ Choose the governing style source before stage 1:
 
 - [`references/critical-rules.md`](references/critical-rules.md) — anti-LLM-cliché checklist ("Rounded Rectangle Syndrome", "Center-All Disease", "Card Grid Autopilot", etc.) + how to put images in templates + design-excellence mindset. Read alongside design-playbook stage 1 to sharpen the internal taste-maker.
 - [`references/layout-vocabulary.md`](references/layout-vocabulary.md) — eight named layout moves (layered surface, bento, masonry, 40/60 split, edge overlap, editorial type, bleed, sticky scroll) and how each is built inside a card. Name the move you use; "make it look premium" gives a builder nothing to execute.
+- [`references/style-families.md`](references/style-families.md) — eight style families (restrained editorial, playful pop, vibrant, vintage, brutalist, technical mono, soft organic, luxury) with type roles, example Google Fonts pairs, colour strategy, shape and motion character, and the check each is reviewed by. A coverage map, so builds are not all the same look.
+- [`references/motion-baseline.md`](references/motion-baseline.md) — the CSS motion every build ships without being asked: staggered arrival, scroll reveal, hover feedback, at most one ambient loop; five motion characters; the rules that keep it safe in a card. Heavy motion is `motion-authoring`.
 - [`references/asset-selection-guidelines.md`](references/asset-selection-guidelines.md) — concrete image-handling guidance: priority order for asset integration, format choices, fit semantics. Useful regardless of process.

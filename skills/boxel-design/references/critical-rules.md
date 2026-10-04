@@ -5,9 +5,11 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
 ### Avoid Default LLM Design Clichés
 
 - **Rounded Rectangle Syndrome** — Not everything needs `border-radius`. Sharp corners are a design choice; round corners are not the default.
-- **Rainbow Overload** — Restraint > using every color available. ONE accent in ≤2 places is a stronger move than four-color schemes.
-- **Flat Hierarchy** — Create dramatic scale differences, not uniform sizes. Large light + tiny bold beats four sizes all bolded.
-- **Single Font Monotony** — Mix typefaces purposefully (serif heads + sans body, or one display + one mono). One typeface for everything is a tell.
+- **Rainbow Overload** — Colours with no job. In a restrained family, ONE accent in ≤2 places beats a four-colour scheme. In a playful, vibrant or vintage family a multi-colour palette is correct, provided every colour has a named role (see [`style-families.md`](style-families.md)). The failure is colour nobody assigned a purpose.
+- **Flat Hierarchy** — Create dramatic scale differences, not uniform sizes. In an editorial family that is large at light weight against tiny bold; in a playful, vibrant or brutalist family it is a heavy display face against a plain body. What fails is every size sitting at 500–600 with a small step between them.
+- **Single Font Monotony** — Mix typefaces purposefully, by role: display, body, optional label. One typeface for everything is a tell.
+- **Same Look Every Time** — A light serif or thin display face, a small bold sans, one accent and a lot of restraint is one family out of eight. Choose the family from the brief ([`style-families.md`](style-families.md)); if you land on that one, name the line of the brief that asked for it.
+- **Dead Page** — A finished build with no motion at all reads as unfinished. Apply the baseline in [`motion-baseline.md`](motion-baseline.md) without being asked.
 - **Accent Border Laziness** — No thick left/top borders as "design." A 4px accent stripe is the LLM default and it always looks like one.
 - **Center-All Disease** — Asymmetry creates visual interest. Centering every element flattens hierarchy.
 - **Card Grid Autopilot** — Break the predictable 3-column-card layout. Editorial grids, single-column long-reads, asymmetric layouts all read more intentional. Named replacements (bento, masonry, 40/60 split, editorial type, bleed, sticky scroll) and how each is built in a card: [`layout-vocabulary.md`](layout-vocabulary.md).

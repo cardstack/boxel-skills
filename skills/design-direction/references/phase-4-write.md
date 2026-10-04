@@ -12,7 +12,7 @@ separate file would never reach it.
 
 - **From a `domain-interview` brief card:** that card.
 - **No brief (a single card, component or field):** create one first, the same way
-  `domain-interview` does: one SEARCH/REPLACE block creates `Brief/<slug>.json` with
+  `domain-interview` does: one `run-realm-code` call (`realm.fs.writeText`, see `source-code-editing`) creates `Brief/<slug>.json` with
   `adoptsFrom` `{ "module": "@cardstack/catalog/cards/projects/brief", "name": "Brief" }`,
   `cardInfo.name` set to the unit's name, `cardInfo.summary` to one line naming the unit, its
   feeling and its style, and every stage field `null`. `## Brief` then keeps all its lines, since
@@ -66,12 +66,12 @@ through its acceptance lines, not through build steps.
 Show:
 
 1. **A two-line summary per screen**: layout pick and reason · style · the moment.
-2. **One line for motion**: `Motion: needed — <which trigger: arc / scrubbed subject / direct
-   manipulation / library way / reference site>` or `Motion: not needed — all ways discrete`.
+2. **One line for motion**: `Baseline: <character> (automatic)`, then `Heavy motion: needed — <which trigger: arc / scrubbed subject / direct
+   manipulation / library way / reference site>` or `Heavy motion: not needed`. The baseline is never "not needed"; only the heavy layer is a decision.
    This is the only place the user sees whether `motion-authoring`
    will run before those beats are built; a hand-off that skips the line skips the decision. You
    never write the `## Motion` section yourself.
-3. **The first screen**: which one, and why. This is a design call, because the first screen the
+3. **The first screen**: which one, and why. For an app it is the big-picture screen the design questions were framed on, unless that screen is only a list of thin tiles (the tie-break below). This is a design call, because the first screen the
    user sees built is where the language gets locked. The rule: **the screen that puts the most of
    the domain's data on a single surface and holds the primary action.** Tie-break to the screen
    that renders the most linked CardDefs. For an app that is usually the Home / desk screen, because
@@ -84,7 +84,7 @@ Show:
 the choice UI (rules in `SKILL.md`, under the interaction paragraph). The options depend on the motion line you just wrote:
 
 - **Build the first screen** — the one named above. Every build is followed by the automatic `design-review` loop over the app and each linked card (at most two fix rounds), so there is no separate no-review option. Recommend this when motion is not needed.
-- **Run `motion-authoring` first** — offer this only when the motion line says motion is needed,
+- **Run `motion-authoring` first** — offer this only when the motion line says `Heavy motion: needed`,
   and recommend it over building: it fills the `motion` field of this same brief card, and
   beats built before their numbers exist get rebuilt once the numbers arrive.
 - **Adjust the direction** — the style, or the first screen's layout, while nothing is built and
