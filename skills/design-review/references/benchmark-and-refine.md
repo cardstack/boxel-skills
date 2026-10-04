@@ -14,15 +14,17 @@ Run it once per unit, before the first score, and reuse it across rounds.
    dashboard, an editorial article, a product page, a booking flow. A record page, a desk or a
    form has no award category; skip the benchmark for those and score against the acceptance lines
    and the aesthetic bar alone.
-2. **Find three references.** If you can search or open web pages, look in the places that publish
-   recognised work:
+2. **Find three references.** Look them up online only when the user asks for a benchmark against
+   real sites ([`untrusted-content.md`](../../boxel-design/references/untrusted-content.md) →
+   *When to research*); the automatic review after a build does not fetch. When you do look, use the
+   places that publish recognised work:
    - **Awwwards** — Site of the Day, Honorable Mentions and the category collections
    - **The Webby Awards** — winners and Peoples' Voice in the matching category
    - **FWA** — Site of the Day, in the matching category
 
    Take recent work. A site from five years ago benchmarks a period, not the bar. Say which three
-   you chose, where each was listed, and the URL. Without web access, name three you know well,
-   label them `from memory`, and do not claim to have looked. Labels and the rules for anything a
+   you chose, where each was listed, and the URL. Otherwise, name three you know well, label them
+   `from memory`, and do not claim to have looked. Labels and the rules for anything a
    page says are in [`untrusted-content.md`](../../boxel-design/references/untrusted-content.md).
 3. **Capture each at the same width as the unit** (see `capture.md`), above the fold and one scroll
    down. If you cannot capture a page — no browser, or the capture fails — use the reference's

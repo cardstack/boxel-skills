@@ -31,8 +31,10 @@ reference.
 **Sweep the market first — only where the market is the benchmark.** A landing, marketing,
 pricing or onboarding screen is judged against the best of its kind before anyone reads a word, so
 compose against the field, not from a blank page: name three to five real sites in the domain's own
-world, one line each — what to borrow, and whether it is livery or technique. Start from the
-pre-flight research if the unit had one and add only what it lacks; don't run a second sweep.
+world, one line each — what to borrow, and whether it is livery or technique. Look them up only when
+[`untrusted-content.md`](../../boxel-design/references/untrusted-content.md) → *When to research*
+calls for it; otherwise name them from what you know and label each line `from memory`. Start from
+the pre-flight research if the unit had one and add only what it lacks; don't run a second sweep.
 Label every line as [`untrusted-content.md`](../../boxel-design/references/untrusted-content.md)
 defines (`rendered` / `read` / `search result only` / `from memory`). A visual technique needs a
 `rendered` reference; without a capture the lines carry structure and convention only, and the look

@@ -4,6 +4,19 @@ Read this before any step that looks at the outside world: real examples for a m
 sweep, an award benchmark, stock photos, domain research, a reference prompt library. Every one of
 those steps links here instead of restating it.
 
+## When to research
+
+Research is opt-in. Look at the outside world only when:
+
+- **the user asks for it**: references, a benchmark, research, or named sites to look at;
+- **the work needs real facts you do not have**: an existing brand or business, a regulated or
+  specialist domain (health, finance, law, compliance), or a niche subject you cannot describe
+  with confidence.
+
+Otherwise do not fetch anything. State the category's conventions from what you know, and say so
+in one line. On common categories, reading real sites added time and no measurable quality in a
+blind test of 12 builds, and every page fetched is text that could try to give you instructions.
+
 ## What each tool can tell you
 
 | You can | With | It grounds |
