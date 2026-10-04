@@ -103,7 +103,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 Use it freely, without asking first. You cannot judge visual work from source alone:
 - **To see context that carries visual meaning** — a brand guide, a theme, a layout, a card the user points at, an image or an HTML page in the workspace. Look before you describe it, match it, or build on it.
-- **To check your own output** — after you create or change a card, a template, styles, or an HTML file, look at it and compare it with what was asked. Fix what you see before you report back. Inside a `run-realm-code` script, `realm.view(path)` does the same right after a write (see `source-code-editing`).
+- **To check your own output** — after you create a card or change how one looks (a template, styles, an image, an HTML file, content that drives the layout), look at it and compare it with what was asked. A data edit that changes nothing visible needs no capture. Fix what you see before you report back. Inside a `run-realm-code` script, `realm.view(path)` does the same right after a write (see `source-code-editing`).
 
 You see an image in the turn it arrives. In later turns the conversation keeps only its name and size, so to look again, capture it again. At most 8 images reach you per turn, the newest first; view only what you need for the step you are on.
 

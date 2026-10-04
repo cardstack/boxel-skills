@@ -64,7 +64,7 @@ So read it as your first action, before you plan the work or tell the user what 
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
 ├─ Bulk / malformed JSON?              → `run-realm-code`
-└─ After change                        → show-card_566f, and `view-visually_907b` to see that it looks right
+└─ After change                        → show-card_566f; when the change affects how the card looks (images, layout-driving or styled content), `view-visually_907b` to see it
 ```
 
 ### Seeing what you work with
