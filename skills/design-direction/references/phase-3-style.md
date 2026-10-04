@@ -70,7 +70,7 @@ Story: the lamp seen from the shore, steady and far.
 Palette  ground  #0E1726  deep ink water
          accent  #F2B35B  lamplight
          text    #C9D1DC  moonlight
-Type     Fraunces (display) · Inter (text)
+Type     soft serif display, 500 · humanist sans text, 400
 Feels    quiet, trusted, unhurried
 Main screen  the shop's front page: one wide image band, the three rooms
              as large tiles, prices in plain rows below

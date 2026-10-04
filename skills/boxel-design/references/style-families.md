@@ -30,22 +30,57 @@ mix across families when the brief calls for it, and name what you took from eac
    sentence of the brief asked for that. If none did, pick another family. Two consecutive builds
    for different briefs with the same line is a finding.
 
+## Page colour: from a reason, not a habit
+
+There is no default page colour and no banned one. The page colour comes from, in this order: what
+the user said (named colours, a mood word, the feel answer), their brand or reference, then a
+reason from the brief. Warm cream is right when the brief earns it — cedar, linen, limestone, a
+bakery's paper bags — and wrong when it is only what the model reaches for.
+
+**Structure first, hue second.** Decide whether the page is dark, light or colour-forward before
+choosing any hue. A row below sets the structure only when its reason holds for this brief; the
+examples are hints, not triggers, and a counter-signal cancels the row.
+
+| If the site… | Structure | Counter-signals | Examples |
+|---|---|---|---|
+| sells media or performances, or is used mostly at night | dark ground; imagery carries the colour; one luminous accent | daytime use, children, an archive or editorial reading site | cinema, live music, club, theatre, gaming, late-night bar |
+| is read in long sessions of dense data | light neutral ground; colour reserved for meaning (status, categories) | used in dark rooms or at night shifts; developer tools | dashboards, analytics, admin tools |
+| has children as its main reader | colour-forward, with neutral surfaces where text is read | clinical setting, sensory-calm audience | kids' apps, toy shops, children's classes |
+
+No row holds → no prior: choose from the brief and say why. Add a row only after a test shows the
+model's choice clearly wrong for that kind of site.
+
+**One line of reason, naming something concrete.** Before building, write: *"Page: <structure,
+colour> because <a concrete thing from the brief or the feel answer>."* "Cream because spa" is not
+a reason; "warm limestone because the brief's treatment rooms are stone and cedar" is. Then the
+**swap test**: if this palette could sit on any other business of the same kind unnoticed, choose
+again from what is particular to this one.
+
+**When the question was skipped** (no question tool, or the prompt answered it), say the
+assumption in one line the user can correct: "Going dark — the posters carry the colour. Say
+'light' to switch."
+
+**Dark pages need their own craft.** Build in layers (page, raised surface, card), not one flat
+black; keep secondary text at 4.5:1 contrast or better; let photography and artwork bring the
+colour; give the accent one job. Check it with [`../scripts/check-palette.mjs`](../scripts/check-palette.mjs).
+
 ## The families
 
 Type roles are the point: **display** carries the headline, **body** carries reading, and a third
-**label** role (small caps, mono, a rounded sans) is optional. The pairs are suggestions. Every
-family named is on Google Fonts, which is what a Theme card can load.
+**label** role (small caps, mono, a rounded sans) is optional. The table names no fonts on purpose:
+an example pair gets copied into every build. Choose faces that fit the role description, from
+Google Fonts, which is what a Theme card can load.
 
-| Family | Fits | Type roles and weight pattern | Example pairs (Google Fonts) | Colour strategy | Shape and imagery | Motion character |
-|---|---|---|---|---|---|---|
-| **Restrained editorial** | publications, portfolios, essays, legal, clinical | display serif or humanist sans, **light to regular** at large size; body in the same family or a quiet sans; small tracked **bold** labels | Fraunces + Inter · Newsreader + DM Sans · Instrument Serif + Inter | one neutral ground, **one accent** in at most two places | square to slightly rounded; full-width photography, captions | calm |
-| **Playful pop** | pets, kids, snacks, games, creative tools, community | display is **heavy and round** (700–900); body a friendly rounded sans at 400–500; no light weights | Fredoka + Nunito · Baloo 2 + DM Sans · Bagel Fat One + Nunito | **3–5 saturated colours, each with a named role**; a cream or white ground so they read | very round, thick outlines, stickers, cut-outs; illustration over stock | springy |
-| **Vibrant and saturated** | music, events, fashion drops, consumer apps, sports | display grotesque or wide face at **700–800**, tight tracking; body a clean sans | Unbounded + Inter · Syne + DM Sans · Bricolage Grotesque + Inter | **high-chroma duotone or triad on dark or white**; gradients allowed when they carry a role | oversized type as image, bold crops, duotone photos | snappy |
-| **Vintage and nostalgic** | cafés, bakeries, craft goods, heritage brands, travel | display is a **slab, fat serif or script**; body a warm serif; small mono or small caps labels | Abril Fatface + Lora · Bevan + Libre Baskerville · Alfa Slab One + Courier Prime | **muted, warm, low-saturation**: cream paper, ink, one or two faded accents | stamps, ticket stubs, borders, grain; photos warmed and framed | slow |
-| **Brutalist** | studios, zines, galleries, anything wanting to look unpolished on purpose | display is a **condensed or mono heavy**; body a mono or a plain grotesque; **no** soft weights | Archivo Black + Space Mono · Anton + IBM Plex Mono · Rubik Mono One + Space Grotesk | black, white and one **loud** flat colour | no radius, hard shadow, visible grid and rules | snappy |
-| **Technical and mono** | developer tools, data products, infrastructure, dashboards | display and body a precise sans; **mono for data and labels**; regular to semibold | IBM Plex Sans + IBM Plex Mono · Space Grotesk + JetBrains Mono · Inter + JetBrains Mono | **dark or neutral ground, one signal colour** plus status colours with fixed meanings | thin rules, dense tables, charts over photos | snappy |
-| **Soft and organic** | wellness, food, family, nature, community care | display a **soft serif or rounded sans at 500–600**; body a humanist sans | Young Serif + Karla · Quicksand + Nunito · Fraunces + Karla | **earthy or pastel, low contrast between neighbours** but readable text | large radius, blobs, hand-drawn marks, natural photography | gentle |
-| **Luxury** | jewellery, hospitality, high-end retail, private services | display a **high-contrast serif**, light to regular, wide tracking; body a light geometric sans | Cormorant Garamond + Jost · Bodoni Moda + Montserrat · Playfair Display + Josefin Sans | **deep ground with metallic or ivory accent**, or ivory with black | thin rules, generous space, few large images | calm |
+| Family | Fits | Type roles and weight pattern | Colour strategy | Shape and imagery | Motion character |
+|---|---|---|---|---|---|
+| **Restrained editorial** | publications, portfolios, essays, legal, clinical | display serif or humanist sans, **light to regular** at large size; body in the same family or a quiet sans; small tracked **bold** labels | one neutral ground, **one accent** in at most two places | square to slightly rounded; full-width photography, captions | calm |
+| **Playful pop** | pets, kids, snacks, games, creative tools, community | display is **heavy and round** (700–900); body a friendly rounded sans at 400–500; no light weights | **3–5 saturated colours, each with a named role**; a white or light neutral ground so they read | very round, thick outlines, stickers, cut-outs; illustration over stock | springy |
+| **Vibrant and saturated** | music, events, fashion drops, consumer apps, sports | display grotesque or wide face at **700–800**, tight tracking; body a clean sans | **high-chroma duotone or triad on dark or white**; gradients allowed when they carry a role | oversized type as image, bold crops, duotone photos | snappy |
+| **Vintage and nostalgic** | cafés, bakeries, craft goods, heritage brands, travel | display is a **slab, fat serif or script**; body a warm serif; small mono or small caps labels | **muted, low-saturation**: aged paper in any hue (cream, newsprint grey, faded green), ink, one or two faded accents | stamps, ticket stubs, borders, grain; photos warmed and framed | slow |
+| **Brutalist** | studios, zines, galleries, anything wanting to look unpolished on purpose | display is a **condensed or mono heavy**; body a mono or a plain grotesque; **no** soft weights | black, white and one **loud** flat colour | no radius, hard shadow, visible grid and rules | snappy |
+| **Technical and mono** | developer tools, data products, infrastructure, dashboards | display and body a precise sans; **mono for data and labels**; regular to semibold | **dark or neutral ground, one signal colour** plus status colours with fixed meanings | thin rules, dense tables, charts over photos | snappy |
+| **Soft and organic** | wellness, food, family, nature, community care | display a **soft serif or rounded sans at 500–600**; body a humanist sans | **earthy or pastel, low contrast between neighbours** but readable text | large radius, blobs, hand-drawn marks, natural photography | gentle |
+| **Luxury** | jewellery, hospitality, high-end retail, private services | display a **high-contrast serif**, light to regular, wide tracking; body a light geometric sans | **deep ground with metallic or ivory accent**, or ivory with black | thin rules, generous space, few large images | calm |
 
 Restrained editorial and Luxury both use light display weights. That is deliberate and belongs to
 those two families only.
@@ -71,10 +106,10 @@ is checked against both.
 
 ## Limits
 
-- Font availability is not verified here. Before a pair is final, check that both families exist on
+- Font availability is not verified here. Before a pair is final, check that both faces exist on
   Google Fonts and that the Theme's derived `cssImports` loads them
   ([`font-loading-theme-card-owns-imports.md`](../../boxel-ui-guidelines/references/font-loading-theme-card-owns-imports.md)).
-  If a family is missing, pick another in the same family's role.
+  If a face is missing, pick another that fits the same role.
 - Contrast is computed, not eyeballed: run [`../scripts/check-palette.mjs`](../scripts/check-palette.mjs) on the page
   or Theme. Mid-tone accents used as button fills or link text are where it fails.
 - A very heavy display face at small `fitted` sizes becomes unreadable; the type line must say what
