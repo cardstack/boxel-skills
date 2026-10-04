@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the nine base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch), invoking through `operations()` and `atomic()`, the rules lowering enforces, the refusals a caller sees, and the access posture. Activates on `@operation`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, "card operation", "named operation".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the nine base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links` and `html`), invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
 boxel:
   kind: skill
 ---
@@ -131,7 +131,11 @@ for anything the realm must compute on a card, declare the operation on the
 card.
 
 The names `atomic`, `on`, `find`, `parallel` and `serial` belong to the
-invocation surface and cannot name an operation. Neither can a name that already
+invocation surface and cannot name an operation. Nor can `query`: it is the
+name an ad-hoc search is invoked and granted under, so a saved search declared
+under it would share that grant with every filter a caller writes over the
+type — the `query` base is declarable, under any other name. Neither can a name
+that already
 resolves on the class, such as `displayName` — except an inherited operation of
 the same name, which is how a subclass overrides one.
 
@@ -293,11 +297,160 @@ A declaration expresses its work with clauses **or** with a program, never both.
 The two appends and a file's `update` edit stored bytes rather than running a
 program over a document, so they carry no `transformations` at all.
 
+### `links` — how much of the link graph an answer carries
+
+A `read` or a `query` may declare how much of the card's link graph its answer
+carries. Absent means `full`.
+
+| `links`          | The answer                                                                                         | Declarable on    |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------- |
+| `full` (default) | Relationships name their targets, and the transitive closure of linked cards is assembled into `included` — with the results of the query-backed fields of the card the document is about | `read`, `query`  |
+| `ids`            | Relationships name their targets and nothing is assembled; a consumer fetches each target on its own request | `read`, `query`  |
+| `none`           | No relationship data at all, named or assembled                                                     | `query` only     |
+
+```ts
+@operation static read = {
+  base: 'read',
+  links: 'ids',
+} satisfies OperationDeclaration;
+
+@operation static rosterNames = {
+  base: 'query',
+  links: 'none',
+  query: { filter: { on: () => Roster, eq: { term: 'fall' } } },
+} satisfies OperationDeclaration;
+```
+
+**`none` is a query's strategy, never a read's.** A read's strategy governs the
+card's plain `GET` too, and that is what the host loads a card with to render
+and edit it. Under `none` the host would show the card's link fields empty, and
+an edit to one would save what the editor showed **over the stored links** it
+was never shown — a `linksToMany` edit replaces the whole list. `ids` is the
+value to reach for to narrow a read: it still names each target, so the host
+shows and edits the links and fetches each target itself. A query's `none` rows
+carry no such risk, because the host never adopts them as live cards: each is
+marked `meta.relationshipsWithheld: true` and renders from its HTML or loads
+the card through its own read.
+
+**On a `read`, a strategy governs only reads rooted at the declaring card.** A
+linked card's own declaration is never consulted: a `full` read carries a
+linked card whole — its relationships and what they link to — even when that
+card's type declares `none` or `ids` for itself.
+
+**On a `query`, it governs every result row alike**, whatever each row's type
+says in its own `read`. It narrows each row's card, never the entry the row is
+delivered in: the row still names its card and still carries its prerendered
+HTML, which draws the links whatever the strategy. A search run by a render is
+exempt and keeps each row's stored links, because what it draws becomes part of
+the rendering card's own HTML.
+
+**An ad-hoc search has no declaration, so it always serves `full`.** No
+declaration narrows a `_search` or `_federated-search`; only a declared,
+named query does.
+
+**The request may narrow further, never wider.** When the realm sheds load, or
+a consumer asks for links only, the request asks for `ids`; the realm serves
+whichever of the request and the declaration withholds more.
+
+`links` governs **assembly, not derivation**. A computed value that derives
+from a linked card is computed when the card is indexed, lives in the card's
+own attributes, and is served under every strategy.
+
+### `html` — formats served data-only
+
+A `read` or a `query` may mark prerendered formats `unshareable`. Absent, every
+format is shareable.
+
+```ts
+@operation static read = {
+  base: 'read',
+  html: { isolated: 'unshareable', embedded: 'unshareable' },
+} satisfies OperationDeclaration;
+```
+
+The formats are `embedded`, `fitted`, `atom`, `head` and `isolated`, each
+`shareable` or `unshareable`; a format left out is shareable. An unshareable
+format serves that row **data-only, to every caller**: its prerendered HTML is
+withheld, its data is not, and a consumer renders the card from its data.
+
+**This can't be per-caller.** Prerendered HTML is rendered once per card and
+format, under the realm's own authority, and shared by every viewer. A format
+whose template draws a linked card bakes that card's content into the one
+shared markup, so serving it hands the linked content to whoever receives it.
+Nothing is rendered a second time or per caller; the format's markup is simply
+withheld.
+
+- **On a `read`** it governs reads rooted at the card: its single-card HTML
+  read, the last-known-good markup an errored read carries, and the markup a
+  host-mode page for the card is served with.
+- **On a `query`** it governs every row alike, whatever each row's type
+  declares — the rule `links` follows. An ad-hoc search declares nothing and
+  serves every format's markup. A search run by a render is exempt.
+
+It is a claim about what a format draws, not a mechanism. An edit that starts
+drawing a linked card in a format left shareable falsifies it silently — the
+realm's policy reach warnings are what notice (see
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §9).
+
+**A declaration applies uniformly.** The same request answers a realm writer
+and a caller a policy grant admitted with the same document: `links` and `html`
+are properties of the operation, never of how the caller was authorized.
+
 ### `optimistic`
 
 A declaration may carry `optimistic`, and it is validated and stored on the
 lowered operation. Nothing reads it, so setting it changes no behavior — write
 it only to record an intent, never expecting an effect.
+
+### `nonGrantable` — out of every policy grant
+
+`nonGrantable: true` keeps an operation out of reach of every grant in a
+realm's policy:
+
+```ts
+@operation static addToCareTeam = {
+  base: 'transform',
+  params: { memberId: StringField },
+  append: { to: 'careTeamIds', value: params('memberId') },
+  nonGrantable: true,
+} satisfies OperationDeclaration;
+```
+
+The realm's own permissions are untouched: a realm writer still invokes it,
+and so does a reader when it reads. Only a caller the realm admits through a
+grant is refused, with the refusal a grant that does not hold gets (§5). A
+policy grant naming it records `grants-authorization-infrastructure` and is
+left out.
+
+Mark an operation this way when it does either of two things:
+
+- **It edits authorization-bearing state** — a field a policy's `where` reads
+  to decide access, such as a care-team list. A grant on it would let whoever
+  it admits widen their own access, and anyone else's.
+- **Its answer should not reach a caller the realm admits only through a
+  grant.** `explain` and `validate`, which answer what a policy decides and
+  what it compiles to, always carry it; the decorator refuses either declared
+  without it.
+
+**The flag sticks.** It holds on the type that declares it and on every
+subtype, and a subclass that redeclares the operation without it does not
+make it grantable. Lowering keeps it on a declaration with findings too, so a
+broken declaration never becomes grantable by breaking.
+
+**A built-in is marked by redeclaring it under its own name:**
+
+```ts
+@operation static update = { base: 'update', nonGrantable: true };
+```
+
+A redeclaration with no clauses is the built-in behavior. Redeclaring
+`update`, `create` or `delete` also takes the card+json verb of that name
+away from a caller the realm admits through a grant, since a verb reaches the
+built-in only (§6). `readSource` and the name `query` cannot be declared, so
+neither can be marked.
+
+The value must be a boolean. Anything else is refused by the decorator when
+the class is defined.
 
 ## 3. Invoking
 
@@ -363,7 +516,37 @@ to a card that has no URL yet.
 **No read-your-own-writes.** A read entry sees pre-batch state. Two members of
 one parallel group that write the same card are a `conflicting-targets` refusal,
 because members are evaluated against the state the group started from — two
-entries touching one target belong in serial order.
+entries touching one target belong in serial order. A `b.find` filter runs
+against the index as the batch found it, so a card an earlier entry creates is
+not one it can match.
+
+**Every entry is gated, and one refusal refuses the batch.** Each entry is
+judged on its own target, an `expect: 'many'` target card by card, and a single
+refusal answers the whole batch with that entry's error and zero writes. An
+entry the realm's policy decides is judged inside the write lock, against what
+the entries before it in a serial run left (in a parallel group, against what
+the group started from), so a write that follows another to the same card is
+judged by the card that write leaves. A create is judged by the card it would
+mint.
+
+Under a policy, for a caller the realm's permissions decline:
+
+- **A `b.find` filter is an ad-hoc search**, authorized as `query` on its type
+  with that type's `query` grants composed into it, so it finds only the cards
+  those grants admit. With no such grant it finds nothing: `expect: 'one'`
+  answers 400 "matched no card", the answer a filter matching nothing gets,
+  and `expect: 'many'` runs against `[]`. The entry's own operation is then
+  gated on each card found, so a batch that finds its targets needs both
+  grants.
+- **A found card the entry's operation refuses answers a 404
+  `target-not-found` that names no card**: no `id`, the detail
+  `no such target`, and the entry only by position — `[0]` for `expect: 'one'`,
+  `[0].boxel:target[n]` for the nth card an `expect: 'many'` found.
+- **The realm mints the ids of the cards the batch creates.** A `lid` still
+  links cards within the batch and comes back beside the minted id as
+  `{ lid, id }`, but it does not name the file: a caller who could pick the
+  path would learn from the answer whether a card they may not see is stored
+  there.
 
 ### Saved searches
 
@@ -419,6 +602,307 @@ scope that will not resolve — is raised at the call rather than swallowed.
 lags a write until that write is indexed. To read a card just written, read the
 card.
 
+### A saved search on the wire
+
+`.query()` answers the search this side lowered, plus three members that name
+it — `operation`, `on` (the declaring type's code ref) and `params`:
+
+```ts
+{
+  operation: 'admittedOnUnit',
+  on: { module: '…/patient-record', name: 'PatientRecord' },
+  params: { careUnit: '4 West' },
+  filter: { … },  // lowered here; the realm replaces it
+  sort: [ … ],
+  realms: ['https://example.com/hospital/'],
+}
+```
+
+**The realm runs its own resolution, never the caller's.** It reads the
+declaration from its own definition of `on` and lowers it again with `params`
+and the user it authenticated, so `actor()` comes from the token, whatever the
+payload says about anyone. The declared filter replaces the caller's — even
+where the declaration writes none — and a declared `sort` or `page` stands over
+the caller's. The caller still supplies the fieldset, `cardUrls`, `scope`, the
+`htmlQuery` binding in its filter, and `sort` / `page` where the declaration
+names none; which rows match is never theirs to choose. The filter lowered here
+only feeds the host's client-side search arm, so a stale definition on the
+client can skew that arm's matches, never what the realm returns.
+
+**Only the realms the request names are searched.** A declaration that names
+its own `realms` is narrowed to the ones the request names; one that names none
+searches the request's. A realm's own `_search` searches that realm alone.
+
+**`query` is not a saved search's name.** It is reserved: `@operation` refuses
+it, and lowering records `reserved-name`. A grant on `query` is the grant for
+ad-hoc searches — see
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §7.
+
+| Request                                                              | Answer                      |
+| -------------------------------------------------------------------- | --------------------------- |
+| An operation the type does not declare                               | 404 `unknown-operation`     |
+| An `on` the realm cannot resolve                                     | 404 `target-not-found`      |
+| An operation that is not a query, the bare base name `query` included | 400 `invalid-params`        |
+| A declaration carrying lowering findings                             | 422 `invalid-operation`     |
+| No `on`, `params` that is not an object, a declared param left out   | 400 `invalid-params`        |
+| A declaration reading `actor()`, and nobody authenticated or a render the realm runs as itself | 401 `actor-required` |
+| The declaration's realms and the request's share none                | 400 `invalid-params`; the detail does not list the declaration's realms |
+
+**None of these applies when no realm the request names could contribute a
+row.** On `_federated-search`, when every named realm is archived, or is one the
+caller cannot read whose policy could not admit them, the declaration is never
+read: the answer is 200 with no rows, even for an unknown operation or a
+malformed request.
+
+**A declaration that cannot be read is a realm that did not answer.** The realm
+reads it through one the caller reads, or failing that one their policy
+reaches, passing over any that will not mount. When none mounts, the answer is
+200 with no rows and `meta.incomplete: true`.
+
+### What a policy does to a search
+
+**Each realm applies its own policy to its own rows.** A caller the realm's
+permissions let read it is served every matching row, and no policy is loaded.
+For a caller they decline, the realm composes the grants its policy holds for
+the search into it and serves the rows those admit, or none. What a realm named
+in `_federated-search` contributes:
+
+| Realm                                                   | Contributes                                                  |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| One the caller reads                                    | Every matching row; no policy is loaded                      |
+| Unreadable, with a policy but no grant for this search  | No rows, 200 — byte-identical to a grant that matches nothing |
+| Unreadable, with no policy                              | No rows; the realm is not mounted, and its `realm.json` is read from disk |
+| Unreadable, and its policy cannot be judged — the realm won't mount, the policy won't load or compile, or a grant's filter won't translate | Counted failed: its rows are withheld, the other realms answer, and the result carries `meta.incomplete: true` |
+| Archived                                                | No rows                                                      |
+| Not public, from an anonymous caller                    | 401 for the whole request                                    |
+| A URL the registry does not know                        | 404 `Realms not found`                                       |
+
+**A realm's own `_search` differs in two cases.** A realm with no policy answers
+a caller who cannot read it with the permissions' 403, where
+`_federated-search` answers no rows. A realm whose policy won't load or compile
+refuses such a caller with a 500 "Policy unavailable", where
+`_federated-search` counts it failed.
+
+**What a search is authorized as.** A saved search is invoked under its own
+name, on the type that declares it. An ad-hoc search is invoked as `query` on
+the type its filter targets:
+
+- A filter anchored on one type (`type`, or a predicate's `on`) consults that
+  type's `query` grants.
+- An `every` consults the type of each anchored branch.
+- An `any` whose every branch is anchored is judged type by type, each type's
+  grants admitting only that type's cards (`{ on: Type, any: [...] }`). One
+  unanchored branch leaves the whole `any` unanchored.
+- A filter with no anchor, or one naming a type the realm cannot resolve,
+  consults no grant: the permissions alone decide, so a caller only a grant
+  reaches gets no rows, not a refusal.
+
+A grant-reached caller never finds file rows — `query` is carried by card types
+only — and a `read` grant never lets anyone enumerate a type.
+
+**Revocation reaches search at reindex.** A search judges a grant against the
+index, so a card whose edit takes a caller out of a grant (their id removed from
+the field it reads) still lists for them until the card is reindexed. A direct
+`GET` judges the stored card and refuses at once.
+
+**A render the realm runs as itself is never scoped to a viewer.** Its search
+consults no policy, and a realm it cannot read contributes no rows, so the
+prerendered HTML is the same for everyone. That is also why a saved search
+reading `actor()` answers nothing there.
+
+### `meta.policyScopedRealms`
+
+A result some policy shaped carries `meta.policyScopedRealms`: a list of realm
+URLs, not a flag. It lists every realm the caller does not read outright,
+whatever that realm contributed, and on a saved search every realm the request
+named. It reads the same whether a grant admitted rows or none, so it never
+says whether the caller holds a grant.
+
+It matters to a card that merges cards it holds into a result. Of the search
+surfaces, only `getCards` with `isLive: true` does that itself, through its
+client-side arm, and that arm never adds a card from a listed realm that the
+server did not return, and never adds one from a realm no completed search has
+answered unless the session reads that realm. Listed realms' returned rows
+still narrow as cards change; they never widen. `getSearchEntriesResource`,
+`@context.searchResultsComponent` and saved searches run no client-side arm. A
+card doing its own merge follows the same rule: a card from a listed realm that
+the result did not return may be one the realm withheld.
+
+### Asking first: `@context.canInvoke`
+
+A control for an operation the caller may not use should not render. Rendering
+every control and letting the refusal arrive after the click is the failure
+this API exists to prevent. `@context.canInvoke` asks the realm what its gate
+would decide:
+
+```gts
+import { on } from '@ember/modifier';
+import { tracked } from '@glimmer/tracking';
+import { CardDef, Component, contains, field } from '@cardstack/base/card-api';
+import StringField from '@cardstack/base/string';
+import {
+  operation,
+  operations,
+  OperationsError,
+  params,
+  type OperationDeclaration,
+} from '@cardstack/base/operations';
+
+export class Classroom extends CardDef {
+  @field title = contains(StringField);
+
+  @operation static rename = {
+    base: 'transform',
+    params: { title: StringField },
+    set: { title: params('title') },
+  } satisfies OperationDeclaration;
+
+  static isolated = class Isolated extends Component<typeof Classroom> {
+    @tracked refusal: string | undefined;
+
+    get record(): Classroom {
+      return this.args.model as Classroom;
+    }
+
+    // Only `false` is the realm saying no. `undefined` is no answer yet, and
+    // it is also all a render with no `canInvoke` ever gets.
+    get hideRename(): boolean {
+      return this.args.context?.canInvoke?.('rename', this.record) === false;
+    }
+
+    rename = async () => {
+      this.refusal = undefined;
+      try {
+        await operations<typeof Classroom>(this.record).rename({
+          title: 'Renamed',
+        });
+      } catch (err) {
+        this.refusal =
+          err instanceof OperationsError
+            ? (err.detail ?? err.message)
+            : String(err);
+      }
+    };
+
+    <template>
+      <h1>{{@model.title}}</h1>
+      {{#unless this.hideRename}}
+        <button type='button' {{on 'click' this.rename}}>Rename</button>
+      {{/unless}}
+      {{#if this.refusal}}
+        <p role='alert'>{{this.refusal}}</p>
+      {{/if}}
+    </template>
+  };
+}
+```
+
+`canInvoke(operation, target, { realm }?)` answers `boolean | undefined`,
+synchronously, and the template re-renders when the answer lands. A target is
+a saved card, its URL, or a card class. A class asks whether a card of that
+type may be created, or a `query` it declares run, in `realm` — by default the
+session's default writable realm, where a create that names no realm lands.
+
+- **Guard for its absence.** Operator mode and host mode provide it. A
+  prerender and freestyle do not, so read it as
+  `this.args.context?.canInvoke?.(…)`. Inside the prerender app it answers
+  `undefined` even where something provides it: that render authenticates as
+  itself, and its answer would bake one identity's permissions into HTML
+  everyone is served. The live render that follows asks for itself.
+- **Hide on `false`, never on `undefined`.** `undefined` covers a pair still
+  being asked, a request that failed, an unsaved card, a card in a realm the
+  session does not know, and a class with no realm to ask. A failed request is
+  left unanswered rather than denied, and nothing retries it until a later read
+  asks again — so a control disabled on `undefined` can stay disabled. Leave it
+  visible and let the call's own refusal speak.
+- **It is advisory.** The invocation is gated again, against the state as it is
+  then, so `true` is what the answer was a moment ago. Handle the refusal
+  anyway, as the `catch` above does, and never skip anything on a `true`.
+- **Reads are coalesced.** A read enrols its pair rather than fetching. Every
+  pair first read in one render pass goes out on the microtask after it, as one
+  `POST {realm}/_capabilities` per realm, split into requests of at most 100
+  pairs. Thirty cards gating three controls each cost one request.
+- **Answers follow their inputs.** A held answer is asked again when a realm
+  index event names its card; every type pair in the realm is asked again on
+  any of its index events; every pair in the realm is asked again on a full
+  reindex or a change to the realm's config. What no event carries — a policy
+  card in another realm, a permission change — is caught by staleness: the
+  first read of an answer at least 5 seconds old asks again. That re-ask
+  happens on a read, so it lands when the template next renders. The held
+  answer is served while the realm is re-asked, so the control does not
+  flicker. A session ending drops every answer.
+
+### What the answers mean
+
+**Every pair is asked of the realm**, callers its permissions allow included;
+the realm answers those from its permissions without loading a policy. Never
+answer locally from `canWrite` instead: it says yes to an operation the type
+does not carry and to a card that is gone, where the gate says no, and it is
+no answer at all for an operation built on a read.
+
+**`canInvoke` surfaces no `conditional`.** It answers `allowed`, so a
+conditional answer reads as `true`. On the raw `_capabilities` answer,
+`conditional: true` appears only for a create against a type whose matched
+grant has a `where`, and only for a caller who may read the realm: the
+predicate still runs on the card the create mints. A write on a stored card is
+decided definitely, by running the predicate against the card as stored.
+
+**A caller who may not read the realm gets a bare boolean** — no `reason`, no
+`conditional` — so a card no grant admits answers exactly as a card that is not
+there. Their create against a type whose grant has a predicate answers a bare
+`true`.
+
+**An operation built on `query` is asked with the type that declares it** as
+the target; a card target answers `false`, as invoking the query on a card is
+refused. A caller who may read the realm is told `true`. A signed-in caller who
+may not is judged as the search that runs the query judges them: `true` where
+the realm's policy holds a grant on it for that type that compiles to a search
+filter (see [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §7),
+otherwise `false`. That `true` says the search will run, not that it will match
+anything: a caller the filter matches no rows for is told `true` and sees an
+empty list. Nobody signed in is told `false`.
+
+### `POST {realm}/_capabilities`
+
+What `canInvoke` sends, for a command or a script that asks directly. The
+request authenticates as any realm request does.
+
+```json
+{
+  "checks": [
+    { "target": "https://example.com/school/Classroom/7b2", "operation": "rename" },
+    { "target": { "module": "https://example.com/school/classroom", "name": "Classroom" }, "operation": "create" }
+  ]
+}
+```
+
+A target is a card URL or a type `{ module, name }`. A request carrying more
+than 100 pairs, a body that is not JSON, or a pair missing its `operation` or
+`target` is refused whole with 400 `invalid-params` — a truncated answer would
+read as a list of denials.
+
+```json
+{
+  "checks": [
+    { "operation": "rename", "target": "https://example.com/school/Classroom/7b2", "allowed": false, "reason": "policy-predicate-failed" },
+    { "operation": "create", "target": { "module": "https://example.com/school/classroom", "name": "Classroom" }, "allowed": true, "conditional": true }
+  ]
+}
+```
+
+Answers are positional, each echoing its question, served as JSON with
+`cache-control: no-store`. A pair sent twice is decided once. `reason` is the
+code the invocation itself would carry — `operation-not-permitted`,
+`policy-predicate-failed`, `unknown-operation`, `target-not-found`,
+`wrong-entry-point`, `internal-error` for a pair the realm could not decide.
+A write no policy may judge is refused without asking one: `actor-required`
+when nobody is signed in, `operation-not-permitted` for a signed-in caller
+whose session may only read or whose realm names no policy. A caller who may
+not read the realm never gets a `reason`.
+
+A check runs the gate and nothing past it: it stages nothing, takes no lock,
+enqueues no index job and broadcasts no event.
+
 ## 4. What lowering refuses
 
 These are recorded when the module is indexed, not thrown. An operation carrying
@@ -442,11 +926,26 @@ findings has no runnable form, and invoking it is refused with
 | `actor-not-a-card`        | An `actor()` where a card identity belongs                          |
 | `invalid-program`         | A raw program that does not parse                                   |
 | `invalid-query`           | A declared query the query grammar refuses                          |
-| `reserved-name`           | An operation named for a definition-free base operation             |
+| `reserved-name`           | An operation named `readSource` or `query`, or built on `readSource` |
 | `base-not-carried`        | A base the def type does not carry                                  |
 | `unrunnable-program`      | A program on a base that runs none                                  |
 | `incomplete-append`       | An `appendContainsMany` that does not say what to append where      |
 | `instance-out-of-scope`   | An `instance()` in a declared append, which never loads the document |
+| `links-without-assembly`  | `links` on a base other than `read` or `query`, which assembles no link closure |
+| `invalid-link-strategy`   | A `links` value its base can't apply — including `none` on a `read` (§2) |
+| `html-without-rendering`  | `html` on a base other than `read` or `query`, which serves no prerendered HTML |
+| `invalid-html-declaration`| `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable` |
+| `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
+
+The decorator refuses several of these where the class is defined — a
+reserved name, a base the def type does not carry, a malformed `nonGrantable`,
+a `links` or `html` it can't apply — so a module that declares one throws as
+it evaluates, and author code rarely records them. Lowering checks
+them again because a stored definition outlives the code that built it. A
+`read` whose declaration carries findings serves every format data-only.
+`lowering-failed` costs only the operation it hit: the entry stays stored,
+invalid and with its `nonGrantable` kept, so its name never falls back to a
+grantable built-in.
 
 Three of these account for most first attempts:
 
@@ -504,13 +1003,15 @@ try {
 | `target-not-found`         | Nothing at the target's URL                                   |
 | `target-not-indexed`       | Written but not yet indexed — waiting resolves it             |
 | `target-errored`           | The target's index row is an error row                        |
-| `actor-required`           | The operation reads the caller and the request authenticated nobody |
+| `actor-required`           | The operation reads the caller, or the realm names a policy, and the request authenticated nobody |
+| `operation-not-permitted`  | The realm's permissions declined the caller and no policy grant admits the operation |
+| `policy-predicate-failed`  | No grant admitted the operation and a policy predicate threw  |
 | `conflicting-targets`      | Two members of a parallel group write the same file           |
 | `version-conflict`         | A conditional write whose base version had moved              |
 | `precondition-unverifiable`| A conditional write the realm could not decide                |
 | `payload-too-large`        | Over the realm's ceiling for a card or file                   |
 | `wrong-entry-point`        | Reached the operation core with a `query`                     |
-| `internal-error`           | Not the caller's — an unreadable definition, a failing executor |
+| `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
 
 An author writes the `assertion-failed` text, so write it as the sentence a user
 should read: "That rhythm event is not open, so there is nothing to escalate."
@@ -520,21 +1021,102 @@ nothing was written, whichever entry was wrong. `OperationsError.entry` says
 which: an index at the top level, or a path such as `[2].boxel:operations[0]` to
 a member of a group.
 
+### Under a realm policy
+
+In a realm that names a policy, what a caller the realm's permissions declined
+is told turns on one thing: whether those permissions let them read the realm.
+The same table holds through `operations()` (the `_operations` envelope) and
+the card+json routes:
+
+| Situation                                              | Caller who may read the realm                    | Caller who may not |
+| ------------------------------------------------------ | ------------------------------------------------ | ------------------ |
+| No grant holds                                         | 403 `operation-not-permitted`                    | 404 `target-not-found` |
+| The target's def type does not carry the operation     | 405 `operation-not-allowed`                      | 404 `target-not-found` |
+| No such operation, a declaration with findings, an unresolvable type, nothing at the URL | Its own refusal — 404 `unknown-operation`, 422 `invalid-operation`, 404 `target-not-found` | 404 `target-not-found` |
+| A predicate threw and no other grant held              | 500 `policy-predicate-failed`                    | 404 `target-not-found` |
+| The policy won't load or compile                       | 500 `internal-error`, "Policy unavailable"       | 500 `internal-error`, "Policy unavailable" |
+| A create whose type names another realm                | 400 `invalid-params`                             | 404 `target-not-found` |
+| A create naming its type by a relative module          | 400 `invalid-params`                             | 400 `invalid-params` |
+
+A caller who may read the realm reaches the policy only by writing — their
+reads are the permissions' to allow — so a policy that won't load is a 500 to
+them on writes alone. A realm writer never reaches the policy at all.
+
+**A caller who may not read the realm learns nothing about what exists.**
+Every refusal their invocation meets before it is admitted, resolution
+failures included, answers the same bytes a target that isn't there does.
+Over `_operations` that is `title: 'Not found'`, `detail: 'no such target'`,
+and nothing of `meta` beyond `meta.entry`; over card+json it is the route's own
+not-found. Until a write's grant is decided, anything else the realm would
+answer about the write is masked the same way, unless the grant's predicate
+holds against the card as stored: a card+json write's 400 for a body it can't
+use, its 405, its 412 for a conditional write whose version moved, its 415.
+A predicate that throws is logged on the realm's `realm:policy` channel, which
+is where the policy's author finds it.
+
+**Nobody signed in.** On the routes that consume the outcome of the realm's
+permissions — the ones a grant can reach — in a realm that names a policy, a
+request that authenticated nobody, where the permissions want someone, gets
+401 `actor-required` as a JSON:API error, whatever the path names. Elsewhere, and in a realm with no policy, it
+gets the realm's plain-text 401 `Missing Authorization header`.
+
+**A relative `adoptsFrom` is refused** with 400 `invalid-params` through
+`_operations` for every caller, realm owner included, and through a card+json
+`POST` for every caller the realm's permissions decline: a card that isn't
+stored yet has no location for a relative module to resolve against. Name the
+type by URL or registered prefix.
+
+**A card+json error body carries a status and a title, and no `code`.** Over
+those routes the status is the whole answer.
+
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §11 states the
+same refusals from the policy author's side.
+
 ## 6. Access posture
 
 **The realm's own read/write permissions come first.** Any caller who can write
-the realm can invoke any mutating operation on it; any caller who can read it
-can invoke any read. A realm that names a policy can widen that for callers its
-permissions decline, one operation and card type at a time, and never narrow
-it — see [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md). An
-operation that grants access by appending to a list *performs* that mutation;
-nothing verifies the caller was entitled to ask beyond those permissions and
-the policy's grants.
+the realm can invoke any mutating operation on it, a `nonGrantable` one
+included; any caller who can read it can invoke any read. A realm that names a
+policy is consulted only for what those permissions declined: everything, for
+a caller with no permission on the realm; writes, for one who may read it.
 
-An `output` projection shapes an operation's answer and nothing more. A field
-left out of one is still reachable through the card's plain read, its stored
-source, or a search. **Leave a value out because a consumer does not need it,
-never because a caller may not have it.**
+**A policy only widens.** It admits callers the permissions declined, one
+operation and card type at a time, and never narrows what the permissions
+allow. Writing one is
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md).
+
+**A write's predicate is judged under the write lock, against the state before
+the write.** The card the grant reads is the one the write changes, as it
+stands when the lock is taken — inside a batch, as the entries before it leave
+it. So a caller a list admits can take themselves off that list, and a grant
+on an operation that writes the list lets whoever it admits put anyone on it:
+mark such an operation `nonGrantable` (§2). A create against a type is judged
+by the card it would mint, after `fill` and `input` have run; a named create
+anchored on an existing card is judged by that card.
+
+**For a caller who may not read the realm, the realm mints every created
+card's id.** A chosen path would tell them which paths hold a card. Their
+`lid` still links the cards of one batch to each other and comes back beside
+the minted id as `{ lid, id }`, but names no file, so a create sent again with
+the same `lid` mints a second card. Their card+json `POST` targets the realm
+root; one aimed at a directory beneath it answers 404. A caller who may read
+the realm names their own cards, as any writer does.
+
+**The card+json verbs reach the built-in behavior only.** For a caller the
+realm admits through a grant, a `PATCH` merges and a `DELETE` removes whatever
+the type declares under those names, so a type that redeclares `update`,
+`create` or `delete` has that verb refused to such a caller, and the grant is
+used through `operations()`. A card+json write that side-loads cards in
+`included` is refused to them too.
+
+**An `output` projection shapes an operation's answer and nothing more.** A
+field left out of one is still reachable through the card's plain read, its
+stored source, or a search. A granted `read` serves the card's whole
+representation, as the type's `read` declaration shapes it (§2 covers how far
+its links reach). A granted `create` or `update` over card+json answers with
+the whole card it wrote, unprojected, whatever `read` grant the caller holds.
+**Leave a value out because a consumer does not need it, never because a
+caller may not have it.**
 
 A card whose buttons carry real consequence should say so in its own visible
 text.

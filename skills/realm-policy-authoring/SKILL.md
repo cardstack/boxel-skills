@@ -215,7 +215,11 @@ refused to such a caller too, whatever the grants say.
 `included`, even when the caller holds no grant on those cards' types and a
 direct read of one would be refused. Under `links: 'ids'` the relationships name
 their targets and nothing is assembled. The realm records
-`grant-reaches-ungranted-type` against such a grant as a warning (§9).
+`grant-reaches-ungranted-type` against such a grant as a warning (§9). **A
+declaration applies uniformly**: the response shape never depends on how the
+caller was authorized, so a grant can't be given a narrower representation than
+a realm reader gets — narrow the declaration itself (`card-operations-authoring`
+§2).
 
 ## 4. The create lane
 
@@ -639,6 +643,58 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 A card-level issue makes the whole policy uncompilable, and every caller the
 realm's permissions decline gets 500 (§11). The two warnings keep their grant
 live; every other code takes its part out.
+
+### The reach warnings
+
+A grant on a row covers the row's whole returned representation, and nothing
+fails when that reaches further than the rule reads. The two reach warnings are
+what say so. They are recorded where the policy compiles, from the definitions
+of the types the closure crosses, so they cost no index pass and read no card;
+a link added to one of those types is found the next time the policy
+revalidates.
+
+**`grant-reaches-ungranted-type`** is recorded against a `read` or `query`
+grant whose document, under the `links` strategy that governs it, carries cards
+of a type no rule lets a caller read. Its `path` is the grant's, and its
+`message` names the **reaching type** (the rule's), the **reached type**, and
+the **field path** the closure took (`lead.office`). Each reached type gets its
+own issue.
+
+- **The strategy that governs it.** A `read` grant is served under the granted
+  type's own `read` declaration; a named query grant under that query's `links`.
+  An ad-hoc `query` grant has no declaration, so it is always `full`. Only
+  `full` assembles anything, so only a `full` document is walked.
+- **What counts as granted.** A reached type is readable when a rule on it, or
+  on an ancestor, keeps a `read`, a `readSource`, or a `query` that compiled a
+  filter. A rule that only lets a caller write or delete the type doesn't count,
+  and neither does a `query` grant that admits nothing. The config card and
+  every policy card never count, even under a catch-all `CardDef` rule.
+- **The grant stays live.** Plenty of realms reach across a link on purpose;
+  the warning tells you the reach is there.
+
+The fix goes on the **granted** side:
+
+| The grant is                | To send only the links                                                    |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `read`                      | `links: 'ids'` on the granted type's `read` declaration                   |
+| A named query               | `links: 'ids'` (or `'none'`) on that query                                |
+| The ad-hoc `query`          | Grant a named query that declares `links: 'ids'` instead — the ad-hoc search can't be narrowed |
+
+Or, to share the reached cards on purpose, add a rule that lets callers read the
+reached type (never offered for a policy card, the config card, or a type
+every card descends from). **A declaration on the reached type never helps**: a
+card carried through a link is carried whatever its own type declares. Nor
+does a narrower `where` on the grant: every card it does admit still carries
+its closure.
+
+**`render-reaches-ungranted-type`** is the same check over a `query` grant's
+**rendered** rows. A search row carries its prerendered HTML, and a render
+draws the card's links whatever `links` says, so `links: 'ids'` doesn't clear
+it. Mark every format `unshareable` in the named query's `html`
+(`card-operations-authoring` §2) — the check can't tell which formats draw the
+link, so one left shareable keeps the warning — or grant such a named query in
+place of the ad-hoc `query`, or change the type's templates so they don't draw
+the linked cards. A `read` grant serves no rendering and never records it.
 
 ### Seeing the issues
 
