@@ -1,6 +1,6 @@
 ---
 name: realm-policy-authoring
-description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, and the refusals a caller sees. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`.'
+description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), and the refusals a caller sees. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, "why was this caller refused", "what would this rule change".'
 boxel:
   kind: skill
 ---
@@ -150,9 +150,10 @@ that isn't a boolean (`"yes"`) fails the card when it is indexed. The realm then
 records `policy-card-unloadable` and the whole policy is out of force: every
 caller the realm's permissions decline gets 500 (§8).
 
-The card also carries two operations no grant can reach: `validate`, which
-answers what the policy compiles to (§8), and `explain`, which answers what it
-decides for one caller, card and operation. Its isolated view runs both.
+The card also carries operations no grant can reach: `validate`, which
+answers what the policy compiles to (§8), and `explain` with its draft, search
+and listing forms, which answer what it decides for one caller, card and
+operation (§9). Its isolated view runs both.
 
 ## 3. What a grant admits
 
@@ -196,7 +197,7 @@ expresses.
 **What each target carries.** A card carries `read`, `readSource`, `create`,
 `update`, `delete`, `query`, `transform` and `appendContainsMany`, plus its
 named operations. On a **file**, a grant only ever admits `readSource`. `explain`
-and `validate` are never granted (§9).
+and `validate` are never granted (§10).
 
 **A `query` grant only scopes search.** It never admits a direct read of a
 card, and a `read` grant never puts a card in anyone's search results. To let a
@@ -491,7 +492,7 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `invalid-grant`                       | inactive | grant    | The grant names no `operation`                                         |
 | `unknown-operation`                   | inactive | grant    | The type has no such operation (and every grant on `BaseDef`)          |
 | `grants-invalid-operation`            | inactive | grant    | The operation is declared but failed to lower                          |
-| `grants-authorization-infrastructure` | inactive | grant    | The operation is `nonGrantable`, or the rule's type is a `RealmPolicy` (§9) |
+| `grants-authorization-infrastructure` | inactive | grant    | The operation is `nonGrantable`, or the rule's type is a `RealmPolicy` (§10) |
 | `unresolved-type` (at `.operation`)   | inactive | grant    | An ancestor of the type has no readable definition, so whether it marks the operation `nonGrantable` can't be told |
 | `invalid-predicate`                   | inactive | grant    | `where` is empty, doesn't parse, or breaks the `policy` profile (§5)   |
 | `partial-match`                       | inactive | grant    | `where` calls a partial-match builtin (§5)                             |
@@ -501,7 +502,7 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
 
 A card-level issue makes the whole policy uncompilable, and every caller the
-realm's permissions decline gets 500 (§10). The two warnings keep their grant
+realm's permissions decline gets 500 (§11). The two warnings keep their grant
 live; every other code takes its part out.
 
 ### Seeing the issues
@@ -537,10 +538,284 @@ live; every other code takes its part out.
 
 **An edit reaches the gate within seconds.** The compiled policy is
 revalidated when the index of the policy card, or of a type its rules read,
-moves, and at least every 5 s. Validate after each edit, then exercise the
-grant as a caller it should admit and one it shouldn't.
+moves, and at least every 5 s. Validate after each edit, then explain the
+grant for a caller it should admit and one it shouldn't (§9).
 
-## 9. Authorization infrastructure
+## 9. Explaining a decision
+
+A policy narrower than you meant produces refusals someone has to report. A
+policy wider than you meant produces nothing at all. **`explain`** asks the
+realm directly: for one caller, one card and one operation, it runs the target
+realm's gate the way that invocation would, stops at the decision, and reports
+how the gate reached it. Nothing is invoked, so explaining a `delete` deletes
+nothing.
+
+### Asking
+
+Every policy card carries six explain operations, all built on base `explain`.
+Each is a separate declaration because a declared param is always required:
+
+| Operation             | Asks about                                      | Params beyond the question |
+| --------------------- | ----------------------------------------------- | -------------------------- |
+| `explain`             | One card or file                                | —                          |
+| `explainDraft`        | One card or file, against a draft               | `draft`                    |
+| `explainSearch`       | What a search returns to the caller             | `search`                   |
+| `explainDraftSearch`  | The same, against a draft                       | `search`, `draft`          |
+| `explainListing`      | Each card on one page of a realm                | `list`                     |
+| `explainDraftListing` | The same, against a draft                       | `list`, `draft`            |
+
+The question is three strings:
+
+| Param       | Holds                                                                                   |
+| ----------- | --------------------------------------------------------------------------------------- |
+| `actor`     | The caller's Matrix user id, or `""` for a caller who isn't signed in                    |
+| `target`    | The URL of a card or file. For a search or a listing, the URL of the realm it runs in   |
+| `operation` | The name the invocation would invoke: `read`, `rename`, `listMine`, …                    |
+
+**Invoke it on the policy card the target's realm names**, in the policy card's
+realm. The explain asks the gate of the realm that holds the target, so the
+policy card and the cards it governs can sit in different realms:
+
+```ts
+import { operations } from '@cardstack/base/operations';
+import { RealmPolicy } from '@cardstack/catalog/realm-policy/realm-policy';
+
+let explanation = await operations<typeof RealmPolicy>(policy).explain({
+  actor: '@teacher:school.example',
+  target: 'https://school.example/education/classrooms/room-205',
+  operation: 'read',
+});
+```
+
+Over the wire it is an entry in an `_operations` request to the policy card's
+realm, sent as `QUERY` the way `validate` is (§8), and its answer is that
+entry's result:
+
+```json
+POST https://school.example/org/_operations
+X-HTTP-Method-Override: QUERY
+Content-Type: application/vnd.api+json;ext="https://boxel.ai/ext/operations"
+Accept: application/vnd.api+json;ext="https://boxel.ai/ext/operations"
+
+{ "boxel:operations": [
+    { "op": "invoke", "boxel:name": "explain",
+      "href": "https://school.example/org/policies/education",
+      "data": {
+        "actor": "@teacher:school.example",
+        "target": "https://school.example/education/classrooms/room-205",
+        "operation": "read"
+      } }
+] }
+```
+
+With the policy in this skill's opening example, and a Room 205 whose
+`teacherIds` don't list the teacher, the result is:
+
+```json
+{ "atomic:results": [ {
+    "actor": "@teacher:school.example",
+    "target": "https://school.example/education/classrooms/room-205",
+    "operation": "read",
+    "acl": { "read": false, "write": false },
+    "decision": "denied",
+    "reason": "predicate-false",
+    "refusal": { "status": 404, "code": "target-not-found" },
+    "rules": [
+      { "targetType": { "module": "https://school.example/education/classroom", "name": "Classroom" },
+        "path": "rules[0]",
+        "grants": [
+          { "path": "rules[0].grants[0]", "where": ".teacherIds | any(. == actor())",
+            "tier": "stored", "outcome": "did-not-hold" }
+        ] }
+    ]
+} ] }
+```
+
+The same question about a classroom that lists the teacher answers `allowed`,
+`granted`, the grant's `outcome` as `held`, no `refusal`, and
+`"admittedBy": { "rule": 0, "grant": 0 }`.
+
+The policy card's isolated view asks the same questions from its **Explain a
+decision** panel: one card, a search, or every card in a realm, each optionally
+against a draft.
+
+**The target is a card or a file, never a type.** A plain `create` mints from a
+type and has no stored card to name, so it can't be explained. A named create
+invoked on an existing card (`appendActivity` on a classroom) can be, since its
+target is that card.
+
+### Who may ask
+
+- **The caller needs read on both realms**: the policy card's and the target's.
+  Read is the whole requirement, not ownership. A reader of both may explain any
+  actor, themselves included, and learns that actor's standing in the target
+  realm's permissions (`acl`), which the realm's permissions listing shows only
+  to its owners.
+- **The caller is judged by their own session.** A revoked session, or one
+  delegated to the policy card's realm alone, asks as nobody.
+- **No grant reaches it.** Every explain operation is `nonGrantable` (§10). A
+  grant naming `explain` on a `RealmPolicy` rule records
+  `grants-authorization-infrastructure`. On a rule for any other type,
+  `CardDef` included, it records `unknown-operation`, because only a policy
+  card declares `explain`. Either way the grant is inactive, so a caller who
+  reaches the policy card's realm only through a grant can't explain anything,
+  their own access included.
+
+How each refusal reads:
+
+| Situation                                                                 | Answer                                         |
+| ------------------------------------------------------------------------- | ---------------------------------------------- |
+| The caller can't read the policy card's realm or the target's realm, the session is revoked or delegated, the target doesn't exist, its realm isn't served here, or its realm is archived | 404 `target-not-found`, the same bytes in every case |
+| The target's realm doesn't name this policy card                          | 422 `policy-not-in-force`                      |
+| A draft names a type in a realm the caller can't read                     | 403 `operation-not-permitted`, refused whole   |
+| The question is malformed, or asks about more than 100 decisions          | 400 `invalid-params`                           |
+
+A caller who can't read the target's realm learns nothing from an explain about
+which cards exist there.
+
+### What it answers
+
+The answer is a `PolicyExplanation`, the object `explain(…)` resolves to:
+
+| Field        | Holds                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `actor`, `target`, `operation` | The question as the realm read it. `actor` is `null` for `""`          |
+| `acl`        | `{ read, write }`: what the target realm's own permissions allow the actor               |
+| `decision`   | `allowed`, `denied`, or `failed` (deciding faults, and the invocation would answer 500)  |
+| `reason`     | Why, from the table below                                                                 |
+| `refusal`    | `{ status, code }` exactly as the actor would receive it. Absent when allowed            |
+| `rules`      | Every rule whose `targetType` is the target's type or an ancestor, in policy order: `targetType`, `path`, and `grants`, the rule's grants that name the operation. A rule governing the type with no grant for the operation is listed with `grants: []` |
+| `admittedBy` | `{ rule, grant }`: the grant that admitted it, where one did                              |
+| `draft`      | `{ issues }`, when answered against a draft                                              |
+| `search`     | What the policy composes into a search, when a search was asked about                   |
+
+**`admittedBy` indexes the explanation, not the policy.** `{ "rule": 0,
+"grant": 0 }` is the first grant listed in the explanation's first rule. That
+grant's `path` (`rules[2].grants[1]`) is where it sits in the policy card, in
+the same form a policy issue's `path` takes.
+
+**`refusal` is what the actor sees, not what the asker sees.** An actor who
+can't read the target's realm is refused with 404 `target-not-found` whatever
+the reason; `reason` still says why. Over a card+json route, the actor sees only
+the status (§11).
+
+Each listed grant carries its `path`, its `where` as written (absent for an
+unconditional grant), the `tier` its predicate reads (`stored`, or `snapshot`
+for one marked `snapshot: true`, which is checked against the index's copy of
+the card, §7), and an `outcome`:
+
+| `outcome`       | Means                                                                          |
+| --------------- | ------------------------------------------------------------------------------ |
+| `unconditional` | No `where`; the grant admits outright                                          |
+| `held`          | The predicate evaluated to `true`                                              |
+| `did-not-hold`  | It evaluated to anything else                                                  |
+| `threw`         | It threw (§5)                                                                  |
+| `not-evaluated` | The gate decided without it: an earlier grant admitted, or a refusal came first. On a search, every grant |
+
+| `reason`                       | Means                                                                       |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| `acl`                          | The realm's own permissions allow this, so the policy isn't consulted and `rules` is empty |
+| `granted`                      | A grant admits it                                                           |
+| `no-grant`                     | No rule for the target's type grants this operation                          |
+| `predicate-false`              | Grants for the operation matched, and none of their predicates held          |
+| `predicate-threw`              | A predicate threw and no other grant held (`decision: failed`)               |
+| `non-grantable`                | The operation is `nonGrantable` on the type or an ancestor, or is an explain or a validate |
+| `query-lane`                   | The operation is built on `query`; see below                                  |
+| `authorization-infrastructure` | The target is the realm's config card or its policy card, or the operation reads, writes or mints a policy card (§10) |
+| `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, or module source |
+| `not-resolved`                 | The target doesn't carry the operation; `refusal` says how it's refused      |
+| `actor-required`               | `actor` is `""` and the permissions don't let an anonymous caller in: 401   |
+| `policy-unloadable`            | The realm can't load its policy (`decision: failed`)                         |
+
+**An operation built on `query`, explained on a card, answers `query-lane`**,
+with no rules: a query isn't invoked on a card, and its grants are judged by
+the search it's named in. Explain the search instead, with `explainSearch`. A
+query that is `nonGrantable` on the type or any ancestor answers
+`non-grantable`, even where a subtype redeclares it without the flag. A caller
+who can read the realm answers `acl`.
+
+The answer doesn't say what to change. A `draft.issues` entry has the same
+shape as a policy issue; §8 says what each code means.
+
+### Explaining a search
+
+`search` names the search the way its request would, and `target` is the realm
+it runs in:
+
+| The search            | `operation`             | `search`                                  |
+| --------------------- | ----------------------- | ----------------------------------------- |
+| A named query         | Its name (`listMine`)   | `{ "on": <type that declares it>, "params": { … } }`, `params` optional |
+| An ad-hoc search      | `query`                 | `{ "filter": <the filter it sends> }`     |
+
+A search refuses nobody; it returns rows, or none. So `denied` on a search
+carries no `refusal`, and means the search has no rows:
+
+| `decision` / `reason`        | The search                                                                |
+| ---------------------------- | ------------------------------------------------------------------------- |
+| `allowed` / `acl`            | Runs unscoped: the actor can read the realm                               |
+| `allowed` / `granted`        | Runs narrowed by the grants that admit it                                 |
+| `denied` / `no-grant`        | Returns nothing: no grant on its operation compiled a filter               |
+| `denied` / `non-grantable`   | Returns nothing: a grant compiled, and a declaration keeps the query out of every policy |
+| `denied` / `not-resolved`    | Is refused as sent: no such named query, or a filter the search grammar rejects. `refusal` is the search's own |
+| `failed` / `policy-unloadable` | Fails: the realm can't load its policy                                  |
+
+The answer's `search` holds `operation`; `types`, the types whose rules count
+(the declaring type, or each type the filter anchors to; empty when the filter
+anchors to none, so nothing can grant it); `filter`, the search's own filter as
+the realm runs it; `fragment`, what the policy adds, so the search runs
+`{ "every": [filter, fragment] }`; and `index`. Each listed grant carries
+`filterable: true` or `false` in place of an evaluated outcome. A grant with
+`filterable: false` is one that records `policy-not-filterable` (§6).
+
+**A search is as fresh as the index.** `index.pending` counts the index passes
+yet to land, and `index.oldestPendingMs` how long the oldest has waited. Until
+they land, the search answers from the cards as they were, while an explain of
+the same card answers from it as stored. `{ "pending": 0 }` means the index has
+caught up.
+
+### Explaining every card on a page
+
+`list` is `{ "on"?: <type>, "page"?: { "number"?, "size"? } }`, and `target` is
+the realm. It explains each card on one page of the realm's cards, of `on` and
+its subtypes or of every type, ordered by URL, each as its own question. The
+answer is `{ explanations, page: { number, size, total } }`, plus `draft` once
+when answered against a draft. A card deleted while the page is read is left
+out.
+
+**One request explains at most 100 decisions.** `size` defaults to 100 and may
+not exceed it. The cap counts every explain in a batch together: a listing
+counts its `size`, and any other explain counts one. So a hundred single
+explains pass, and two listings of 60, or a full page and one more explain, are
+refused whole with 400 `invalid-params` before anything is explained. Page
+through the rest with `page.number`.
+
+### Against a draft
+
+The `draft` param is a policy document: an object holding the `rules` a
+`RealmPolicy` card holds, as in its `data.attributes`. A whole card document
+(`{ "data": … }`) is refused with 400 `invalid-params`.
+
+- **The draft is compiled in memory, for this answer alone**, in place of the
+  card the target's realm names. Nothing caches it or serves it, the policy in
+  force doesn't change, and a predicate that throws in it isn't logged as the
+  realm's fault. A relative `targetType` module resolves against the card in
+  force.
+- **It rides the explain of the card in force.** Invoke `explainDraft` (or its
+  search and listing forms) on the policy card the target's realm names. A
+  separate draft card that no realm names answers 422 `policy-not-in-force`
+  for its own explain, draft or not.
+- **The answer carries `draft.issues`**: what compiling the draft recorded, in
+  the shape of the policy's own issues (§8). An empty list means it compiled
+  cleanly. A grant an issue takes out is missing from `rules`, and a draft with
+  a card-level issue answers every question `failed` / `policy-unloadable`.
+
+**Before widening a rule, explain the draft.** Edit the rules as a draft,
+explain the cases you care about — a caller the change should admit, one it
+shouldn't, and the searches and listings it touches — then save the rules onto
+the card in force, or onto a new card and repoint the realm at it (§1). The
+panel's draft starts from the card's own rules.
+
+## 10. Authorization infrastructure
 
 Some cards decide who may do what. No grant reaches them:
 
@@ -583,7 +858,7 @@ teacher `update` a classroom whose `teacherIds` admits them lets them add
 anyone to it. Grant a named operation that writes only what the caller should
 change, and mark the authorization-bearing write `nonGrantable`.
 
-## 10. Refusals a caller sees
+## 11. Refusals a caller sees
 
 How the realm refuses depends on whether the caller may read the realm:
 
@@ -604,7 +879,7 @@ that isn't there and a card a grant refuses answer the same bytes. A realm with
 no policy answers with its permissions' own 401 and 403. For the rest of an
 operation's refusals, see `card-operations-authoring` §5.
 
-## 11. Before calling a policy done
+## 12. Before calling a policy done
 
 - The policy card's issues list is empty, or holds only warnings you mean to keep.
 - Every membership test is `any(. == actor())`, parenthesized inside `or`/`and`.
@@ -613,4 +888,5 @@ operation's refusals, see `card-operations-authoring` §5.
 - Every `query` grant compiled a filter (no `policy-not-filterable`), and every
   card a teacher should open also has a `read` grant.
 - No grant can write the field its own predicate reads.
-- You exercised each grant as a caller it should admit and one it shouldn't.
+- You explained each grant for a caller it should admit and one it shouldn't
+  (§9), and explained a draft before widening any rule.
