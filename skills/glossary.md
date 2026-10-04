@@ -233,8 +233,14 @@ The dialect Boxel reads and writes. See [bfm.boxel.site](https://bfm.boxel.site)
 - **`.boxel-history/`** — Per-realm git repo for change history; managed by `boxel-cli`.
 - **`.boxel-sync.json`** — File → md5 checksum manifest the CLI compares against during pull/push/sync.
 - **public permissions** — Realm-level setting that determines whether anonymous host-mode requests resolve.
+- **realm policy** — A `RealmPolicy` card a realm names, whose grants let callers the realm's permissions decline invoke particular operations on particular card types. It only widens access. → `realm-policy-authoring`
+- **`RealmConfig.policy`** — The string on `realm.json` (`data.attributes.policy`) naming the realm's policy card by absolute URL or prefix-form id. Blank means no policy; a malformed value is dropped and the realm serves with no policy; a well-formed pointer to a missing or non-policy card refuses every caller the permissions decline. Any realm writer can repoint it. → `realm-policy-authoring` §1
+- **`RealmPolicy` / `PolicyRule` / `OperationGrant`** — The policy card (catalog `@cardstack/catalog/realm-policy/realm-policy`) and its two fields: `rules` → `{ targetType, grants }` → `{ operation, where }`. `where` is a `policy`-profile BXL string or `{ bxl, snapshot: true }`; absent means unconditional. → `realm-policy-authoring` §2
+- **policy issue** — What compiling a policy records instead of throwing: a `code`, a `path` at the author's position, a `message`, and a `severity` — `inactive` (the card, rule or grant it names is out of force) or `warning` (the grant stays live). Read them with the policy card's `validate` operation or its isolated view. → `realm-policy-authoring` §8
+- **`nonGrantable`** — A flag on an `@operation` declaration that keeps every policy grant off that operation, on the type and every subtype. `explain` and `validate` always carry it. → `realm-policy-authoring` §9
+- **`operation-not-permitted`** — The 403 a caller who may read the realm gets when no grant admits their operation. A caller who may not read the realm gets a 404 identical to "not found" instead. → `realm-policy-authoring` §10
 
-→ `link-host-mode-paths`, `boxel-environment`, `boxel-cli`
+→ `link-host-mode-paths`, `boxel-environment`, `boxel-cli`, `realm-policy-authoring`
 
 ## 13. Realm-bundled libraries (workspace-specific)
 
@@ -388,6 +394,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`boxel-skill-authoring`** — SKILL.md format contract for user-authored skills: `boxel.kind: skill` frontmatter, tool declarations, verify loop.
 - **`boxel-workspace-cardinal-rules`** — Silent-failure trap checklist (DateField vs DateTimeField formats, external URLs in relationship links, `linksToMany` indexed keys, …); partially overlaps the `boxel` skill's cardinal rules under its own numbering.
 - **`card-operations-authoring`** — Declaring named actions on a card with `@operation` and invoking them through `operations()`: base operations and which def type carries which, `params` and the typed references, the sugar clauses (`append` / `assert` / `set` / `fill` / `item` / `query`) and the `bxl` escape hatch, atomic batches and saved searches, the lowering findings an author hits, the refusals a caller sees, and the access posture.
+- **`realm-policy-authoring`** — The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the rule / grant / `where` shape, what a grant admits (types, named operations, the create lane), writing `where` in the `policy` BXL profile, which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its severity, `validate`, authorization infrastructure and `nonGrantable`, and the refusals a caller sees.
 - **`bxl-authoring`** — Writing BXL in a card's `computeVia`: tag choice (plain string / `fx` / `jq`), what the `derive` profile refuses at field-definition time, collecting an aggregate's iterating argument, blank-input and error-value behavior, query-backed aggregation staleness, cyclic graphs, dates, memoization, `{ as: FieldDef }` materialization.
 - **`query-backed-relationships`** — Declaring and sizing the `{ query }` form of `linksTo`/`linksToMany`: the bounded page it holds, `totalMatchCount` vs counting rows, declaring a larger page, `eager: false`, singular-`linksTo` arity, and when a search component is the right tool instead.
 - **`boxel-ui-component-discovery`** — Mandatory catalog Spec search before hand-rolling UI primitives; enumerate → one broad component-Spec query → read `attributes.readMe` → self-audit.
