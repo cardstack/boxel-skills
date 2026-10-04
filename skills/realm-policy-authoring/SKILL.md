@@ -362,7 +362,7 @@ caveat above: anyone who can write into `handouts/` decides what it serves.
 
 Module source is never grantable:
 
-- **`.ts`, `.gts`, `.js` and `.gjs` resolve to no type**, so no rule can name
+- **`.ts`, `.gts`, `.js` and `.gjs` resolve to no type**, so no rule reaches
   them. Neither the transpiled module a browser's `import` loads nor a
   directory listing has a type either. Other script extensions (`.mjs`,
   `.cjs`) are not module source to the realm: they are data files a `FileDef`
