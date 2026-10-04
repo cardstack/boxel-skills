@@ -2,8 +2,10 @@ name: Check plugin version
 
 # Codex keys its plugin cache on the `version` in `.codex-plugin/plugin.json`,
 # so a release whose tag does not match that version reaches Codex users as
-# the content they already have. Claude Code needs no check: its manifest
-# carries no version, so it keys on the commit the boxel marketplace pins.
+# the content they already have. This runs after the release is published, so
+# it flags a mismatch rather than preventing one; the boxel monorepo refuses
+# to pin such a release. Claude Code needs no check: its manifest carries no
+# version, so it keys on the commit the boxel marketplace pins.
 
 on:
   release:

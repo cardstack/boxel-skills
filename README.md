@@ -33,7 +33,7 @@ Two invariants to keep by hand (nothing rewrites your files):
 
 ## Releasing
 
-A release is a published GitHub release whose tag is `v<version>`. Before publishing one, set `version` in `.codex-plugin/plugin.json` to that `<version>` on `main`: Codex decides whether a user's copy is current from that field, and the `Check plugin version` workflow fails a release whose tag does not match it. `.claude-plugin/plugin.json` deliberately carries no version, so Claude Code tracks the commit the boxel marketplace pins.
+A release is a published GitHub release whose tag is `v<version>`. Before publishing one, set `version` in `.codex-plugin/plugin.json` to that `<version>` on `main`: Codex decides whether a user's copy is current from that field. The `Check plugin version` workflow flags a published release whose tag does not match it, but runs only once the release exists; what keeps a mismatched release from reaching users is the boxel monorepo's test that the release it pins carries its own tag as the Codex manifest version. `.claude-plugin/plugin.json` deliberately carries no version, so Claude Code tracks the commit the boxel marketplace pins.
 
 Users get a release once the boxel monorepo moves its pin: the `ref` of the `boxel-skills` entry in both `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`. The monorepo's Software Factory and test suites read the same tag.
 
