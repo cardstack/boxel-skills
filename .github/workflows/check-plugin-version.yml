@@ -1,0 +1,29 @@
+name: Check plugin version
+
+# Codex keys its plugin cache on the `version` in `.codex-plugin/plugin.json`,
+# so a release whose tag does not match that version reaches Codex users as
+# the content they already have. Claude Code needs no check: its manifest
+# carries no version, so it keys on the commit the boxel marketplace pins.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Compare the release tag with the Codex manifest version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          VERSION=$(jq -r .version .codex-plugin/plugin.json)
+          if [ "v$VERSION" != "$TAG" ]; then
+            echo "::error file=.codex-plugin/plugin.json::Release $TAG does not match .codex-plugin/plugin.json version $VERSION. Set the version to ${TAG#v} on main and cut a new release."
+            exit 1
+          fi
+          echo "Release $TAG matches .codex-plugin/plugin.json"

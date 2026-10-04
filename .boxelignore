@@ -4,3 +4,4 @@ package-lock.json
 README.md
 LICENSE
 .claude-plugin/
+.codex-plugin/
