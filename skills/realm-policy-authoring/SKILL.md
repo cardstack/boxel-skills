@@ -1,6 +1,6 @@
 ---
 name: realm-policy-authoring
-description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), and the refusals a caller sees. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, "why was this caller refused", "what would this rule change".'
+description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, file and source-read grants and why code needs the realm''s own read, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), and the refusals a caller sees. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `readSource`, `grants-module-source`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, "why was this caller refused", "what would this rule change".'
 boxel:
   kind: skill
 ---
@@ -49,7 +49,7 @@ over the card:
 Most of what goes wrong with a policy does not throw. A grant the realm cannot
 apply is recorded as an issue and left out, and the rest of the policy applies
 without it, so the symptom is a caller who is refused for no visible reason.
-Check the policy's issues (§8) after every edit.
+Check the policy's issues (§9) after every edit.
 
 The operations a grant names are the ones `card-operations-authoring` covers:
 the base operations every card carries and the named ones a card type
@@ -81,7 +81,7 @@ The pointer is the `policy` string on the realm's `RealmConfig` card —
 | An absolute `http(s)` card URL                          | Is governed by that card                                                                    |
 | A prefix-form id (`@cardstack/catalog/policies/…`)      | Is governed by that card, for a prefix the server maps to a realm                           |
 | A relative path, an unmapped prefix, a non-`http(s)` URL, or a non-string | **Names no policy.** The value is dropped with a `realm:policy` warning and the realm serves on its permissions alone |
-| A well-formed id of a card that is missing, errored, or not a `RealmPolicy` | **Refuses every caller its permissions decline**, with a 500 (§8)       |
+| A well-formed id of a card that is missing, errored, or not a `RealmPolicy` | **Refuses every caller its permissions decline**, with a 500 (§9)       |
 
 The last two rows are the trap. A typo in the *shape* of the pointer silently
 removes the policy. A well-formed pointer to the wrong card fails closed.
@@ -139,7 +139,7 @@ re-exports the type works too.
 | ----------------------------------------- | --------------------------------------------------------------------- |
 | absent or `null`                          | Unconditional — the grant admits every card the rule matches           |
 | `".teacherIds \| any(. == actor())"`      | A BXL predicate over the card's stored values                         |
-| `{ "bxl": ".headTeacher == actor()", "snapshot": true }` | A predicate that may read computed values and searchable links (§7) |
+| `{ "bxl": ".headTeacher == actor()", "snapshot": true }` | A predicate that may read computed values and searchable links (§8) |
 
 `""` (or whitespace) is not "no condition"; it records `invalid-predicate`.
 Leave `where` out for an unconditional grant.
@@ -148,12 +148,12 @@ Leave `where` out for an unconditional grant.
 key besides `bxl` and `snapshot`, a `bxl` that isn't a string, or a `snapshot`
 that isn't a boolean (`"yes"`) fails the card when it is indexed. The realm then
 records `policy-card-unloadable` and the whole policy is out of force: every
-caller the realm's permissions decline gets 500 (§8).
+caller the realm's permissions decline gets 500 (§9).
 
 The card also carries operations no grant can reach: `validate`, which
-answers what the policy compiles to (§8), and `explain` with its draft, search
+answers what the policy compiles to (§9), and `explain` with its draft, search
 and listing forms, which answer what it decides for one caller, card and
-operation (§9). Its isolated view runs both.
+operation (§10). Its isolated view runs both.
 
 ## 3. What a grant admits
 
@@ -196,12 +196,12 @@ expresses.
 
 **What each target carries.** A card carries `read`, `readSource`, `create`,
 `update`, `delete`, `query`, `transform` and `appendContainsMany`, plus its
-named operations. On a **file**, a grant only ever admits `readSource`. `explain`
-and `validate` are never granted (§10).
+named operations. On a **file**, a grant only ever admits `readSource` (§5).
+`explain` and `validate` are never granted (§11).
 
 **A `query` grant only scopes search.** It never admits a direct read of a
 card, and a `read` grant never puts a card in anyone's search results. To let a
-teacher both open and list their classrooms, grant both (§6).
+teacher both open and list their classrooms, grant both (§7).
 
 **The card+json verbs reach the built-in behavior only.** A granted `update`,
 `delete` or `create` admits `PATCH`, `DELETE` and `POST` on the card+json
@@ -216,7 +216,11 @@ refused to such a caller too, whatever the grants say.
 `included`, even when the caller holds no grant on those cards' types and a
 direct read of one would be refused. Under `links: 'ids'` the relationships name
 their targets and nothing is assembled. The realm records
-`grant-reaches-ungranted-type` against such a grant as a warning (§8).
+`grant-reaches-ungranted-type` against such a grant as a warning (§9). **A
+declaration applies uniformly**: the response shape never depends on how the
+caller was authorized, so a grant can't be given a narrower representation than
+a realm reader gets — narrow the declaration itself (`card-operations-authoring`
+§2).
 
 ## 4. The create lane
 
@@ -235,7 +239,7 @@ A create has no stored card to test, so it is matched and judged differently.
   card (`appendActivity` invoked on a classroom) is judged by that card instead.
 - **A create grant cannot use a snapshot read.** The new card is not in the
   index yet; a `create` grant with a `snapshot` predicate that reads a computed
-  or linked value records `unsnapshotted-policy-read` (§7).
+  or linked value records `unsnapshotted-policy-read` (§8).
 - **`adoptsFrom` must name an absolute or prefix-form module.** A create whose
   type is `{ "module": "./bulletin" }` is refused with 400 `invalid-params`
   through `_operations` for every caller, realm owner included, and through a
@@ -248,7 +252,143 @@ A create has no stored card to test, so it is matched and judged differently.
   card+json `POST` targets the realm root; a `POST` to a subdirectory answers
   404.
 
-## 5. Writing `where`
+## 5. Files and source
+
+`readSource` is the read of a path's stored bytes: a data file's bytes, or a
+card's raw `.json`. It is the one operation a grant admits on a file, and it is
+judged differently from every other read, because it is matched on what is
+stored at the path rather than on an index row.
+
+### How a file resolves to a type
+
+A card's `.json` is matched on the card's type. Every other stored file is
+matched on the `FileDef` subclass its **extension** names, and nothing else:
+not its bytes, not its index row. **Renaming a file changes which rule matches
+it, and whoever can write a file chooses its name.** A realm writer who saves
+a document as `notes.png` puts it under every grant on `PngDef` and `ImageDef`.
+
+A rule matches through ancestry (§3), so a rule on an intermediate class
+covers every extension beneath it:
+
+| Name                                        | Resolves to                                  | Also matched by a rule on        |
+| ------------------------------------------- | -------------------------------------------- | -------------------------------- |
+| `logo.png`                                  | `PngDef`                                     | `RasterImageDef`, `ImageDef`, `FileDef` |
+| `photo.jpg`, `photo.jpeg`                   | `JpgDef`                                     | `RasterImageDef`, `ImageDef`, `FileDef` |
+| `icon.svg`                                  | `SvgDef`                                     | `ImageDef`, `FileDef` — not `RasterImageDef` |
+| `notes.md`, `notes.markdown`                | `MarkdownDef`                                | `FileDef`                        |
+| `readme.txt`                                | `TextFileDef`                                | `FileDef`                        |
+| `build.log`                                 | `LogFile`                                    | `TextFileDef`, `FileDef`         |
+| `grades.csv`                                | `CsvFileDef`                                 | `FileDef`                        |
+| `syllabus.pdf`                              | `PdfDef`                                     | `FileDef`                        |
+| `song.mp3`                                  | `Mp3Def`                                     | `AudioDef`, `FileDef`            |
+| `song.mid`                                  | `MidiDef`                                    | `FileDef` — not `AudioDef`       |
+| `clip.mp4`                                  | `Mp4Def`                                     | `VideoDef`, `FileDef`            |
+| `data.json` whose bytes are not a card document | `JsonFileDef`                            | `FileDef`                        |
+| `Classroom/1.json` holding a card document  | The card's type, from its `adoptsFrom`       | That type's ancestors, up to `CardDef` |
+| `theme.css`, `site.yml`, `LICENSE`, `.gitignore`, `bundle.mjs` | `FileDef` itself          | —                                |
+| `classroom.gts`, `util.ts`, `app.js`, `app.gjs` | No type: module source (see below)       | Nothing                          |
+
+- **The extension is the last dot of the file name, in any case.** `photo.PNG`
+  is a `PngDef`; `backup.tar.gz` is a `.gz`, which no def covers, so `FileDef`.
+- **An extension no def is written for, or none, resolves to `FileDef`
+  itself.** So does a dot-file: `.gitignore` has no extension. A rule on a
+  narrower type never matches one.
+- **A `.json` is a card's source only if its bytes are a card document.** It is
+  then matched on the type the document names, judged from the stored bytes,
+  never from the index, so a card written a moment ago and not yet
+  indexed is matched on its new type. A card whose type doesn't resolve is
+  matched by nothing, not read as a data file. Any other `.json` is a
+  `JsonFileDef`.
+- **A path with nothing stored at it is matched by nothing**, so a grant
+  answers "not found" for it as for a file it refuses.
+
+Name a narrower type in `targetType` the way §2 names any type —
+`{ "module": "@cardstack/base/image-file-def", "name": "ImageDef" }`.
+
+### What a `readSource` grant serves
+
+- **A grant on a card type serves that card's raw `.json`**, and a subtype's. A
+  rule on `CardDef` granting `readSource` serves every card's raw source except
+  the realm's config card and policy cards, which no grant reaches (§11).
+- **A card's `.json` is its whole stored document**, including every field the
+  type's `read` declaration leaves out of a read. A `readSource` grant beside a
+  narrower `read` hands the caller everything that `read` was written to
+  withhold. Grant `readSource` on a card type only where the caller may see all
+  of it.
+- **A rule on `FileDef` serves every stored file that isn't module source**:
+  every data file, every dot-file (`.gitignore` and the like), and files of
+  types nobody has written a def for. The realm's ignore files hide a path from
+  listings and the index, not from a byte read. A rule on `FileDef` is a
+  catch-all; to keep dot-files out, grant a narrower type (`ImageDef`,
+  `PdfDef`, …), which a dot-file never matches.
+
+### Over HTTP
+
+A `readSource` grant is honored on the routes that serve a path's bytes: the
+`card+source` read and the realm's raw file serve, `GET` and `HEAD`. For a
+caller the realm's permissions decline, those routes read the name **exactly
+as given**:
+
+- **No extension fallback and no redirect.** Ask for `Classroom/1.json`, not
+  `Classroom/1`; `room.v2` is not redirected to `room.v2.json`, and
+  `./classroom` never reaches `classroom.gts`.
+- **No transpile, and neither the source cache nor the transpile cache.**
+  Nothing the route cached for a reader answers them, and nothing read for them
+  is cached for anyone else.
+- **A granted response is always `Cache-Control: private`.**
+- **`If-None-Match` and the other validators count only after the gate has
+  admitted the read**, so a refused caller can't probe a file's content with an
+  `ETag`.
+- **A refused `GET` is a 404 identical to a missing path**, and a refused
+  `HEAD` gets the realm's discovery answer, as for any path such a caller can't
+  read (§12).
+
+### Predicates on a file
+
+A file has no document to read. A `where` on a file rule sees only the file's
+URL, through `instance("id")`, and the caller, through `actor()`. `.` holds no
+fields and `instance()` no other key, so write the predicate on those two:
+
+```json
+{
+  "operation": "readSource",
+  "where": "instance(\"id\") | startswith(\"https://school.example/education/handouts/\")"
+}
+```
+
+The path is a name a writer chose, so a path predicate inherits the rename
+caveat above: anyone who can write into `handouts/` decides what it serves.
+
+### Code needs the realm's own read
+
+Module source is never grantable:
+
+- **`.ts`, `.gts`, `.js` and `.gjs` resolve to no type**, so no rule can name
+  them. Neither the transpiled module a browser's `import` loads nor a
+  directory listing has a type either. Other script extensions (`.mjs`,
+  `.cjs`) are not module source to the realm: they are data files a `FileDef`
+  rule serves.
+- **A rule whose type is `TsFileDef` or `GtsFileDef`, or descends from one,
+  records `grants-module-source`**, and the whole rule is dropped (§9).
+  `GtsFileDef` extends `TsFileDef`, so a rule on either is caught.
+- **A caller who reaches the realm only through grants is told of code what
+  they are told of an empty path:** a `GET` gets a 404 identical to a missing
+  path, and a `HEAD` gets the realm's discovery answer. A caller who is not
+  signed in gets the realm's own plain-text 401 on a module path, not
+  `actor-required`.
+
+So **code mode needs the realm's own read permission** — browsing the file tree
+and opening a module both do. The host doesn't offer code mode to a caller
+without it: the submode switcher, a card's error and an attached file offer no
+way in, and the assistant's tools that open code mode refuse. That is a
+courtesy, not the boundary; the endpoints are. A shared link can still land a
+grant-reached caller in code mode, where the file tree and every module are
+refused and only a file a grant reaches opens — and a card's `.json` granted
+by `readSource` can show there beside a preview its missing `read` refuses.
+Anyone who authors code in a realm needs the realm's own read permission, and
+its write permission to save.
+
+## 6. Writing `where`
 
 A predicate is BXL validated against the **`policy` profile**. It must evaluate
 to exactly `true`; anything else — `false`, `null`, a string — does not hold.
@@ -270,7 +410,7 @@ them:
 
 There is no `.attributes` or `.relationships`. A computed field's value and a
 linked card's fields are **not** in `.` — reading one needs `snapshot: true`
-(§7).
+(§8).
 
 ### The calls
 
@@ -362,7 +502,7 @@ same 404 as any refusal if not; the fault is logged on `realm:policy`. A throw
 is a bug in the policy, not a refusal: guard the value (`.title != null and
 …`) rather than relying on it.
 
-## 6. `query` grants and search
+## 7. `query` grants and search
 
 A `query` grant is never evaluated card by card. Its predicate is compiled into
 a search filter, and every ad-hoc search by a caller the realm's permissions
@@ -432,7 +572,7 @@ searches file rows. The config card and every policy card are left out of
 every policy-scoped search, so even an unconditional `query` grant on `CardDef`
 does not list them.
 
-## 7. `snapshot: true`
+## 8. `snapshot: true`
 
 A predicate reads the card's stored source by default. Stored source holds a
 link as a reference and holds no computed value at all, so a grant that needs
@@ -469,7 +609,7 @@ What a snapshot read costs:
 Whether a given grant may rest on index-time values is a judgment about how
 stale a decision may be; make it per grant.
 
-## 8. When a policy is wrong
+## 9. When a policy is wrong
 
 **The policy fails closed.** A policy the realm can't compile refuses every
 caller its permissions decline. There is no fallback to an earlier version.
@@ -488,22 +628,74 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `invalid-rule` (at `rules`)           | inactive | card     | `rules` isn't a list                                                   |
 | `invalid-rule`                        | inactive | rule     | `targetType` lacks `module`/`name`, or `grants` isn't a list           |
 | `unresolved-type`                     | inactive | rule     | The `targetType` resolves to no exported type                          |
-| `grants-module-source`                | inactive | rule     | The rule names a module-source file type (`.gts`, `.ts`)               |
+| `grants-module-source`                | inactive | rule     | The rule's type is `TsFileDef` or `GtsFileDef`, or descends from one (§5) |
 | `invalid-grant`                       | inactive | grant    | The grant names no `operation`                                         |
 | `unknown-operation`                   | inactive | grant    | The type has no such operation (and every grant on `BaseDef`)          |
 | `grants-invalid-operation`            | inactive | grant    | The operation is declared but failed to lower                          |
-| `grants-authorization-infrastructure` | inactive | grant    | The operation is `nonGrantable`, or the rule's type is a `RealmPolicy` (§10) |
+| `grants-authorization-infrastructure` | inactive | grant    | The operation is `nonGrantable`, or the rule's type is a `RealmPolicy` (§11) |
 | `unresolved-type` (at `.operation`)   | inactive | grant    | An ancestor of the type has no readable definition, so whether it marks the operation `nonGrantable` can't be told |
-| `invalid-predicate`                   | inactive | grant    | `where` is empty, doesn't parse, or breaks the `policy` profile (§5)   |
-| `partial-match`                       | inactive | grant    | `where` calls a partial-match builtin (§5)                             |
-| `unsnapshotted-policy-read`           | inactive | grant    | `where` reads a value its form can't (§7)                              |
-| `policy-not-filterable`               | inactive | grant    | A `query` grant's `where` can't compile to a search filter (§6)        |
+| `invalid-predicate`                   | inactive | grant    | `where` is empty, doesn't parse, or breaks the `policy` profile (§6)   |
+| `partial-match`                       | inactive | grant    | `where` calls a partial-match builtin (§6)                             |
+| `unsnapshotted-policy-read`           | inactive | grant    | `where` reads a value its form can't (§8)                              |
+| `policy-not-filterable`               | inactive | grant    | A `query` grant's `where` can't compile to a search filter (§7)        |
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
 
 A card-level issue makes the whole policy uncompilable, and every caller the
-realm's permissions decline gets 500 (§11). The two warnings keep their grant
+realm's permissions decline gets 500 (§12). The two warnings keep their grant
 live; every other code takes its part out.
+
+### The reach warnings
+
+A grant on a row covers the row's whole returned representation, and nothing
+fails when that reaches further than the rule reads. The two reach warnings are
+what say so. They are recorded where the policy compiles, from the definitions
+of the types the closure crosses, so they cost no index pass and read no card;
+a link added to one of those types is found the next time the policy
+revalidates.
+
+**`grant-reaches-ungranted-type`** is recorded against a `read` or `query`
+grant whose document, under the `links` strategy that governs it, carries cards
+of a type no rule lets a caller read. Its `path` is the grant's, and its
+`message` names the **reaching type** (the rule's), the **reached type**, and
+the **field path** the closure took (`lead.office`). Each reached type gets its
+own issue.
+
+- **The strategy that governs it.** A `read` grant is served under the granted
+  type's own `read` declaration; a named query grant under that query's `links`.
+  An ad-hoc `query` grant has no declaration, so it is always `full`. Only
+  `full` assembles anything, so only a `full` document is walked.
+- **What counts as granted.** A reached type is readable when a rule on it, or
+  on an ancestor, keeps a `read`, a `readSource`, or a `query` that compiled a
+  filter. A rule that only lets a caller write or delete the type doesn't count,
+  and neither does a `query` grant that admits nothing. The config card and
+  every policy card never count, even under a catch-all `CardDef` rule.
+- **The grant stays live.** Plenty of realms reach across a link on purpose;
+  the warning tells you the reach is there.
+
+The fix goes on the **granted** side:
+
+| The grant is                | To send only the links                                                    |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `read`                      | `links: 'ids'` on the granted type's `read` declaration                   |
+| A named query               | `links: 'ids'` (or `'none'`) on that query                                |
+| The ad-hoc `query`          | Grant a named query that declares `links: 'ids'` instead — the ad-hoc search can't be narrowed |
+
+Or, to share the reached cards on purpose, add a rule that lets callers read the
+reached type (never offered for a policy card, the config card, or a type
+every card descends from). **A declaration on the reached type never helps**: a
+card carried through a link is carried whatever its own type declares. Nor
+does a narrower `where` on the grant: every card it does admit still carries
+its closure.
+
+**`render-reaches-ungranted-type`** is the same check over a `query` grant's
+**rendered** rows. A search row carries its prerendered HTML, and a render
+draws the card's links whatever `links` says, so `links: 'ids'` doesn't clear
+it. Mark every format `unshareable` in the named query's `html`
+(`card-operations-authoring` §2) — the check can't tell which formats draw the
+link, so one left shareable keeps the warning — or grant such a named query in
+place of the ad-hoc `query`, or change the type's templates so they don't draw
+the linked cards. A `read` grant serves no rendering and never records it.
 
 ### Seeing the issues
 
@@ -539,9 +731,9 @@ live; every other code takes its part out.
 **An edit reaches the gate within seconds.** The compiled policy is
 revalidated when the index of the policy card, or of a type its rules read,
 moves, and at least every 5 s. Validate after each edit, then explain the
-grant for a caller it should admit and one it shouldn't (§9).
+grant for a caller it should admit and one it shouldn't (§10).
 
-## 9. Explaining a decision
+## 10. Explaining a decision
 
 A policy narrower than you meant produces refusals someone has to report. A
 policy wider than you meant produces nothing at all. **`explain`** asks the
@@ -588,7 +780,7 @@ let explanation = await operations<typeof RealmPolicy>(policy).explain({
 ```
 
 Over the wire it is an entry in an `_operations` request to the policy card's
-realm, sent as `QUERY` the way `validate` is (§8), and its answer is that
+realm, sent as `QUERY` the way `validate` is (§9), and its answer is that
 entry's result:
 
 ```json
@@ -653,7 +845,7 @@ target is that card.
   to its owners.
 - **The caller is judged by their own session.** A revoked session, or one
   delegated to the policy card's realm alone, asks as nobody.
-- **No grant reaches it.** Every explain operation is `nonGrantable` (§10). A
+- **No grant reaches it.** Every explain operation is `nonGrantable` (§11). A
   grant naming `explain` on a `RealmPolicy` rule records
   `grants-authorization-infrastructure`. On a rule for any other type,
   `CardDef` included, it records `unknown-operation`, because only a policy
@@ -697,19 +889,19 @@ the same form a policy issue's `path` takes.
 **`refusal` is what the actor sees, not what the asker sees.** An actor who
 can't read the target's realm is refused with 404 `target-not-found` whatever
 the reason; `reason` still says why. Over a card+json route, the actor sees only
-the status (§11).
+the status (§12).
 
 Each listed grant carries its `path`, its `where` as written (absent for an
 unconditional grant), the `tier` its predicate reads (`stored`, or `snapshot`
 for one marked `snapshot: true`, which is checked against the index's copy of
-the card, §7), and an `outcome`:
+the card, §8), and an `outcome`:
 
 | `outcome`       | Means                                                                          |
 | --------------- | ------------------------------------------------------------------------------ |
 | `unconditional` | No `where`; the grant admits outright                                          |
 | `held`          | The predicate evaluated to `true`                                              |
 | `did-not-hold`  | It evaluated to anything else                                                  |
-| `threw`         | It threw (§5)                                                                  |
+| `threw`         | It threw (§6)                                                                  |
 | `not-evaluated` | The gate decided without it: an earlier grant admitted, or a refusal came first. On a search, every grant |
 
 | `reason`                       | Means                                                                       |
@@ -721,7 +913,7 @@ the card, §7), and an `outcome`:
 | `predicate-threw`              | A predicate threw and no other grant held (`decision: failed`)               |
 | `non-grantable`                | The operation is `nonGrantable` on the type or an ancestor, or is an explain or a validate |
 | `query-lane`                   | The operation is built on `query`; see below                                  |
-| `authorization-infrastructure` | The target is the realm's config card or its policy card, or the operation reads, writes or mints a policy card (§10) |
+| `authorization-infrastructure` | The target is the realm's config card or its policy card, or the operation reads, writes or mints a policy card (§11) |
 | `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, or module source |
 | `not-resolved`                 | The target doesn't carry the operation; `refusal` says how it's refused      |
 | `actor-required`               | `actor` is `""` and the permissions don't let an anonymous caller in: 401   |
@@ -735,7 +927,7 @@ query that is `nonGrantable` on the type or any ancestor answers
 who can read the realm answers `acl`.
 
 The answer doesn't say what to change. A `draft.issues` entry has the same
-shape as a policy issue; §8 says what each code means.
+shape as a policy issue; §9 says what each code means.
 
 ### Explaining a search
 
@@ -765,7 +957,7 @@ anchors to none, so nothing can grant it); `filter`, the search's own filter as
 the realm runs it; `fragment`, what the policy adds, so the search runs
 `{ "every": [filter, fragment] }`; and `index`. Each listed grant carries
 `filterable: true` or `false` in place of an evaluated outcome. A grant with
-`filterable: false` is one that records `policy-not-filterable` (§6).
+`filterable: false` is one that records `policy-not-filterable` (§7).
 
 **A search is as fresh as the index.** `index.pending` counts the index passes
 yet to land, and `index.oldestPendingMs` how long the oldest has waited. Until
@@ -805,7 +997,7 @@ The `draft` param is a policy document: an object holding the `rules` a
   separate draft card that no realm names answers 422 `policy-not-in-force`
   for its own explain, draft or not.
 - **The answer carries `draft.issues`**: what compiling the draft recorded, in
-  the shape of the policy's own issues (§8). An empty list means it compiled
+  the shape of the policy's own issues (§9). An empty list means it compiled
   cleanly. A grant an issue takes out is missing from `rules`, and a draft with
   a card-level issue answers every question `failed` / `policy-unloadable`.
 
@@ -815,7 +1007,7 @@ shouldn't, and the searches and listings it touches — then save the rules onto
 the card in force, or onto a new card and repoint the realm at it (§1). The
 panel's draft starts from the card's own rules.
 
-## 10. Authorization infrastructure
+## 11. Authorization infrastructure
 
 Some cards decide who may do what. No grant reaches them:
 
@@ -848,7 +1040,7 @@ carried inside another's answer.** A granted `read`, or a row a `query` grant
 admits, is served with its whole link closure. If a granted type links to the
 config card or a policy card, every caller the grant admits receives that card
 — the policy's whole rule list — in `included`. The realm records
-`grant-reaches-ungranted-type` against such a grant (§8). Don't link to these
+`grant-reaches-ungranted-type` against such a grant (§9). Don't link to these
 cards from a granted type, or declare a narrower `links` on the read or the
 named query that serves it.
 
@@ -858,7 +1050,7 @@ teacher `update` a classroom whose `teacherIds` admits them lets them add
 anyone to it. Grant a named operation that writes only what the caller should
 change, and mark the authorization-bearing write `nonGrantable`.
 
-## 11. Refusals a caller sees
+## 12. Refusals a caller sees
 
 How the realm refuses depends on whether the caller may read the realm:
 
@@ -879,7 +1071,7 @@ that isn't there and a card a grant refuses answer the same bytes. A realm with
 no policy answers with its permissions' own 401 and 403. For the rest of an
 operation's refusals, see `card-operations-authoring` §5.
 
-## 12. Before calling a policy done
+## 13. Before calling a policy done
 
 - The policy card's issues list is empty, or holds only warnings you mean to keep.
 - Every membership test is `any(. == actor())`, parenthesized inside `or`/`and`.
@@ -887,6 +1079,8 @@ operation's refusals, see `card-operations-authoring` §5.
   no `create` grant does.
 - Every `query` grant compiled a filter (no `policy-not-filterable`), and every
   card a teacher should open also has a `read` grant.
+- Every `readSource` grant on a card type is meant to reveal the whole stored
+  document, and every file rule names the narrowest `FileDef` that fits.
 - No grant can write the field its own predicate reads.
 - You explained each grant for a caller it should admit and one it shouldn't
-  (§9), and explained a draft before widening any rule.
+  (§10), and explained a draft before widening any rule.
