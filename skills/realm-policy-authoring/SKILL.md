@@ -80,7 +80,7 @@ The pointer is the `policy` string on the realm's `RealmConfig` card —
 | Nothing, `null`, or a blank string                      | Names no policy. Its permissions alone decide every request                                 |
 | An absolute `http(s)` card URL                          | Is governed by that card                                                                    |
 | A prefix-form id (`@cardstack/catalog/policies/…`)      | Is governed by that card, for a prefix the server maps to a realm                           |
-| A relative path, an unmapped prefix, a non-`http(s)` URL, or a non-string | **Names no policy.** The value is dropped with a `realm:policy` warning and the realm serves on its permissions alone |
+| A relative path, an unmapped prefix, a non-`http(s)` URL, or a non-string | **Names no policy.** The value is dropped and the realm serves on its permissions alone |
 | A well-formed id of a card that is missing, errored, or not a `RealmPolicy` | **Refuses every caller its permissions decline**, with a 500 (§9)       |
 
 The last two rows are the trap. A typo in the *shape* of the pointer silently
