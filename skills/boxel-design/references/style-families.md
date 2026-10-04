@@ -75,6 +75,8 @@ is checked against both.
   Google Fonts and that the Theme's derived `cssImports` loads them
   ([`font-loading-theme-card-owns-imports.md`](../../boxel-ui-guidelines/references/font-loading-theme-card-owns-imports.md)).
   If a family is missing, pick another in the same family's role.
+- Contrast is computed, not eyeballed: run [`../scripts/check-palette.mjs`](../scripts/check-palette.mjs) on the page
+  or Theme. Mid-tone accents used as button fills or link text are where it fails.
 - A very heavy display face at small `fitted` sizes becomes unreadable; the type line must say what
   the display role does at `fitted` and `atom`.
 - The weights and colour rules above are starting positions drawn from common practice. Where a

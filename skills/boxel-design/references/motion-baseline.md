@@ -69,13 +69,20 @@ Blocks below the fold arrive as the reader reaches them.
 ```css
 @supports (animation-timeline: view()) {
   .reveal {
-    animation: mb-arrive linear both;
-    animation-timeline: view();
+    animation: mb-rise linear both;
+    animation-timeline: view();          /* after the shorthand, which resets it */
     animation-range: entry 0% entry 40%;
   }
 }
+@keyframes mb-rise { from { transform: translateY(24px); } }
 ```
 
+- **Transform only, never opacity.** A screenshot of the whole page never scrolls, so every block
+  below the fold is captured before its entry range: with an opacity keyframe those blocks come
+  out blank, and `design-review` scores from those captures. A block 24 px low is still readable.
+- **Put `.reveal` on a block's content, not on a panel with its own background or border.** Before
+  entry the block sits 24 px low, so on a filled panel the offset shows as a gap above it in the
+  same full-page capture.
 - **Where unsupported, the block is simply there**, which is the right fallback. Nothing needs a
   polyfill.
 - The timeline resolves to the nearest scrolling ancestor, which in an isolated card is the card's
