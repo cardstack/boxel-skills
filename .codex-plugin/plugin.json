@@ -1,0 +1,22 @@
+{
+  "name": "boxel-skills",
+  "version": "0.1.7",
+  "description": "Official Boxel card-building skills. Install alongside the boxel-cli plugin from the cardstack/boxel marketplace.",
+  "skills": "./skills/",
+  "author": {
+    "name": "Cardstack",
+    "url": "https://boxel.ai"
+  },
+  "homepage": "https://github.com/cardstack/boxel-skills",
+  "repository": "https://github.com/cardstack/boxel-skills.git",
+  "license": "MIT",
+  "interface": {
+    "displayName": "Boxel Skills",
+    "shortDescription": "Card-building guidance for Boxel",
+    "longDescription": "Author Boxel cards, fields, templates, themes, queries and catalog listings — the official skills behind the Boxel AI assistant.",
+    "developerName": "Cardstack",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://boxel.ai"
+  }
+}

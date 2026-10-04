@@ -1,7 +1,6 @@
 {
   "name": "boxel-skills",
-  "description": "Official Boxel card-building skills and commands, loaded directly from a checkout for skill authoring (claude --plugin-dir /path/to/boxel-skills). End users should install the boxel-cli plugin instead, which distributes a released snapshot of this content.",
-  "version": "0.1.0",
+  "description": "Official Boxel card-building skills. Installed alongside the boxel-cli plugin from the cardstack/boxel marketplace, or loaded from a checkout for skill authoring (claude --plugin-dir /path/to/boxel-skills).",
   "author": {
     "name": "Cardstack",
     "url": "https://boxel.ai"
