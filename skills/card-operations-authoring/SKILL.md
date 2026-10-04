@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the nine base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch), invoking through `operations()` and `atomic()`, the rules lowering enforces, the refusals a caller sees, and the access posture. Activates on `@operation`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, "card operation", "named operation".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the nine base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch), invoking through `operations()` and `atomic()`, hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees, and the access posture. Activates on `@operation`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
 boxel:
   kind: skill
 ---
@@ -418,6 +418,181 @@ scope that will not resolve — is raised at the call rather than swallowed.
 **A saved search is as fresh as the index.** It reads the search index, which
 lags a write until that write is indexed. To read a card just written, read the
 card.
+
+### Asking first: `@context.canInvoke`
+
+A control for an operation the caller may not use should not render. Rendering
+every control and letting the refusal arrive after the click is the failure
+this API exists to prevent. `@context.canInvoke` asks the realm what its gate
+would decide:
+
+```gts
+import { on } from '@ember/modifier';
+import { tracked } from '@glimmer/tracking';
+import { CardDef, Component, contains, field } from '@cardstack/base/card-api';
+import StringField from '@cardstack/base/string';
+import {
+  operation,
+  operations,
+  OperationsError,
+  params,
+  type OperationDeclaration,
+} from '@cardstack/base/operations';
+
+export class Classroom extends CardDef {
+  @field title = contains(StringField);
+
+  @operation static rename = {
+    base: 'transform',
+    params: { title: StringField },
+    set: { title: params('title') },
+  } satisfies OperationDeclaration;
+
+  static isolated = class Isolated extends Component<typeof Classroom> {
+    @tracked refusal: string | undefined;
+
+    get record(): Classroom {
+      return this.args.model as Classroom;
+    }
+
+    // Only `false` is the realm saying no. `undefined` is no answer yet, and
+    // it is also all a render with no `canInvoke` ever gets.
+    get hideRename(): boolean {
+      return this.args.context?.canInvoke?.('rename', this.record) === false;
+    }
+
+    rename = async () => {
+      this.refusal = undefined;
+      try {
+        await operations<typeof Classroom>(this.record).rename({
+          title: 'Renamed',
+        });
+      } catch (err) {
+        this.refusal =
+          err instanceof OperationsError
+            ? (err.detail ?? err.message)
+            : String(err);
+      }
+    };
+
+    <template>
+      <h1>{{@model.title}}</h1>
+      {{#unless this.hideRename}}
+        <button type='button' {{on 'click' this.rename}}>Rename</button>
+      {{/unless}}
+      {{#if this.refusal}}
+        <p role='alert'>{{this.refusal}}</p>
+      {{/if}}
+    </template>
+  };
+}
+```
+
+`canInvoke(operation, target, { realm }?)` answers `boolean | undefined`,
+synchronously, and the template re-renders when the answer lands. A target is
+a saved card, its URL, or a card class. A class asks whether a card of that
+type may be created, or a `query` it declares run, in `realm` — by default the
+session's default writable realm, where a create that names no realm lands.
+
+- **Guard for its absence.** Operator mode and host mode provide it. A
+  prerender and freestyle do not, so read it as
+  `this.args.context?.canInvoke?.(…)`. Inside the prerender app it answers
+  `undefined` even where something provides it: that render authenticates as
+  itself, and its answer would bake one identity's permissions into HTML
+  everyone is served. The live render that follows asks for itself.
+- **Hide on `false`, never on `undefined`.** `undefined` covers a pair still
+  being asked, a request that failed, an unsaved card, a card in a realm the
+  session does not know, and a class with no realm to ask. A failed request is
+  left unanswered rather than denied, and nothing retries it until a later read
+  asks again — so a control disabled on `undefined` can stay disabled. Leave it
+  visible and let the call's own refusal speak.
+- **It is advisory.** The invocation is gated again, against the state as it is
+  then, so `true` is what the answer was a moment ago. Handle the refusal
+  anyway, as the `catch` above does, and never skip anything on a `true`.
+- **Reads are coalesced.** A read enrols its pair rather than fetching. Every
+  pair first read in one render pass goes out on the microtask after it, as one
+  `POST {realm}/_capabilities` per realm, split into requests of at most 100
+  pairs. Thirty cards gating three controls each cost one request.
+- **Answers follow their inputs.** A held answer is asked again when a realm
+  index event names its card; every type pair in the realm is asked again on
+  any of its index events; every pair in the realm is asked again on a full
+  reindex or a change to the realm's config. What no event carries — a policy
+  card in another realm, a permission change — is caught by staleness: the
+  first read of an answer at least 5 seconds old asks again. That re-ask
+  happens on a read, so it lands when the template next renders. The held
+  answer is served while the realm is re-asked, so the control does not
+  flicker. A session ending drops every answer.
+
+### What the answers mean
+
+**Every pair is asked of the realm**, callers its permissions allow included;
+the realm answers those from its permissions without loading a policy. Never
+answer locally from `canWrite` instead: it says yes to an operation the type
+does not carry and to a card that is gone, where the gate says no, and it is
+no answer at all for an operation built on a read.
+
+**`canInvoke` surfaces no `conditional`.** It answers `allowed`, so a
+conditional answer reads as `true`. On the raw `_capabilities` answer,
+`conditional: true` appears only for a create against a type whose matched
+grant has a `where`, and only for a caller who may read the realm: the
+predicate still runs on the card the create mints. A write on a stored card is
+decided definitely, by running the predicate against the card as stored.
+
+**A caller who may not read the realm gets a bare boolean** — no `reason`, no
+`conditional` — so a card no grant admits answers exactly as a card that is not
+there. Their create against a type whose grant has a predicate answers a bare
+`true`.
+
+**An operation built on `query` is asked with the type that declares it** as
+the target; a card target answers `false`, as invoking the query on a card is
+refused. A caller who may read the realm is told `true`. A signed-in caller who
+may not is judged as the search that runs the query judges them: `true` where
+the realm's policy holds a grant on it for that type that compiles to a search
+filter (see [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §6),
+otherwise `false`. That `true` says the search will run, not that it will match
+anything: a caller the filter matches no rows for is told `true` and sees an
+empty list. Nobody signed in is told `false`.
+
+### `POST {realm}/_capabilities`
+
+What `canInvoke` sends, for a command or a script that asks directly. The
+request authenticates as any realm request does.
+
+```json
+{
+  "checks": [
+    { "target": "https://example.com/school/Classroom/7b2", "operation": "rename" },
+    { "target": { "module": "https://example.com/school/classroom", "name": "Classroom" }, "operation": "create" }
+  ]
+}
+```
+
+A target is a card URL or a type `{ module, name }`. A request carrying more
+than 100 pairs, a body that is not JSON, or a pair missing its `operation` or
+`target` is refused whole with 400 `invalid-params` — a truncated answer would
+read as a list of denials.
+
+```json
+{
+  "checks": [
+    { "operation": "rename", "target": "https://example.com/school/Classroom/7b2", "allowed": false, "reason": "policy-predicate-failed" },
+    { "operation": "create", "target": { "module": "https://example.com/school/classroom", "name": "Classroom" }, "allowed": true, "conditional": true }
+  ]
+}
+```
+
+Answers are positional, each echoing its question, served as JSON with
+`cache-control: no-store`. A pair sent twice is decided once. `reason` is the
+code the invocation itself would carry — `operation-not-permitted`,
+`policy-predicate-failed`, `unknown-operation`, `target-not-found`,
+`wrong-entry-point`, `internal-error` for a pair the realm could not decide.
+A write no policy may judge is refused without asking one: `actor-required`
+when nobody is signed in, `operation-not-permitted` for a signed-in caller
+whose session may only read or whose realm names no policy. A caller who may
+not read the realm never gets a `reason`.
+
+A check runs the gate and nothing past it: it stages nothing, takes no lock,
+enqueues no index job and broadcasts no event.
 
 ## 4. What lowering refuses
 
