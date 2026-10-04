@@ -51,7 +51,8 @@ So read it as your first action, before you plan the work or tell the user what 
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → preview-format_cb94 (opens module + shows card preview)
-  └─ Interact mode → show-card_566f
+  ├─ Interact mode → show-card_566f
+  └─ Look at the result → `view-visually` on the card (or `realm.view` in the script) and compare it with what was asked
 ```
 
 ### Step 4 — Data task
@@ -63,8 +64,12 @@ So read it as your first action, before you plan the work or tell the user what 
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
 ├─ Bulk / malformed JSON?              → `run-realm-code`
-└─ After change                        → show-card_566f to verify
+└─ After change                        → show-card_566f, and `view-visually` to see that it looks right
 ```
+
+### Seeing what you work with
+
+You cannot judge visual work from source. Use `view-visually` freely — on a card or file in the workspace you need to understand (a brand guide, a theme, a layout, an image, an HTML page) and on everything you make, before you report it done. Images the user attaches to the chat you already see. A non-image file the user attaches from their computer (an HTML page, say) reaches you only as source: tell the user plainly you cannot see how it renders, and ask for a screenshot or for the file to be uploaded into the workspace so you can capture it. Details: the Seeing section of `references/host-commands-reference.md`.
 
 Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
 

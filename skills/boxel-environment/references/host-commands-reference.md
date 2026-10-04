@@ -72,6 +72,10 @@ boxel:
         module: '@cardstack/boxel-host/tools/search-cards'
         name: SearchCardsByTypeAndTitleCommand
       requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/view-visually'
+        name: default
+      requiresApproval: false
 ---
 
 # Host Commands Reference
@@ -92,6 +96,20 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 - `read-file-for-ai-assistant_a831` — Read file contents into context.
 - `read-card-for-ai-assistant` — Read a card instance.
+
+## Seeing
+
+- **`view-visually`** — See a card instance or any file in a workspace as it renders. It captures the thing as an image and attaches it to the tool result, so you look at it the way the user does. Pass `url` (a card's id or a workspace file's URL — HTML, markdown, images, PDFs and other files are captured through their file view), and optionally `format` (`isolated`, the default, or `embedded`), `viewportWidth`/`viewportHeight` (default 1280×800), and `fullPage`.
+
+Use it freely, without asking first. You cannot judge visual work from source alone:
+- **To see context that carries visual meaning** — a brand guide, a theme, a layout, a card the user points at, an image or an HTML page in the workspace. Look before you describe it, match it, or build on it.
+- **To check your own output** — after you create or change a card, a template, styles, or an HTML file, look at it and compare it with what was asked. Fix what you see before you report back. Inside a `run-realm-code` script, `realm.view(path)` does the same right after a write (see `source-code-editing`).
+
+What you can and cannot see:
+- **Anything in a workspace:** capture it with `view-visually`.
+- **An image the user attached to the chat:** you already see it; do not capture it again.
+- **Any other file the user attached from their computer** (an HTML page, a document): you receive only its source, never how it renders. Say so plainly — tell the user you cannot see it rendered — and ask them either to attach a screenshot or to upload the file into the workspace, so you can capture it yourself. Never describe how it looks from its source as if you had seen it.
+- **When an image reaches you as an omitted attachment** (the model cannot take images, or it was too large): tell the user you could not see it; do not guess at its contents.
 
 ## Navigation
 

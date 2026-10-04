@@ -304,6 +304,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **Search** — `search-entries` (discovery: Specs, files, full readMe on the hit), `search-cards`, `search-and-choose`.
 - **Realm-server** — `get-all-realm-metas`, `get-available-realm-urls`, `get-default-writable-realm`, `get-catalog-realm-urls`, `get-realm-of-url`, `can-read-realm`, `validate-realm`, `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job`, `invalidate-realm-identifiers`, `sanitize-module-list`.
 - **UI / navigation** — `switch-submode`, `show-card`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`, `delete-workspace`.
+- **Seeing** — `view-visually` (capture a card or workspace file as an image attached to the tool result, so the assistant sees it; `realm.view(path)` is the same from inside a `run-realm-code` script). → `boxel-environment/references/host-commands-reference.md` § Seeing
 - **Store** — `store-add`.
 - **Catalog** — `listing-create`, `listing-install`, `listing-remix`, `listing-use`, `listing-generate-example`, `listing-update-specs`, `create-and-open-submission-workflow-card`, `retry-submission-workflow`, `execute-atomic-operations`.
 - **Code-introspection** — `get-card-type-schema`.
@@ -412,6 +413,7 @@ In rough priority order:
 - **Delegated render** — `<@fields.X />` injects host CardContainer chrome; override via `:deep()`, theme cascade, or `@displayContainer={{false}}`. → `boxel-ui-guidelines/references/delegated-render-control.md`
 - **Read before writing.** Fetch a file’s current contents before calling `realm.fs.replace`.
 - **the `run-realm-code` tool for file creation and edits** — every source file, `.gts`, `.json`, `.md` and `README` alike.
+- **Look at what you make.** `view-visually` (or `realm.view` in the script) after any visual change, and before describing visual context.
 - **One CardDef per file.** FieldDefs and helpers can co-locate.
 - **Three formats minimum.** Every CardDef ships `isolated`, `embedded`, AND `fitted`.
 
