@@ -847,10 +847,12 @@ grant has a `where`, and only for a caller who may read the realm: the
 predicate still runs on the card the create mints. A write on a stored card is
 decided definitely, by running the predicate against the card as stored.
 
-**A caller who may not read the realm gets a bare boolean** — no `reason`, no
-`conditional` — so a card no grant admits answers exactly as a card that is not
-there. Their create against a type whose grant has a predicate answers a bare
-`true`.
+**In a realm that names a policy, a signed-in caller who may not read it gets
+a bare boolean** — no `reason`, no `conditional` — so a card no grant admits
+answers exactly as a card that is not there. Their create against a type whose
+grant has a predicate answers a bare `true`. In a realm with no policy, such a
+caller's whole request is refused with the permissions' 403, and `canInvoke`
+stays `undefined` for every pair.
 
 **An operation built on `query` is asked with the type that declares it** as
 the target; a card target answers `false`, as invoking the query on a card is
@@ -860,7 +862,9 @@ the realm's policy holds a grant on it for that type that compiles to a search
 filter (see [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §6),
 otherwise `false`. That `true` says the search will run, not that it will match
 anything: a caller the filter matches no rows for is told `true` and sees an
-empty list. Nobody signed in is told `false`.
+empty list. A request that authenticated nobody, from a caller who may not
+read the realm, is refused whole with 401 (`actor-required` under a policy),
+so `canInvoke` answers `undefined`.
 
 ### `POST {realm}/_capabilities`
 
@@ -892,9 +896,11 @@ read as a list of denials.
 
 Answers are positional, each echoing its question, served as JSON with
 `cache-control: no-store`. A pair sent twice is decided once. `reason` is the
-code the invocation itself would carry — `operation-not-permitted`,
-`policy-predicate-failed`, `unknown-operation`, `target-not-found`,
-`wrong-entry-point`, `internal-error` for a pair the realm could not decide.
+code the invocation itself would carry — for example
+`operation-not-permitted`, `policy-predicate-failed`, `operation-not-allowed`,
+`invalid-operation`, `unknown-operation`, `target-not-found`,
+`wrong-entry-point`, or, for a reader, `internal-error` for a pair the realm
+could not decide.
 A write no policy may judge is refused without asking one: `actor-required`
 when nobody is signed in, `operation-not-permitted` for a signed-in caller
 whose session may only read or whose realm names no policy. A caller who may
