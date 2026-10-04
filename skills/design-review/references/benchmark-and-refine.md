@@ -14,17 +14,22 @@ Run it once per unit, before the first score, and reuse it across rounds.
    dashboard, an editorial article, a product page, a booking flow. A record page, a desk or a
    form has no award category; skip the benchmark for those and score against the acceptance lines
    and the aesthetic bar alone.
-2. **Find three references.** Where the harness can search the web (`WebSearch` / `WebFetch`), look
-   in the places that publish recognised work:
+2. **Find three references.** If you can search or open web pages, look in the places that publish
+   recognised work:
    - **Awwwards** — Site of the Day, Honorable Mentions and the category collections
    - **The Webby Awards** — winners and Peoples' Voice in the matching category
    - **FWA** — Site of the Day, in the matching category
 
    Take recent work. A site from five years ago benchmarks a period, not the bar. Say which three
-   you chose and where each was listed. Where the harness has no web search (the Boxel assistant),
-   name three you know well, say that you are working from memory, and do not claim to have looked.
+   you chose, where each was listed, and the URL. Without web access, name three you know well,
+   label them `from memory`, and do not claim to have looked. Labels and the rules for anything a
+   page says are in [`untrusted-content.md`](../../boxel-design/references/untrusted-content.md).
 3. **Capture each at the same width as the unit** (see `capture.md`), above the fold and one scroll
-   down. If a capture fails, use the reference's published case study or listing screenshot and say so.
+   down. If you cannot capture a page — no browser, or the capture fails — use the reference's
+   published case study or listing screenshot if you can open it, and say so. A reference you
+   captured is `rendered`; one you did not is not a visual benchmark. **An unverified benchmark —
+   no reference `rendered` — informs the notes and does not pass or fail a round;** the 8.5 gate
+   then rests on the acceptance lines and the aesthetic bar alone.
 4. **Write one line per reference per dimension:** what it does that the unit does not. Use the
    same dimensions as the aesthetic gate: typography, colour, composition, media, detail, emptiness.
 

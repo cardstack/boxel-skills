@@ -38,10 +38,11 @@ A made-up stock URL either 404s or, worse, loads an unrelated photo that looks d
 guessed Pexels ID returns *some* photo, just not the one you described. Use only:
 
 - a URL the user gave you;
-- a photo page you actually opened. In Claude Code, `WebSearch` / `WebFetch` on unsplash.com or
-  pexels.com, taking the image URL from the page (`images.unsplash.com/photo-…`,
-  `images.pexels.com/photos/…`). The Boxel AI assistant has no web search, so there stock photos
-  come only from URLs the user supplies;
+- a photo page you actually opened (a URL seen only in search results doesn't count), if you can
+  open web pages: search unsplash.com or pexels.com and take the image URL from the photo's page (`images.unsplash.com/photo-…`,
+  `images.pexels.com/photos/…`). Without a way to open pages, stock photos come only from URLs the
+  user supplies. A Google image search result is for choosing a direction and is never hotlinked
+  ([`untrusted-content.md`](../../boxel-design/references/untrusted-content.md) → *Images*);
 - the placeholder patterns below, which work for any value.
 
 Dead patterns still found in older notes, never use them: `source.unsplash.com` (shut down) and

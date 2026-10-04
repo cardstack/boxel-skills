@@ -31,12 +31,16 @@ reference.
 **Sweep the market first — only where the market is the benchmark.** A landing, marketing,
 pricing or onboarding screen is judged against the best of its kind before anyone reads a word, so
 compose against the field, not from a blank page: name three to five real sites in the domain's own
-world, one line each — what to borrow, and whether it is livery or technique. Where the harness can
-search the web (Claude Code's `WebSearch` / `WebFetch`), look, and say you looked. Where it cannot —
-the Boxel assistant has no page fetch; its proxy forwards only to whitelisted APIs — name them from
-what you know, say so, and pull the one real reference as a screenshot with `search-google-images`.
-Five lines at most, and a record page, a desk or a form gets no sweep. The lines land in the Style
-block's Inspirations and Reference, nowhere else.
+world, one line each — what to borrow, and whether it is livery or technique. Start from the
+pre-flight research if the unit had one and add only what it lacks; don't run a second sweep.
+Label every line as [`untrusted-content.md`](../../boxel-design/references/untrusted-content.md)
+defines (`rendered` / `read` / `search result only` / `from memory`). A visual technique needs a
+`rendered` reference; without a capture the lines carry structure and convention only, and the look
+comes from the story and `style-families.md`. Without page access, state conventions rather than
+naming sites. Turn the lines into a direction by that file's *From references to a direction*
+rules, and run its swap test on the mockup. Five lines at most, and a record page, a desk or a form
+gets no sweep. The lines land in the Style block's Inspirations and Reference, nowhere else, with
+their labels.
 
 Then **compose three directions yourself, each one a different reading of the `## Story` image**
 (`phase-0b-story.md`) — the same night-on-water story can be read as an editorial nocturne, a
