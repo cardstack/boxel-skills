@@ -522,11 +522,14 @@ a member of a group.
 
 ## 6. Access posture
 
-**Operations are not access-enforced beyond the realm's own read/write
-permissions.** Any caller who can write the realm can invoke any mutating
-operation on it; any caller who can read it can invoke any read. An operation
-that grants access by appending to a list *performs* that mutation — nothing
-verifies the caller was entitled to ask.
+**The realm's own read/write permissions come first.** Any caller who can write
+the realm can invoke any mutating operation on it; any caller who can read it
+can invoke any read. A realm that names a policy can widen that for callers its
+permissions decline, one operation and card type at a time, and never narrow
+it — see [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md). An
+operation that grants access by appending to a list *performs* that mutation;
+nothing verifies the caller was entitled to ask beyond those permissions and
+the policy's grants.
 
 An `output` projection shapes an operation's answer and nothing more. A field
 left out of one is still reachable through the card's plain read, its stored
