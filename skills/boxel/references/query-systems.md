@@ -118,6 +118,10 @@ sort: [{ by: 'dueDate', on: ref, direction: 'asc' }]
 
 Only `lastModified`, `createdAt`, and `cardURL` are general sort fields that can omit `on:`.
 
+### Not every caller sees every row
+
+A query answers with the rows the caller may see, so the same query can answer differently for two people. Each realm applies its own access to its own rows: a realm the caller reads serves every match, and a realm they can't read serves only what its policy's `query` grants admit them to — often nothing. On `_federated-search` (what `getCards` and `@context.searchResultsComponent` send) such a realm contributes zero rows rather than a 403, so a short or empty list can be access, not a broken query. A realm's own `_search` still answers a caller it doesn't let read it, and which names no policy, with a 403. A realm whose policy can't be judged is left out and the result carries `meta.incomplete: true`, and a result a policy shaped lists the realms concerned in `meta.policyScopedRealms`. Full rules, including what a render's search sees: `card-operations-authoring` §3, "What a policy does to a search".
+
 ### Validate query shapes with a realm-native lab card
 
 For query-heavy work, build a tiny **validation lab card** in the target realm that renders one `@context.searchResultsComponent` section per query shape you depend on. Run it in browser QA and assert that each section shows non-empty results. This is more reliable than static code inspection because it exercises the host search component, realm indexing, card-reference resolution, and child-card render formats all together — the four places query bugs actually surface.
