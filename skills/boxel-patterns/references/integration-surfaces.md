@@ -150,6 +150,8 @@ UI kit. Three sub-paths.
 
 `Button`, `BoxelButton`, `Pill`, `Avatar`, `BoxelInput`, `BoxelSelect`, `BoxelDropdown`, `Menu`, `ColorPalette`, `ColorPicker`, `Header`, `FieldContainer`, `CardContainer`, `Modal`, `Accordion`, `FilterList`, `RadioInput`, `SkeletonPlaceholder`, `TabbedHeader`, `ViewSelector`, `ViewItem`, `BasicFitted`, `KanbanPlane`, `KanbanDragManager`, `KanbanColumnConfig`, `KanbanPlacement`, `autoPlaceKanban`, `cardsInColumn`, `kanbanColumnCount`, `resolveInsertion`.
 
+Where one of these has a Pret UI equivalent (`Button`, `BoxelInput`, `BoxelSelect`, `Modal`, `Menu`, …), use the Pret UI component from `@cardstack/pretui/components/<name>` instead; the replacement table is in `boxel-ui-guidelines/references/use-boxel-ui-components.md`.
+
 Use `KanbanPlane` for lane-based drag/drop boards instead of hand-rolled DOM drag code. Persist placements by stable card id + column key + sort order, map to `KanbanPlacement.index` only at render time, and render child cards through `@fields` at fitted format. Pattern: `layout-kanban-drag-drop`.
 
 ### `/helpers`

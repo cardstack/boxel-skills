@@ -34,13 +34,15 @@ get directReportsQuery() {
 }
 ```
 
-### BoxelSelect: Smart Dropdown Menus
+### Select and Combobox: Smart Dropdown Menus
 
-Regular HTML selects are limited to plain text. BoxelSelect lets you create rich, searchable dropdowns with custom rendering.
+Regular HTML selects are limited to plain text. Pret UI's `Select` gives a themed, keyboard-navigable dropdown over `{ value, label }` options (search appears automatically past seven options). When each row needs a secondary line or custom markup, use `Combobox`: its options take an optional `meta` line, and its `<:option>` block replaces the default row.
 
 #### Pattern: Rich Select with Custom Options
 
 ```gts
+import { Combobox } from '@cardstack/pretui/components/combobox';
+
 export class OptionField extends FieldDef { // Option field for select
   static displayName = 'Option';
   
@@ -58,39 +60,40 @@ export class OptionField extends FieldDef { // Option field for select
   };
 }
 
-export class ProductCategory extends CardDef { // Card using BoxelSelect
+export class ProductCategory extends CardDef { // Card using Combobox
   @field selectedCategory = contains(OptionField);
   
   static edit = class Edit extends Component<typeof this> { // Edit format
-    @tracked selectedOption = this.args.model?.selectedCategory;
-
-    options = [
+    categories = [
       { key: '1', label: 'Electronics', description: 'Phones, computers, and gadgets' },
       { key: '2', label: 'Clothing', description: 'Fashion and apparel' },
       { key: '3', label: 'Home & Garden', description: 'Furniture and decor' }
     ];
 
-    updateSelection = (option: typeof this.options[0] | null) => {
-      this.selectedOption = option;
-      this.args.model.selectedCategory = option ? new OptionField(option) : null;
+    // Combobox options are { value, label, meta? }; meta is the secondary line
+    options = this.categories.map((c) => ({ value: c.key, label: c.label, meta: c.description }));
+
+    // @onValueChange yields the chosen value string, or '' when cleared
+    updateSelection = (value: string) => {
+      let category = this.categories.find((c) => c.key === value);
+      this.args.model.selectedCategory = category ? new OptionField(category) : null;
     }
 
     <template>
-      <FieldContainer @label="Product Category">
-        <BoxelSelect
-          @selected={{this.selectedOption}}
-          @options={{this.options}}
-          @onChange={{this.updateSelection}}
-          @searchEnabled={{true}}
-          @placeholder="Select a category..."
-          as |option|
-        >
+      <Combobox
+        @label="Product Category"
+        @options={{this.options}}
+        @value={{@model.selectedCategory.key}}
+        @onValueChange={{this.updateSelection}}
+        @placeholder="Select a category..."
+      >
+        <:option as |option|>
           <div class="option-item">
             <span>{{option.label}}</span>
-            <span>{{option.description}}</span>
+            <span>{{option.meta}}</span>
           </div>
-        </BoxelSelect>
-      </FieldContainer>
+        </:option>
+      </Combobox>
     </template>
   };
 }
@@ -102,6 +105,10 @@ Create user-friendly edit controls that accept natural input. Hide complexity in
 
 ```gts
 // Example: Natural language time period input
+import { Field } from '@cardstack/pretui/components/field';
+import { Input } from '@cardstack/pretui/components/input';
+import { Button } from '@cardstack/pretui/components/button';
+
 static edit = class Edit extends Component<typeof this> {
   @tracked showDetails = false;
   
@@ -111,9 +118,13 @@ static edit = class Edit extends Component<typeof this> {
   }
   
   <template>
-    <FieldContainer @label="Time Period" @tag="label">
-      <input placeholder="e.g., Q1 2025 or April 2025" {{on 'blur' this.parseInput}} />
-    </FieldContainer>
+    <Field @label="Time Period" as |controlId|>
+      <Input
+        @controlId={{controlId}}
+        @placeholder="e.g., Q1 2025 or April 2025"
+        @onInput={{this.parseInput}}
+      />
+    </Field>
     
     <Button {{on 'click' (toggle 'showDetails' this)}}>
       {{if this.showDetails "Hide" "Show"}} Details
@@ -161,16 +172,16 @@ viewReturnPolicy = () => {
 <div class="order-card">
   <!-- Custom action buttons -->
   <div class="order-actions">
-    <Button @kind="primary" {{on "click" (fn this.viewOrder order)}}>
+    <Button @variant="primary" {{on "click" (fn this.viewOrder order)}}>
       View Order
     </Button>
     
-    <Button @kind="secondary-light" {{on "click" (fn this.editOrder order)}}>
+    <Button @variant="secondary" {{on "click" (fn this.editOrder order)}}>
       Edit Order
     </Button>
   </div>
   
-  <Button @kind="text-only" {{on "click" (fn this.viewReturnPolicy)}}>
+  <Button @variant="ghost" {{on "click" (fn this.viewReturnPolicy)}}>
     Return Policy
   </Button>
 </div>
