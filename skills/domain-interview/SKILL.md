@@ -233,7 +233,7 @@ instance adopts from that alias and nothing is written to the realm but the inst
 | `cardInfo.summary` | the Overview paragraph |
 | `spec` | the spec markdown, from Overview to Open questions |
 | `designDirection` | empty — `design-direction` writes it |
-| `motion` | empty — `motion-authoring` writes it, and only when the direction asked for an arc |
+| `motion` | empty — `motion-authoring` writes it, and only when the user or the direction asked for heavy motion |
 
 **Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
 into a JSON string and never patched into a card that is not indexed yet:
