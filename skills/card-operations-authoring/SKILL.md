@@ -392,7 +392,7 @@ withheld.
 It is a claim about what a format draws, not a mechanism. An edit that starts
 drawing a linked card in a format left shareable falsifies it silently — the
 realm's policy reach warnings are what notice (see
-[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §8).
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §9).
 
 **A declaration applies uniformly.** The same request answers a realm writer
 and a caller a policy grant admitted with the same document: `links` and `html`
@@ -643,7 +643,7 @@ searches the request's. A realm's own `_search` searches that realm alone.
 **`query` is not a saved search's name.** It is reserved: `@operation` refuses
 it, and lowering records `reserved-name`. A grant on `query` is the grant for
 ad-hoc searches — see
-[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §6.
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §7.
 
 | Request                                                              | Answer                      |
 | -------------------------------------------------------------------- | --------------------------- |
@@ -868,7 +868,7 @@ the target; a card target answers `false`, as invoking the query on a card is
 refused. A caller who may read the realm is told `true`. A signed-in caller who
 may not is judged as the search that runs the query judges them: `true` where
 the realm's policy holds a grant on it for that type that compiles to a search
-filter (see [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §6),
+filter (see [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §7),
 otherwise `false`. That `true` says the search will run, not that it will match
 anything: a caller the filter matches no rows for is told `true` and sees an
 empty list. A request that authenticated nobody, from a caller who may not
@@ -1090,7 +1090,7 @@ type by URL or registered prefix.
 **A card+json error body carries a status and a title, and no `code`.** Over
 those routes the status is the whole answer.
 
-[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §10 states the
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §11 states the
 same refusals from the policy author's side.
 
 ## 6. Access posture
