@@ -213,7 +213,9 @@ Push to the realm after each stage so you can compare visually.
 
 > Do a design exploration and generate only the above-the-fold view in isolated, framed as such. Write sample content for this use case and fit the elements in there as a design challenge executed by a brand-focused art director of Pentagram, judged by the preeminent taste maker in that field. (Specify who in your thinking, not your final summary.)
 
-Decide the sections from what the visitor is there to decide before any layout. The first screen
+Decide the sections from what the visitor is there to decide before any layout. For an app, that
+is the Home card's sections, one per CardDef from Stage 0, never one card holding the whole app;
+a record card's sections come from its content matrix (Stage 0f). The first screen
 answers the visitor's first question with the answer itself at full size (a list, a photo, a
 number, a form, something to try), and the headline captions it. Then, where a section has a layout problem, use the move from [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) that is **for** that problem and say why; zero moves is a valid answer, and "make it look premium" is not a reason.
 
