@@ -48,7 +48,7 @@ So read it as your first action, before you plan the work or tell the user what 
 → Use `run-realm-code` tool. For NEW files, call `realm.fs.writeText` with the complete contents.
 → Put every file the task needs in ONE `run-realm-code` call.
 → For code-change intent, ALWAYS use the `run-realm-code` tool. Data/document commands are secondary.
-→ Before you report the change done: look at the result — `realm.view` on an instance in the same script, or `view-visually_907b` next — compare it with what was asked, and fix what you see.
+→ Before you report the change done: look at the result — `realm.capture` on an instance in the same script, or `view-visually_907b` next — compare it with what was asked, and fix what you see.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → preview-format_cb94 (opens module + shows card preview)
