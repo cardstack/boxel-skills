@@ -114,7 +114,7 @@ Subsystems (load when used):
 - `references/fitted-formats.md` — Four sub-formats (badge/strip/tile/card), size classification. Quick reference only.
 - **`references/design-playbook.md`** — **The recommended way to design any user-facing card.** Four-stage process: (1) mockup with no variables, (2) extract theme DNA, (3) tokenize, (4) derive fitted/embedded. Includes the verbatim design-challenge framing (Pentagram art director + internal taste-maker) and the "fitted features the media" rule. Trust your intrinsic design taste; this is a process, not a CSS rulebook.
 - `references/container-query-fitted-layout.md` — Mandatory implementation standard for every `fitted` template. Prefer `FittedCard` from `@cardstack/boxel-ui/components` for standard compositions (implements the standard internally; tune via `--fc-*` variables). When hand-rolling: single-root `.fit` grid querying the host-provided `fitted-card` container (never create your own container on the root), container-query sub-formats, `pow()` typography variables, `minmax(0, 1fr)` body rows, and `min-height: 0` overflow discipline. Derive the visual layout from the design playbook first, then implement fitted with this guide.
-- `references/delegated-rendering.md` — Card-to-card rendering, clickable cards, BoxelSelect, custom edit controls.
+- `references/delegated-rendering.md` — Card-to-card rendering, clickable cards, Pret UI Select/Combobox dropdowns, custom edit controls.
 - `references/command-development.md` — Command structure, host commands, OpenRouter, generated binary file persistence, progress.
 - `references/command-invocation-modes.md` — Taxonomy of how to expose a Command: direct call, reactive resource, card menu item, typed run card, AI processor, CLI script, atomic install. The same Command class served multiple ways.
 - `references/theme-design-system.md` — Theme linking, CSS variables, canonical tokens.
@@ -135,7 +135,7 @@ Sibling skills:
 
 - `boxel-design` — visual / design language decisions (colors, typography, mood).
 - `boxel-theme-development` — creating, converting, auditing, or patching Theme, StyleReference, DetailedStyleReference, BrandGuide, and DESIGN.md artifacts.
-- `boxel-ui-guidelines` — applying theme tokens, using boxel-ui components in templates.
+- `boxel-ui-guidelines` — applying theme tokens, using Pret UI components (boxel-ui where Pret UI has no equivalent) in templates.
 - `boxel-file-def` — file-typed fields (FileDef, ImageDef, MarkdownDef).
 - `boxel-flavored-markdown` — BFM content authoring.
 - `boxel-markdown-format` — static `markdown` template format.
@@ -148,7 +148,7 @@ Sibling skills:
 
 - `<@fields.items />` without `.container > .containsMany-field { gap }` → items collapse together.
 - Empty `linksToMany` written as `[]` in JSON → use `"self": null`.
-- Unstyled `<Button />` → always style boxel-ui components to your theme.
+- Unstyled `<Button />` → always style Pret UI and boxel-ui components to your theme.
 - Emoji or Boxel icons in templates → use inline SVG.
 - Self-import → import a sibling, not yourself.
 - Helper import mistakes in GTS templates, especially missing imports for `(fn ...)`, `{{on ...}}`, `concat`, `get`, `array`, `hash`, formatters, and predicate helpers, the invalid `ember-concurrency/helpers/perform` import, or use of `(perform ...)` in strict-mode templates. See `references/common-imports.md`.

@@ -1,8 +1,8 @@
 ## Prefer Component APIs; Write New Components When Needed
 
-Always reach for existing boxel-ui components before writing custom HTML + CSS. Every custom element you avoid keeps templates shorter and inherits future design-system improvements automatically.
+Always reach for existing Pret UI components (boxel-ui where Pret UI has no equivalent; see `use-boxel-ui-components.md`) before writing custom HTML + CSS. Every custom element you avoid keeps templates shorter and inherits future design-system improvements automatically.
 
-**Wrong — bespoke HTML for something boxel-ui already covers:**
+**Wrong — bespoke HTML for something Pret UI already covers:**
 ```gts
 <div class='pill'>Draft</div>
 <style scoped>
@@ -19,7 +19,7 @@ Always reach for existing boxel-ui components before writing custom HTML + CSS. 
 
 **Right — use the existing component:**
 ```gts
-import { Pill } from '@cardstack/boxel-ui/components';
+import { Chip } from '@cardstack/pretui/components/chip';
 
-<Pill @variant='muted'>Draft</Pill>
+<Chip @label='Draft' />
 ```

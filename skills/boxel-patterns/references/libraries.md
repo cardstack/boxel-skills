@@ -58,13 +58,20 @@ import { searchEntryWireQueryFromQuery } from '@cardstack/runtime-common';
 import type { SearchEntryWireQuery }     from '@cardstack/runtime-common';
 ```
 
-### `@cardstack/boxel-ui` — UI components, helpers, icons
+### `@cardstack/pretui` and `@cardstack/boxel-ui` — UI components, helpers, icons
+
+Controls and display primitives come from Pret UI, one import per component. boxel-ui supplies the components Pret UI has no equivalent for yet (replacement table: `boxel-ui-guidelines/references/use-boxel-ui-components.md`).
 
 ```ts
-// Components
+// Pret UI components
+import { Button } from '@cardstack/pretui/components/button';
+import { Input } from '@cardstack/pretui/components/input';
+import { Select } from '@cardstack/pretui/components/select';
+import { Chip } from '@cardstack/pretui/components/chip';
+
+// boxel-ui components with no Pret UI equivalent
 import {
-  Button, Pill, Avatar, BoxelInput, BoxelSelect, ColorPalette, ColorPicker,
-  Header, FieldContainer, CardContainer, Modal,
+  CardContainer, FittedCard, Header,
   KanbanPlane, autoPlaceKanban,
   type KanbanColumnConfig, type KanbanPlacement,
 } from '@cardstack/boxel-ui/components';
@@ -182,7 +189,8 @@ Audio cards can also reach for the browser's built-in `AudioContext` directly �
 | `CardDef`, `FieldDef`, `Component` | 1 | `@cardstack/base/card-api` |
 | `StringField`, `NumberField`, etc. | 1 | `@cardstack/base/<type>` |
 | `getCards`, `Command` | 2 | `@cardstack/runtime-common` |
-| `Button`, `Pill`, helpers, icons | 2 | `@cardstack/boxel-ui/{components,helpers,icons/*}` |
+| `Button`, `Input`, `Select`, `Chip` and other controls | 2 | `@cardstack/pretui/components/<name>` |
+| `FittedCard`, `CardContainer`, helpers, icons | 2 | `@cardstack/boxel-ui/{components,helpers,icons/*}` |
 | `KanbanPlane`, `KanbanPlacement`, drag/drop board helpers | 2 | `@cardstack/boxel-ui/components` |
 | Any host command (`ai-assistant`, `switch-submode`, etc.) | 2 | `@cardstack/boxel-host/tools/<name>` |
 | `expression`, `fx`, `jq` for a `computeVia` formula | 2 | `@cardstack/bxl` |
