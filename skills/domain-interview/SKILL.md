@@ -138,7 +138,8 @@ naming the options teaches them the domain.
 
 Shape of each call:
 
-- **At most two questions per call**, each with two to four options. A round usually takes two
+- **At most two questions per call**, each with two or three real options plus the skip option
+  below (four in all, the tool's limit). A round usually takes two
   or three calls. Keep them small so each answer can change the next question. A batch of four
   written up front goes wrong all at once when the first answer turns out different from what
   you guessed. Never split a round by falling back to prose.
@@ -177,12 +178,19 @@ The user can hand any decision back to you, at any point. Two forms, and both ar
 
 - **Skip this question.** Choosing the **"Skip, you decide"** option, or typing "skip", "you
   decide" or the like into "Other", means *you* answer that one question and carry on.
-- **Skip the rest.** "Skip the rest", "just decide everything", "you finish it" means stop asking
-  and write the brief from what you have.
+- **Skip the rest.** Choosing the **"Skip the rest"** option, or typing "skip the rest", "just
+  decide everything", "you finish it", means stop asking and write the brief from what you have.
 
-**Make both visible.** Put one plain line above every call: *"Say 'skip' to let me decide this one,
-or 'skip the rest' and I'll finish it."* Give each question a final **"Skip, you decide"** option
-when its real options are three or fewer; at four, leave it to the typed words and the line above.
+**Both are options in the choice UI, never a line of prose.** Don't explain skipping above the
+call; the options say it. Every question ends with one skip option, so keep its real options to
+three:
+
+- the **last question of each call** ends with **"Skip the rest"** (description: "I'll decide this
+  and everything after, and write the brief"), which covers that question too;
+- every other question ends with **"Skip, you decide"** (description: "I'll pick for you and keep
+  going").
+
+With lettered options in chat (no choice tool), the same two become the last letters.
 This is not the "Not sure, suggest for me" option: that one asks to be *taught* (the next question
 explains the concept), a skip asks you to *decide* and move on, with no teaching round.
 

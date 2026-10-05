@@ -50,9 +50,9 @@ with no design vocabulary can pick from a list long before they could describe w
 - **No hand-written "other" option.** The tool's automatic "Other" is the "describe it" escape
   hatch.
 
-**Every question can be skipped, and the rest can be skipped.** Put one line above each call
-(*"Say 'skip' to let me decide this one, or 'skip the rest' and I'll finish it."*) and end each
-question with a **"Skip, you decide"** option when its real options are three or fewer. A skipped
+**Every question can be skipped, and the rest can be skipped,** through options, never a line of
+prose: the last question of each call ends with **"Skip the rest"**, every other question with
+**"Skip, you decide"**, so each keeps at most three real options. A skipped
 question is answered by the Recommended option, else by the brief and the story; the rest is decided
 the same way. The rules, the guards (never invent the user's facts, never spend or commit for them,
 conservative where a rule cannot be verified) and the recording format are in
