@@ -273,17 +273,15 @@ class Isolated extends Component<typeof ScrollMotionExample> {
       /* ---- reveal ----------------------------------------------------- */
       /* Fallback is the FINISHED state: no modifier, no JS, no observer —
          still fully visible. The modifier is what hides it. */
+      /* Transform only: a full-page capture never scrolls, so an opacity
+         reveal would leave every block below the fold blank in it. */
       [data-reveal] {
-        opacity: var(--reveal, 1);
         transform: translateY(calc((1 - var(--reveal, 1)) * 20px));
-        transition:
-          opacity 0.6s ease,
-          transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
       }
 
       @media (prefers-reduced-motion: reduce) {
         [data-reveal] {
-          opacity: 1;
           transform: none;
           transition: none;
         }

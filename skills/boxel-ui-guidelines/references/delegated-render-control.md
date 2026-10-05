@@ -261,11 +261,10 @@ With the loop render the cards are the grid's direct children, so `:nth-child` o
   --stagger-d: 0ms;   /* base value — items past the stagger cap animate immediately */
 }
 .swm-tile {
-  opacity: 0;
-  transform: translateY(0.75rem);
-  animation: rise 600ms cubic-bezier(0.2, 0.7, 0, 1) forwards;
+  animation: rise 600ms cubic-bezier(0.2, 0.7, 0, 1) both;
   animation-delay: var(--stagger-d);
 }
+@keyframes rise { from { transform: translateY(0.75rem); } }
 .swm-tile:nth-child(1) { --stagger-d: 80ms; }
 .swm-tile:nth-child(2) { --stagger-d: 160ms; }
 /* …etc, or use :nth-child(n+8) to cap the cascade */

@@ -49,15 +49,18 @@ The screen assembles in reading order on load.
   animation: mb-arrive var(--mb-dur) var(--mb-ease) both;
   animation-delay: calc(min(var(--i, 0), 7) * var(--mb-stagger));
 }
-@keyframes mb-arrive { from { opacity: 0; transform: translateY(12px); } }
+@keyframes mb-arrive { from { transform: translateY(12px); } }
 @media (prefers-reduced-motion: reduce) { .arrive { animation: none; } }
 ```
 
 - Set `--i` inline per child (`style='--i: 2'`). The `min(…, 7)` caps the delay so a long list does
   not take seconds.
+- **Move, never fade.** The keyframe has no opacity, so every element is visible from the first
+  frame. A capture taken mid-arrival shows the whole page with some blocks a few pixels low, never
+  an empty section, and `design-review` scores from those captures.
 - **The base rule is the final state.** `from` lives only inside the keyframe and the animation uses
-  `both`. Never put `opacity: 0` in the base rule: a capture, a reduced-motion reader or a
-  failed animation then sees an empty page.
+  `both`. Never put `opacity: 0` in the base rule: a reduced-motion reader or a failed animation
+  then sees an empty page.
 - Total arrival, including the last stagger, stays under 1 s for repeated screens and under 1.5 s
   for a landing moment.
 - Animate the hero, the headline block and the first row of content. Not the whole page.
@@ -132,6 +135,9 @@ A marquee strip, a slow float on one object or a gentle background drift. **One 
 
 - **`transform` and `opacity` only.** Never animate `width`, `height`, `top`, `filter` or a
   shadow's blur on a loop or on scroll.
+- **Entrances and reveals move; they never fade.** Recipes 1 and 2 animate `transform` alone, so no
+  capture, at any moment, shows content missing. `opacity` stays available for hover, a loop or a
+  scrubbed subject, where the resting state is already visible.
 - **Final state in the base CSS**, always. The resting page is the page.
 - **`prefers-reduced-motion`** turns every animation off; the page must still make sense and still
   expose everything.
@@ -150,5 +156,5 @@ motion-off pass:
 1. Recipe 1 or 2 is present on the `isolated` view, and recipe 3 on the controls.
 2. The timing matches the declared motion character; there is one ease and one duration set.
 3. With motion off, nothing is missing or blank.
-4. No blank region in a capture that is not explained by an entrance still arriving; re-capture
-   after the arrival budget before reporting one.
+4. No blank region in a capture. Baseline motion cannot cause one, so a blank region is a fade
+   someone added or a real bug; re-capture once to rule out a card still loading, then report it.

@@ -16,13 +16,11 @@ scoring; none belong in the realm, the repo or the media cache.
 
 If capture fails entirely, say so and stop. A code-only review reads as a real review and is not one.
 
-**A blank region in a capture is not yet a finding.** Staggered entrance animations routinely paint
-a section empty at capture time — `animation-fill-mode: both` holds the element at its `from` state
-through its delay, so a 600 ms stagger renders as blank space with correct layout height. So does a
-capture that fires before the card finishes loading. Re-capture any blank or faded region **two or
-three times** before reporting it; if it is blank every time, it is real. Reporting a timing
-artifact as a design failure sends the build chasing a bug that does not exist — and the reverse,
-dismissing a genuinely invisible element as "probably the animation", hides one that does.
+**A blank region in a capture is a finding.** Entrances and reveals move content and never fade it
+([`motion-baseline.md`](../../boxel-design/references/motion-baseline.md)), so no baseline animation
+paints a section empty at any moment. A capture that fires before the card finishes loading still
+can, so re-capture a blank region **once**; if it is blank again, report it. When the cause is an
+entrance that fades from `opacity: 0`, the fix is to make it move instead, not to capture later.
 
 The same flakiness applies to targeted captures: the same selector can match on one run and miss on
 the next. Treat a single failed capture as noise, not evidence.

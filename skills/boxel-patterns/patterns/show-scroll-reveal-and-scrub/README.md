@@ -68,9 +68,11 @@ is the most common silent failure in a card build. No observer, no JS, a screens
 a card rendered where it never scrolls: the block is invisible forever, and a design review working
 from stills cannot tell it from a bug.
 
-So **the modifier hides the element, the CSS does not.** The base rule reads
-`opacity: var(--reveal, 1)`, so the fallback is visible; `revealOnScroll` sets `--reveal: 0` on
-install and `1` on intersect. Delete the modifier and every block renders in full.
+So **the modifier offsets the element, the CSS does not, and nothing fades.** The base rule reads
+`transform: translateY(calc((1 - var(--reveal, 1)) * 20px))`, so the fallback is in place;
+`revealOnScroll` sets `--reveal: 0` on install and `1` on intersect. Delete the modifier and every
+block renders in full. Leave opacity out even with the modifier: a full-page capture never scrolls,
+so a faded block below the fold stays blank in it. A block 20 px low is still readable.
 
 ### 3. Once means `unobserve`, not just `disconnect`
 
@@ -202,5 +204,5 @@ anything disappears, rule 2 is violated somewhere.
   use a scroll way at all, and the `## Design direction` row it becomes
 - `design-direction/references/signature-treatments.md` — the
   scroll-scrubbed subject as a signature decision, and the four runtime constraints
-- **`motion-authoring`** — the the `## Motion` section whose Engine rows name this
+- **`motion-authoring`** — the `## Motion` section whose Engine rows name this
   pattern, and the card constraints each option here exists to satisfy
