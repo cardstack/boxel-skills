@@ -297,6 +297,107 @@ A declaration expresses its work with clauses **or** with a program, never both.
 The two appends and a file's `update` edit stored bytes rather than running a
 program over a document, so they carry no `transformations` at all.
 
+### `links` — how much of the link graph an answer carries
+
+A `read` or a `query` may declare how much of the card's link graph its answer
+carries. Absent means `full`.
+
+| `links`          | The answer                                                                                         | Declarable on    |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------- |
+| `full` (default) | Relationships name their targets, and the transitive closure of linked cards is assembled into `included` — with the results of the query-backed fields of the card the document is about | `read`, `query`  |
+| `ids`            | Relationships name their targets and nothing is assembled; a consumer fetches each target on its own request | `read`, `query`  |
+| `none`           | No relationship data at all, named or assembled                                                     | `query` only     |
+
+```ts
+@operation static read = {
+  base: 'read',
+  links: 'ids',
+} satisfies OperationDeclaration;
+
+@operation static rosterNames = {
+  base: 'query',
+  links: 'none',
+  query: { filter: { on: () => Roster, eq: { term: 'fall' } } },
+} satisfies OperationDeclaration;
+```
+
+**`none` is a query's strategy, never a read's.** A read's strategy governs the
+card's plain `GET` too, and that is what the host loads a card with to render
+and edit it. Under `none` the host would show the card's link fields empty, and
+an edit to one would save what the editor showed **over the stored links** it
+was never shown — a `linksToMany` edit replaces the whole list. `ids` is the
+value to reach for to narrow a read: it still names each target, so the host
+shows and edits the links and fetches each target itself. A query's `none` rows
+carry no such risk, because the host never adopts them as live cards: each is
+marked `meta.relationshipsWithheld: true` and renders from its HTML or loads
+the card through its own read.
+
+**On a `read`, a strategy governs only reads rooted at the declaring card.** A
+linked card's own declaration is never consulted: a `full` read carries a
+linked card whole — its relationships and what they link to — even when that
+card's type declares `ids` for itself.
+
+**On a `query`, it governs every result row alike**, whatever each row's type
+says in its own `read`. It narrows each row's card, never the entry the row is
+delivered in: the row still names its card and still carries its prerendered
+HTML, which draws the links whatever the strategy. A search run by a render is
+exempt and keeps each row's stored links, because what it draws becomes part of
+the rendering card's own HTML.
+
+**An ad-hoc search has no declaration, so nothing narrows it below what the
+request asks for.** No declaration narrows a `_search` or
+`_federated-search`; only a declared, named query does.
+
+**The request may narrow further, never wider.** When the realm sheds load, or
+a consumer asks for links only, the request asks for `ids`; the realm serves
+whichever of the request and the declaration withholds more.
+
+`links` governs **assembly, not derivation**. A computed value that derives
+from a linked card is computed when the card is indexed, lives in the card's
+own attributes, and is served under every strategy.
+
+### `html` — formats served data-only
+
+A `read` or a `query` may mark prerendered formats `unshareable`. Absent, every
+format is shareable.
+
+```ts
+@operation static read = {
+  base: 'read',
+  html: { isolated: 'unshareable', embedded: 'unshareable' },
+} satisfies OperationDeclaration;
+```
+
+The formats are `embedded`, `fitted`, `atom`, `head` and `isolated`, each
+`shareable` or `unshareable`; a format left out is shareable. An unshareable
+format serves that row **data-only, to every caller**: its prerendered HTML is
+withheld, its data is not, and a consumer renders the card from its data.
+
+**This can't be per-caller.** Prerendered HTML is rendered once per card and
+format, under the realm's own authority, and shared by every viewer. A format
+whose template draws a linked card bakes that card's content into the one
+shared markup, so serving it hands the linked content to whoever receives it.
+Nothing is rendered a second time or per caller; the format's markup is simply
+withheld.
+
+- **On a `read`** — the type's operation named `read`; an `html` on any other
+  `read`-based operation is never consulted — it governs reads rooted at the
+  card: its single-card HTML
+  read, the last-known-good markup an errored read carries, and the markup a
+  host-mode page for the card is served with.
+- **On a `query`** it governs every row alike, whatever each row's type
+  declares — the rule `links` follows. An ad-hoc search declares nothing and
+  serves every format's markup. A search run by a render is exempt.
+
+It is a claim about what a format draws, not a mechanism. An edit that starts
+drawing a linked card in a format left shareable falsifies it silently — the
+realm's policy reach warnings are what notice (see
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §8).
+
+**A declaration applies uniformly.** The same request answers a realm writer
+and a caller a policy grant admitted with the same document: `links` and `html`
+are properties of the operation, never of how the caller was authorized.
+
 ### `optimistic`
 
 A declaration may carry `optimistic`, and it is validated and stored on the
@@ -504,14 +605,21 @@ findings has no runnable form, and invoking it is refused with
 | `unrunnable-program`      | A program on a base that runs none                                  |
 | `incomplete-append`       | An `appendContainsMany` that does not say what to append where      |
 | `instance-out-of-scope`   | An `instance()` in a declared append, which never loads the document |
+| `links-without-assembly`  | `links` on a base other than `read` or `query`, which assembles no link closure |
+| `invalid-link-strategy`   | A `links` value its base can't apply — including `none` on a `read` (§2) |
+| `html-without-rendering`  | `html` on a base other than `read` or `query`, which serves no prerendered HTML |
+| `invalid-html-declaration`| `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable` |
 | `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
 
 The decorator refuses several of these where the class is defined — a
-reserved name, a base the def type does not carry — so author code rarely
-records them. Lowering checks them again because a
-stored definition outlives the code that built it. `lowering-failed` costs
-only the operation it hit: the entry stays stored, invalid and with its
-`nonGrantable` kept, so its name never falls back to a grantable built-in.
+reserved name, a base the def type does not carry,
+a `links` or `html` it can't apply — so a module that declares one throws as
+it evaluates, and author code rarely records them. Lowering checks
+them again because a stored definition outlives the code that built it. A
+`read` whose declaration carries findings serves every format data-only.
+`lowering-failed` costs only the operation it hit: the entry stays stored,
+invalid and with its `nonGrantable` kept, so its name never falls back to a
+grantable built-in.
 
 Three of these account for most first attempts:
 
