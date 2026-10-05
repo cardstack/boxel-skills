@@ -402,7 +402,7 @@ place to check a detail or add a case:
 - A `where` predicate in a realm policy, which validates against the `policy`
   profile rather than `derive` — membership spelling, the refused partial-match
   builtins, and what compiles to a search filter —
-  [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §5–§7.
+  [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §6–§8.
 
 The engine itself — the compiler, the jq runtime, the formula libraries, the
 mutation and authorization profiles — is documented in `packages/bxl/docs/` and

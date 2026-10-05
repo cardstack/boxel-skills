@@ -43,6 +43,8 @@ Need to reference an image / document / file asset?
 
 **Never inline binary.** The host rejects large card JSON around 512KB (`Card size ... exceeds maximum allowed size (524288 bytes)`), and even smaller inline media clogs the indexer and AI context. Store media bytes as files and link them.
 
+**The FileDef a file resolves to is also its policy type.** A realm policy grants reads of a file's bytes by the FileDef subclass its extension names — `.png` is a `PngDef`, which a rule on `ImageDef` also matches — and an extension no def covers resolves to `FileDef` itself. So renaming a file changes which grant reaches it, and module source (`.ts`, `.gts`, `.js`, `.gjs`) is never grantable. See [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §5.
+
 ## Pair with
 
 - **`boxel`** — for the surrounding CardDef/FieldDef and `linksTo`/`contains` rules.

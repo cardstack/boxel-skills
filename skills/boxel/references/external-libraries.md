@@ -69,7 +69,7 @@ import { CardDef, field, contains, Component } from '@cardstack/base/card-api';
 import StringField from '@cardstack/base/string';
 import { tracked } from '@glimmer/tracking';
 import { restartableTask, timeout } from 'ember-concurrency';
-import { Button } from '@cardstack/boxel-ui/components';
+import { Button } from '@cardstack/pretui/components/button';
 import { on } from '@ember/modifier';
 
 export class CurrencyLoader extends CardDef {

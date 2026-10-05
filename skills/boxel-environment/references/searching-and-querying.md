@@ -42,6 +42,8 @@ boxel:
 ```
 
 
+**Results depend on who is asking.** A realm the user can read returns every match. A realm they can't read returns only the rows its policy's `query` grants admit them to, often none, and a federated search answers that realm with zero rows rather than an error. So an empty result is not proof that no card exists. A realm whose policy couldn't be judged is left out and `meta.incomplete` is set. See `card-operations-authoring` §3, "What a policy does to a search".
+
 ### SearchCardsByQueryCommand
 
 **Full tool call syntax:**
