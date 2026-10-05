@@ -104,6 +104,7 @@ say the scores are unanchored.
 Score and name the specific thing behind each number:
 
 - **Typography** — does the pairing look chosen? Read the declared **style family** first and score against *its* check in [`boxel-design/references/style-families.md`](../boxel-design/references/style-families.md): editorial wants large-light against small-bold, playful and vibrant want a heavy display against a plain body, brutalist wants hard and heavy. In every family, everything between 500 and 600 with a small step is a fail. Is there tracking on uppercase micro-labels where the family uses them? With no family declared, say so and judge on role clarity.
+- **Honest gaps are not unfinished.** A section left out, a role in place of a name, or a marked slot where the business's real review, price or rating will go is correct ([`boxel-design/references/critical-rules.md`](../boxel-design/references/critical-rules.md) → *Never invent proof*). Never score it down as incomplete. An invented rating, name, year or testimonial is a finding.
 - **Colour** — against the declared colour strategy. Restrained families: one accent in at most two places. Playful, vibrant, vintage: several colours are right when each has a named role and none competes for the same job. Colours with no assigned role fail in any family.
 - **Composition** — does something dominate, or is it a row of equals? Is the reading order legible
   in the screenshot alone? Name the signature treatment on the dominant object and say whether it

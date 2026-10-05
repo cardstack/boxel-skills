@@ -12,12 +12,31 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
 - **Dead Page** — A finished build with no motion at all reads as unfinished. Apply the baseline in [`motion-baseline.md`](motion-baseline.md) without being asked.
 - **Accent Border Laziness** — No thick left/top borders as "design." A 4px accent stripe is the LLM default and it always looks like one.
 - **Center-All Disease** — Asymmetry creates visual interest. Centering every element flattens hierarchy.
-- **Card Grid Autopilot** — Break the predictable 3-column-card layout. Editorial grids, single-column long-reads, asymmetric layouts all read more intentional. Named replacements (bento, masonry, 40/60 split, editorial type, bleed, sticky scroll) and how each is built in a card: [`layout-vocabulary.md`](layout-vocabulary.md).
+- **Card Grid Autopilot** — Break the predictable 3-column-card layout. Editorial grids, single-column long-reads, asymmetric layouts all read more intentional. Sections come from what the visitor is deciding; a layout move only where a section needs one ([`layout-vocabulary.md`](layout-vocabulary.md)).
 - **Shadow Everything** — Strategic depth, not universal drop-shadows. Use shadow as punctuation, not as default chrome.
 - **Icon Sprinkles** — Icons should enhance meaning, not fill space. An eyebrow + section heading without an icon is often stronger.
 - **Safe Spacing** — Push extremes: ultra-tight or magazine-wide margins. The "comfortable middle" is the LLM default.
 - **Gradient Overuse** — Not every element needs a gradient. Gradients are the 2024 over-used signature; flat color with intentional contrast often wins.
 - **Average Quality Trap** — Aim for top 1% execution, not median competence. The design-playbook's "internal taste-maker" framing exists to push past the default.
+
+### Never invent proof
+
+Facts about the user's business are data, not copy: people's names, ratings and review counts,
+testimonials and quotes, founding years and "since" claims, credentials and awards, client or
+patient counts, prices, hours and availability. Use them only when the user or a cited source
+supplied them, and use them verbatim ("since 2011" does not become "over a decade of trusted
+care"). When one is missing:
+
+1. **Omit it** when the section is not load-bearing. Most rating badges, testimonial bands and
+   "since" marks simply go.
+2. **Use a role** instead of a person: "your hygienist", "the owner".
+3. **Use a marked slot** only when the section is central (a restaurant's reviews, a menu's
+   prices): one visibly designed placeholder style, a dashed outline and a label saying what the
+   real item is ("A patient review — ideally one that mentions the kids' room"). Never an invented
+   number with "(sample)" beside it.
+
+This is about claims a page makes about a real business. Sample records inside an app (a recipe,
+a task, a product in a demo catalogue) are still invented freely.
 
 ### Images in templates
 

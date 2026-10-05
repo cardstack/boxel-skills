@@ -213,7 +213,9 @@ Push to the realm after each stage so you can compare visually.
 
 > Do a design exploration and generate only the above-the-fold view in isolated, framed as such. Write sample content for this use case and fit the elements in there as a design challenge executed by a brand-focused art director of Pentagram, judged by the preeminent taste maker in that field. (Specify who in your thinking, not your final summary.)
 
-Name the layout in the words of [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) (bento, 40/60 split, masonry, bleed, …) rather than "make it look premium"; pick two or three moves, not all.
+Decide the sections from what the visitor is there to decide before any layout. The first screen
+answers the visitor's first question with the answer itself at full size (a list, a photo, a
+number, a form, something to try), and the headline captions it. Then, where a section has a layout problem, use the move from [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) that is **for** that problem and say why; zero moves is a valid answer, and "make it look premium" is not a reason.
 
 Hold the taste-maker in your head as you work. Bierut, Sagmeister, Paula Scher, Khoi Vinh, Massimo Vignelli, Mark Boulton — whoever fits the brief. The internal critic raises the bar; do NOT name them in your code or commit messages.
 
@@ -238,7 +240,7 @@ To source and link the images, follow [`boxel-file-def/references/sample-images.
 **What "designed" looks like in stage 1 — non-negotiables:**
 
 - **Schema rich enough to compose with.** A card with 3-4 thin fields will look thin no matter the layout. If the design needs `cuisine`, `subtitle`, `rating`, `reviews`, `author`, `keyIngredient`, `difficulty`, `calories`, `description`, `imageUrl` — add them. Don't be precious about schema size.
-- **Real, evocative sample content.** Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
+- **Real, evocative sample content** — but no invented proof about a real business (names, ratings, years, prices): [`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*. Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
 - **Hardcoded values everywhere.** `#0f2a3d`, `'Archivo', sans-serif`, `2.125rem`, `letter-spacing: 0.22em`. Real choices, no `var(--*)`, no theme tokens, no calc against tokens.
 - **Typography pairing.** Two families with clear roles (display, body, optional label), chosen from the style family the brief calls for — [`style-families.md`](../../boxel-design/references/style-families.md). Serif body + sans micro-labels is one option; a heavy rounded display + friendly sans is another; a slab + warm serif a third. Pick deliberately, and do not default to the editorial one.
 - **Weight rhythm.** A clear contrast between the display role and the body role, set by the family. Editorial and luxury: large at LIGHT weight (300-400), tiny at BOLD (700-800). Playful, vibrant, brutalist: a HEAVY display (700-900) against a plain body. In every family, avoid everything sitting at 500-600 — that's UI.

@@ -2,26 +2,36 @@
 
 Part of [`boxel-design`](../SKILL.md); read by both the quick-mockup path and [`design-direction`](../../design-direction/SKILL.md). Links are relative to this file.
 
-[`layout-gravity.md`](../../design-direction/references/layout-gravity.md) lists what to resist; this file names what to reach for.
-A bare "make it look premium" gives the model nothing to execute, while a named move does. Use
-these as words in the `## Design direction` layout pick and in the acceptance lines, so a builder
-and a reviewer read the same instruction. Each entry gives the phrase, the effect, the card
-implementation, and the constraint a card adds that a web page does not have.
+**Sections first, moves second.** Decide the page's sections from what the visitor is there to
+decide (the index's "Just build it" step 4, or the brief's content contract). Then use a move only
+where a section has the problem that move solves. Zero, one or two moves is normal, and a plain
+stacked page is a valid answer. A section order carried over from other sites is not a move; it is
+the thing to justify.
+
+**The first screen is not a move.** It shows the answer to the visitor's first question at full
+size, with the headline as its caption. A move only shapes that answer once it is chosen; it never
+supplies the first screen's composition on its own.
+
+Each move below says what it is **for** and when **not** to use it. A move picked because it is on
+this list, or because heroes "have two sides", is the copied look this file exists to prevent.
+[`layout-gravity.md`](../../design-direction/references/layout-gravity.md) lists what to resist.
+Each entry gives the effect, the card implementation, and the constraint a card adds that a web
+page does not have.
 
 **Standing constraint.** An isolated card is `height: 100%; overflow-y: auto` inside a host pane.
 "The viewport" means the card's own box. "The page edge" means the card edge. Every width rule
 below is a container query against `fitted-card` or the card root, never a viewport media query.
 
-| # | Move | Say this, not this |
-|---|---|---|
-| 1 | Layered surface | "light border, soft shadow, a background step" — not "nicer cards" |
-| 2 | Bento | "one large tile, small tiles at varied spans" — not "tidy the features" |
-| 3 | Masonry | "keep native aspect ratio, staggered heights, no uniform crop" — not "lay the images out well" |
-| 4 | 40/60 split | "text 40%, subject 60%, never 50/50" — not "text left, image right" |
-| 5 | Edge overlap | "a tag, stat or card lightly overlaps the main image's edge" — not "richer layout" |
-| 6 | Editorial type | "oversized headline, large size contrast, staggered text and image" — not "less ordinary" |
-| 7 | Bleed | "text holds the measure, the image runs to the container edge" — not "big image" |
-| 8 | Sticky scroll | "the right panel holds, the left chapters scroll past" — not "more content" |
+| # | Move | For | Not when |
+|---|---|---|---|
+| 1 | Layered surface | the one or two items that act or lead need to lift off the ground | every box gets it |
+| 2 | Bento | four to seven items of genuinely different weight and kind | the items are parallel (services, steps, tiers): those are a list or a table |
+| 3 | Masonry | images of mixed native shapes that should not be cropped alike | uniform product shots, or text |
+| 4 | Unequal split | one dominant thing (a photo, a number, one sentence) with a small quiet companion | both halves are text, or the section only has two sides because heroes usually do |
+| 5 | Edge overlap | two things the reader must connect, such as the price on the photo of what it buys | the overlapping piece is a badge, a rating or an availability card added for depth |
+| 6 | Editorial type | the words themselves are the subject | dense interface, scanning, data |
+| 7 | Bleed | an image that should feel bigger than the page | a small or decorative image |
+| 8 | Sticky scroll | the reader needs one panel of context while changing chapters pass | short or unrelated chapters |
 
 ## 1 · Layered surface
 
@@ -65,9 +75,9 @@ Uneven heights at native aspect ratio, in place of a uniform crop. For galleries
   does not jump.
 - **Check:** no item is cropped to a shape its photographer did not frame.
 
-## 4 · 40/60 split
+## 4 · Unequal split
 
-Text and subject at unequal weight so the eye has an anchor.
+One dominant thing and a quiet companion at unequal weight, so the eye has an anchor.
 
 - `grid-template-columns: minmax(0, 2fr) minmax(0, 3fr)`. The subject takes the 3.
 - Below the container breakpoint, stack with the subject first.
@@ -76,8 +86,8 @@ Text and subject at unequal weight so the eye has an anchor.
 
 ## 5 · Edge overlap
 
-A tag, stat chip or small card laps onto the main image's edge, so the elements read as stacked
-in space rather than placed side by side.
+One element laps onto another's edge because the reader must read them together — the price on
+the photo of what it buys — so they read as one thing stacked in space.
 
 - A negative margin or `translate` (`margin-block-start: calc(var(--space) * -1)`), `position:
   relative; z-index: 1` on the overlapping element, and a border or surface that separates it
@@ -110,7 +120,6 @@ The text stays on the measure while the image ignores it.
 - "To the edge" is **the card's edge**. A card does not own the browser window, so a bleed to the
   screen edge is not available. Say "to the card edge" in the direction.
 - Keep the image's focal point inside the safe region, since the crop changes with pane width.
-- Pair with move 4 for a hero: text at 40%, image bleeding off the right edge at 60%.
 - **Check:** at the narrowest pane the image still reaches both edges, and no text touches an edge.
 
 ## 8 · Sticky scroll
@@ -130,8 +139,8 @@ One region holds while a sequence of chapters passes beside it.
 
 ## Using these with the rest of the skill
 
-- Pick **at most two or three** moves per screen. All eight at once is the *Average Quality Trap*,
-  not a design.
+- Choose sections first; then a move only where a section has the problem it is **for**. Zero to
+  two per screen is normal. Several at once is the *Average Quality Trap*, not a design.
 - Moves 2, 3, 4 and 6 pick the layout; 1 and 5 set the spatial model; 7 and 8 are about how the
   layout meets the card edge and the scroll, so they belong with the interaction table.
-- Record the move by name in the layout pick's **Why**, tied to the scene it serves.
+- When you use a move, say which section needed it and why. Naming a move is never a goal.

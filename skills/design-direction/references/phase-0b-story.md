@@ -11,7 +11,9 @@ the ornament rungs follow its intensity, and the Narrative arc is its scenes wit
 taken out.
 
 You write the story from three inputs: the brief (what and who), the feeling answer (a scene or a
-reference), and the reader's-moment answer. Ask nothing more before writing. When the feeling answer
+reference), and the reader's-moment answer. **Anchor the image in something real**: a detail the
+user gave you, or a concrete part of the service itself. Never invent a named person, a family
+scene or a history to carry it. Ask nothing more before writing. When the feeling answer
 is a reference rather than a scene (a song, a film, a painting, a lyric pasted in full), read it
 yourself and write from that reading; Phase 3's style pick confirms it.
 
@@ -60,10 +62,10 @@ for the part of a unit that has to be most trusted — prices, a legal line, a c
 ## Keep it short, and hand off
 
 The story fixes the **feeling and the Never lines**. It does not decide composition, and a story
-alone does not produce a good layout: that happens in Phase 2, where each scene is given a named
-move from [`layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) (bento, 40/60 split, bleed and so on) and
-the pick's **Why** cites the scene. If a scene has no move named for it by the end of Phase 2, the
-story has not reached the page yet.
+alone does not produce a good layout: that happens in Phase 2, where a scene with a layout problem
+gets the move from [`layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) that
+is for that problem, and the pick's **Why** cites the scene. A scene with no such problem needs no
+move.
 
 Trim anything that does not change a later decision. A story longer than the screen it governs is
 decoration.
