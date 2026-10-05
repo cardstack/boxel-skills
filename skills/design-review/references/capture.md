@@ -25,6 +25,45 @@ entrance that fades from `opacity: 0`, the fix is to make it move instead, not t
 The same flakiness applies to targeted captures: the same selector can match on one run and miss on
 the next. Treat a single failed capture as noise, not evidence.
 
+## Scroll motion: three captures on the card's own scroller
+
+A unit whose `## Motion` section has a scrubbed or pinned beat cannot be judged from one still,
+and the capture service only captures at scroll 0. Take its three **Net journey** points (start,
+mid, end, each a `--progress` value) in the MCP browser, at viewport size, not full page:
+
+```js
+// run in the MCP browser with the card open; p is the Net journey point's progress (0, 0.5, 1)
+async (p) => {
+  const track = document.querySelector('[data-scrub-track]');
+  const stage = track.querySelector('[data-scrub-stage]');
+  let scroller = track.parentElement;            // the card's own scroller, never the window
+  while (scroller && !/auto|scroll/.test(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement;
+  const target = scroller ?? document.scrollingElement;
+  const top = scroller                           // the track's position inside the scroller's content
+    ? track.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop
+    : track.getBoundingClientRect().top + window.scrollY;
+  target.scrollTop = top + p * (track.offsetHeight - stage.offsetHeight);
+  await new Promise((done) => {                  // wait for the scrub to land, at most 1.5 s
+    const stop = setTimeout(done, 1500);
+    const check = () => track.hasAttribute('data-motion-settled') ? (clearTimeout(stop), done()) : requestAnimationFrame(check);
+    requestAnimationFrame(check);
+  });
+}
+```
+
+Capture after the promise resolves. If it resolved on the timeout, the scrub never settled; say so beside the capture.
+
+Read the three captures for:
+
+- **The still frame holds everything.** The start capture shows every word and number the section
+  has. Copy that only appears mid-scroll is a finding.
+- **The arc moved.** A mid or end capture identical to start is a finding: "arc never moved".
+- **No blank region** in any of the three, as everywhere else.
+
+With motion on, a full-page capture of such a unit shows the pinned stage once and then the rest
+of its runway as empty space. That space is expected, not a finding. The full-page check for blanks
+on these units is the motion-off pass below, which collapses the runway.
+
 ## The motion-off pass
 
 A normal capture is taken after the animations have run, so it cannot show what a reduced-motion

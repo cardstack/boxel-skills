@@ -49,15 +49,18 @@ Not used, and why: {e.g. smooth scroll — the host owns scroll physics; a frame
 `data-subject`, {…}. Classes are for styling only.
 
 **Custom properties written by the modifier**: `--progress` (0–1), `--presence` (0–1, default 1), {…}.
-Every consumer has a default that renders the final state: `opacity: calc(0.12 + 0.88 * var(--presence, 1))`.
+Every consumer has a default that renders the final state, and none of them hides words or numbers:
+`transform: scale(calc(0.6 + 0.4 * var(--presence, 1)))` on a chapter's marker, never `opacity` on
+its text. Scroll position 0 is what the first view and every full-page capture show, so it holds
+all the copy.
 
 ## Effect — exhaustive
 
 | # | Beat | Target | Property | From → to | Trigger | Duration | Ease | Stagger | Once / replay | Note |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | {headline arrives} | `[data-hero] h1` | `transform` | `translateY(16px)` → `0` | load | 480ms | `cubic-bezier(.22,1,.36,1)` | 60ms per word | once | transform-only: capture-safe |
-| 2 | {subject scrubs} | `[data-subject]` | `transform` | `rotate(0) scale(.92)` → `rotate(18deg) scale(1)` | scroll: `start` top of runway → `end` runway − 1 stage | — | none (welded) | — | reversible | `--progress` via scrub modifier, rAF-coalesced |
-| 3 | {chapter presence} | `[data-chapter]` | `opacity` via `--presence` | 0.12 → 1 | scroll: chapter centre within ±40% of stage | — | none | — | reversible | default 1, so no-JS renders full |
+| 2 | {subject scrubs} | `[data-subject]` | `transform` | `rotate(0) scale(.92)` → `rotate(18deg) scale(1)` | scroll `0 → 0.6` (`--b1`) | — | none (welded) | — | reversible | `--progress` via scrub modifier, rAF-coalesced; the slice is the pattern's *Beats* |
+| 3 | {chapter marker} | `[data-chapter-mark]` | `transform` via `--presence` | `scale(.6)` → `scale(1)` | scroll: chapter centre within ±40% of stage | — | none | — | reversible | decoration only; the chapter's text never fades. Default 1, so no-JS renders full |
 | 4 | {…} | | | | | | | | | `assumed` — {why this number} |
 
 For a JS beat, the binding and the CSS it feeds. JS writes only `--progress`; the geometry stays in
@@ -89,9 +92,13 @@ For a direct-manipulation beat, the mapping:
 
 ## Net journey — the three capture points
 
-- **Start** (scroll 0, t ≥ settle): {what is on screen — this is the still frame}
-- **Mid** (scroll 50% of the runway): {what has moved, where the subject is}
-- **End** (scroll 100%): {the resting end state — what a reader who scrolled to the bottom keeps looking at}
+Each point is a `--progress` value, so a capture can reproduce it: the card's scroller is set to
+`track's top inside the scroller + progress × (track height − stage height)`, then waits for `data-motion-settled`
+(`design-review/references/capture.md` → *Scroll motion*).
+
+- **Start** (progress 0): {what is on screen — this is the still frame, and it holds every word and number}
+- **Mid** (progress {0.5, or where the middle beat peaks}): {what has moved, where the subject is}
+- **End** (progress 1): {the resting end state — what a reader who scrolled to the bottom keeps looking at}
 
 ## Behaviour notes
 

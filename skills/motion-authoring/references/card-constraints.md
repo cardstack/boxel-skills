@@ -62,9 +62,11 @@ into its animation window). There is no safe set of delays because the safe wind
 - So: `@keyframes rise { from { transform: translateY(8px) } }`, `animation-fill-mode: both`, the
   resting CSS is the **final** state. Never `.block { opacity: 0 }` plus a reveal — that is the
   invisibility trap, and it is permanent for anyone whose animations never play.
-- Where a fade is genuinely the design, put it on a state the user triggers — hover, selection, a
-  scroll-linked crossfade driven by a custom property with a default of 1:
+- Where a fade is genuinely the design, put it on a state the user triggers (hover, selection) or
+  on decoration driven by a custom property with a default of 1:
   `opacity: calc(0.12 + 0.88 * var(--presence, 1))`. No modifier, no JS, a pre-frame capture → 1.
+  Never on words or numbers tied to scroll: at scroll 0, which is what a full-page capture shows,
+  every chapter but the first would read as blank.
 - A JS entrance (`element.animate()`) has the same problem. Give it `fill: 'backwards'`, so the
   element's own CSS stays the resting state once it ends. Keep one constant (`ENTRANCE_WINDOW_MS`) that
   disables it, so the final layout can be verified with a push + touch + capture and restored.
@@ -163,5 +165,6 @@ A helper copied from a repo pattern — `damp()` and the modifiers in
 - For a scrub, render the interpolated states into one filmstrip and rasterise it with headless
   Chrome (`--headless --screenshot --window-size=W,H file:///…svg`); it is the only way to see the
   in-between states without a browser MCP.
-- With a browser MCP, capture the three **Net journey** points and run `design-review`'s
-  motion-off pass.
+- With a browser MCP, capture the three **Net journey** points by scrolling the card's own
+  scroller and waiting for `data-motion-settled`, then run `design-review`'s motion-off pass
+  (`design-review/references/capture.md` → *Scroll motion*).
