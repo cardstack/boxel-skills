@@ -159,7 +159,7 @@ A marquee strip, a slow float on one object or a gentle background drift. **One 
   expose everything.
 - **Which formats:** `isolated` gets recipes 1–4; `embedded`, `fitted` and `atom` get recipe 3
   only. Entrance and scroll motion in a list multiplies by the number of rows.
-- **Not on prices, legal text or confirmations.** A `## Story` scene marked still stays still.
+- **Not on prices, legal text or confirmations.**
 - **One scroll owner.** Never create a second scroller to animate against.
 - **The motion supports the signature; it is not a second one.** If the motion would be the most
   memorable thing on the unit, it belongs in `motion-authoring`, with a spec.

@@ -3,7 +3,7 @@
 Part of [`boxel-design`](../SKILL.md); read by both the quick-mockup path and [`design-direction`](../../design-direction/SKILL.md). Links are relative to this file.
 
 **Sections first, moves second.** Decide the page's sections from what the visitor is there to
-decide (the index's "Just build it" step 4, or the brief's content contract). Then use a move only
+decide (the index's "Just build it" step 3, or the brief's content contract). Then use a move only
 where a section has the problem that move solves. Zero, one or two moves is normal, and a plain
 stacked page is a valid answer. A section order carried over from other sites is not a move; it is
 the thing to justify.

@@ -38,7 +38,7 @@ Run it once per unit, before the first score, and reuse it across rounds.
 ### What the benchmark may and may not decide
 
 - **Compare composition, not technology.** Award winners are often WebGL, full-viewport pinned
-  scenes or custom cursors. A card owns only its own scroll box (see `signature-treatments.md`), so
+  scenes or custom cursors. A card owns only its own scroll box (see `boxel-design/references/signature-treatments.md`), so
   those are not the gap. The gap is hierarchy, type scale and weight, spacing rhythm, image
   treatment, and whether anything dominates.
 - **A benchmark never overrides `## Design direction`.** If a reference does something the

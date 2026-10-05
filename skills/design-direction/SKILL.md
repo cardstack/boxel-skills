@@ -206,5 +206,5 @@ Vocabulary the phases read:
 - [`boxel-design/references/layout-vocabulary.md`](../boxel-design/references/layout-vocabulary.md) — eight named layout moves (layered surface, bento, masonry, unequal split, edge overlap, editorial type, bleed, sticky scroll) and how each is built inside a card
 - [`references/interaction-ways.md`](references/interaction-ways.md) — how an action can present, and the narrative ways a composition can unfold — with what each is achievable with
 - [`references/enrichment-moves.md`](references/enrichment-moves.md) — the ornament budget: the baseline read off the style in Phase 3, the ladder every surface is assigned a rung on, the moves each style can earn, the correction run in both directions, and why `fitted` is upstream's call
-- [`references/signature-treatments.md`](references/signature-treatments.md) — the arresting element: what is buildable in a card with pure CSS, what each costs, and the four runtime constraints
+- [`boxel-design/references/signature-treatments.md`](../boxel-design/references/signature-treatments.md) — the arresting element: what is buildable in a card with pure CSS, what each costs, and the four runtime constraints
 - [`references/design-direction-template.md`](references/design-direction-template.md) — the output, and the contract `design-review` checks

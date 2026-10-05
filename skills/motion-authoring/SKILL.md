@@ -212,7 +212,7 @@ Read live; never restate their content here. Local links are relative to this sk
 | The spec shape this skill borrows: Goal · Tech · Layout · load-bearing CSS · exhaustive effect · Net journey · Behavior notes · composition contract | `https://motionprompts.dev/prompts/<slug>.md` (any), `https://motionprompts.dev/llms.txt` | Phase 3 — the shape, not the components, which assume a document, a bundler and absolute asset paths |
 | One motion system per page; the `hop` collision | `https://motionprompts.dev/api/v1/motion-systems.json`, `.../composition-rules.json` | Phase 2 |
 | Whether and what — the arc, the ways, achievability (when `design-direction` is installed) | `design-direction/references/interaction-ways.md` → *Narrative ways*, *Direct manipulation* | Phase 1 |
-| The scrubbed subject and the spatial model (when `design-direction` is installed) | `design-direction/references/signature-treatments.md` | Phase 1 |
+| The scrubbed subject and the spatial model | `boxel-design/references/signature-treatments.md` | Phase 1 |
 | Slicing one `--progress` into beats; the still frame at scroll 0; runway collapse | `show-scroll-reveal-and-scrub` → *Beats*, §6 | Phase 3 |
 | Reveal and scrub modifiers with `root`, `unobserve`, reduced-motion already applied | `show-scroll-reveal-and-scrub` | Engine — start from it, never rewrite the observer |
 | Resting state is the final state | `boxel-ui-guidelines/references/template-patterns.md` | Behaviour notes |

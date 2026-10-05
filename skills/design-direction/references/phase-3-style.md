@@ -110,7 +110,7 @@ the treatment has to be what *this* style earns: a field guide's signature is a 
 hairline, a brutalist one's is a hard shadow and an oversized numeral. The blurred-gradient-plus-
 frosted-glass family is the current default look and upstream's [`critical-rules.md`](../../boxel-design/references/critical-rules.md) names
 *Gradient Overuse* directly — reaching for it unexamined is the Average Quality Trap, not a
-signature. [`references/signature-treatments.md`](signature-treatments.md) has the vocabulary, what each technique costs in a
+signature. [`references/signature-treatments.md`](../../boxel-design/references/signature-treatments.md) has the vocabulary, what each technique costs in a
 card, and the four runtime constraints that apply to all of them.
 
 Say what the signature becomes at each format: `isolated` has room for it, `embedded` carries one
@@ -119,7 +119,7 @@ as wording. A shrunken copy of the hero is not a treatment.
 
 Record with the pick:
 
-- the style controls: **style family** (chosen on purpose from [`boxel-design/references/style-families.md`](../../boxel-design/references/style-families.md) — never the editorial default unless the brief asked for it), motion character (from [`motion-baseline.md`](../../boxel-design/references/motion-baseline.md)), type system, colour strategy, **spatial model**, visual density — [`references/signature-treatments.md`](signature-treatments.md) defines the spatial-model options (flat · layered · perspective · scene) and what each costs; "flat" is a choice, not the absence of one
+- the style controls: **style family** (chosen on purpose from [`boxel-design/references/style-families.md`](../../boxel-design/references/style-families.md) — never the editorial default unless the brief asked for it), motion character (from [`motion-baseline.md`](../../boxel-design/references/motion-baseline.md)), type system, colour strategy, **spatial model**, visual density — [`references/signature-treatments.md`](../../boxel-design/references/signature-treatments.md) defines the spatial-model options (flat · layered · perspective · scene) and what each costs; "flat" is a choice, not the absence of one
 - the **signature treatment** and what it reduces to at each format
 - the **ornament budget** — [`references/enrichment-moves.md`](enrichment-moves.md), and it is decided **here, before
   anything is built**, not after someone complains. Read the **baseline** off the style you just

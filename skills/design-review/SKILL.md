@@ -108,7 +108,7 @@ Score and name the specific thing behind each number:
 - **Colour** — against the declared colour strategy. Restrained families: one accent in at most two places. Playful, vibrant, vintage: several colours are right when each has a named role and none competes for the same job. Colours with no assigned role fail in any family.
 - **Composition** — does something dominate, or is it a row of equals? Is the reading order legible
   in the screenshot alone? Name the signature treatment on the dominant object and say whether it
-  belongs to this style — `design-direction/references/signature-treatments.md` is the authority on
+  belongs to this style — [`boxel-design/references/signature-treatments.md`](../boxel-design/references/signature-treatments.md) is the authority on
   which treatments a style earns and why the default gradient-and-glass look scores *lower* than a
   plain surface; judge against it rather than restating it. Check the treatment survives into
   `embedded` and `fitted` as a compressed idea rather than a shrunken copy.
@@ -303,7 +303,7 @@ Read these live on each run. Links are relative to this skill's folder.
 | What | Where |
 |---|---|
 | The decision being scored | the brief card's `## Design direction` section, written by `design-direction` |
-| Which treatments a style earns | `design-direction/references/signature-treatments.md` |
+| Which treatments a style earns | `boxel-design/references/signature-treatments.md` |
 | Anti-cliché checklist | `boxel-design/references/critical-rules.md` |
 | What each format's root may and may not style | `boxel-ui-guidelines/references/delegated-render-control.md` → *Per format — what's safe and what isn't on the outermost element* |
 | Fitted sizes and the verification checklist | `boxel/references/fitted-formats.md` |

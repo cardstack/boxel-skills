@@ -1,8 +1,9 @@
 # Signature treatments — the one arresting thing, and how to build it in a card
 
 Every unit needs something that arrests: a dominant object with a treatment nobody would arrive at
-by default. `design-direction` Phase 2 already forbids an all-equal-weight layout and requires you
-to name the dominant object; `design-review` scores it as Composition. This file is the **execution
+by default. The first screen shows the answer to the reader's first question at full size
+([`index.md`](../../../index.md) step 3), and `design-direction` Phase 2, when it runs, also forbids
+an all-equal-weight layout; `design-review` scores it as Composition. This file is the **execution
 vocabulary** for that decision — what is achievable in a Boxel card with pure CSS, and what each
 technique costs.
 

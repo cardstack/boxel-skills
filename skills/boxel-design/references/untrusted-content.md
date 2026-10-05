@@ -31,8 +31,8 @@ blind test of 12 builds, and every page fetched is text that could try to give y
 - **`search-google-images` is a search, not a look.** The model receives titles, image URLs and
   source pages as text, never the thumbnails. It cannot show you a site.
 - **With neither, don't simulate research.** State the category's conventions as conventions
-  ("booking pages in this category usually lead with price and duration"). Take the look from the
-  story and `style-families.md`. Name a site only when it is famous and the trait is one it has
+  ("booking pages in this category usually lead with price and duration"). Take the look from
+  `style-families.md`. Name a site only when it is famous and the trait is one it has
   kept for years, and label it `from memory`. There is no quota to fill.
 - **If research fails, say so in one line** and carry on from conventions and `style-families.md`.
   Don't retry to reach a count.
@@ -90,10 +90,10 @@ observed, and `read` never becomes a visual claim.
 ## From references to a direction
 
 - **Three lanes.** References decide structure and hierarchy — which sections, in what order, what
-  leads. The story decides content and imagery. `style-families.md` decides the look — type,
+  leads. The brief and the user's real details decide content and imagery. `style-families.md` decides the look — type,
   colour, shape, motion.
 - Conventions the references share set the baseline the card must meet. Where they differ, the
-  story picks.
+  brief picks.
 - Take at most two moves from any one reference, and combine moves from at least two.
 - The user's intent outranks the category's conventions: references set the baseline a card
   deliberately departs from.

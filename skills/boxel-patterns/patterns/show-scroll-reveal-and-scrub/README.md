@@ -259,8 +259,9 @@ anything disappears, rule 2 is violated somewhere.
 
 ## See also
 
-- `design-direction/references/interaction-ways.md` and `signature-treatments.md`, when
-  `design-direction` is installed: whether a unit uses a scroll way at all, and the scrubbed
-  subject as a signature decision
+- [`boxel-design/references/signature-treatments.md`](../../../boxel-design/references/signature-treatments.md):
+  the scrubbed subject as a signature decision
+- `design-direction/references/interaction-ways.md`, when `design-direction` is installed: whether a
+  unit uses a scroll way at all
 - **`motion-authoring`** — the `## Motion` section whose Engine rows name this
   pattern, and the card constraints each option here exists to satisfy

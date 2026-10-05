@@ -13,7 +13,7 @@ surface earn?**
 
 It does not pick a style, does not touch the layout, and does not produce a second arresting
 element. A style change is Phase 3; a layout change is judged on the built screen; the one
-arresting thing is [`signature-treatments.md`](signature-treatments.md). This file is the vocabulary for everything that is
+arresting thing is [`signature-treatments.md`](../../boxel-design/references/signature-treatments.md). This file is the vocabulary for everything that is
 *not* the signature — the surfaces that should not be bare and must not out-shout it.
 
 ## Why a catalogue instead of "make it richer"
@@ -59,7 +59,7 @@ have, and Phase 3 must answer them when it picks Rich:
 - **Grounds cost frames.** Blurred, animated or filtered grounds composite every frame and the
   card can be on screen several times at once. Cap them per screen, prefer a static pattern or a
   gradient over an animated blur, and keep the `prefers-reduced-motion` resting state — same
-  constraints as [`signature-treatments.md`](signature-treatments.md).
+  constraints as [`signature-treatments.md`](../../boxel-design/references/signature-treatments.md).
 
 ## The ladder — every surface sits on one rung
 
@@ -108,7 +108,7 @@ off the ground entirely. "It looked fine in the screenshot" is not one; the grou
 data.
 
 **The motion clause.** If the move animates, `prefers-reduced-motion` gets a resting state that is
-the finished state — same rule as every treatment in [`signature-treatments.md`](signature-treatments.md), and its four
+the finished state — same rule as every treatment in [`signature-treatments.md`](../../boxel-design/references/signature-treatments.md), and its four
 runtime constraints (no document-level queries, container units not `vw`/`vh`, reduced motion, the
 host owns the outermost element) apply here unchanged. Do not restate them; read them there.
 

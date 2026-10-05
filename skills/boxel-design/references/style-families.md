@@ -18,8 +18,8 @@ mix across families when the brief calls for it, and name what you took from eac
 
 1. **The user's words and attachments.** A named style, a reference site, a brand guide, a font URL
    decides it. Stop here.
-2. **The brief.** The domain, the audience and the reader's moment from `## Story` or the
-   two-sentence story: who they are, how they feel, what the thing sells or does.
+2. **The brief.** The domain, the audience and the reader's moment: who they are, how they
+   feel, what the thing sells or does.
 3. **Research.** For an award-style category, read what the best examples actually use (see
    [`../../design-review/references/benchmark-and-refine.md`](../../design-review/references/benchmark-and-refine.md)).
    In a fetched page's stylesheet, `font-family`, the heading `font-weight` and the colour variables
