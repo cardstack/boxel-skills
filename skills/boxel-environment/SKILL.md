@@ -48,6 +48,7 @@ So read it as your first action, before you plan the work or tell the user what 
 → Use `run-realm-code` tool. For NEW files, call `realm.fs.writeText` with the complete contents.
 → Put every file the task needs in ONE `run-realm-code` call.
 → For code-change intent, ALWAYS use the `run-realm-code` tool. Data/document commands are secondary.
+→ Before you report the change done: look at the result — `realm.capture` on an instance in the same script, or `view-visually_907b` next — compare it with what was asked, and fix what you see.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → preview-format_cb94 (opens module + shows card preview)
@@ -63,8 +64,12 @@ So read it as your first action, before you plan the work or tell the user what 
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
 ├─ Bulk / malformed JSON?              → `run-realm-code`
-└─ After change                        → show-card_566f to verify
+└─ After change                        → show-card_566f; when the change affects how the card looks (images, layout-driving or styled content), `view-visually_907b` to see it
 ```
+
+### Seeing what you work with
+
+Look at visual context and at everything you make with `view-visually_907b`; the rules — including what you cannot see and what to tell the user then — are in the Seeing section of `references/host-commands-reference.md`.
 
 Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
 

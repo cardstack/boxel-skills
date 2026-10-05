@@ -2,7 +2,7 @@
 //
 // Structural twin of the experiments-realm/capture-card-demo.gts (used by
 // `integrate-capture-card-format`), but invoking GenerateThumbnailCommand
-// instead of CaptureCardTool. The call signature mirrors the host's
+// instead of CaptureTool. The call signature mirrors the host's
 // former `autoGenerateThumbnail` caller (retired from the host in CS-11372
 // when listing commands moved to the catalog realm).
 //
