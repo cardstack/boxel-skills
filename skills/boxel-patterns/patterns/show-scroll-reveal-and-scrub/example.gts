@@ -146,11 +146,15 @@ export const scrollScrub = modifier(
 
     const write = (progress: number) =>
       track.style.setProperty('--progress', progress.toFixed(4));
+    // A capture waits for this instead of guessing a delay.
+    const settled = (yes: boolean) => track.toggleAttribute('data-motion-settled', yes);
 
     // The still frame carries the composition — a subject whose composition
-    // only works mid-scrub has no composition.
+    // only works mid-scrub has no composition. The CSS collapses the runway
+    // under reduced motion, so this frame is all there is.
     if (!stage || !scroller || prefersReducedMotion()) {
       write(restProgress);
+      settled(true);
       return;
     }
 
@@ -194,9 +198,11 @@ export const scrollScrub = modifier(
         frame = requestAnimationFrame(step);
       } else {
         last = 0;
+        settled(true);
       }
     };
     const schedule = () => {
+      settled(false);
       if (!frame) frame = requestAnimationFrame(step);
     };
 
@@ -293,6 +299,9 @@ class Isolated extends Component<typeof ScrollMotionExample> {
       [data-scrub-track] {
         position: relative;
         height: calc(var(--scroller-h, 600px) * var(--scrub-length, 2.4));
+        /* beats: each takes its own slice of one --progress (README, Beats) */
+        --b1: clamp(0, var(--progress, 0) / 0.6, 1);
+        --b2: clamp(0, (var(--progress, 0) - 0.5) / 0.5, 1);
       }
 
       [data-scrub-stage] {
@@ -304,21 +313,36 @@ class Isolated extends Component<typeof ScrollMotionExample> {
         overflow: hidden;
       }
 
-      /* transform and opacity only — both composite without layout or paint. */
+      /* Reduced motion: rest on the still frame and collapse the runway, so
+         no blank track is left behind. The review's motion-off pass injects
+         the same two rules globally (design-review capture.md). */
+      @media (prefers-reduced-motion: reduce) {
+        [data-scrub-track],
+        .piece[data-page] [data-scrub-track] {
+          height: auto;
+        }
+        [data-scrub-stage] {
+          position: static;
+        }
+      }
+
+      /* transform only on the subject. Beat 1 moves decoration; the caption
+         is readable at progress 0, because that is the frame every capture
+         and every first view shows. */
       .subject {
         width: 40cqi;
         aspect-ratio: 1;
         border-radius: 50%;
         background: radial-gradient(circle at 35% 30%, #cfe8ff, #37506b);
-        transform: translateY(calc((var(--progress, 0) - 0.5) * 60cqi))
-          rotate(calc(var(--progress, 0) * 180deg))
-          scale(calc(0.7 + var(--progress, 0) * 0.5));
+        transform: translateY(calc((var(--b1) - 0.5) * 40cqi))
+          rotate(calc(var(--b1) * 180deg))
+          scale(calc(0.7 + var(--b1) * 0.5));
       }
 
       .readout {
         position: absolute;
         bottom: 1.5rem;
-        opacity: calc(0.25 + var(--progress, 0) * 0.75);
+        transform: translateY(calc(var(--b2) * -2rem));
       }
 
       .intro,

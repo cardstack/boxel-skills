@@ -39,10 +39,13 @@ media query: with the card open in the MCP browser, inject
 
 ```js
 document.head.insertAdjacentHTML('beforeend',
-  '<style>*,*::before,*::after{animation:none !important;transition:none !important}</style>');
+  '<style>*,*::before,*::after{animation:none !important;transition:none !important}' +
+  '[data-scrub-track]{height:auto !important}[data-scrub-stage]{position:static !important}</style>');
 ```
 
-then reload-free re-capture. Anything that disappears has its resting state wrong. This tests the
+then reload-free re-capture. The last two rules collapse a scroll scrub's runway, as reduced motion
+does ([`show-scroll-reveal-and-scrub`](../../boxel-patterns/patterns/show-scroll-reveal-and-scrub/README.md)
+§6), so the full-page capture shows the still frame and no empty track. Anything that disappears has its resting state wrong. This tests the
 condition that matters — animations never play — which is what a reduced-motion user experiences
 whether or not the card implements the media query.
 

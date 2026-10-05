@@ -9,10 +9,13 @@ animates in once as it enters view) and *scrub* (one subject's state follows scr
 continuously, in both directions) — as `ember-modifier` modifiers that respect the card runtime
 instead of the window.
 
-**When to use:** `design-direction` recorded **Scroll-triggered reveal** or **Scroll-linked
-progress** / **Scroll-scrubbed subject** in the unit's `## Design direction` section. Read
-`design-direction/references/interaction-ways.md` for *whether* to
-do it at all; this file is only *how*.
+**When to use:** a beat in the unit's `## Motion` section (from `motion-authoring`) names this
+pattern as its engine, or the user asked outright for motion that follows scroll ("scroll like
+<site>", "pin this", "scrubbed"). A `## Design direction` row asking for **Scroll-linked progress**
+or a **Scroll-scrubbed subject** is a trigger too when one exists, but none is required. A vague ask
+("make it feel alive") is baseline motion, not this
+([`motion-baseline.md`](../../../boxel-design/references/motion-baseline.md) → *Off, on, or more*).
+This file decides *how*, never *whether*.
 
 **When not to use:** any format that is not `isolated`. `fitted` and `embedded` render inside
 someone else's composition and usually have no meaningful scroll — a reveal there is just content
@@ -29,10 +32,10 @@ that is not there.
 | Reduced motion | render final state, never observe | render one chosen still, never listen |
 
 **Prefer reveal.** It is the way that always works and costs nothing after it fires. Reach for
-scrub only when the unit has one object worth watching move — `signature-treatments.md` calls this
-"the strongest signature a card can carry, and the most expensive to get wrong."
+scrub only when the unit has one object worth watching move: it is the strongest signature a card
+can carry, and the most expensive to get wrong.
 
-## The five things that make it a *card* pattern
+## The six things that make it a *card* pattern
 
 These are not style preferences. Each one is a real failure observed in a real card.
 
@@ -106,7 +109,35 @@ The same card can be open in two stacks at once, with no iframe between them. Ne
 in `example.gts` is `element.querySelector('[data-scrub-stage]')` — scoped to the modifier's own
 element, and on an attribute that a later restyle will not rename out from under it.
 
-## Two more, smaller
+### 6. Scroll position 0 is the still frame, and it is complete
+
+A page opens at the top, and a full-page capture never scrolls, so the reader's first view and every
+review capture show the scrub at `--progress: 0` (or the `restProgress` you pass). That frame must
+already hold every piece of text and data the section has. A beat may move, turn, scale or swap
+*decoration*; it never reveals words or numbers, and nothing in the stage starts faded, clipped or
+off the stage. A caption that only becomes readable halfway down is content a screenshot and a
+quick reader both miss. If a composition only works mid-scrub, it has no composition: rework the
+beats, do not tune numbers.
+
+With reduced motion the modifier rests on that still frame and the CSS **collapses the runway**:
+the track drops to its stage's height and the stage stops being sticky. Without that, the page
+keeps a tall empty track, and a full-page capture shows a blank screenful or two below the subject.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  [data-scrub-track] { height: auto; }
+  [data-scrub-stage] { position: static; }
+}
+```
+
+The review's motion-off pass cannot set the media query, so it injects the same two rules
+globally, keyed on these `data-scrub-*` attributes
+([`capture.md`](../../../design-review/references/capture.md) → *The motion-off pass*). Keep the
+attribute names, or that pass stops collapsing the track. Don't reach for `:global(:root[…]) …`
+inside `<style scoped>` to do it yourself: the scoping pass replaces the whole selector with what is
+inside `:global()`, so the rule lands on the root element and never on the track.
+
+## Smaller rules
 
 - **Coalesce with `rAF`.** A scroll listener that measures and writes synchronously can run several
   times per frame. Guard with a pending-frame flag and cancel it in teardown. Listen `passive: true`
@@ -116,6 +147,9 @@ element, and on an attribute that a later restyle will not rename out from under
   exported `damp()`, which settles in the same time at 60 Hz and 120 Hz; a per-frame factor like
   `* 0.1` settles twice as fast on a 120 Hz screen. `0.1` per frame at 60 Hz ≈ `lag=160`. The loop
   stops once it lands, and the first step snaps, so a capture never catches it mid-glide.
+- **Say when it has landed.** The modifier sets `data-motion-settled` on the track whenever
+  `--progress` equals its target, and removes it while a scroll is being followed. A capture that
+  scrolls the card to a point waits for that attribute (with a timeout) instead of guessing a delay.
 - **This modifier is the default scrub engine.** CSS `animation-timeline: view()` is optional, behind
   `@supports`, and never on an element this modifier also drives.
 - **Scrub `transform` and `opacity` only.** They composite without layout or paint. Scrubbing
@@ -133,6 +167,26 @@ whole modifier tears down and re-runs.** Neither modifier here reads card state,
 re-run would rebuild the observer and re-measure the track, and for a canvas variant it would throw
 away the drawing context. If you need one to react to model data, read the value in the template and
 pass it as a named argument you consciously want to re-key on.
+
+## Beats: slicing one `--progress`
+
+A GSAP timeline places several tweens along one scroll range. Here the whole range is one
+`--progress` from 0 to 1, and each beat takes its own slice of it in CSS, with no extra JS:
+
+```css
+[data-scrub-track] {
+  /* beat local progress: 0 before its start, 1 after its end, linear between */
+  --b1: clamp(0, var(--progress, 0) / 0.6, 1);           /* beat 1: 0 → 0.6 */
+  --b2: clamp(0, (var(--progress, 0) - 0.5) / 0.5, 1);   /* beat 2: 0.5 → 1 */
+}
+.subject { transform: rotate(calc(var(--b1) * 180deg)); }
+.readout { transform: translateY(calc(var(--b2) * -2rem)); }
+```
+
+Overlapping slices (0.5 to 0.6 here) are the timeline's overlap. Each row of the `## Motion`
+Effect table names its slice as its trigger (`scroll 0.5 → 1`), so the numbers in the spec and in
+the CSS are the same numbers. Easing a beat is one more step: ease the slice in the CSS
+(`calc(var(--b2) * var(--b2))` is ease-in) or in JS before writing.
 
 ## The canvas variant
 
@@ -192,6 +246,11 @@ Three more obligations, two of them specific to running inside a card:
 
 ## Verifying it
 
+**Not yet verified in the live host:** the sticky stage inside a card's own scroller (any ancestor
+between the stage and the scroller with `overflow` other than `visible` silently disables sticky),
+and the scrub's cost on a low-end device. Headless Chrome against a plain page passes both; check
+one real card in the host before relying on a pinned sequence.
+
 The staging capture service captures at scroll 0, so it can never see either effect. To check a
 scrub's in-between states, drive `--progress` manually from the console across `0 → 1` and look, or
 render the frames into a filmstrip and rasterise with headless Chrome. To check the reveal's failure
@@ -200,9 +259,8 @@ anything disappears, rule 2 is violated somewhere.
 
 ## See also
 
-- `design-direction/references/interaction-ways.md` — whether to
-  use a scroll way at all, and the `## Design direction` row it becomes
-- `design-direction/references/signature-treatments.md` — the
-  scroll-scrubbed subject as a signature decision, and the four runtime constraints
+- `design-direction/references/interaction-ways.md` and `signature-treatments.md`, when
+  `design-direction` is installed: whether a unit uses a scroll way at all, and the scrubbed
+  subject as a signature decision
 - **`motion-authoring`** — the `## Motion` section whose Engine rows name this
   pattern, and the card constraints each option here exists to satisfy
