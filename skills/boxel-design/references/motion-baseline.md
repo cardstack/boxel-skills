@@ -108,8 +108,8 @@ Blocks below the fold arrive as the reader reaches them.
   own root (`height: 100%; overflow-y: auto`). Never design it against the window.
 - Content already in view at load is already past its entry range, so it shows in its final state.
 - If you need a replay-once trigger instead of a scrubbed one, use an `IntersectionObserver` in a
-  Modifier with `root` set to the card's scroller, never `null` (see
-  [`interaction-ways.md`](../../design-direction/references/interaction-ways.md)).
+  Modifier with `root` set to the card's scroller, never `null`; [`show-scroll-reveal-and-scrub`](../../boxel-patterns/patterns/show-scroll-reveal-and-scrub/README.md)
+  has the modifier.
 - Do not put `.arrive` and `.reveal` on the same element.
 
 ### 3 · Hover, press and focus feedback — every format

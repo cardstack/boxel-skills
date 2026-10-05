@@ -24,7 +24,7 @@ review: a card with one good photo gets a headline-led layout and a thumbnail, a
 looks wrong. Incidental imagery is the real exception — an avatar on an invoice row, a vendor mark
 on a purchase order — and naming it as incidental is the write-down.
 
-Name the layout in the words of [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) where one fits. Check the pick against [`references/layout-gravity.md`](layout-gravity.md) and name any well it still contains — a direction may keep
+Name the layout in the words of [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) where one fits. Check the pick against [`references/layout-gravity.md`](../../boxel-design/references/layout-gravity.md) and name any well it still contains — a direction may keep
 one deliberately if you say why. Never pick one whose regions are all equal weight; equal weight
 tells the reader nothing matters more than anything else, which is never true.
 

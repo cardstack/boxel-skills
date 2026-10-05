@@ -202,7 +202,7 @@ Phases:
 Vocabulary the phases read:
 
 - [`references/screen-types.md`](references/screen-types.md) — layout directions per screen type
-- [`references/layout-gravity.md`](references/layout-gravity.md) — defaults to resist
+- [`boxel-design/references/layout-gravity.md`](../boxel-design/references/layout-gravity.md) — defaults to resist
 - [`boxel-design/references/layout-vocabulary.md`](../boxel-design/references/layout-vocabulary.md) — eight named layout moves (layered surface, bento, masonry, unequal split, edge overlap, editorial type, bleed, sticky scroll) and how each is built inside a card
 - [`references/interaction-ways.md`](references/interaction-ways.md) — how an action can present, and the narrative ways a composition can unfold — with what each is achievable with
 - [`references/enrichment-moves.md`](references/enrichment-moves.md) — the ornament budget: the baseline read off the style in Phase 3, the ladder every surface is assigned a rung on, the moves each style can earn, the correction run in both directions, and why `fitted` is upstream's call

@@ -14,7 +14,7 @@ supplies the first screen's composition on its own.
 
 Each move below says what it is **for** and when **not** to use it. A move picked because it is on
 this list, or because heroes "have two sides", is the copied look this file exists to prevent.
-[`layout-gravity.md`](../../design-direction/references/layout-gravity.md) lists what to resist.
+[`layout-gravity.md`](layout-gravity.md) lists the defaults to resist, mostly on app screens.
 Each entry gives the effect, the card implementation, and the constraint a card adds that a web
 page does not have.
 
@@ -107,7 +107,6 @@ Hierarchy carried by type scale and rhythm instead of boxes.
   weight rhythm. Pair with an eyebrow and one rule.
 - Stagger text and image across a 12-column grid: text on columns 1–6, image on 5–12, offset a row.
 - Pull-quote, drop cap or oversized numeral as one or two micro-objects, not all of them.
-- Matches [`screen-types.md`](../../design-direction/references/screen-types.md) record C (Editorial) and collection B (Magazine).
 - **Check:** squint, and you can still read three levels of hierarchy with no boxes.
 
 ## 7 · Bleed
@@ -131,8 +130,7 @@ One region holds while a sequence of chapters passes beside it.
   which is the card root. Make sure no ancestor between them sets `overflow: hidden`, which
   silently disables it.
 - The held panel changes with the chapter in view: each chapter sets a CSS variable or class from
-  an `IntersectionObserver` whose `root` is the card scroller, never `null`
-  ([`interaction-ways.md`](../../design-direction/references/interaction-ways.md) notes this).
+  an `IntersectionObserver` whose `root` is the card scroller, never `null`.
 - Not a viewport pin: the whole-viewport sequence is not available in a card. At narrow widths the
   panel un-sticks and each chapter carries its own copy of it inline.
 - **Check:** one idea per chapter; the held panel makes sense when scrolled back up.
