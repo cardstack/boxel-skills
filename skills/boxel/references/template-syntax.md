@@ -77,9 +77,11 @@ The `markdown` format emits plain text (Boxel Flavored Markdown), not HTML. A wo
 {{/each}}
 
 <!-- ❌ block-param `option` shadows the <option> tag -->
-<BoxelSelect @options={{@model.options}} as |option|>
-  <option />
-</BoxelSelect>
+<Combobox @label='Choice' @options={{this.options}}>
+  <:option as |option|>
+    <option />
+  </:option>
+</Combobox>
 
 <!-- ✅ rename the block param so it can't collide -->
 <Shell as |shell|>
@@ -90,9 +92,11 @@ The `markdown` format emits plain text (Boxel Flavored Markdown), not HTML. A wo
   <section class='content-section'>...</section>
 {{/each}}
 
-<BoxelSelect @options={{@model.options}} as |opt|>
-  <option>{{opt.label}}</option>
-</BoxelSelect>
+<Combobox @label='Choice' @options={{this.options}}>
+  <:option as |opt|>
+    <span>{{opt.label}}</span>
+  </:option>
+</Combobox>
 ```
 
 **Avoid these block-param names** (HTML tags that commonly come up as iteration / yield-data names):

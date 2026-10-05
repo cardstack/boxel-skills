@@ -47,7 +47,8 @@ Fitted cards are rendered at many different container sizes — from small badge
 `FittedCard` from `@cardstack/boxel-ui/components` handles all responsive container-query breakpoints, image column sizing, text clamping, and overflow — you only supply named content blocks. Reach for it when the design fits its slot model; hand-roll a fitted template (next section) when it does not.
 
 ```gts
-import { FittedCard, Pill } from '@cardstack/boxel-ui/components';
+import { FittedCard } from '@cardstack/boxel-ui/components';
+import { Chip } from '@cardstack/pretui/components/chip';
 import type { FittedCardLayout, FittedCardTitleTag } from '@cardstack/boxel-ui/components';
 import BookOpen from '@cardstack/boxel-icons/book-open';
 import Calendar from '@cardstack/boxel-icons/calendar';
@@ -60,8 +61,8 @@ static fitted = class Fitted extends Component<typeof this> {
       class='my-fitted'
     >
       <:placeholder><BookOpen width='24' height='24' /></:placeholder>
-      <:badgeLeft><Pill>New</Pill></:badgeLeft>
-      <:badgeRight><Pill>4.8 ★</Pill></:badgeRight>
+      <:badgeLeft><Chip @label='New' @dot={{false}} /></:badgeLeft>
+      <:badgeRight><Chip @label='4.8 ★' @dot={{false}} /></:badgeRight>
       <:eyebrow>{{@model.category}}</:eyebrow>
       <:title><@fields.cardTitle /></:title>
       <:subtitle><@fields.cardDescription /></:subtitle>
@@ -192,12 +193,15 @@ The runtime defines 16 named formats (`FITTED_FORMATS` in boxel-ui). The table o
 
 ### Form fields
 
-Wrap inputs with `FieldContainer` for consistent label + input layout. Use component API to pass in relevant arguments instead of writing css.
+Wrap inputs with Pret UI `Field` for consistent label + input layout. It yields a generated `controlId`; pass it to the control's `@controlId` so the label is bound to it. Use component API to pass in relevant arguments instead of writing css.
 
 ```gts
-<FieldContainer @label='Title' @tag='label' @vertical={{true}}>
-  <BoxelInput @value={{@model.title}} />
-</FieldContainer>
+import { Field } from '@cardstack/pretui/components/field';
+import { Input } from '@cardstack/pretui/components/input';
+
+<Field @label='Title' as |controlId|>
+  <Input @controlId={{controlId}} @value={{@model.title}} @onInput={{this.setTitle}} />
+</Field>
 ```
 
 ### Icons
@@ -240,13 +244,13 @@ Choose elements by meaning; reserve `<div>` for pure geometry/layout machinery:
 - Intro blocks (title + subtitle/description) are wrapped in `<header>`.
 - Groups of controls get `role='toolbar'` plus an `aria-label` describing the group.
 - Computed/live readouts (counters, results, status values) use `<output>`.
-- Icon-only buttons carry an `aria-label`; purely decorative elements (glyphs, ornaments, background shapes) get `aria-hidden='true'`.
+- Icon-only buttons are `IconButton` with its required `@label`, which becomes the `aria-label`; purely decorative elements (glyphs, ornaments, background shapes) get `aria-hidden='true'`.
 
 Attribute ordering: `data-test-*` attributes go **absolutely last** on an element — after all other attributes and after modifiers.
 
 ```gts
 import { on } from '@ember/modifier';
-import { IconButton } from '@cardstack/boxel-ui/components';
+import { IconButton } from '@cardstack/pretui/components/icon-button';
 import PlusIcon from '@cardstack/boxel-icons/plus';
 
 // Avoid — divs for everything, raw button, no accessible names
@@ -263,13 +267,10 @@ import PlusIcon from '@cardstack/boxel-icons/plus';
 </header>
 <div class='controls' role='toolbar' aria-label='Zoom controls'>
   <IconButton
-    @icon={{PlusIcon}}
-    @width='16'
-    @height='16'
-    aria-label='Zoom in'
+    @label='Zoom in'
     {{on 'click' this.zoomIn}}
     data-test-zoom-in
-  />
+  ><PlusIcon width='16' height='16' aria-hidden='true' /></IconButton>
 </div>
 <output class='count' data-test-count>{{this.count}}</output>
 ```

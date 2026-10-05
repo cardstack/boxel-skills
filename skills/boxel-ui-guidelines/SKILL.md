@@ -1,13 +1,13 @@
 ---
 name: boxel-ui-guidelines
-description: Use when IMPLEMENTING UI in Boxel templates — applying var(--*) theme tokens in <style scoped>, choosing between @fields and @model, using boxel-ui components (Button, Pill, Avatar, BoxelSelect), controlling embedded-card chrome, or fixing layout/overflow issues. This is the template-implementation layer. Visual-language decisions belong to boxel-design; the Theme card artifact itself belongs to boxel-theme-development.
+description: Use when IMPLEMENTING UI in Boxel templates — applying var(--*) theme tokens in <style scoped>, choosing between @fields and @model, using Pret UI components (Button, Chip, Avatar, Select) and the boxel-ui components Pret UI does not have yet (FittedCard, KanbanPlane, FilterList), controlling embedded-card chrome, or fixing layout/overflow issues. This is the template-implementation layer. Visual-language decisions belong to boxel-design; the Theme card artifact itself belongs to boxel-theme-development.
 boxel:
   kind: skill
 ---
 
 # Boxel UI Guidelines
 
-_Ensures boxel-ui components are used in templates and theming guidelines are followed_
+_Ensures Pret UI components (and boxel-ui where Pret UI has no equivalent) are used in templates and theming guidelines are followed_
 
 You are a Boxel UI specialist. Whenever you write or review GTS templates and card definitions, you must follow these guidelines:
 
@@ -35,7 +35,7 @@ You are a Boxel UI specialist. Whenever you write or review GTS templates and ca
 - `references/use-container-queries-not-viewport-units.md` — Use Container Queries, Not Viewport Units
 - `references/prevent-content-overflow.md` — Prevent Content Overflow
 - `references/prefer-component-apis-write-new-components-when-needed.md` — Prefer Component APIs; Write New Components When Needed
-- `references/use-boxel-ui-components.md` — Use Boxel-UI Components
+- `references/use-boxel-ui-components.md` — Use Pret UI components first, with the boxel-ui-to-Pret UI replacement table; boxel-ui only for components Pret UI does not have yet
 - `references/style-budget.md` — Style budget — keep `<style>` blocks ≤40% of file, deduplicate across formats
 - **`references/delegated-render-control.md`** — How the host wraps `<@fields.X @format='...' />` chrome (CardContainer + field-component classes) and how the parent shapes it via the theme cascade, a `class` on the field, or `@displayContainer={{false}}` — not `:deep()`. **Critical reading when embedding child cards in a parent that has its own design language.** Covers:
   - **Divider strategy is binary** — parent draws lines (AND passes `@displayContainer={{false}}` on the items), OR child halo IS the boundary (no parent borders). Both at once = "drop shadow fighting a thin border."
@@ -46,4 +46,5 @@ You are a Boxel UI specialist. Whenever you write or review GTS templates and ca
   - **Embedded MarkdownDef preview** — MarkdownDef uses the shared FileDef shells; tune the renderer with the `--md-preview-background` / `--md-preview-foreground` / `--md-preview-padding` custom properties. A framework-driven embedded render takes no component args, so an inherited custom property is the cross-boundary lever.
   - Embedded grids, isolated previews, corners (the wrapper follows the theme's `--radius`; the interact ring copies the CardContainer's radius, so a one-off change goes on the field's class and nowhere else), and what NOT to override (child container queries, fitted's width/height, wrapper `overflow`).
   - The child-side contract — what every format MUST NOT decorate on its outermost element.
+- **`references/ui-review-procedure.md`** — The ordered procedure for reviewing or updating a template's UI: grep the mechanical tells, fix the theme posture, then colors, typography, spacing, geometry, child-card chrome, components, markup, and verify. Run it whole on every UI review; the checklist is its final tick list.
 - `references/checklist.md` — Checklist

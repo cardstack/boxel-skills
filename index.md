@@ -75,7 +75,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 
 - **[`boxel-ui-guidelines/`](skills/boxel-ui-guidelines/SKILL.md)** — Template UI rules: theme tokens, `@fields` vs `@model`, container queries, layout safety.
 <!-- feature:catalog-reuse -->
-- **[`boxel-ui-component-discovery/`](skills/boxel-ui-component-discovery/SKILL.md)** — Mandatory catalog search for a boxel-ui component Spec before hand-rolling any UI primitive in a `.gts` template.
+- **[`boxel-ui-component-discovery/`](skills/boxel-ui-component-discovery/SKILL.md)** — Mandatory catalog search for a component Spec before hand-rolling any UI primitive in a `.gts` template: Pret UI first, boxel-ui only where Pret UI has no equivalent yet.
 <!-- /feature:catalog-reuse -->
 - **[`boxel-design/`](skills/boxel-design/SKILL.md)** — Visual design language, mood, typography, asset direction.
 - **[`boxel-theme-development/`](skills/boxel-theme-development/SKILL.md)** — The theme artifact itself: creating, converting, auditing, or patching StructuredTheme / StyleReference / BrandGuide cards, DESIGN.md import/export, logo and functional-palette placement.

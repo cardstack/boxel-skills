@@ -65,8 +65,8 @@ import AddressField from '@cardstack/base/address';
 
 **Component specs (direct template usage):**
 ```hbs
-<BoxelSelect @options={{this.options}} />
-<Button @kind="primary" @size="small">Save</Button>
+<Select @options={{this.options}} @onValueChange={{this.onSelect}} />
+<Button @variant="primary" @size="s">Save</Button>
 ```
 
 **Command specs (programmatic execution):**
@@ -156,7 +156,8 @@ export class MinecraftInvite extends CardDef {
 
 #### Import
 ```typescript
-import { BoxelSelect, Pill } from '@cardstack/boxel-ui/components';
+import { Select } from '@cardstack/pretui/components/select';
+import { Chip } from '@cardstack/pretui/components/chip';
 import { FilterDropdown } from './filter-dropdown';
 import { CardsGrid } from './cards-grid';
 ```
@@ -164,10 +165,11 @@ import { CardsGrid } from './cards-grid';
 #### Usage in Templates
 ```handlebars
 {{! Basic component usage }}
-<BoxelSelect
+{{! @options is { value, label }[]; @onValueChange yields the value string }}
+<Select
   @placeholder="Select option"
   @options={{this.options}}
-  @onChange={{this.onSelectOption}}
+  @onValueChange={{this.onSelectOption}}
 />
 
 {{! Custom components }}
@@ -175,9 +177,9 @@ import { CardsGrid } from './cards-grid';
 <CardsGrid @cards={{this.cards}} @columns={{3}} />
 
 {{! Component with content }}
-<Pill @variant="primary">
+<Chip @hue="var(--primary)">
   Active Status
-</Pill>
+</Chip>
 ```
 
 ### App Specs (`specType: 'app'`)

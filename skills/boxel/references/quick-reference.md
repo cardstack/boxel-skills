@@ -7,7 +7,12 @@ import NumberField from '@cardstack/base/number';
 
 **UI Components:**
 ```gts
-import { Button, Pill, BoxelSelect, KanbanPlane } from '@cardstack/boxel-ui/components';
+// Pret UI first: one import per component
+import { Button } from '@cardstack/pretui/components/button';
+import { Chip } from '@cardstack/pretui/components/chip';
+import { Select } from '@cardstack/pretui/components/select';
+// boxel-ui only where Pret UI has no equivalent
+import { KanbanPlane } from '@cardstack/boxel-ui/components';
 ```
 
 **Helpers:**
@@ -68,8 +73,14 @@ import AddressField from '@cardstack/base/address';
 // export class FancyAddressField extends BaseAddressField { }
 // Never import and define the same field name - it causes conflicts!
 
-// UI Component imports
-import { Button, Pill, Avatar, FieldContainer, CardContainer, BoxelSelect, ViewSelector, KanbanPlane, autoPlaceKanban } from '@cardstack/boxel-ui/components';
+// UI Component imports: Pret UI first, one import per component
+import { Button } from '@cardstack/pretui/components/button';
+import { Chip } from '@cardstack/pretui/components/chip';
+import { Avatar } from '@cardstack/pretui/components/avatar';
+import { Field } from '@cardstack/pretui/components/field';
+import { Select } from '@cardstack/pretui/components/select';
+// boxel-ui only where Pret UI has no equivalent
+import { CardContainer, ViewSelector, KanbanPlane, autoPlaceKanban } from '@cardstack/boxel-ui/components';
 import type { KanbanColumnConfig, KanbanPlacement } from '@cardstack/boxel-ui/components';
 
 // Helper imports
