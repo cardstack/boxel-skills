@@ -56,19 +56,22 @@ For "spa - portfolio landing page":
 > - A one-page site to show my work (Recommended)
 > - A landing page for a spa or salon
 > - Not sure, suggest for me
+> - Skip, you decide
 >
 > **Who's it for?**
-> - Just me
+> - Just me, or a school or portfolio project
 > - My team or company
 > - My customers or the public
-> - A school or portfolio project
+> - Skip the rest
+
+The last question of the call carries "Skip the rest"; the one before it carries "Skip, you decide"
+(*Skipping* below).
 
 | They pick | What it changes |
 |---|---|
-| Just me | No sign-in, no roles; keep it simple |
+| Just me, or a school or portfolio project | No sign-in, no roles; keep it simple; good-looking sample data matters more than production detail |
 | My team or company | Roles and permissions, shared data |
 | My customers or the public | A polished front page, trust signals, sign-up or enquiry |
-| A school or portfolio project | Good-looking sample data matters more than production detail |
 
 When the request already says what it is, the first question asks the most useful thing still
 missing. When it already says who it's for, skip the second.
