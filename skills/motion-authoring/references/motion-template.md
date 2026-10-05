@@ -1,10 +1,10 @@
 # Motion — {unit name}
 
 > **Written into the brief card's `motion` field.** This `#` heading is not part of the field;
-> sections start at `##`. It carries the numbers for the Narrative arc in `designDirection`, and
-> touches no other field.
+> sections start at `##`. It carries the numbers for the motion the user asked for (or for a
+> Narrative arc in `designDirection`, when the brief has one), and touches no other field.
 
-Written by `motion-authoring` on {date} from `designDirection` → Narrative arc / signature. Builder: every
+Written by `motion-authoring` on {date} from {the user's ask | `designDirection` → Narrative arc}. Builder: every
 number here is the number; a beat with no row does not exist. Reviewer: capture the three points
 under **Net journey**, then run the motion-off pass.
 

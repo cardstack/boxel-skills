@@ -2,8 +2,8 @@
 
 Every unit needs something that arrests: a dominant object with a treatment nobody would arrive at
 by default. The first screen shows the answer to the reader's first question at full size
-([`index.md`](../../../index.md) step 3), and `design-direction` Phase 2, when it runs, also forbids
-an all-equal-weight layout; `design-review` scores it as Composition. This file is the **execution
+([`index.md`](../../../index.md) step 3), and an all-equal-weight layout is never the answer;
+`design-review` scores it as Composition. This file is the **execution
 vocabulary** for that decision — what is achievable in a Boxel card with pure CSS, and what each
 technique costs.
 
@@ -64,7 +64,7 @@ so decide these in Phase 3 rather than at build time:
 
 ## Spatial model — the control that was never defined
 
-`spatial model` is one of the five style controls every `## Design direction` records, and until now it had
+`spatial model` is the style control for depth, and until now it had
 no vocabulary, so it got filled in as "flat" by default. Four options:
 
 | Spatial model | What it means | Fits |
@@ -121,6 +121,6 @@ The hero is not only an isolated concern:
   a colour band. Everything else is gone.
 - **`atom`** — text. The signature survives as wording, not decoration.
 
-Record the treatment in `## Design direction` next to the layout pick, and in the stage-3 content matrix say
+Name the treatment in the build's hand-off line next to the layout, and in the stage-3 content matrix say
 **which field is the hero** at each format — the matrix already lists fields in priority order; the
 hero is the one the format leads with.

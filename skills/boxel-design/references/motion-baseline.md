@@ -3,7 +3,7 @@
 Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 
 Every user-facing build ships a small amount of CSS motion. The user does not have to ask for it,
-`design-direction` does not hand it to `motion-authoring`, and a mockup is not finished without it.
+it is never handed to `motion-authoring`, and a mockup is not finished without it.
 Unless the user asked for a still page, a page with no motion at all reads as unfinished. What it
 ships is small, cheap and safe.
 
@@ -12,7 +12,7 @@ ships is small, cheap and safe.
 | Layer | What | Owner |
 |---|---|---|
 | **Baseline** (this file) | CSS only: staggered arrival, scroll reveal, hover and press feedback, at most one ambient loop | `boxel-design`, applied automatically |
-| **Heavy** | a scroll-scrubbed subject, a pinned sequence, a per-frame JS loop, pointer-follow, a spatial scene | [`motion-authoring`](../../motion-authoring/SKILL.md), only when `## Design direction` or the user asks for it |
+| **Heavy** | a scroll-scrubbed subject, a pinned sequence, a per-frame JS loop, pointer-follow, a spatial scene | [`motion-authoring`](../../motion-authoring/SKILL.md), only when the user asks for it |
 
 If a unit has a `## Motion` section, its motion system governs: baseline rows that disagree with it
 yield, and no baseline row may use a second ease or duration set. Baseline never adds a `<script>`

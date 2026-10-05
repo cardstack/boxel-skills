@@ -1,6 +1,6 @@
 ---
 name: boxel-design
-description: Use when DECIDING a Boxel card's visual language quickly — mood, palette, typography direction, layout moves, asset direction, the design-playbook process. For a planned build with a brief, the decision is recorded by design-direction instead. This is the taste/decision layer. NOT for implementing tokens or CSS inside templates (that's boxel-ui-guidelines) and NOT for creating/editing Theme, StyleReference, or BrandGuide card artifacts (that's boxel-theme-development).
+description: Use when DECIDING a Boxel card's visual language quickly — mood, palette, typography direction, layout moves, asset direction, the design-playbook process. With a `domain-interview` brief, it builds from that brief's `spec`. This is the taste/decision layer. NOT for implementing tokens or CSS inside templates (that's boxel-ui-guidelines) and NOT for creating/editing Theme, StyleReference, or BrandGuide card artifacts (that's boxel-theme-development).
 boxel:
   kind: skill
 ---
@@ -30,8 +30,7 @@ Choose the governing style source before stage 1:
 
 ## Pair with
 
-- **`design-direction`** — when a brief card exists or the user wants the look decided and recorded before building. This skill is the quick mockup path; `design-direction` is the planned one, and it reads this skill's rules and layout vocabulary.
-- **`domain-interview`** — when the domain needs interviewing first; its brief card is what `design-direction` reads.
+- **`domain-interview`** — when the domain needs interviewing first; its brief card is what this skill builds from.
 - **`design-review`** — the last design step: runs automatically after every build, scoring the app (`set`) and each related card (`card`) from captures, with at most two fix rounds. This skill decides; it is not the end of the line.
 - **`boxel-ui-guidelines`** — turns design intent into working markup (template-level rules, `@fields` vs `@model`, delegated-render control, format-choice).
 - **`boxel-theme-development`** — turns design-system source material into a Theme, Style Reference, Detailed Style Reference, or Brand Guide artifact.

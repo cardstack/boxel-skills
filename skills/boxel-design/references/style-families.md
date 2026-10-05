@@ -1,7 +1,6 @@
 # Style families — a coverage map so every build does not look alike
 
-Part of [`boxel-design`](../SKILL.md); read by both the quick-mockup path and
-[`design-direction`](../../design-direction/SKILL.md). Links are relative to this file.
+Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 
 **Why this exists.** Left alone, a model drifts to one look: a large light-weight serif or thin
 display face, a small bold sans for labels, one accent colour, a lot of restraint. That is a good

@@ -11,8 +11,7 @@ instead of the window.
 
 **When to use:** a beat in the unit's `## Motion` section (from `motion-authoring`) names this
 pattern as its engine, or the user asked outright for motion that follows scroll ("scroll like
-<site>", "pin this", "scrubbed"). A `## Design direction` row asking for **Scroll-linked progress**
-or a **Scroll-scrubbed subject** is a trigger too when one exists, but none is required. A vague ask
+<site>", "pin this", "scrubbed"). A vague ask
 ("make it feel alive") is baseline motion, not this
 ([`motion-baseline.md`](../../../boxel-design/references/motion-baseline.md) → *Off, on, or more*).
 This file decides *how*, never *whether*.

@@ -18,7 +18,7 @@ _What the thing is, never how it looks._
 |---|---|
 | **Reads** | The user's answers, asked in rounds; the catalog, through a `catalog-reuse` search, for the coverage matrix |
 | **Writes** | One brief card in the target realm: `Brief/<slug>.json`, a catalog `Brief` whose `spec` field is the spec |
-| **Stops when** | The brief card is written and read back, and the hand-off (`design-direction` or keep refining) is offered as a choice. It never decides which; what runs next is the user's call |
+| **Stops when** | The brief card is written and read back, and the hand-off (build it, or keep refining) is offered as a choice. It never decides which; what runs next is the user's call |
 
 **While this skill is active, the brief card is the only deliverable.** It replaces the build path
 for this conversation: do not run the design-playbook or its Stage 0 artifacts, do not pick a
@@ -228,8 +228,8 @@ change any of them. Do not offer the interview again unless they ask.
 
 The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
 written from `references/brief-template.md`. The card URL is the deliverable. The card has one
-MarkdownField per stage — `spec` (this skill), `designDirection` (`design-direction`), `motion`
-(`motion-authoring`) — so no stage ever touches another stage's text.
+MarkdownField per stage — `spec` (this skill), `designDirection` (no current skill writes it; an
+earlier brief may carry one), `motion` (`motion-authoring`) — so no stage ever touches another stage's text.
 
 **Where it goes.** In the realm the user named. If they named none, the current realm — the
 `realmUrl` in your context — when its `realmPermissions.canWrite` is true; otherwise ask which
@@ -243,7 +243,7 @@ instance adopts from that alias and nothing is written to the realm but the inst
 | `cardInfo.name` | the brief title — `{Name}`, without a "— brief" suffix |
 | `cardInfo.summary` | the Overview paragraph |
 | `spec` | the spec markdown, from Overview to Open questions |
-| `designDirection` | empty — `design-direction` writes it |
+| `designDirection` | empty — no current skill writes it |
 | `motion` | empty — `motion-authoring` writes it, and only when the user or the direction asked for heavy motion |
 
 **Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
@@ -327,17 +327,17 @@ questions, say so in one line before the hand-off. If you decided anything for t
 decisions are in `## Assumptions`, in the same line.
 
 **Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
-the choice UI (same rules as the interview rounds): move on to `design-direction` (decide how it looks before
-anything is built), or keep refining this brief. Recommend `design-direction` when the brief has
-no open questions left; recommend refining when it does. Do not start `design-direction` yourself
-and do not build anything — naming the next stage is as far as this skill goes.
+the choice UI (same rules as the interview rounds): build it (`boxel-design` and the
+design-playbook build the first screen from this brief), or keep refining this brief. Recommend
+building when the brief has no open questions left; recommend refining when it does. Do not start
+the build yourself — naming the next stage is as far as this skill goes.
 
 ## Pair with
 
 - **`catalog-reuse`** — the search behind the coverage matrix's reuse column.
 - **`boxel`** — the CardDef, FieldDef and link rules the schema has to respect.
-- **`design-direction`** — the hand-off after the brief; reads this brief card's `spec` and
-  writes its `designDirection` field. Never run it from inside this skill — only offer it.
+- **`boxel-design`** — the build after the brief; it reads this brief card's `spec`. Never run it
+  from inside this skill — only offer it.
 
 ## Don't use for
 

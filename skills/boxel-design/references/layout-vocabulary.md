@@ -1,6 +1,6 @@
 # Layout vocabulary — eight named moves, and how each is built in a card
 
-Part of [`boxel-design`](../SKILL.md); read by both the quick-mockup path and [`design-direction`](../../design-direction/SKILL.md). Links are relative to this file.
+Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 
 **Sections first, moves second.** Decide the page's sections from what the visitor is there to
 decide (the index's "Just build it" step 3, or the brief's content contract). Then use a move only

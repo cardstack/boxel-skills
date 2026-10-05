@@ -30,8 +30,8 @@ Everywhere below, `## Design direction` means the brief card's `designDirection`
 `## Motion` its `motion` field. `## Design direction` is optional: when it is empty, the user's
 request is the arc's source, and every section below that reads it reads the request instead.
 
-Someone decides *whether* a unit moves and *what* the arc reveals: the user, by asking, or
-`design-direction`. It records that as a
+Someone decides *whether* a unit moves and *what* the arc reveals: the user, by asking, or a `## Design direction`
+already on the brief. A direction records that as a
 Narrative arc — a still frame, three beats, a total budget, a way per beat with its achievability.
 That is the right altitude for a design decision and the wrong one for a build: a builder handed
 "scroll-linked progress, library" invents the start and end offsets, the easing, the lag and the
@@ -70,7 +70,7 @@ also what most units do not want. Open this skill only for one of:
 | Spatial model = **perspective** or **scene** | a camera has parameters nobody wrote down |
 | An Interaction row whose way is **direct manipulation** (orbit, sequence scrub, explode, camera parallax) | input → value mapping, bounds and release behaviour |
 | Any way marked **JS** | a per-frame loop or observer runs in a modifier; its damping, its stop condition and its cleanup have to be written somewhere |
-| `## Design direction` holds a **reference site** for how it moves | the Technique column of `design-direction`'s reference inventory needs numbers |
+| `## Design direction` holds a **reference site** for how it moves | the reference's technique needs numbers |
 
 A unit whose Interaction table is all discrete ways — navigate, panel, reflow, stamp, crossfade,
 all under 400 ms — has its motion fully specified already. **Do not write a `## Motion` section for it.**
@@ -78,9 +78,9 @@ Say so in one line and hand back.
 
 ## Where it sits in the build
 
-Before the first screen that carries the motion is built. Two routes send a unit here: the user's
+Before the first screen that carries the motion is built. What sends a unit here is the user's
 own ask, read on the fast path ([`motion-baseline.md`](../boxel-design/references/motion-baseline.md)
-→ *Off, on, or more*), and `design-direction`'s hand-off line `Heavy motion: needed — <trigger>`.
+→ *Off, on, or more*), or a `## Design direction` already on the brief that names a trigger.
 `## Motion` is written into the unit's brief card's `motion` field. With no brief card yet, create
 one first, the way `domain-interview` writes it (its *Output* section): `Brief/<slug>.json`, with
 `spec` and `designDirection` left `null`, and only `motion` filled.
@@ -107,8 +107,7 @@ Check two things before writing anything:
 
 - **The still frame stands alone.** It holds every word and number the section has, because it is
   what the first view and every full-page capture show. If the composition only works mid-arc, send
-  it back (to `design-direction`'s Phase 2, or with none, to the mockup's first screen); it is not a
-  number to tune.
+  it back to the mockup's first screen; it is not a number to tune.
 - **One arc, one scroll owner, one full-viewport effect.** motionprompts' composition rules put
   it plainly: 105 of 248 components each claim to be the page's only scroller, and two of them on
   one page kill both. A card has exactly one scroller — its own root — so a unit gets one runway,
@@ -184,7 +183,7 @@ the build continue.
 
 When a built arc comes back "not like the reference": re-read the reference's technique column,
 find the beat whose numbers differ, change that row, note the change. Do not re-open the arc's
-existence: that is the user's call, or `design-direction`'s triage row for **Motion**.
+existence: that is the user's call.
 
 ## Never
 
@@ -211,7 +210,6 @@ Read live; never restate their content here. Local links are relative to this sk
 |---|---|---|
 | The spec shape this skill borrows: Goal · Tech · Layout · load-bearing CSS · exhaustive effect · Net journey · Behavior notes · composition contract | `https://motionprompts.dev/prompts/<slug>.md` (any), `https://motionprompts.dev/llms.txt` | Phase 3 — the shape, not the components, which assume a document, a bundler and absolute asset paths |
 | One motion system per page; the `hop` collision | `https://motionprompts.dev/api/v1/motion-systems.json`, `.../composition-rules.json` | Phase 2 |
-| Whether and what — the arc, the ways, achievability (when `design-direction` is installed) | `design-direction/references/interaction-ways.md` → *Narrative ways*, *Direct manipulation* | Phase 1 |
 | The scrubbed subject and the spatial model | `boxel-design/references/signature-treatments.md` | Phase 1 |
 | Slicing one `--progress` into beats; the still frame at scroll 0; runway collapse | `show-scroll-reveal-and-scrub` → *Beats*, §6 | Phase 3 |
 | Reveal and scrub modifiers with `root`, `unobserve`, reduced-motion already applied | `show-scroll-reveal-and-scrub` | Engine — start from it, never rewrite the observer |
@@ -225,8 +223,7 @@ prompt sites or scraped copies of them; the open sources above carry the same st
 
 ## Don't use for
 
-- Deciding on your own whether a unit moves, or what its arc reveals: that is the user's ask, or
-  `design-direction`.
+- Deciding on your own whether a unit moves, or what its arc reveals: that is the user's ask.
 - Discrete feedback under 400 ms: baseline recipe 3 is its whole spec, or the `## Design direction`
   Interaction table when there is one.
 - Scoring built motion — that is `design-review`, capturing at the three Net journey points.

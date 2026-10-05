@@ -73,7 +73,7 @@ gets a generic photo that fights the card around it.
 
 ```
 the instance's own data      (Beaumont Kitchen, 1924 Craftsman, white oak, Inset Shaker)
-+ the style                  (the palette, the imagery treatment from ## Design direction)
++ the style                  (the palette, the imagery treatment the style family sets)
 + the composition slot       (4:3 hero, negative space lower-left for the headline, no people)
 + what to leave out          (no text, no logos, no watermarks)
 ```

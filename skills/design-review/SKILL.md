@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Score a built Boxel screen, card or whole app against its `## Design direction` and an aesthetic bar, from screenshots — never from code. Runs automatically after every build of an app, card family or user-facing card (set and card modes, at most two fix rounds). Also use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), right after a screen is built and before more are, when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists; for deciding a direction first, use design-direction.
+description: Score a built Boxel screen, card or whole app against its brief and an aesthetic bar, from screenshots — never from code. Runs automatically after every build of an app, card family or user-facing card (set and card modes, at most two fix rounds). Also use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), right after a screen is built and before more are, when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists.
 boxel:
   kind: skill
 ---
@@ -11,14 +11,17 @@ _Score what was built, from what it looks like._
 
 | Contract | |
 |---|---|
-| **Reads** | Captures of the built thing, and the unit's brief card — the acceptance lines and anti-patterns in its `designDirection` field, the numbers in its `motion` field where that is filled |
+| **Reads** | Captures of the built thing, and the unit's brief card — its `spec`, the acceptance lines and anti-patterns in a `designDirection` field when an earlier brief carries one, the numbers in its `motion` field where that is filled |
 | **Writes** | Nothing. The report is the deliverable: the brief card records decisions, not scores, so a review never edits it |
 | **Stops when** | The verdict is reported and the next step — fix, review another surface, revisit a decision, or stop — is offered as a choice |
 
 Everywhere below, `## Design direction` means the brief card's `designDirection` field and
-`## Motion` its `motion` field.
+`## Motion` its `motion` field. No current skill writes `designDirection`; a brief from earlier work,
+or one written by hand, may still carry it. Every rule below that reads `## Design direction` applies
+only when that field is filled. With it empty, what was decided is the brief's `spec` (or, with no
+brief, the build's own hand-off line).
 
-You review a built thing against two standards: the `## Design direction` section that was decided for it, and an
+You review a built thing against two standards: what was decided for it, and an
 aesthetic bar that a competent-but-generic result does not clear. Where they conflict, `## Design direction`
 wins on *what was decided* and you judge only *how well it was executed*.
 
@@ -64,7 +67,7 @@ reporting it.
 Read `references/capture.md` for which tool captures which view, the
 service's batch and time budgets, where captures go, and the flakiness rules.
 
-## Phase 1 — The design-direction gate
+## Phase 1 — The direction gate (only when the brief has one)
 
 When the brief card's `designDirection` field is filled, it is the primary rubric.
 
@@ -271,10 +274,10 @@ app rather than an app, and it predicts exactly what wiring will find.
 If the user wants one, cap it at two rounds. (The automatic loop above runs it by default, with an independent reviewer each round and the same two-round cap; see `references/benchmark-and-refine.md`.) Each round reports what it changed and what it left
 alone — a round that silently rewrites things nobody objected to makes the next review meaningless.
 
-**After reporting a verdict, ask what happens next as a structured choice**, the same choice-tool
-pattern `design-direction` uses — do not just leave the report and wait. Options: "Start
+**After reporting a verdict, ask what happens next as a structured choice**, in the choice UI
+— do not just leave the report and wait. Options: "Start
 fixing" (recommended on ITERATE, capped at two rounds), "Review the next screen / run `set` or
-`card` mode" (recommended once this unit passes and others remain), "Revisit a `## Design direction` decision"
+`card` mode" (recommended once this unit passes and others remain), "Revisit a decision in the brief"
 (when a failure traces to the decision itself, not its execution — see Phase 1), or "Stop here"
 (recommended once everything in scope has passed) — plus room for the user to name something else.
 
@@ -302,7 +305,7 @@ Read these live on each run. Links are relative to this skill's folder.
 
 | What | Where |
 |---|---|
-| The decision being scored | the brief card's `## Design direction` section, written by `design-direction` |
+| The decision being scored | the brief card's `spec`, and its `## Design direction` when an earlier brief carries one |
 | Which treatments a style earns | `boxel-design/references/signature-treatments.md` |
 | Anti-cliché checklist | `boxel-design/references/critical-rules.md` |
 | What each format's root may and may not style | `boxel-ui-guidelines/references/delegated-render-control.md` → *Per format — what's safe and what isn't on the outermost element* |
@@ -314,7 +317,7 @@ Read these live on each run. Links are relative to this skill's folder.
 
 ## Don't use for
 
-- Deciding a direction before anything is built — that is `design-direction`.
+- Deciding the look before anything is built — that is `boxel-design` (the index's "Just build it" path).
 - Checking code on its own — lint and the correctness check are `boxel` (`boxel/references/lint-workflow.md`); this skill reviews captures, never source.
 - Auditing or patching a Theme card — that is `boxel-theme-development`.
 
