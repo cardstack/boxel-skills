@@ -1,7 +1,7 @@
 ---
 name: catalog-reuse
 description: >-
-  MANDATORY before writing any `.gts`. Boxel ships a curated catalog; search it before you author. Classify what you need, then apply the matching reuse operation: a **Listing** when the whole card or app may already exist (install or remix it), a **Spec** when you need building blocks (a CardDef to link, a FieldDef to contain, a component or command to import), an **instance** when you need content that already exists (point a relationship at it). Build new only for confirmed gaps. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
+  MANDATORY before writing any `.gts`. Boxel ships a curated catalog; search it before you author. Classify what you need, then apply the matching reuse operation: a **Spec** when you need building blocks (a CardDef to link, a FieldDef to contain, a component or command to import — catalog modules import directly, so this is the default), an **instance** when the content already exists (point a relationship at it), a **Listing** when the user wants a bundle of their own to keep and change (install or remix it). Build new only for confirmed gaps. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
 boxel:
   kind: skill
   tools:
@@ -30,9 +30,12 @@ that kind.** Everything below is that one idea, made operational.
 3. **Never conclude a gap after one failed query.** Broaden once (step 5) before
    declaring anything missing.
 4. **Never pass over a suitable result without recording why.** Every hit is
-   adopted, or refused in writing naming what mismatched.
-5. **Never hand-copy a Listing's files.** Reuse it whole through `install` or
-   `remix`.
+   adopted, or refused in writing naming what mismatched. A Listing you answered
+   by referencing its parts counts as adopted — say which parts, and move on.
+5. **Never copy what you can reference.** Catalog modules import directly, so a
+   definition can be used without taking a copy of it. Install or remix a
+   Listing when the user wants their own bundle — and when you do take a copy,
+   take it through `install` or `remix`, never by hand.
 6. **Prove it at the end.** For everything you authored from scratch, be able to
    name the reuse option above it and why it was unusable. "I didn't look" means
    it needs replacing.
@@ -43,10 +46,19 @@ tell you how to build well, not whether to build at all.
 ## Required workflow
 
 1. **Enumerate** every card, field, component, command, app, theme, and asset
-   the brief implies, in plain language.
-2. **Search Listings** for the deliverable as a whole.
-3. **If no Listing answers the brief**, search Specs for each enumerated need.
-   Skip this when an accepted Listing already covers the brief.
+   the brief implies, in plain language. A noun that names an entity — "the
+   venue we booked", "the supplier", "the workshop" — is one of those cards:
+   enumerate the entity itself and search for it. Spelling it out as the two or
+   three attributes you would otherwise type is how a card-sized need gets
+   searched for as nothing at all. This holds when the brief reaches the entity
+   only through its attributes — "the supplier's payment terms", "the venue's
+   capacity" — a possessive names the entity as surely as a bare noun does, and
+   what it owns is the card's business, not yours to re-declare.
+2. **Search Specs** for each enumerated need, and reference what you find.
+3. **Search Listings only when the user asked to own something**, and be able
+   to quote the words that asked — "our own", "a copy we can change",
+   "independent of theirs". No such words, no Listing search. That a Listing
+   exists and fits is not a reason to install it: nobody asked for a copy.
 4. **Search instances** when a need is content-shaped — a particular author,
    theme, config, image, or a sample to start from.
 5. **Evaluate** each hit against the need; broaden once before calling anything
@@ -54,24 +66,36 @@ tell you how to build well, not whether to build at all.
 6. **Build only confirmed gaps**, and record them.
 7. **Self-audit** before finishing.
 
-Step 3 is mandatory only when step 2 does not produce an acceptable whole
-solution — if you install a Listing that answers the brief, the part-level
-searches are moot.
+Step 2 is the default because a catalog definition can be referenced where it
+lives. Step 3 hands the user a copy — a separate thing to own, which cannot be
+re-attached to the catalog later — so it answers a stated wish for their own
+bundle, not a match in the search results.
 
 ## Reuse strategy: classify, then operate
+
+**You may import catalog modules directly.** `@cardstack/catalog/` is a
+registered import prefix, so a catalog module imports straight into your `.gts`
+across realms — you do not have to copy the file in. That is why referencing is
+the default and copying is the exception.
 
 Every search here is a search over card instances — `Spec` and `Listing` are
 ordinary card types, and so is `Author`. What differs is what a hit **denotes**.
 
 | You need | Anchor on | A hit denotes | Operation |
 |---|---|---|---|
-| the whole thing | `Listing` | an installable bundle | `install` as-is · `remix` when you will modify the copy |
 | parts to build with | `Spec` | a module export, named by `ref` | link · contain · extend · import |
 | content that exists | the card type itself | the instance | point a `linksTo` / `linksToMany` at it · or copy and edit |
+| a bundle of their own | `Listing` | an installable bundle | `install` to hand it over as-is · `remix` when they will diverge from it |
 
 Nothing exports a Listing, so no CodeRef names one: **a Spec query can never
 return a Listing, and a Listing query can never return a bare definition.**
 Different anchors, because they describe different kinds of thing.
+
+**A Listing that fits is not a Listing you have to take.** What it bundles are
+Specs, and referencing those answers the same need without handing over a copy —
+the parts arrive wired to the catalog instead of forked from it. Choosing the
+parts over the bundle is not passing over a suitable result; it is taking the
+same result by the binding that keeps working.
 
 ### Parts: what each `specType` entitles you to
 
@@ -83,20 +107,16 @@ Take the target from the hit's `ref` (module + name) and wire **that**.
 | `field` | a **FieldDef** | `contains` / `containsMany` · `extends` to specialize |
 | `component` | a Glimmer component | import into your template's markup |
 | `command` | a Command | import and invoke, or run through your session's command mechanism |
-| `app` | an AppCard family | ships as a **Listing** in practice → use the Listing anchor |
+| `app` | an AppCard family | ships as a **Listing** in practice → reference its Specs; use the Listing anchor only when the user wants the app as their own |
 | `file` | an asset | an **instance** → use the instance anchor |
 
-**A CardDef is *linked*; a FieldDef is *contained*.** `@field author =
-linksTo(Author)` is how you reuse a card definition; a FieldDef is contained,
-never linked.
+**How you declare the wiring is `boxel`'s call, not this skill's.** Its
+Cardinal Rules own CardDef-vs-FieldDef and `contains` vs `linksTo`. Here you
+decide *which* catalog unit answers the need; go there for how to write it.
 
 `specType` crosses these rows — four values name module exports, `app` is in
 practice a Listing, `file` is an instance. It is advisory and sometimes absent,
 so constrain it explicitly rather than assuming every Spec carries one.
-
-**You may import catalog modules directly.** `@cardstack/catalog/` is a
-registered import prefix, so a catalog module imports straight into your `.gts`
-across realms — you do not have to copy the file in.
 
 Within parts, prefer more whole over less: a card over a field, a field over
 hand-rolled markup. This is not a queue — a need that *is* a field starts at the
@@ -209,15 +229,19 @@ naming why the hit itself could not be linked, installed, or copied.
 ## Edge cases
 
 - **Whole apps** ship as Listings, not app Specs, so a Spec sweep for `app` may
-  return empty. Use the Listing anchor.
+  return empty. That does not by itself mean install: a Listing is largely an
+  index of Specs, and referencing those is still open to you. Reach for the
+  Listing when the user wants the assembled app as their own.
 - **Themes** are instances — link one through `cardInfo.theme`, or copy and edit
   when it must diverge.
 - **Files, images, fonts, icons** are instances too — search with
   `scope: 'files'` and `linksTo` what you find.
-- **Installing beats copying.** Copying re-types code that already exists, costs
-  a large multiple of an install, and drifts from the original. Visual or naming
-  differences are not a reason to skip reuse: install and restyle, or remix if
-  the schema must change. `catalog-listing` has the mechanics.
+- **Referencing beats installing; installing beats re-typing.** Hand-writing
+  code that already exists costs a large multiple of any reuse and drifts from
+  the original. Visual or naming differences are never a reason to skip reuse —
+  reference and restyle. When the user wants their own bundle, install rather
+  than re-type, and remix when they will change its schema. `catalog-listing`
+  has the mechanics.
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.
@@ -229,8 +253,9 @@ naming why the hit itself could not be linked, installed, or copied.
 
 Re-read what you built. For everything you authored from scratch:
 
-- Which reuse operation did I answer it with — Listing, part, or instance?
-- Was there really no Listing? If I installed one, did I stop there?
+- Which reuse operation did I answer it with — part, instance, or Listing?
+- Did I copy anything I could have referenced? An install or a remix should
+  trace back to something the user asked to own.
 - If I authored instance JSON, did I check whether the catalog already ships one?
 - Does every refusal name its mismatch, and is every real gap recorded?
 
