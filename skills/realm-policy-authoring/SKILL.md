@@ -766,15 +766,23 @@ The question is three strings:
 
 **Invoke it on the policy card the target's realm names**, in the policy card's
 realm. The explain asks the gate of the realm that holds the target, so the
-policy card and the cards it governs can sit in different realms:
+policy card and the cards it governs can sit in different realms.
+
+The calls below are made against the school example realms, which ship in the
+boxel repository at `packages/school-example-realm`: `school-org` holds the
+roster and the policy card, and `school-education` holds the classrooms, whose
+`realm.json` names that policy card. They are shown mounted at
+`https://school.example/it-admin/`. Alice teaches Room 204 and leads Room 205;
+Room 206 is Ben's alone. Why can't Alice read Room 206?
 
 ```ts
 import { operations } from '@cardstack/base/operations';
 import { RealmPolicy } from '@cardstack/catalog/realm-policy/realm-policy';
 
 let explanation = await operations<typeof RealmPolicy>(policy).explain({
-  actor: '@teacher:school.example',
-  target: 'https://school.example/education/classrooms/room-205',
+  actor: '@alice:school.example',
+  target:
+    'https://school.example/it-admin/school-education/classrooms/room-206',
   operation: 'read',
 });
 ```
@@ -784,47 +792,49 @@ realm, sent as `QUERY` the way `validate` is (§9), and its answer is that
 entry's result:
 
 ```json
-POST https://school.example/org/_operations
+POST https://school.example/it-admin/school-org/_operations
 X-HTTP-Method-Override: QUERY
 Content-Type: application/vnd.api+json;ext="https://boxel.ai/ext/operations"
 Accept: application/vnd.api+json;ext="https://boxel.ai/ext/operations"
 
 { "boxel:operations": [
     { "op": "invoke", "boxel:name": "explain",
-      "href": "https://school.example/org/policies/education",
+      "href": "https://school.example/it-admin/school-org/policies/education",
       "data": {
-        "actor": "@teacher:school.example",
-        "target": "https://school.example/education/classrooms/room-205",
+        "actor": "@alice:school.example",
+        "target": "https://school.example/it-admin/school-education/classrooms/room-206",
         "operation": "read"
       } }
 ] }
 ```
 
-With the policy in this skill's opening example, and a Room 205 whose
-`teacherIds` don't list the teacher, the result is:
+Asked by the IT admin, who reads both realms, the realm answers:
 
 ```json
 { "atomic:results": [ {
-    "actor": "@teacher:school.example",
-    "target": "https://school.example/education/classrooms/room-205",
+    "actor": "@alice:school.example",
+    "target": "https://school.example/it-admin/school-education/classrooms/room-206",
     "operation": "read",
     "acl": { "read": false, "write": false },
     "decision": "denied",
     "reason": "predicate-false",
     "refusal": { "status": 404, "code": "target-not-found" },
     "rules": [
-      { "targetType": { "module": "https://school.example/education/classroom", "name": "Classroom" },
+      { "targetType": { "module": "https://school.example/it-admin/school-code/classroom", "name": "Classroom" },
         "path": "rules[0]",
         "grants": [
-          { "path": "rules[0].grants[0]", "where": ".teacherIds | any(. == actor())",
+          { "path": "rules[0].grants[0]",
+            "where": "(.teacherIds | any(. == actor())) or (.leadTeacherIds | any(. == actor()))",
             "tier": "stored", "outcome": "did-not-hold" }
         ] }
     ]
 } ] }
 ```
 
-The same question about a classroom that lists the teacher answers `allowed`,
-`granted`, the grant's `outcome` as `held`, no `refusal`, and
+Only the `read` grant is listed: a rule's `grants` holds the grants that name
+the operation asked about, so the rule's `appendActivity` grant doesn't appear.
+The same question about Room 204, whose `teacherIds` list Alice, answers
+`allowed`, `granted`, the grant's `outcome` as `held`, no `refusal`, and
 `"admittedBy": { "rule": 0, "grant": 0 }`.
 
 The policy card's isolated view asks the same questions from its **Explain a
@@ -857,7 +867,8 @@ How each refusal reads:
 
 | Situation                                                                 | Answer                                         |
 | ------------------------------------------------------------------------- | ---------------------------------------------- |
-| The caller can't read the policy card's realm or the target's realm, the session is revoked or delegated, the target doesn't exist, its realm isn't served here, or its realm is archived | 404 `target-not-found`, the same bytes in every case |
+| The caller can't read the policy card's realm | That realm's own refusal before explain runs: 404 `target-not-found` where the policy card's realm names a policy of its own, its permissions' 403 where it doesn't. Either way the same bytes whatever the question asks about |
+| The caller can't read the target's realm, the session is revoked or delegated, the target doesn't exist, its realm isn't served here, or its realm is archived | 404 `target-not-found`, the same bytes in every case |
 | The request sends no credentials                                          | 401 before explain runs (`actor-required` where the policy card's realm names a policy) |
 | The target's realm doesn't name this policy card                          | 422 `policy-not-in-force`                      |
 | A draft names a type in a realm the caller can't read                     | 403 `operation-not-permitted`, refused whole   |
