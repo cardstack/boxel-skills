@@ -770,10 +770,13 @@ policy card and the cards it governs can sit in different realms.
 
 The calls below are made against the school example realms, which ship in the
 boxel repository at `packages/school-example-realm`: `school-org` holds the
-roster and the policy card, and `school-education` holds the classrooms, whose
-`realm.json` names that policy card. They are shown mounted at
-`https://school.example/it-admin/`. Alice teaches Room 204 and leads Room 205;
-Room 206 is Ben's alone. Why can't Alice read Room 206?
+roster and the policy card, and `school-education` holds the classrooms. Each
+deployment links `school-education`'s `realm.json` to that policy card and fills
+in the roster's Matrix ids, since both differ by environment. They are shown
+mounted at `https://school.example/it-admin/`, which is a different place from
+the illustrative realms the earlier sections use, with a different policy. Alice
+teaches Room 204 and leads Room 205; Room 206 is Ben's alone. Why can't Alice
+read Room 206?
 
 ```ts
 import { operations } from '@cardstack/base/operations';
