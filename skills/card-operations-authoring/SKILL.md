@@ -1090,7 +1090,7 @@ type by URL or registered prefix.
 **A card+json error body carries a status and a title, and no `code`.** Over
 those routes the status is the whole answer.
 
-[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §11 states the
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12 states the
 same refusals from the policy author's side.
 
 ## 6. Access posture
