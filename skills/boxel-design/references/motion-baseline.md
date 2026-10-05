@@ -4,7 +4,8 @@ Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 
 Every user-facing build ships a small amount of CSS motion. The user does not have to ask for it,
 `design-direction` does not hand it to `motion-authoring`, and a mockup is not finished without it.
-A page with no motion at all reads as unfinished. What it ships is small, cheap and safe.
+Unless the user asked for a still page, a page with no motion at all reads as unfinished. What it
+ships is small, cheap and safe.
 
 **What is baseline and what is not.**
 
@@ -16,6 +17,21 @@ A page with no motion at all reads as unfinished. What it ships is small, cheap 
 If a unit has a `## Motion` section, its motion system governs: baseline rows that disagree with it
 yield, and no baseline row may use a second ease or duration set. Baseline never adds a `<script>`
 or a per-frame loop, and no layer adds an animation library.
+
+## Off, on, or more: read it from the user's words
+
+Motion is never a question. Read the request:
+
+- **Off.** "No animation", "no motion", "static", "keep it still", or the same in the user's
+  language: ship no arrival, no scroll reveal and no ambient loop. Keep recipe 3: hover, press and
+  focus still show what happened, because that is feedback, not decoration. Say `Motion: off (you
+  asked)` in the hand-off line, and write it into the brief card when there is one, so later builds
+  keep it off.
+- **More.** An explicit ask for motion that follows scroll or the pointer ("scroll like
+  <site>", "pin this", "scrubbed", "parallax", a reference site to move like) is **Heavy** in the
+  table above.
+- **Anything else gets the baseline**, with its character from the style family. "Make it feel
+  alive", "add some animation", "dynamic" or "dramatic" are baseline asks, never heavy ones.
 
 ## Pick the character from the family
 
@@ -153,7 +169,8 @@ A marquee strip, a slow float on one object or a gentle background drift. **One 
 [`design-review`](../../design-review/SKILL.md) looks for the baseline in captures and in the
 motion-off pass:
 
-1. Recipe 1 or 2 is present on the `isolated` view, and recipe 3 on the controls.
+1. Recipe 1 or 2 is present on the `isolated` view, and recipe 3 on the controls. With motion off at
+   the user's request, only recipe 3, and its absence elsewhere is not a finding.
 2. The timing matches the declared motion character; there is one ease and one duration set.
 3. With motion off, nothing is missing or blank.
 4. No blank region in a capture. Baseline motion cannot cause one, so a blank region is a fade

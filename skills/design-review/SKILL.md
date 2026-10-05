@@ -119,9 +119,11 @@ Score and name the specific thing behind each number:
   image field is itself a finding — the decision was never made.
 - **Detail** — the editorial micro-objects that signal care: an eyebrow with a rule, a stat slab
   bounded by lines rather than boxed, a fold cue. Two or three, not all of them.
-- **Motion** — first check the **baseline** from [`boxel-design/references/motion-baseline.md`](../boxel-design/references/motion-baseline.md): arrival or scroll reveal on the `isolated` view, hover and focus feedback on controls, timing matching the declared motion character with one ease and one duration set, nothing missing with motion off. A unit missing the baseline caps at 8. Then entrance, feedback, state change. Fade-only or instant swaps read as unfinished;
+- **Motion** — first check the **baseline** from [`boxel-design/references/motion-baseline.md`](../boxel-design/references/motion-baseline.md): arrival or scroll reveal on the `isolated` view, hover and focus feedback on controls, timing matching the declared motion character with one ease and one duration set, nothing missing with motion off. A unit missing the baseline caps at 8, unless the user asked for
+  no animation (motion-baseline → *Off, on, or more*): then score only the hover, press and focus
+  feedback, and apply neither cap. Then entrance, feedback, state change. Fade-only or instant swaps read as unfinished;
   spatial motion with character reads as designed. If motion is absent or purely functional, cap
-  the score at 8 however good the static work is. When `## Design direction` records a **Narrative arc**,
+  the score at 8 however good the static work is, except on a still page the user asked for. When `## Design direction` records a **Narrative arc**,
   score against it: do the beats arrive in the recorded order, does the still frame stand alone
   with motion off, does the arc reveal the signature rather than compete with it, and is any way
   marked *JS* actually running rather than approximated. Capture at least three points along
