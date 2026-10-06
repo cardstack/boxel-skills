@@ -149,6 +149,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **A card instance id is a URL with no extension.** `https://realm/FacebookProfile/maria-santos` is the instance; `…/maria-santos.json` is the file that stores it; `…/facebook-profile.gts` is a definition, and no card has that id. `show-card` and every other `cardId` argument take the instance id. To open a `.gts` or `.json` file in the editor, use `switch-submode` with `codePath`.
 - **When an automated check reports errors in files you just wrote,** re-read those files, then make the fixing `run-realm-code` call in that same reply, after one short sentence. Do not spend a turn announcing the fix.
 - Write every text file with `run-realm-code` — `.gts`, `.json`, `.md`, `README` alike. No mode switch is needed before writing.
+- **Look at what you make, and at what you are asked to match.** `view-visually` captures a card or workspace file as an image you can see; use it freely. Its rules, including what you cannot see, are in the Seeing section of `host-commands-reference.md`.
 - One CardDef per file. FieldDefs and helpers can co-locate.
 - Theme variables only — no hard-coded colors in templates. All colors live in the Theme card's `cssVariables`.
 - Three formats minimum: every CardDef needs `isolated`, `embedded`, AND `fitted`.
