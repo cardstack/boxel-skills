@@ -1194,9 +1194,11 @@ same reason as the acting user:
   `/64` their address is in. Both fields must be whole numbers, `requests`
   from 1 to 1,000,000 and `windowSeconds` from 1 to 86,400. A limit outside
   that is ignored, and the platform's applies.
-- **Only an admitted request counts.** A refused one costs the visitor nothing.
-  A scoped stylesheet served with a card's markup, and a capability check, never
-  count.
+- **Only an admitted request counts.** A refused one costs the visitor nothing,
+  and neither does a scoped stylesheet served with a card's markup.
+- **A capability check counts once per pair it asks about**, charged before
+  anything is checked. A check that doesn't fit in what's left of the window
+  gets 429 whole, and answers nothing.
 - **`anonymousBlocklist`** holds IP addresses and CIDR ranges. A visitor from
   one is admitted by no grant. A range whose address has bits set below its
   prefix (`192.0.2.1/24`) isn't a range. **An entry that isn't an address or a
@@ -1237,8 +1239,10 @@ result carries `meta.incomplete: true`; the other realms still answer.
 visitor too, so a public page can hide its submit button when `canInvoke`
 answers `false`. Hide on `false`, never on `undefined` (`card-operations-authoring`
 §3): a prerender, a pending check and a failed one all answer `undefined`, and a
-page that gates on `true` serves visitors no button. A capability check invokes
-nothing and never counts against the limit.
+page that gates on `true` serves visitors no button. Every pair a page asks
+about counts against the visitor's limit, so a public page that gates thirty
+controls spends thirty of it on each load. Ask only about the controls a
+visitor can act on, and set `anonymousRateLimit` with those checks in mind.
 
 **A realm whose permissions already let anyone read** (`"*": ["read"]`)
 answers anonymous reads on its permissions alone, without the policy, its
