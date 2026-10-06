@@ -1232,10 +1232,19 @@ who can't read the realm would get a 404, a visitor gets the 401 above, so a
 card no grant admits, a missing card and a path the realm refuses all answer
 alike, for reads and writes.
 
-**Search.** An anonymous `query` grant narrows a visitor's `_search` and
-`_federated-search` the way it narrows a signed-in caller's (§7). In a federated
-search, a realm whose limit the visitor has used up is counted failed, and the
-result carries `meta.incomplete: true`; the other realms still answer.
+**Search.** An anonymous `query` grant narrows a visitor's ad-hoc `_search`
+and `_federated-search` the way it narrows a signed-in caller's (§7). Only
+grants that opt in, and whose `where` doesn't read `actor()`, are composed. A
+named query is never opened to visitors.
+
+- **A search counts once**, in each realm it is scoped in. A search no grant
+  scopes costs the visitor nothing.
+- **A realm's own `_search`** answers 429 once the visitor's budget is spent.
+- **In `_federated-search`**, each realm named answers for itself: one whose
+  policy opens `query` to visitors serves the rows its grants admit, one whose
+  policy doesn't serves no rows, and one whose limit the visitor has used up is
+  counted failed (`meta.incomplete: true`) while the others still answer. When
+  no realm named admits the visitor at all, the whole search is 401.
 
 **Hiding a control that won't work.** `@context.canInvoke` answers for a
 visitor too, so a public page can hide its submit button when `canInvoke`
