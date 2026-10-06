@@ -4,7 +4,7 @@ Cards are placed inside containers that may be much smaller than the viewport. A
 - **Fitted** (`container-type: size`): prefer `cqmin` — scales to the smaller of width or height, preventing overflow in the constrained dimension
 - **Embedded / Isolated** (`container-type: inline-size`): use `cqi` — only the inline axis is available
 
-The host `field-component` provides named containers automatically. **For fitted templates, follow the Boxel fitted implementation standard in [`container-query-fitted-layout.md`](../../boxel/references/container-query-fitted-layout.md)**: the host establishes a `size` container named `fitted-card` around every fitted template — query it (`@container fitted-card (...)`); never create your own container on the root (the child contract in `delegated-render-control.md` forbids `container-type`/`container-name` there). For standard compositions, prefer the `FittedCard` component from `@cardstack/boxel-ui/components`, which implements those queries internally.
+The host `field-component` provides named containers automatically. **For fitted templates, follow the Boxel fitted implementation standard in [`container-query-fitted-layout.md`](../../boxel/references/container-query-fitted-layout.md)**: the host establishes a `size` container named `fitted-card` around every fitted template — query it (`@container fitted-card (...)`); never create your own container on the root (the child contract in [`delegated-render-control.md`](delegated-render-control.md) forbids `container-type`/`container-name` there). For standard compositions, prefer the `FittedCard` component from `@cardstack/boxel-ui/components`, which implements those queries internally.
 
 The host-provided named containers:
 
