@@ -725,9 +725,9 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `partial-match`                       | inactive | grant    | `where` calls a partial-match builtin (§6)                             |
 | `unsnapshotted-policy-read`           | inactive | grant    | `where` reads a value its form can't (§8)                              |
 | `policy-not-filterable`               | inactive | grant    | A `query` grant's `where` can't compile to a search filter (§7)        |
-| `anonymous-not-base-operation`        | inactive | grant    | `anonymous: true` on a named operation or a named query (§12)          |
+| `anonymous-not-base-operation`        | inactive | grant    | `anonymous: true` on a named query, or on an operation whose base isn't eligible (§12) |
 | `anonymous-write-without-acting-user` | inactive | grant    | An anonymous write grant names no `actingUser` (§12)                   |
-| `anonymous-grant-reads-actor`         | warning  | grant    | An anonymous grant's `where` calls `actor()`, so it admits no visitor (§12) |
+| `anonymous-grant-reads-actor`         | warning  | grant    | An anonymous grant's `where`, or its named operation's program, template or output, reads `actor()`, so it admits no visitor (§12) |
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
 
@@ -1186,13 +1186,16 @@ the published articles", "anyone may submit feedback".
 
 - **Off by default.** A grant without `anonymous: true` never admits a visitor,
   an unconditional one included.
-- **Only a base operation, under its own name:** `read`, `readSource`,
-  `query`, `create`, `update`, `delete`, `transform`, `appendContainsMany`,
-  `appendLine`. On a named operation (`rename`) or a named query
-  (`listMine`) it records `anonymous-not-base-operation`, and the grant is
-  inactive. A type that redeclares a base operation under the base's own name
-  still counts. Named operations and named queries are contracts written for
-  signed-in callers.
+- **Eligible: an operation whose base is `read`, `readSource`, `create`,
+  `update`, `delete`, `transform`, `appendContainsMany` or `appendLine`**,
+  under its own name or a named one the type declares (`rename`,
+  `submitFeedback`), plus the ad-hoc `query`. A named query (`listMine`) records
+  `anonymous-not-base-operation`, and the grant is inactive.
+- **Prefer a named operation for a visitor's write.** It states exactly what a
+  visitor may do, such as "submit this form", where a raw `update` lets them
+  write any field (§14). A named operation is one invocation of its base: one
+  write, counted once, made as the grant's acting user. Visitors reach it
+  through `_operations`; the card+json verbs run only the built-in behavior.
 - **An anonymous `query` grant must compile a filter** (§7). One that records
   `policy-not-filterable` opens search to nobody.
 - **The grant still admits signed-in callers** the realm's permissions decline,
@@ -1206,7 +1209,10 @@ the published articles", "anyone may submit feedback".
 A visitor has no actor. A `where` that calls `actor()` isn't evaluated for
 one, so it never admits a visitor; the realm records
 `anonymous-grant-reads-actor` as a warning, and the grant stays live for
-signed-in callers. Scope an anonymous grant by what the card holds:
+signed-in callers. The same goes for a named operation whose program,
+template or output reads `actor()`: the warning sits on the grant's
+`operation`, and the grant opens nothing to visitors. Scope an anonymous grant
+by what the card holds:
 
 | Means                              | `where`                                   |
 | ---------------------------------- | ----------------------------------------- |
@@ -1229,8 +1235,8 @@ direct read.
 
 ### Acting users for writes
 
-An anonymous `create`, `update`, `delete`, `transform`, `appendContainsMany` or
-`appendLine` is made **on behalf of a user the governed realm names**. The
+Every anonymous write, through a base operation or a named one built on a
+write, is made **on behalf of a user the governed realm names**. The
 grant names the setting that holds the user, and the realm's `realm.json`
 holds the user in its `config` map:
 
@@ -1244,7 +1250,8 @@ holds the user in its `config` map:
 
 - **An anonymous write grant with no `actingUser` records
   `anonymous-write-without-acting-user`**, and the grant is inactive. A read
-  grant names none.
+  grant, named or not, names none. One key per grant is enough: an invocation
+  writes only its one target, or the one card a create mints.
 - **The setting is read at every invocation.** Its value must be a Matrix user
   id, and that user must hold write on the realm's own permissions. With a
   missing key, a value that isn't a user id, or a user without write, the grant
@@ -1578,7 +1585,8 @@ An anonymous write grant needs the same care. Its predicate can't read the
 caller, so it reads only the card, and every visitor who satisfies it gets the
 write. The write is made as the realm's acting user (§12), which never widens
 what the grant reaches. Never open a raw write to visitors on a type whose
-predicate reads a field that write can change.
+predicate reads a field that write can change. Open a named operation that
+writes only what a visitor should change instead.
 
 A mirror decides on what it holds, not on the roster it copies. Until someone
 syncs it, a teacher removed from the roster still reads their old classroom.
@@ -1724,8 +1732,9 @@ compare the answers.
   that write (§14).
 - Every `snapshot: true` grant can tolerate a removed person keeping access
   until the card is indexed again (§14).
-- Every `anonymous: true` grant is on a base operation, scoped by what the card
-  holds rather than `actor()`, and meant to reach every visitor. Every anonymous
+- Every `anonymous: true` grant is on an eligible operation (no named query),
+  preferably a named one for writes, scoped by what the card holds rather than
+  `actor()` in its `where` or its program, and meant to reach every visitor. Every anonymous
   write grant names an `actingUser` that resolves, in the governed realm's
   `config`, to a user with write on the realm, and the realm's
   `anonymousRateLimit` suits what a visitor may write.
