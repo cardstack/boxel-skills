@@ -1215,6 +1215,7 @@ same reason as the acting user:
 | The policy won't compile                                    | 401 `actor-required`, as above: a policy that won't compile opens nothing to visitors. Check its issues (§9) |
 | The visitor is over the realm's limit                       | 429 `rate-limited`, with `Retry-After` in seconds; nothing is done |
 | An anonymous create is admitted                             | The realm chooses the new card's id (§4)            |
+| The realm is archived, and a grant admits the visitor      | 403 `archived`, as a signed-in caller is told; a visitor no grant admits still gets the 401 |
 | A batch has an entry no grant admits                        | 401 `actor-required` for the whole batch; nothing is written |
 | A batch would take the visitor over the limit               | 429 `rate-limited` for the whole batch; nothing is written |
 
