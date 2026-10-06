@@ -317,10 +317,14 @@ Name a narrower type in `targetType` the way §2 names any type —
   of it.
 - **A rule on `FileDef` serves every stored file that isn't module source**:
   every data file, every dot-file (`.gitignore` and the like), and files of
-  types nobody has written a def for. The realm's ignore files hide a path from
-  listings and the index, not from a byte read. A rule on `FileDef` is a
-  catch-all; to keep dot-files out, grant a narrower type (`ImageDef`,
-  `PdfDef`, …), which a dot-file never matches.
+  types nobody has written a def for. A rule on `FileDef` is a catch-all; to
+  keep dot-files out, grant a narrower type (`ImageDef`, `PdfDef`, …), which a
+  dot-file never matches.
+- **No grant reaches a path the realm ignores**: anything under `.git/` or a
+  `node_modules` directory, and whatever the `.gitignore` at the realm's root
+  names. A caller reaching the realm only through grants is told such a path
+  holds nothing. The `.gitignore` itself is served by a rule on `FileDef`
+  unless its own patterns name it.
 
 ### Over HTTP
 
