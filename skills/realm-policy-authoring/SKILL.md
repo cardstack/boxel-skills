@@ -1165,11 +1165,13 @@ and its `grants: []`.
 
 ### Keep authorization-bearing fields out of reach
 
-**Never grant raw `update`, `transform` or `delete` on a type whose predicate
-reads a field those operations can change, unless every caller who passes the
-predicate is trusted with the consequence.** `update` and `transform` rewrite
-the field. `delete` removes it along with the card, so any caller the predicate
-admits decides alone whether the card and its roster go on existing.
+**Never grant raw `update`, `transform`, `appendContainsMany` or `delete` on
+a type whose predicate reads a field those operations can change, unless every
+caller who passes the predicate is trusted with the consequence.** `update` and
+`transform` rewrite the field. A raw `appendContainsMany` lets the caller name
+the field and the items, so it adds anyone to `teacherIds`. `delete` removes
+the field along with the card, so any caller the predicate admits decides alone
+whether the card and its roster go on existing.
 
 Sometimes the consequence is fine. Take a draft whose `ownerId` admits its
 owner to `update`: they can hand the draft to someone else, and that's an
@@ -1200,11 +1202,15 @@ differ.
 
 ### When `snapshot: true` is acceptable
 
-A snapshot grant decides on the card as the index last saw it (§8). That opens
-a time-of-check gap the length of the index's delay. Suppose a classroom has a
-computed `headTeacher`, or a `searchable` link to its coordinator's roster card.
-Take someone off the roster, and their grant keeps holding until the classroom
-is indexed again. The delay is usually short, but it grows while the realm's
+A snapshot grant reads the card's stored fields as they are now, and its
+computed values and `searchable` linked cards' fields as the index last saw
+them (§8). Those indexed values open a time-of-check gap the length of the
+index's delay. Suppose a classroom has a computed `headTeacher`, or a
+`searchable` link to its coordinator's roster card that the predicate reads
+the coordinator's Matrix id through. Change the computed value's inputs, or
+the id on the roster card, and the grant keeps deciding on the old value until
+the classroom is indexed again. Re-pointing the link itself takes effect at
+once (§8). The delay is usually short, but it grows while the realm's
 index is busy. The gap applies to writes too: the write lock judges a snapshot
 grant against the same indexed copy.
 
@@ -1254,8 +1260,7 @@ Each grant states one lane's condition, and the lanes differ:
   `realmConfig()` and string functions among them, that no filter can express.
 - **They can mean different things.** Being allowed to open a card you were
   sent a link to is different from being allowed to enumerate every card like
-  it. A lead teacher in the school reads the classroom they lead but can't log
-  an activity there. The same split applies between reading and listing.
+  it.
 - **Each can change without the other.** Narrowing who may list a type
   shouldn't silently narrow who may open a card they were already given.
 
@@ -1288,14 +1293,18 @@ together. Explain both after an edit: `explain` for the read and
      hold for this card and actor. Look at the card's data before the
      predicate: a stale mirror is the usual cause.
 4. **Check each grant's `tier` before you trust its `outcome`.** A `stored`
-   outcome reflects the card as it is now. A `snapshot` outcome reflects the
-   index's copy (§8), so a `did-not-hold` just after an edit can be the index
+   outcome reflects the card as it is now. A `snapshot` outcome
+   reflects the index's copy of the card's computed and linked values (§8), so
+   a `did-not-hold` just after an edit to one of those can be the index
    catching up. Explain again once it has. Every `query` grant's outcome comes
    from the index too: `index.pending` on a search explanation says whether
    that index has caught up.
-5. **`threw` is a bug in the policy, not a refusal.** The answer is
-   `decision: "failed"` and the invocation would answer 500 to a realm reader.
-   Guard the value the predicate assumed (§6).
+5. **`threw` is a bug in the policy, not a refusal.** When no other grant
+   held, the answer is `decision: "failed"` and the invocation would answer
+   500 to a realm reader. When another grant held, the explanation can
+   be `allowed` with a `threw` grant inside it. The bug is still there, and it
+   refuses the first card that only the throwing grant could admit. Guard the value the predicate
+   assumed (§6).
 6. **An unexpected `allowed` is the case to chase.** Follow `admittedBy` into
    the explanation's `rules`, then that grant's `path` into the policy card, and
    read the predicate that held. A policy wider than you meant produces no
@@ -1319,9 +1328,10 @@ compare the answers.
   card a teacher should open also has a `read` grant.
 - Every `readSource` grant on a card type is meant to reveal the whole stored
   document, and every file rule names the narrowest `FileDef` that fits.
-- No grant can write the field its own predicate reads. Every grant that
-  rests on a field names a named operation, not a raw `update`, `transform` or
-  `delete`, unless everyone it admits is trusted with that write (§13).
+- No grant can write the field its own predicate reads. Every write grant that
+  rests on a field names a named operation, not a raw `update`, `transform`,
+  `appendContainsMany` or `delete`, unless everyone it admits is trusted with
+  that write (§13).
 - Every `snapshot: true` grant can tolerate a removed person keeping access
   until the card is indexed again (§13).
 - You explained each grant for a caller it should admit and one it shouldn't
