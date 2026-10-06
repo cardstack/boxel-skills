@@ -1261,6 +1261,10 @@ holds the user in its `config` map:
 - **A visitor writes through the card+json routes (`POST`, `PATCH`,
   `DELETE`) and `_operations`.** The `card+source` write and `_atomic` stay
   closed to visitors, whatever the grants say.
+- **Name a dedicated account, not a person who edits the realm.** A visitor's
+  write is indexed as the acting user's own, and that user's reads wait for
+  visitors' writes to index as they wait for their own. A busy public form
+  would slow its editor down.
 - **Different grants can write as different users**: feedback as
   `feedbackWriter`, sign-ups as `signupWriter`, each a key in `config`.
 
