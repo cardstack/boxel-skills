@@ -320,9 +320,9 @@ Name a narrower type in `targetType` the way §2 names any type —
   types nobody has written a def for. A rule on `FileDef` is a catch-all; to
   keep dot-files out, grant a narrower type (`ImageDef`, `PdfDef`, …), which a
   dot-file never matches.
-- **No grant reaches a path the realm ignores**: anything under `.git/` or a
-  `node_modules` directory, and whatever the `.gitignore` at the realm's root
-  names. A caller reaching the realm only through grants is told such a path
+- **No grant reaches a path the realm ignores**: anything in a `.git` or
+  `node_modules` directory at any depth, and whatever the `.gitignore` at the
+  realm's root names. A caller reaching the realm only through grants is told such a path
   holds nothing. The `.gitignore` itself is served by a rule on `FileDef`
   unless its own patterns name it.
 
@@ -933,7 +933,7 @@ the card, §8), and an `outcome`:
 | `non-grantable`                | The operation is `nonGrantable` on the type or an ancestor, or is an explain or a validate |
 | `query-lane`                   | The operation is built on `query`; see below                                  |
 | `authorization-infrastructure` | The target is the realm's config card or its policy card, or the operation reads, writes or mints a policy card (§11) |
-| `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, or module source |
+| `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, module source, or a path the realm ignores |
 | `not-resolved`                 | The target doesn't carry the operation; `refusal` says how it's refused      |
 | `actor-required`               | `actor` is `""` and the permissions don't let an anonymous caller in: 401   |
 | `policy-unloadable`            | The realm can't load its policy (`decision: failed`)                         |
