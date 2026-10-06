@@ -723,9 +723,9 @@ teacher whose grant reads `.teacherIds | any(. == actor())` finds every
 classroom they teach by searching `teacherIds` for themselves, and none of those
 classrooms by searching `teacherIds` for a colleague, not even one that lists
 them both. A classroom another of their `query` grants admits, such as one they
-own, is still found. Write such a search against another field. A saved search's own filter is
-composed the same way. The limit only ever removes rows; it never admits one the
-grant does not.
+own, is still found. Write such a search against another field. A saved search's
+own filter is composed the same way. The limit only ever removes rows; it never
+admits one the grant does not.
 
 **A render the realm runs as itself is never scoped to a viewer.** Its search
 consults no policy, and a realm it cannot read contributes no rows, so the
