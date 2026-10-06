@@ -720,9 +720,10 @@ path into a list (the list itself, or the same field of the cards it links to),
 one element of the list must satisfy both. Conditions on different fields of a
 list's items are each met by any element, not necessarily the same one. A
 teacher whose grant reads `.teacherIds | any(. == actor())` finds every
-classroom they teach by searching `teacherIds` for themselves, and no classroom
-at all by searching `teacherIds` for a colleague, not even one that lists them
-both. Write such a search against another field. A saved search's own filter is
+classroom they teach by searching `teacherIds` for themselves, and none of those
+classrooms by searching `teacherIds` for a colleague, not even one that lists
+them both. A classroom another of their `query` grants admits, such as one they
+own, is still found. Write such a search against another field. A saved search's own filter is
 composed the same way. The limit only ever removes rows; it never admits one the
 grant does not.
 
