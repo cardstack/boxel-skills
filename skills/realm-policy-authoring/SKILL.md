@@ -1283,7 +1283,11 @@ limit or its blocklist. A policy only widens (§3).
 **Explain a visitor's request** with `actor: ""` (§10). Where the policy opens
 the operation to visitors, the gate judges the question against the grants
 that opt in, and a write against the same acting-user check the write itself
-gets. So does `canInvoke` for a visitor's write.
+gets. So does `canInvoke` for a visitor's write. An explain that answers `denied` for a write
+you expected a visitor to make, with the grant you meant listed, usually means
+the acting user didn't resolve: check that the governed realm's `config` holds
+the grant's `actingUser` key, that its value is a Matrix user id, and that the
+user has write on the realm.
 
 ### Worked examples
 
