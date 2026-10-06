@@ -1112,7 +1112,8 @@ the realm can invoke any mutating operation on it, a `nonGrantable` one
 included; any caller who can read it can invoke any read the card carries,
 except an `explain` or `validate`, which also need read on every other realm
 they consult. An operation that failed to lower refuses every caller, realm
-writers included, with 422 `invalid-operation`. A realm that names a policy is consulted only for what those
+writers included: 422 `invalid-operation` for a caller who may read the realm,
+and the not-found answer for one who may not (§5). A realm that names a policy is consulted only for what those
 permissions declined: everything, for a caller with no permission on the
 realm; writes, for one who may read it.
 
