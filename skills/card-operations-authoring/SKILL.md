@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the nine base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links` and `html`), invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links` and `html`), invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
 boxel:
   kind: skill
 ---
@@ -67,7 +67,7 @@ built-in behavior the operation builds on; the name is what a caller invokes.
 The two are read separately, so a `delete` declared on `transform` is a soft
 delete: asking that card to delete itself archives it.
 
-### The nine base operations
+### The base operations
 
 | Base                  | What it does                                                        | Carried by |
 | --------------------- | ------------------------------------------------------------------- | ---------- |
@@ -80,6 +80,12 @@ delete: asking that card to delete itself archives it.
 | `transform`           | Runs a program over the card's stored document                       | cards      |
 | `appendContainsMany`  | Appends into a `containsMany` by editing stored JSON, without loading the document | cards |
 | `appendLine`          | Appends one newline-terminated line to a text file                   | files      |
+| `explain`             | Answers what a realm's policy decides for an actor, card and operation, invoking nothing | a card that declares it (a `RealmPolicy`) |
+| `validate`            | Answers what a policy card compiles to                               | a card that declares it (a `RealmPolicy`, a `RealmConfig`) |
+
+A def carries `explain` and `validate` only where a card declares an
+operation on them, and each must be `nonGrantable` (`realm-policy-authoring`
+§9, §10).
 
 `readSource` is **not declarable** under any name or as any `base`: the realm
 answers it before it would consult a stored definition, so a declaration under
@@ -1057,10 +1063,10 @@ A caller who may read the realm reaches the policy only by writing — their
 reads are the permissions' to allow — so a policy that won't load is a 500 to
 them on writes alone. A realm writer never reaches the policy at all.
 
-**A caller who may not read the realm learns nothing about what exists.**
-Every refusal that depends on what the realm holds — the target, its type,
-the declaration, a grant, a predicate — resolution failures included, answers
-the same bytes a target that isn't there does. A request malformed on its face
+**A caller who may not read the realm learns nothing about what exists from
+the answer.** Every refusal that depends on what the realm holds — the target,
+its type, the declaration, a grant, a predicate — resolution failures
+included, answers the same bytes a target that isn't there does. A request malformed on its face
 (a relative module, a bad envelope) and an unloadable policy are refused as
 the table shows.
 Over `_operations` that is `title: 'Not found'`, `detail: 'no such target'`,
@@ -1074,6 +1080,12 @@ policy's author finds it by explaining the decision, which answers
 `predicate-threw` (see
 [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md)), or as a
 caller who may read the realm, who gets the 500.
+
+**Timing is not concealed.** A target that isn't there is refused before any
+grant is matched, while one refused because a matching grant's predicate
+didn't hold had that predicate evaluated against it. A caller who measures
+carefully can tell the two apart, so the bytes hide which cards exist and the
+timing does not.
 
 **Nobody signed in.** On the routes that consume the outcome of the realm's
 permissions — the ones a grant can reach — in a realm that names a policy, a
@@ -1097,9 +1109,12 @@ same refusals from the policy author's side.
 
 **The realm's own read/write permissions come first.** Any caller who can write
 the realm can invoke any mutating operation on it, a `nonGrantable` one
-included; any caller who can read it can invoke any read. A realm that names a
-policy is consulted only for what those permissions declined: everything, for
-a caller with no permission on the realm; writes, for one who may read it.
+included; any caller who can read it can invoke any read the card carries,
+except an operation that failed to lower, which refuses everyone, and an
+`explain` or `validate`, which also need read on every other realm they
+consult. A realm that names a policy is consulted only for what those
+permissions declined: everything, for a caller with no permission on the
+realm; writes, for one who may read it.
 
 **A policy only widens.** It admits callers the permissions declined, one
 operation and card type at a time, and never narrows what the permissions
@@ -1141,7 +1156,8 @@ field left out of one is still reachable through the card's plain read, its
 stored source, or a search. A granted `read` serves the card's whole
 representation, as the type's `read` declaration shapes it (§2 covers how far
 its links reach). A granted `create` or `update` over card+json answers with
-the whole card it wrote, unprojected, whatever `read` grant the caller holds.
+the whole card it wrote, unprojected, whatever `read` grant the caller holds,
+and a `PATCH` that changes nothing still answers with it.
 **Leave a value out because a consumer does not need it, never because a
 caller may not have it.**
 
