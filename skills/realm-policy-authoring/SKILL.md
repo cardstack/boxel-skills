@@ -1038,6 +1038,7 @@ listed at all. Its `outcome`:
 | `not-resolved`                 | The target doesn't carry the operation; `refusal` says how it's refused      |
 | `actor-required`               | `actor` is `""`, the permissions don't let an anonymous caller in, and the policy opens the operation to no visitor: 401 (§12) |
 | `reads-actor`                  | `actor` is `""`, and the operation, as the target's type declares it, reads `actor()`, so no anonymous grant applies: 401 (§12) |
+| `blocklist-invalid`            | `actor` is `""`, the policy opens the operation to visitors, and the realm's `anonymousBlocklist` holds an entry that isn't an address or range, so it admits no visitor: 401 (§12) |
 | `policy-unloadable`            | The realm can't load its policy (`decision: failed`)                         |
 
 **An operation built on `query`, explained on a card, answers `query-lane`**,
