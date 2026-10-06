@@ -1282,7 +1282,9 @@ visitor can act on, and set `anonymousRateLimit` with those checks in mind.
 
 **A realm whose permissions already let anyone read** (`"*": ["read"]`)
 answers anonymous reads on its permissions alone, without the policy, its
-limit or its blocklist. A policy only widens (§3).
+limit or its blocklist. A policy only widens (§3). A visitor's writes there
+still need an anonymous grant, and are limited and blocked like any other
+realm's.
 
 **Explain a visitor's request** with `actor: ""` (§10). Where the policy opens
 the operation to visitors, the gate judges the question against the grants
