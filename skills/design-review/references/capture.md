@@ -6,10 +6,13 @@ You cannot judge a design from CSS. Capture before scoring, and stop if you cann
 
 | View | Tool | Notes |
 |---|---|---|
+| isolated, embedded, fitted, **from a terminal** (Claude Code or any session without the host tools) | boxel CLI: `npx boxel screenshot <card-url> --format isolated --full-page --out <scratch>`; `--format embedded`; `--format fitted --envelope 400x300` (fitted needs an envelope) | one card and format per call, or a `--spec` batch file; it retries while the server is busy. Use the card instance URL, never the `.json` file. `--full-page` grows the frame only when the page scrolls; an isolated card that scrolls inside its own root stays at the viewport height, so give it a taller `--viewport` (`800x2000`) to see all of it |
 | isolated, embedded, fitted | capture service (`POST /_capture-card`, host `CaptureCardTool`) | one batch per module — `captures: [{name}]`, ≤ 12 entries, inside the 25 s budget. Capture-only: bytes return as base64, nothing persists server-side |
 | app isolated with tabs, atom, edit | MCP browser (chrome-devtools) | the service cannot click a tab, or capture atom and edit on demand. One shot each; click tabs in turn |
 
-Service first for everything it supports, browser only for the rest. If the browser is unavailable
+**Missing host tools is never a reason to skip the review.** From a terminal, the boxel CLI is the
+capture tool: run it for every view the review needs, then read the image files it writes. In the
+Boxel app, use the capture service first for everything it supports, and the browser only for the rest. If the browser is unavailable
 — profile locked, or two navigation timeouts — do not block: review the service captures and list
 the uncaptured views by name. Write captures to the session scratch folder and delete them after
 scoring; none belong in the realm, the repo or the media cache.

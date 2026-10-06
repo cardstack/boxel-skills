@@ -110,8 +110,11 @@ observed, and `read` never becomes a visual claim.
 
 ## Images
 
-- Hotlink only from `images.unsplash.com`, `images.pexels.com`, the placeholder services in
+- Hotlink only from `images.unsplash.com`, `images.pexels.com`, image URLs returned by the Openverse
+  API that pass the load check in [`asset-selection-guidelines.md`](asset-selection-guidelines.md)
+  → *Source order*, the placeholder services in
   [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md),
-  realm files, and URLs the user supplied. `https` only.
+  realm files, and URLs the user supplied. `https` only. An Openverse lookup for a media slot is an
+  asset step, not the opt-in research above.
 - A Google image result is never hotlinked, and its source page is not an image host either.
 - Keep the photo's page URL with the image, so its source and licence can be checked.

@@ -228,8 +228,8 @@ change any of them. Do not offer the interview again unless they ask.
 
 The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
 written from `references/brief-template.md`. The card URL is the deliverable. The card has one
-MarkdownField per stage — `spec` (this skill), `designDirection` (no current skill writes it; an
-earlier brief may carry one), `motion` (`motion-authoring`) — so no stage ever touches another stage's text.
+MarkdownField per stage — `spec` (this skill), `designDirection` (the `Look:` and `Real details:`
+lines `boxel-design`'s Look check writes at build time), `motion` (`motion-authoring`) — so no stage ever touches another stage's text.
 
 **Where it goes.** In the realm the user named. If they named none, the current realm — the
 `realmUrl` in your context — when its `realmPermissions.canWrite` is true; otherwise ask which
@@ -243,7 +243,7 @@ instance adopts from that alias and nothing is written to the realm but the inst
 | `cardInfo.name` | the brief title — `{Name}`, without a "— brief" suffix |
 | `cardInfo.summary` | the Overview paragraph |
 | `spec` | the spec markdown, from Overview to Open questions |
-| `designDirection` | empty — no current skill writes it |
+| `designDirection` | empty — `boxel-design`'s Look check writes it when the build starts |
 | `motion` | empty — `motion-authoring` writes it, and only when the user or the direction asked for heavy motion |
 
 **Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
@@ -327,8 +327,9 @@ questions, say so in one line before the hand-off. If you decided anything for t
 decisions are in `## Assumptions`, in the same line.
 
 **Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
-the choice UI (same rules as the interview rounds): build it (`boxel-design` and the
-design-playbook build the first screen from this brief), or keep refining this brief. Recommend
+the choice UI (same rules as the interview rounds): build it (`boxel-design` asks one quick
+question about the look, then it and the design-playbook build the first screen from this brief),
+or keep refining this brief. Recommend
 building when the brief has no open questions left; recommend refining when it does. Do not start
 the build yourself — naming the next stage is as far as this skill goes.
 

@@ -16,9 +16,10 @@ _Score what was built, from what it looks like._
 | **Stops when** | The verdict is reported and the next step — fix, review another surface, revisit a decision, or stop — is offered as a choice |
 
 Everywhere below, `## Design direction` means the brief card's `designDirection` field and
-`## Motion` its `motion` field. No current skill writes `designDirection`; a brief from earlier work,
-or one written by hand, may still carry it. Every rule below that reads `## Design direction` applies
-only when that field is filled. With it empty, what was decided is the brief's `spec` (or, with no
+`## Motion` its `motion` field. `boxel-design`'s Look check writes only a `Look:` and a `Real details:` line into
+`designDirection`: score the colour against the first and check that no proof was invented beyond the
+second. A brief from earlier work, or one written by hand, may carry a full direction. Every rule below
+that reads `## Design direction` acceptance lines applies only when that field holds them. With it empty, what was decided is the brief's `spec` (or, with no
 brief, the build's own hand-off line).
 
 You review a built thing against two standards: what was decided for it, and an
@@ -37,7 +38,8 @@ are the surfaces that get built in passing and scored by nothing.
 not optional or offered. When a build of an app, a card family or a single user-facing card
 finishes, run this loop without being asked, over **everything the build produced**:
 
-1. **Capture and review the whole unit**: `set` mode across every screen, and `card` mode on every
+1. **Capture and review the whole unit** (from a terminal with `npx boxel screenshot`, see
+   [`references/capture.md`](references/capture.md)): `set` mode across every screen, and `card` mode on every
    CardDef the build produced or the screens link to — the cards behind the links are the surfaces
    that get written in passing and scored by nothing. A single card is reviewed in `card` mode.
 2. **Score** with the benchmark (reuse it across rounds) and the brief's acceptance lines.
@@ -60,9 +62,9 @@ review reads as a real review and is not one. Service first for everything it su
 only for the rest; if the browser is unavailable, review the service captures and list the
 uncaptured views by name rather than blocking.
 
-**A blank region in a capture is not yet a finding** — staggered entrance animations and
-not-yet-loaded cards both paint empty at capture time. Re-capture two or three times before
-reporting it.
+**A blank region in a capture is a finding.** Entrances move and never fade, so no baseline
+animation paints a section empty; a card still loading can, so re-capture a blank region once,
+then report it (`references/capture.md`).
 
 Read `references/capture.md` for which tool captures which view, the
 service's batch and time budgets, where captures go, and the flakiness rules.
@@ -119,7 +121,9 @@ Score and name the specific thing behind each number:
   **across formats, not just this screen**: the `## Design direction` section's Views table says what each one carries, so
   verify `embedded` and `fitted` show a focused crop rather than a shrunken copy of the hero, and
   that a card with an image never renders a text-only tile. A blank Media row on a unit that has an
-  image field is itself a finding — the decision was never made.
+  image field is itself a finding — the decision was never made. So is a media slot (a poster, a
+  listing photo, a dish, a profile photo) that ships as a gradient, a lone glyph or initials: the
+  first build fills it, at least with a labelled placeholder.
 - **Detail** — the editorial micro-objects that signal care: an eyebrow with a rule, a stat slab
   bounded by lines rather than boxed, a fold cue. Two or three, not all of them.
 - **Motion** — first check the **baseline** from [`boxel-design/references/motion-baseline.md`](../boxel-design/references/motion-baseline.md): arrival or scroll reveal on the `isolated` view, hover and focus feedback on controls, timing matching the declared motion character with one ease and one duration set, nothing missing with motion off. A unit missing the baseline caps at 8, unless the user asked for

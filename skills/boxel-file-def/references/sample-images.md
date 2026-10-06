@@ -24,8 +24,11 @@ Choose by the scenario:
 - **Something real**: the user's company, product or people. Ask for their own images. Never
   generate or pick a stock photo that claims to be a real person, product or place. Until they
   provide one, use a placeholder and say so.
-- **A mockup the user wants to see quickly** (the "Just build it" path): stock photos by URL when
-  you can find real ones (see below), otherwise placeholders. No downloads in the first draft.
+- **A mockup the user wants to see quickly** (the "Just build it" path): every media slot gets an
+  image in the first build: a real photo from Openverse when the session can run `curl`, otherwise a
+  labelled placeholder sized to the slot and named for what belongs there ([`asset-selection-guidelines.md`](../../boxel-design/references/asset-selection-guidelines.md)
+  → *Every media slot ships with an image*). In the Boxel app, offer AI images afterwards as one
+  batched question. No downloads in the first draft.
 - **A styled, brand-heavy design** where the image carries the look (a design direction with an
   imagery treatment): AI-generated.
 - **Unclear, and the choice costs credit**: ask once, as a single-select question in the choice
@@ -129,8 +132,8 @@ They go in `attributes`, never in `relationships` (Cardinal Rule 12: an external
 
 | Pattern | Gives |
 |---|---|
-| `https://picsum.photos/seed/<instance-slug>/1600/900` | A real photo, the same one every time for the same seed. Its subject is random, so use it only where any photo will do |
-| `https://placehold.co/1600x900/<bg-hex>/<text-hex>?text=Hero` | A flat box with a label: pure wireframe |
+| `https://placehold.co/1600x900/<bg-hex>/<text-hex>.png?text=<label>` | A box in theme colours whose label names what belongs there (`Film still · Paris, Texas`): the default |
+| `https://picsum.photos/seed/<instance-slug>/1600/900` | A real photo, the same one every time for the same seed. Its subject is random, so use it only where the caption names no subject |
 
 Pick the size from the slot's aspect ratio, and seed Picsum with the instance's slug so each
 instance keeps its own photo across reloads.

@@ -20,6 +20,41 @@ Visual decisions for Boxel cards.
 
 Read it in full before any user-facing card design. Stage 1's "internal taste-maker held in mind" is the antidote to curated style menus, which cap design taste at their authors' ceiling — trust the model's taste, push past defaults. For layout, name the moves from [`references/layout-vocabulary.md`](references/layout-vocabulary.md) in the mockup. For type and colour, choose a family from [`references/style-families.md`](references/style-families.md) on purpose, from the brief, rather than settling on the editorial look. Ship the CSS motion in [`references/motion-baseline.md`](references/motion-baseline.md) in the same pass; it is automatic and needs no hand-off.
 
+## Look check — before the first design decision
+
+The user decides the look up front, so every route into a build asks the same two questions once.
+"Just build it" asks them in its first call (index step 1). A build that starts from a brief
+("Plan it with me" after `domain-interview`, or "I already have a brief") asks them here, because
+the brief makes no design decisions on purpose.
+
+Ask only the questions that are still unanswered, together in one choice-UI call, each with its skip
+option:
+
+1. **How should it feel?** Light & calm / Dark & dramatic / Bold colour / You decide. When a row of
+   the page-colour table in [`style-families.md`](references/style-families.md) → *Page colour*
+   holds for this brief, put that option first, marked recommended, with its reason in a few words.
+2. **Real details:** "Anything true about this place a competitor couldn't say?" When the brief's
+   `spec` already holds concrete facts (names, places, prices, house rules), the first option is
+   **Use what's in the brief** (recommended). Then *Leave marked slots for them* / *Leave those
+   sections out* / *Skip the rest*; the free-text answer carries new details.
+
+**Already answered** means any of: the user's prompt or attachments state it (a feel word, named
+colours, a brand, a logo or a reference site for question 1; facts for question 2); it was answered
+earlier in this conversation; or the brief's `designDirection` field has a `Look:` or `Real details:`
+line, or older direction text. "You decide" and "Leave those sections out" are answers. If both are
+answered, make no call.
+
+**Record it on the brief**, when there is one, straight after the answer: write two lines into its
+`designDirection` field (this skill's field; `domain-interview` owns `spec`), in the user's words
+and without expanding them into a palette or fonts:
+
+```
+Look: Dark & dramatic (recommended for a cinema)
+Real details: use what's in the brief | <the user's words> | leave marked slots
+```
+
+With no brief, the answers stay in the conversation and the build uses them.
+
 ## Brand and Style Source
 
 Choose the governing style source before stage 1:
