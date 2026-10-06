@@ -87,7 +87,7 @@ Font stacks. All three have `theme.css` defaults (the IBM Plex families). `CardC
 --tracking-normal                          /* base letter-spacing */
 ```
 
-**Roles.** The theme's `typography` field has one slot per role: `heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label` (control text, table headers, badges), and `eyebrow` (the small tracked-out kicker above a title). Each slot carries family, size, weight, line-height, and letter-spacing. `CardContainer` publishes them to templates as `--boxel-<role>-*`; the label role publishes as `--boxel-ui-label-*` because `--boxel-label-*` is the Label component's own contract.
+**Roles.** The theme's `typography` field has one slot per role: `heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label` (control text, table headers, badges), and `eyebrow` (the small tracked-out kicker above a title). Each slot carries family, size, weight, line-height, and letter-spacing. They reach templates as `--boxel-<role>-*`: `theme.css` declares the defaults, and `CardContainer` publishes the theme's values over them. The label role publishes as `--boxel-ui-label-*` because `--boxel-label-*` is the Label component's own contract.
 
 ```css
 --boxel-heading-font-family          --boxel-heading-font-size          --boxel-heading-font-weight          --boxel-heading-line-height          --boxel-heading-letter-spacing
