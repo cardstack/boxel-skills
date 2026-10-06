@@ -575,9 +575,11 @@ How a filter and its predicate can differ:
   the grants as one query, so where both test the list itself, or the same
   field of the cards it links to, one element has to meet both conditions.
   With the grant `.teacherIds | any(. == actor())`, a teacher who searches
-  `teacherIds` for themselves finds every classroom they teach, but a search of
-  `teacherIds` for a colleague finds nothing, not even a classroom that lists
-  them both. Write such a search against another field. Conditions on
+  `teacherIds` for themselves finds every classroom they teach, and a search of
+  `teacherIds` for a colleague finds none of those classrooms, not even one
+  that lists them both. A classroom another of their `query` grants admits,
+  such as one they own, is still found. Write such a search against another
+  field. Conditions on
   different fields of a list's items are each met by any element, not
   necessarily the same one. A saved search's own filter is composed the same
   way. The limit only ever removes rows, never adds one.
