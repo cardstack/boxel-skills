@@ -257,7 +257,7 @@ A create has no stored card to test, so it is matched and judged differently.
   id.** It lands under the type's directory (`…/Bulletin/<minted>`). A `lid`
   still links the cards of one batch to each other, but names no file. Their
   card+json `POST` targets the realm root; a `POST` to a subdirectory answers
-  404.
+  404, or 401 `actor-required` to a caller who isn't signed in (§12).
 
 ## 5. Files and source
 
@@ -1213,8 +1213,10 @@ same reason as the acting user:
 `requests` is refused with 429 however long the visitor waits, so set
 `requests` above the largest batch a visitor's page sends.
 
-A visitor never learns whether a card exists from a refusal: a card no grant
-admits and a missing card answer alike, for reads and writes.
+A visitor never learns whether a card exists from a refusal: wherever a caller
+who can't read the realm would get a 404, a visitor gets the 401 above, so a
+card no grant admits, a missing card and a path the realm refuses all answer
+alike, for reads and writes.
 
 **Search.** An anonymous `query` grant narrows a visitor's `_search` and
 `_federated-search` the way it narrows a signed-in caller's (§7). In a federated
