@@ -1278,6 +1278,10 @@ batch with more entries than the realm's
 `requests` is refused with 429 however long the visitor waits, so set
 `requests` above the largest batch a visitor's page sends.
 
+In a realm whose permissions already let anyone read, a visitor's refused write
+is 403 `operation-not-permitted`, as a signed-in reader's is: they can read
+the card, so there is nothing to hide.
+
 A visitor never learns whether a card exists from a refusal: wherever a caller
 who can't read the realm would get a 404, a visitor gets the 401 above, so a
 card no grant admits, a missing card and a path the realm refuses all answer
