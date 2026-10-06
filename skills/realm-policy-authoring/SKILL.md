@@ -652,8 +652,9 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
 
-A card-level issue makes the whole policy uncompilable, and every caller the
-realm's permissions decline gets 500 (§13). The three warnings keep their grant
+A card-level issue makes the whole policy uncompilable, and every signed-in
+caller the realm's permissions decline gets 500 (§13). A caller who isn't
+signed in gets 401 `actor-required` instead (§12). The three warnings keep their grant
 live; every other code takes its part out.
 
 ### The reach warnings
@@ -1093,8 +1094,7 @@ the published articles", "anyone may submit feedback".
 ```
 
 - **Off by default.** A grant without `anonymous: true` never admits a visitor,
-  an unconditional one included, so no grant written before this field starts
-  admitting callers who aren't signed in.
+  an unconditional one included.
 - **Only a base operation, under its own name:** `read`, `readSource`,
   `query`, `create`, `update`, `delete`, `transform`, `appendContainsMany`,
   `appendLine`. On a named operation (`rename`) or a named query
@@ -1201,11 +1201,17 @@ same reason as the acting user:
 
 | Situation                                                   | Answer                                              |
 | ----------------------------------------------------------- | --------------------------------------------------- |
-| No anonymous grant admits the request, or the card is missing | 401 `actor-required`, the same bytes either way   |
+| No anonymous grant admits the request, a matching grant's `where` doesn't hold, or the card is missing | 401 `actor-required`, the same bytes in every case |
 | The visitor's address is blocked, or the blocklist is malformed | 401 `actor-required`, as above                  |
+| The policy won't compile                                    | 401 `actor-required`, as above: a policy that won't compile opens nothing to visitors. Check its issues (§9) |
 | The visitor is over the realm's limit                       | 429 `rate-limited`, with `Retry-After` in seconds; nothing is done |
 | An anonymous create is admitted                             | The realm chooses the new card's id (§4)            |
-| A batch has one entry no grant admits, or over the limit     | The whole batch is refused, and nothing is written  |
+| A batch has an entry no grant admits                        | 401 `actor-required` for the whole batch; nothing is written |
+| A batch would take the visitor over the limit               | 429 `rate-limited` for the whole batch; nothing is written |
+
+**A batch counts once per entry.** A batch with more entries than the realm's
+`requests` is refused with 429 however long the visitor waits, so set
+`requests` above the largest batch a visitor's page sends.
 
 A visitor never learns whether a card exists from a refusal: a card no grant
 admits and a missing card answer alike, for reads and writes.
@@ -1215,10 +1221,12 @@ admits and a missing card answer alike, for reads and writes.
 search, a realm whose limit the visitor has used up is counted failed, and the
 result carries `meta.incomplete: true`; the other realms still answer.
 
-**Showing a control only when it works.** `@context.canInvoke` answers for a
-visitor too, so a public page can show a submit button only when the visitor's
-submit would be admitted (`card-operations-authoring` §3). A capability check
-invokes nothing and never counts against the limit.
+**Hiding a control that won't work.** `@context.canInvoke` answers for a
+visitor too, so a public page can hide its submit button when `canInvoke`
+answers `false`. Hide on `false`, never on `undefined` (`card-operations-authoring`
+§3): a prerender, a pending check and a failed one all answer `undefined`, and a
+page that gates on `true` serves visitors no button. A capability check invokes
+nothing and never counts against the limit.
 
 **A realm whose permissions already let anyone read** (`"*": ["read"]`)
 answers anonymous reads on its permissions alone, without the policy, its
@@ -1268,9 +1276,9 @@ with the governed realm's `realm.json` holding:
 ```
 
 and `@feedback-bot:school.example` holding write on the realm. Visitors can't
-read what they submitted, since no grant opens `read`. The form's card asks
-`@context.canInvoke('create', Feedback, { realm })` before showing its submit
-button.
+read what they submitted, since no grant opens `read`. The form's card hides its
+submit button when `@context.canInvoke('create', Feedback, { realm })` answers
+`false`, naming the realm because a visitor has no default writable realm.
 
 ## 13. Refusals a caller sees
 
@@ -1281,7 +1289,7 @@ How the realm refuses depends on whether the caller may read the realm:
 | No grant holds                              | 403 `operation-not-permitted`                     | 404, identical to "not found"           |
 | The type doesn't carry the operation        | 405 `operation-not-allowed`                       | 404, identical to "not found"           |
 | A predicate threw and no other grant held   | 500 `policy-predicate-failed`                     | 404, identical to "not found"           |
-| The policy won't compile                    | 500 `internal-error`, "Policy unavailable" (on writes) | 500 `internal-error`, "Policy unavailable" |
+| The policy won't compile                    | 500 `internal-error`, "Policy unavailable" (on writes) | 500 `internal-error`, "Policy unavailable"; 401 `actor-required` for a caller who isn't signed in |
 | Nobody signed in, and no anonymous grant admits it | —                                          | 401 `actor-required`                    |
 | Nobody signed in, over the realm's limit    | —                                                 | 429 `rate-limited`, with `Retry-After` (§12) |
 
