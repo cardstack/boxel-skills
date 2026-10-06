@@ -1029,7 +1029,7 @@ the card, §8), and an `outcome`:
 | `authorization-infrastructure` | The target is the realm's config card or its policy card, or the operation reads, writes or mints a policy card (§11) |
 | `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, or module source |
 | `not-resolved`                 | The target doesn't carry the operation; `refusal` says how it's refused      |
-| `actor-required`               | `actor` is `""`, the permissions don't let an anonymous caller in, and the policy opens the operation to no visitor: 401 (§12) |
+| `actor-required`               | `actor` is `""`, the permissions don't let an anonymous caller in, and the policy opens the operation to no visitor, or the operation as the target's type declares it reads `actor()`: 401 (§12) |
 | `policy-unloadable`            | The realm can't load its policy (`decision: failed`)                         |
 
 **An operation built on `query`, explained on a card, answers `query-lane`**,
@@ -1213,7 +1213,8 @@ signed-in callers. The same goes for a named operation whose program,
 template or output reads `actor()`: the warning sits on the grant's
 `operation`, and the grant opens nothing to visitors. A subtype that redeclares an
 opened operation so that it reads `actor()` admits no visitor to the
-subtype's cards, while the grant still serves the parent type's cards. Scope an anonymous grant
+subtype's cards, while the grant still serves the parent type's cards.
+Explaining such a refusal with `actor: ""` answers reason `actor-required`. Scope an anonymous grant
 by what the card holds:
 
 | Means                              | `where`                                   |
