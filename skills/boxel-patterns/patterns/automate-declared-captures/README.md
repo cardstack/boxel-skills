@@ -4,17 +4,18 @@ validated: source-proven
 
 # automate-declared-captures — Self-refreshing capture slots declared on the card class
 
-**What this gives you:** Durable, automatically-captured images of a card's own rendering — declared once as `static captures` on the CardDef (or FileDef), captured server-side every time the card indexes, re-captured when the data changes, and consumable from any template via `@model.captureURLs.<name>`. The flagship use is a real rendered thumbnail for grid tiles with **zero template edits**: flag one slot `useAsThumbnail: true` and the default fitted tile picks it up through `cardThumbnailURL`.
+**What this gives you:** Durable, automatically-captured images (or paged PDFs) of a card's own rendering — declared once as `static captures` on the CardDef (or FileDef), captured server-side every time the card indexes, re-captured when the data changes, and consumable from any template via `@model.captureURLs.<name>`. The flagship use is a real rendered thumbnail for grid tiles with **zero template edits**: flag one slot `useAsThumbnail: true` and the default fitted tile picks it up through `cardThumbnailURL`.
 
 **Sibling patterns — pick the right one:**
 
 - **This pattern** — the card should *always* have a current picture of itself (grid thumbnails, social/og images, poster frames). Declarative, self-healing, re-captures on every edit.
-- [`integrate-capture-card-format`](../integrate-capture-card-format/README.md) — a user action should capture a *point-in-time* PNG of some card and keep its served URL (documentation snapshots, audit trails, before/after diffs). Imperative, via `CaptureTool`.
+- [`integrate-capture-card-format`](../integrate-capture-card-format/README.md) — a user action should capture a *point-in-time* PNG or PDF of some card and keep its served URL (documentation snapshots, audit trails, before/after diffs). Imperative, via `CaptureTool`.
 - [`integrate-thumbnail-card-ai`](../integrate-thumbnail-card-ai/README.md) — an AI-*designed* representation rather than the actual rendering.
 
 **When to use:**
 - **Grid-tile thumbnails from the real rendering** — one `useAsThumbnail` slot and every fitted tile shows the card's actual content.
 - **Social-share / Open Graph images** — declare a wide slot rendered by a dedicated component; the URL is durable and always reflects the latest data.
+- **Always-current printable documents** — a `type: 'pdf'` slot (statement, invoice, certificate) the user opens or downloads under a name derived from the card; see [PDF slots](#pdf-slots-type-pdf).
 - **Poster frames for file cards** — a FileDef subclass whose preview readies asynchronously (video frame, PDF page, 3D scene) declares a poster slot keyed by file content.
 - **Any card that embeds a picture of another card's live state** — link the card, render its `captureURLs.<name>`.
 
@@ -50,7 +51,7 @@ Each entry is one named slot. Names must match `^[A-Za-z0-9][A-Za-z0-9_-]*$` (ma
 - `format: 'isolated' | 'embedded' | 'fitted' | 'atom'` — capture one of the card's existing display formats, **or**
 - `render: SomeComponent` — a *capture-only* component: it gets the full author surface (`@model`, `@fields`, `@context`, linked data) but is only ever rendered by the capture engine — it never appears in the app and is not part of the format API.
 
-Both are required: `width` and `height` — the CSS px of the capture box (the fitted envelope for `format: 'fitted'`).
+A raster slot (the default `type`) requires `width` and `height` — the CSS px of the capture box (the fitted envelope for `format: 'fitted'`). A `type: 'pdf'` slot takes no box; see [PDF slots](#pdf-slots-type-pdf).
 
 Remaining knobs (all optional):
 
@@ -58,13 +59,55 @@ Remaining knobs (all optional):
 | --- | --- | --- |
 | `deviceScaleFactor` | `2` | Output px = size × dsf. Max 3; each edge × dsf must stay ≤ 16384 |
 | `background` | `'white'` | Any CSS color, or `'transparent'` (requires `type` `'png'`/`'webp'` — jpeg has no alpha) |
-| `type` | `'png'` | `'png' \| 'jpeg' \| 'webp'` |
+| `type` | `'png'` | `'png' \| 'jpeg' \| 'webp' \| 'pdf'` (see [PDF slots](#pdf-slots-type-pdf)) |
 | `useAsThumbnail` | — | Feed this capture to `cardThumbnailURL` (at most one slot per card, across inherited declarations) |
 | `keyBy` | `'generation'` | What invalidates the capture. `'file-content'` (FileDef chains only) skips re-capture on metadata-only edits |
+| `filename` | the card's title | `type: 'pdf'` only — the name the PDF is served and saved under (see [PDF slots](#pdf-slots-type-pdf)) |
 
 Validation is strict: an unknown field or bad value throws loudly at read time rather than silently capturing the wrong thing.
 
 **Inheritance:** declarations merge up the class chain by name, base-most first, with **per-name wholesale override** — re-declaring `tile` in a subclass replaces the ancestor's entire `tile` entry, not individual fields. Moving `useAsThumbnail` to a different slot in a subclass means re-declaring the inherited slot *without* the flag as well.
+
+## PDF slots (`type: 'pdf'`)
+
+A `type: 'pdf'` entry captures a **paged document** of the render instead of a raster tile — a statement, invoice, or certificate that stays current with the card's data:
+
+```ts
+static captures: Record<string, CaptureSpec> = {
+  statement: {
+    format: 'isolated',
+    type: 'pdf',
+    filename: (card: Statement) => `Statement ${card.accountName} ${card.period}`,
+  },
+  letter: { render: CoverLetterDocument, type: 'pdf' },
+};
+```
+
+- **No capture box.** `width`, `height`, `deviceScaleFactor`, and `background` are refused — the render settles under print media and paginates onto the card's own `@page` paper (Chrome's default Letter without an `@page { size }` rule). Author print CSS as for any [PDF capture](../integrate-capture-card-format/README.md#export-as-pdf-type-pdf); the same 20-page / 10 MB bounds apply.
+- **Source:** a `render` component (which lays out the whole document itself) or `format: 'isolated' | 'embedded'`. The box formats (`fitted`, `atom`) are refused, and so is `useAsThumbnail` — a thumbnail must be an image. `keyBy` works as for raster slots.
+- **`filename`** names the saved file: a string, or a function of the instance being captured that reads its fields. Leave off `.pdf` — it's appended when serving. The function runs each time the instance renders for capture (at index time), so the name tracks field edits. Omitted — or a function that throws or returns an empty value — falls back to the card's `cardTitle`; while that is still the `Untitled <DisplayName>` placeholder the PDF serves under the instance id (the URL's last path segment) instead. A FileDef's default is its `name` minus the extension.
+- **`filename` is not part of the capture's identity.** Renaming a card never re-captures the PDF or changes its URL; only the served name follows.
+- **`filename` is PDF-only.** Declaring it on a png/jpeg/webp slot is refused at declaration-read time, as is anything other than a non-empty string or a function.
+
+The resolved name appears as `filename` on the slot's `meta.captures` entry (`@model.capturesMeta.<slot>.filename`), and the `?name=` URL serves the PDF with `Content-Disposition: inline; filename="…"` under it, so the browser's PDF viewer — and its Save button — uses that name. A PDF entry's meta carries `contentType: 'application/pdf'` and `pageCount` in place of `width`/`height`.
+
+**Linking to it.** A capture URL is served behind realm read, and the new-tab navigations and downloads a PDF link lands on never carry the host's `Authorization` header — on a private realm a bare `<a href>` draws a 401. Render the link through `SignedCaptureLink` from `@cardstack/boxel-host/lib/signed-capture` (details in [the signed-capture components](../integrate-capture-card-format/README.md#render-it-through-the-signed-capture-components)):
+
+```gts
+import { SignedCaptureLink } from '@cardstack/boxel-host/lib/signed-capture';
+
+<SignedCaptureLink @url={{@model.captureURLs.statement}}>Open statement</SignedCaptureLink>
+
+<SignedCaptureLink @url={{@model.captureURLs.statement}} @download={{true}}>
+  Download statement
+</SignedCaptureLink>
+
+<SignedCaptureLink @url={{@model.captureURLs.letter}} @download={{true}} @filename='Cover letter'>
+  Download cover letter
+</SignedCaptureLink>
+```
+
+Without `@download` the link opens the PDF in a new tab. With `@download` it saves the file under its served name and stays on the page; `@filename` overrides that name for this one link. The link is disabled while the slot's URL is `undefined` (no capture yet).
 
 ## Consuming captures
 
@@ -80,7 +123,9 @@ Always guard the `<img>`: the value is `undefined` until a capture exists (new i
 
 **As the grid-tile thumbnail — declare and you're done.** A `useAsThumbnail` slot feeds the `cardThumbnailURL` fallback chain (author-set URL → authored `cardInfo.cardThumbnail` link → this capture), and the default fitted template renders `cardThumbnailURL`. Recommended box: **170×250 at the default dsf 2** — the standard grid-tile size, so the capture crops predictably under consumers' `object-fit`.
 
-**By URL** (for `og:image` meta, external embeds): each capture's durable URL is `{realmURL}_capture/{instance-path}?name={slot}`. It also appears in the instance's `meta.captures.<name>.url` alongside `contentType`, `width`, `height`, and `deviceScaleFactor`.
+**By URL** (for `og:image` meta, external embeds): each capture's durable URL is `{realmURL}_capture/{instance-path}?name={slot}`. It also appears in the instance's `meta.captures.<name>.url` alongside `contentType`, `width`, `height`, and `deviceScaleFactor` (for a PDF slot, `pageCount` and `filename` instead of the geometry).
+
+Two query params on that URL shape only the response's `Content-Disposition`, never the capture: `download` (bare, `1`, or `true`) serves it as an attachment so the browser saves instead of displaying, and `filename=<name>` names the saved file for this response, overriding the declared `filename`. The same bytes and ETag serve either way, and both combine freely with `?name=`. See [download and filename params](../integrate-capture-card-format/README.md#download-and-filename-params) for the full rules.
 
 **Preview a candidate box before codifying it:** `GET {realmURL}_capture/{instance-path}?format=fitted&envelope=170x250` on a dev realm renders the capture on demand — tune the box, then write the numbers into the declaration.
 
@@ -100,7 +145,7 @@ Content that readies after render — a video frame seeked onto a canvas, a PDF 
 
 ## Recipe shape
 
-See `example.gts` — a card with an embedded-format thumbnail slot, a render-component social image, and the guarded consumption idiom.
+See `example.gts` — a card with an embedded-format thumbnail slot, a render-component social image, a render-component PDF slot with a derived `filename` and a `SignedCaptureLink` download, and the guarded consumption idiom.
 
 **Source:** platform API in `packages/base/card-api.gts` (`CaptureSpec`, `getCaptures`, `captureURLs`); capture/serving exercised end-to-end in `packages/realm-server/tests/declared-captures-indexing-test.ts`; the base realm's file cards (image thumbnails, media poster frames) are the platform's own declarations.
 

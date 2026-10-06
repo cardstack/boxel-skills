@@ -6,7 +6,7 @@ validated: source-proven
 
 **What this gives you:** A reliable way for one card to take a *picture* of another card — at the format you choose — and get back a durable served URL for the PNG, **or export the same settled render as a paged PDF** (a print-ready document). The realm-server drives Puppeteer through the prerender pool to capture a fully-settled render (after data loads, animations resolve, layout completes), so the snapshot reflects what a user would see, not a half-loaded skeleton.
 
-**PNG vs PDF — pick by what you're producing:** a **PNG** (the default, and the only output `CaptureTool` itself returns) is a single raster of one viewport — the right output for thumbnails, og:images, tiles, and inline previews. A **PDF** (`type: 'pdf'` on the capture spec) paginates the same settled render onto paper — the right output when the deliverable is a *document*: a multi-page report, an invoice, anything the user will print, download, or archive. You reach PDF through the capture-spec surfaces — a durable `_capture/…?type=pdf` URL or a direct `POST /_capture` — not through the tool's input, which has no `type` field. The PDF path also unlocks **print media** (`media: 'print'`) so the card's `@page` size and `@media print` CSS decide the paper and pagination. Both are covered below; jump to [Export as PDF](#export-as-pdf-type-pdf) for the PDF specifics.
+**PNG vs PDF — pick by what you're producing:** a **PNG** (the default) is a single raster of one viewport — the right output for thumbnails, og:images, tiles, and inline previews. A **PDF** (`type: 'pdf'` on the capture spec) paginates the same settled render onto paper — the right output when the deliverable is a *document*: a multi-page report, an invoice, anything the user will print, download, or archive. You reach PDF through `CaptureTool` (`type: 'pdf'` on its input), a durable `_capture/…?type=pdf` URL, or a direct `POST /_capture`. The PDF path also unlocks **print media** (`media: 'print'`) so the card's `@page` size and `@media print` CSS decide the paper and pagination. Both are covered below; jump to [Export as PDF](#export-as-pdf-type-pdf) for the PDF specifics.
 
 **Sibling patterns:** [`automate-declared-captures`](../automate-declared-captures/README.md) — declarative, **self-refreshing** capture slots on the card class itself (thumbnails, og images, poster frames that re-capture on every edit). Prefer that whenever the card should *always* carry a current picture of itself; use **this** pattern for a *point-in-time* capture you keep a URL to (documentation, audit/before-after trails). [`integrate-thumbnail-card-ai`](../integrate-thumbnail-card-ai/README.md) — for **AI-generated** stylised thumbnails (designed icons, brand-mark tiles, catalog hero images) when the user wants a *designed representation* rather than any actual rendering; the catalog's `listing-create.autoGenerateThumbnail` uses it.
 
@@ -19,7 +19,7 @@ validated: source-proven
 - **Printable documents (PDF)** — invoices, reports, statements, contracts, certificates: anything the user prints, downloads, or archives as a paged file. Use `type: 'pdf'` (see [Export as PDF](#export-as-pdf-type-pdf)), with `media: 'print'` when the card carries `@page`/`@media print` CSS.
 - **Always-current embedded documents (durable PDF URL)** — a `_capture/…?type=pdf` URL rendered into a card re-captures itself whenever the source card is edited, so an embedded "download PDF" link never goes stale. Render it through the host's `SignedCaptureLink` / `SignedCapture` components — a bare anchor or `<object>` pointing at a private realm's capture URL is refused. See [Durable PDF URLs](#durable-pdf-urls-embed-instead-of-base64).
 
-**The insight:** `CaptureTool` (from `@cardstack/boxel-host/tools/capture`) is a Boxel host tool that orchestrates the realm-server capture job end-to-end. You pass two inputs — the target card (as a `linksTo` reference) and a format string — and you get back a `captures` list whose first entry's `url` you can render straight into an `<img>`. The realm-server enqueues the job, the worker drives a Puppeteer browser through the prerender pool, and the PNG is persisted to the **media cache** under the capture's canonical identity (card URL × format × capture spec — geometry, `type`, `media` — × the card's index generation). Nothing is written into any realm; cards never see the bytes, you get a clean served URL.
+**The insight:** `CaptureTool` (from `@cardstack/boxel-host/tools/capture`) is a Boxel host tool that orchestrates the realm-server capture job end-to-end. You pass the target card (as a `linksTo` reference) and a format string — plus `type: 'pdf'` (and optionally `media: 'print'`) for a document — and you get back a `captures` list whose first entry's `url` you can render straight into an `<img>` (or, for a PDF, link to). The realm-server enqueues the job, the worker drives a Puppeteer browser through the prerender pool, and the PNG or PDF is persisted to the **media cache** under the capture's canonical identity (card URL × format × capture spec — geometry, `type`, `media` — × the card's index generation). Nothing is written into any realm; cards never see the bytes, you get a clean served URL.
 
 ## Recipe shape
 
@@ -37,6 +37,20 @@ this.captureUrl = result.captures?.[0]?.url ?? null;
 //   <img src={{this.captureUrl}} />
 // The URL is a served media-cache URL, not a realm file — there is no
 // ImageDef / PngDef instance behind it to link to.
+
+// A paged PDF of the same card, laid out under its print CSS:
+let pdf = await new CaptureTool(toolContext).execute({
+  card,
+  format: 'isolated',
+  type: 'pdf',
+  media: 'print',
+});
+this.pdfUrl = pdf.captures?.[0]?.url ?? null;
+// The durable `_capture/…?type=pdf&media=print` URL. Give users a download
+// through SignedCaptureLink (see below), not an <img> or a bare anchor:
+//   <SignedCaptureLink @url={{this.pdfUrl}} @download={{true}} @filename='Invoice'>
+//     Download PDF
+//   </SignedCaptureLink>
 ```
 
 The full demo card (`example.gts`) wraps this in a CardDef that:
@@ -51,12 +65,15 @@ The full demo card (`example.gts`) wraps this in a CardDef that:
 |---|---|---|---|
 | `card` | `linksTo(CardDef)` | yes | Must already be saved — the command needs a card id. |
 | `format` | `'isolated' \| 'embedded'` | yes | **No other values accepted.** Fitted / atom / edit / markdown will throw. |
+| `type` | `'png' \| 'pdf'` | no | Default `'png'`. `'pdf'` returns a paged document (see [Export as PDF](#export-as-pdf-type-pdf)). |
+| `media` | `'screen' \| 'print'` | no | Default `'screen'`. `'print'` settles the render under the card's print CSS. |
+| `viewportWidth`/`viewportHeight`, `deviceScaleFactor`, `fullPage`, `clipX`/`clipY`/`clipWidth`/`clipHeight` | numbers / boolean | no | Raster geometry. Refused alongside `type: 'pdf'` before any request is made. |
 
 | Output field | Type | Notes |
 |---|---|---|
-| `captures` | `{ url, … }[]` | One entry per capture; `captures[0].url` is the durable served media-cache URL of the PNG. Render with `<img src={{...}} />`. Also carries `name`, `width`, `height`. |
+| `captures` | `{ url, … }[]` | One entry per capture; `captures[0].url` is the durable served media-cache URL. Also carries `name` and `contentType` (`'image/png'` or `'application/pdf'`); a PNG entry carries `width`/`height`, a PDF entry `pageCount` instead. Render a PNG with `<img src={{...}} />`; link a PDF through [`SignedCaptureLink`](#render-it-through-the-signed-capture-components). |
 
-Two more axes exist on the **capture spec** — the shared grammar behind the durable `_capture/` URL and the raw `POST /_capture` body, *not* on the tool's input:
+The tool's `type` and `media` are the tool-side spelling of two axes on the **capture spec** — the shared grammar behind the tool, the durable `_capture/` URL, and the raw `POST /_capture` body:
 
 | Capture-spec axis | Values | Notes |
 |---|---|---|
@@ -67,11 +84,11 @@ Two more axes exist on the **capture spec** — the shared grammar behind the du
 
 ## How the realm-server does the work
 
-1. `CaptureTool.run()` checks the current user can **read** the target card's realm, then POSTs `{ realmURL, cardId, format }` to `/_capture` on the realm-server with that realm's session token.
+1. `CaptureTool.run()` checks the current user can **read** the target card's realm, then POSTs `{ realmURL, cardId, format }` (with a nested `captureSpec` carrying any `type`, `media`, or geometry you passed) to `/_capture` on the realm-server with that realm's session token.
 2. The handler (`packages/realm-server/handlers/handle-capture.ts`) answers straight from the media-cache ledger if this exact capture already exists; otherwise it enqueues a `capture-card` job via the queue system.
 3. The worker task (`runtime-common/tasks/capture.ts`) drives Puppeteer through the prerender pool to render the card at the requested format.
 4. Puppeteer waits for the page to settle (data loads, animations, font swap, prerender hooks) before capturing.
-5. The worker persists the PNG to the **media cache** under the capture's canonical identity and the handler responds with `captures[].url`, the durable served URL. No realm file is created and nothing is indexed.
+5. The worker persists the PNG or PDF to the **media cache** under the capture's canonical identity and the handler responds with `captures[].url`, the durable served URL. No realm file is created and nothing is indexed.
 6. If the render outlasts the HTTP wait the handler replies `503` with `Retry-After`; the job still finishes and persists, so a retry is a pure ledger hit.
 
 You don't see any of this from the consumer side — `await new CaptureTool(ctx).execute({ card, format })` returns when the capture is servable.
@@ -80,10 +97,11 @@ You don't see any of this from the consumer side — `await new CaptureTool(ctx)
 
 The same capture pipeline can emit a **paged PDF** instead of a raster. Add `type: 'pdf'` to the capture spec (the default is `type: 'png'`). Everything about settling the render is identical — nav, data loads, animations, font swap, image paint — but instead of one viewport capture you get a multi-page document of the whole settled card.
 
-`CaptureTool`'s input does not expose `type` or `media` — the tool always captures a PNG. PDF lives on the two capture-spec surfaces:
+PDF is available on all three capture surfaces:
 
+- **`CaptureTool`** (from a card action): pass `type: 'pdf'` and optionally `media: 'print'` — see [Recipe shape](#recipe-shape). The returned `url` is the durable `?type=pdf` URL.
 - **Durable GET URL** (the usual path from a card): compose `{realm}_capture/{path}?type=pdf[&media=print]` and embed it — see [Durable PDF URLs](#durable-pdf-urls-embed-instead-of-base64).
-- **`POST /_capture`** (programmatic, realm read + session token): the same body the tool sends, plus a nested spec —
+- **`POST /_capture`** (programmatic, realm read + session token): the same body the tool sends, with the nested spec —
 
   ```jsonc
   {
@@ -146,7 +164,22 @@ For example, a PDF of the card `https://my.realm/Invoice/2026-0042` is:
 https://my.realm/_capture/Invoice/2026-0042?type=pdf&media=print
 ```
 
-This URL is served straight from the realm's MediaCache: a **ledger hit** on repeat requests (no re-render), a fresh capture on the first miss. Because the cache identity pins the source card's *generation*, **editing the card re-captures the PDF on the next fetch** — the embedded link is never stale. The response carries `Content-Disposition: inline` with a filename derived from the source card, so the browser's PDF viewer shows a sensible name.
+This URL is served straight from the realm's MediaCache: a **ledger hit** on repeat requests (no re-render), a fresh capture on the first miss. Because the cache identity pins the source card's *generation*, **editing the card re-captures the PDF on the next fetch** — the embedded link is never stale. A PDF response always carries `Content-Disposition` (`inline` unless the URL asks for a download), with a filename picked in this order: a `filename=` param on the request, then — for a declared slot's `?name=` URL — the slot's declared [`filename`](../automate-declared-captures/README.md#pdf-slots-type-pdf) (default: the card's title), then the URL's last path segment. The browser's PDF viewer, and its Save button, use that name.
+
+### `download` and `filename` params
+
+Any `_capture/` URL — the capture-spec form (`?type=pdf[&media=print]`) and a declared slot's `?name=<slot>` alike — accepts two params that shape only the response's `Content-Disposition`:
+
+- **`download`** — present with no value, or `1`/`true`, serves `Content-Disposition: attachment`, so the browser saves the file instead of displaying it. `0`/`false` is inline. Any other value is a `400`.
+- **`filename=<name>`** — names the saved file for this response, overriding the declared name or the default. The server sanitizes it: control characters and path separators are removed, the length is capped at 120 characters before the extension, and the content type's extension (`.pdf`, `.png`, `.jpg`, `.webp`) is ensured.
+
+```
+https://my.realm/_capture/Invoice/2026-0042?type=pdf&media=print&download=1&filename=Invoice%202026-0042
+```
+
+Each may appear once; a repeat is a `400`. They are not capture parameters: the same capture serves (same bytes, same ETag), they never trigger a re-capture, and they combine freely with `?name=`. An image response carries a `Content-Disposition` header only when one of them asks for it; a PDF always carries one. A non-ASCII name is sent per RFC 6266 — an ASCII fallback in `filename="…"` plus the exact UTF-8 name in `filename*=UTF-8''…`, which browsers prefer.
+
+A [signed capture URL](#render-it-through-the-signed-capture-components)'s token binds every query param, so sign the URL with `download`/`filename` already on it — a token minted without them won't verify with them. `SignedCaptureLink`'s `@download`/`@filename` do this for you.
 
 ### Render it through the signed-capture components
 
@@ -154,7 +187,11 @@ A capture URL is served behind **realm read**. Inside the app that read is asser
 
 The host provides two components, importable from `@cardstack/boxel-host/lib/signed-capture`, that hide the fix. Each mints a **signed capture URL** at the moment of use — the durable URL plus a short-lived `?token=` that authorizes exactly that one `_capture/` GET without a header — and the card template contains no signing JavaScript:
 
-- **`SignedCaptureLink`** — an anchor (rendered through the shared `Button`; default `@kind='link-primary'`, `@kind`/`@size` pass through) whose `href` stays the **durable** URL, so right-click → copy link shares the stable reference. On click it opens a new tab synchronously (keeping the user activation, so popup blockers stay quiet), mints, then navigates that tab to the signed URL. A failed mint closes the tab and renders the error beside the link.
+- **`SignedCaptureLink`** — an anchor (rendered through the shared `Button`; default `@kind='link-primary'`, `@kind`/`@size` pass through) whose `href` stays the **durable** URL, so right-click → copy link shares the stable reference. On click it opens a new tab synchronously (keeping the user activation, so popup blockers stay quiet), mints, then navigates that tab to the signed URL. A failed mint closes the tab and renders the error beside the link. Two optional args shape what the click delivers:
+  - **`@download={{true}}`** — the click mints a signed URL for the capture URL plus `download=1` (and `filename=` when given), fetches it, and saves the bytes under the name in the response's `Content-Disposition`. It stays on the page — no new tab — and a failed response (e.g. a `404` while the capture isn't available) renders the error beside the link instead of navigating away.
+  - **`@filename='…'`** — adds `filename=` to the URL. Alone, it names the document the new-tab viewer shows; with `@download`, it names the saved file.
+
+  The rendered `href` carries the same params (durable URL + `download`/`filename`), so right-click → "Save link as" and copy link work too. It works on private and public realms, and is disabled while `@url` is `undefined` (a declared capture that hasn't landed yet).
 - **`SignedCapture`** — a renderless provider: `<SignedCapture @url={{…}} as |signedUrl error|>` yields `undefined` while minting, then the URL to load — the tokened variant, or the durable URL itself on a publicly readable realm. Use it for render-time attributes: an `<object>` PDF pane, an `<embed>`, an `<img>` you want to prove loads without the worker.
 
 ```gts
@@ -179,7 +216,12 @@ class Isolated extends Component<typeof InvoiceViewer> {
 
   <template>
     {{! click-time: opens the PDF in a new tab with a fresh token }}
-    <SignedCaptureLink @url={{this.pdfUrl}}>Download PDF</SignedCaptureLink>
+    <SignedCaptureLink @url={{this.pdfUrl}}>Open PDF</SignedCaptureLink>
+
+    {{! click-time: saves the PDF under the given name, staying on the page }}
+    <SignedCaptureLink @url={{this.pdfUrl}} @download={{true}} @filename='Invoice'>
+      Download PDF
+    </SignedCaptureLink>
 
     {{! render-time: an inline viewer pane }}
     <SignedCapture @url={{this.pdfUrl}} as |signedUrl error|>
@@ -197,7 +239,7 @@ class Isolated extends Component<typeof InvoiceViewer> {
 
 (`realmURL` is the symbol re-exported from `@cardstack/runtime-common`; reading it off the linked card gives that card's own realm root, which is where the capture persists and serves from.)
 
-**Signed URLs are ephemeral view-layer values.** The token lives **15 minutes** and is bound to one realm, one capture URL (query-param-order-insensitive), and the user it was minted for; it is minted only for callers who already hold realm read, so it grants nothing new — it just makes that grant portable to browser-native fetches. Never write a signed URL into card data, an index doc, or prerendered HTML: the durable URL is the only storable reference. During a server-side prerender `SignedCapture` yields nothing and no mint happens, so prerendered markup stays durable-only. Browser PDF viewers save the bytes they already buffered, so a token that expires after the document loaded does not break "Save".
+**Signed URLs are ephemeral view-layer values.** The token lives **15 minutes** and is bound to one realm, one capture URL — every query param on it, including `download`/`filename` (query-param-order-insensitive) — and the user it was minted for; it is minted only for callers who already hold realm read, so it grants nothing new — it just makes that grant portable to browser-native fetches. Never write a signed URL into card data, an index doc, or prerendered HTML: the durable URL is the only storable reference. During a server-side prerender `SignedCapture` yields nothing and no mint happens, so prerendered markup stays durable-only. Browser PDF viewers save the bytes they already buffered, so a token that expires after the document loaded does not break "Save".
 
 Both components share the host's `capture-url-signer` service, which memoizes each durable URL until its token nears expiry and coalesces every request issued in one render pass into a single mint call per realm. Programmatic callers (scripts, `boxel-cli`) can use the same route directly: `QUERY {realm}_sign-capture-urls` (spelled `POST` + `X-HTTP-Method-Override: QUERY` from clients that cannot send `QUERY`, which is how the host itself calls it) with a JSON body `{ "urls": [ … ] }` (1–100 of *this* realm's `_capture/` URLs, header-authed like any realm request) returns `{ "signed": [{ "url", "signedUrl", "expiresAt" }] }`. An anonymous caller on a public realm gets each URL echoed back unsigned with `expiresAt: null` — there is no user to bind, and none is needed where anonymous read already serves.
 
@@ -252,12 +294,13 @@ This gives every instance of `MyCard` two menu items that capture a settled PNG 
 - **Long renders block the request.** The realm-server waits on the job (Puppeteer needs to settle the page) and returns `503` + `Retry-After` if it runs long; the tool surfaces that as an error to retry. On a slow card or under load, expect a few seconds. Wrap in `@tracked isRunning` / show a spinner; don't `await` inside `getMenuItems` without surfacing progress.
 - **toolContext must exist.** Only available in host interact mode — the prerenderer / SSR context doesn't have a live host. Feature-detect with `this.args.context?.toolContext` before calling.
 - **`listing-create` does not use this command.** The catalog's listing-creation flow uses `GenerateThumbnailCommand` (AI-generated stylized icon, not a real capture). Use `CaptureTool` when you want the actual rendered card, not an interpretation.
-- **The tool can't emit a PDF.** `CaptureTool`'s input has no `type`/`media` fields — it always returns a PNG. PDF is reached through the capture-spec surfaces: the durable `_capture/…?type=pdf` URL or a direct `POST /_capture` with `captureSpec.type: 'pdf'`.
+- **`type: 'pdf'` on the tool refuses the raster geometry.** `viewportWidth`/`viewportHeight`, `deviceScaleFactor`, `fullPage`, or any `clip*` field alongside `type: 'pdf'` is refused before any request. A PDF output entry has `pageCount` and `contentType: 'application/pdf'`, no `width`/`height` — don't feed its `url` to an `<img>`.
 - **PDF is bounded, and over-bounds is an error, not a truncation.** 20 pages / 10 MB. A card that paginates past either cap fails the capture with a message naming the cap — fix the card (fewer pages, lighter images, tighter `@page` margins), don't retry. See [Export as PDF](#export-as-pdf-type-pdf).
 - **PDF refuses the raster axes.** `type: 'pdf'` with `fullPage`, `clip`, `target`, or a non-default `viewport` is rejected at the spec parse — a paged document is always the whole settled render laid out at the paper's width, so a crop or viewport is a contradiction.
 - **`media: 'print'` only changes anything if the card has print CSS.** Under `print`, `@page`/`@media print`/`break-*` rules take effect; a card with none renders the same as `screen`, just on Chrome's default paper. Author `@page { size: … }` when the paper size matters, or the PDF is Letter.
 - **Prefer a durable `?type=pdf` URL over stored bytes for an *of-the-card* PDF.** A one-off PDF capture is a point-in-time file that won't track later edits. For an embedded "always current" PDF link, compose the [durable URL](#durable-pdf-urls-embed-instead-of-base64) instead — it re-captures when the card changes.
 - **A bare `<a href>` or `<object data>` to a capture URL 401s on a private realm.** `<object>`/`<embed>` loads bypass the service worker and new-tab navigations never reach it, so no `Authorization` header arrives; the browser may offer the realm's 401 text as a `.txt` download. Render through `SignedCaptureLink` / `SignedCapture` from `@cardstack/boxel-host/lib/signed-capture` — see [the signed-capture components](#render-it-through-the-signed-capture-components). `<img>` loads are covered by the worker and need nothing.
+- **Name the download with `filename`, not by re-capturing.** `download`/`filename` change only response headers, so add them to the URL (or pass `@download`/`@filename` to `SignedCaptureLink`) for any capture — the same bytes serve. Signing a URL and then appending them breaks the token; sign the URL with the params already on it.
 - **Never persist a signed URL.** The `?token=` variant is a 15-minute, single-URL credential minted at the moment of use. Store and compose the **durable** URL only — a getter returns the durable URL, the component signs it. Signing happens client-side and asynchronously, so a card getter (sync) cannot mint; prerendered output never carries a token.
 
 ## Source

@@ -6,15 +6,18 @@ import {
   type CaptureSpec,
 } from '@cardstack/base/card-api';
 import StringField from '@cardstack/base/string';
+import { SignedCaptureLink } from '@cardstack/boxel-host/lib/signed-capture';
 
 // 🧩 PATTERN: declared captures — self-refreshing capture slots on the class.
 //
-// Two slots are declared below:
+// Three slots are declared below:
 //   thumb  — captures the card's own embedded format at the standard grid-tile
 //            box and feeds cardThumbnailURL, so every fitted tile shows the
 //            real rendering with zero template edits.
 //   social — a capture-only component sized for share/og images. It never
 //            renders in the app; only the capture engine draws it.
+//   printable — a paged PDF drawn by a capture-only document component,
+//            saved under a name derived from the recipe's title.
 
 // Capture-only component. Full author surface (@model / @fields / linked
 // data), but referenced only from the `static captures` declaration.
@@ -41,6 +44,22 @@ class SocialCard extends Component<typeof Recipe> {
       .social h1 {
         font-size: 4rem;
         margin: 0;
+      }
+    </style>
+  </template>
+}
+
+// Capture-only document for the PDF slot. It lays out the whole document
+// flow itself and renders under print media.
+class PrintableRecipe extends Component<typeof Recipe> {
+  <template>
+    <article class='printable'>
+      <h1>{{@model.title}}</h1>
+      <p>{{@model.tagline}}</p>
+    </article>
+    <style scoped>
+      .printable h1 {
+        margin: 0 0 1rem;
       }
     </style>
   </template>
@@ -73,6 +92,15 @@ export class Recipe extends CardDef {
       height: 630,
       deviceScaleFactor: 1,
       type: 'jpeg',
+    },
+    // Paged PDF — no width/height: the document paginates onto the paper
+    // the card's print CSS chooses (Chrome's default without an @page rule).
+    // `filename` runs at capture time against the instance, so the saved
+    // name follows title edits; '.pdf' is appended when serving.
+    printable: {
+      render: PrintableRecipe,
+      type: 'pdf',
+      filename: (card: Recipe) => `${card.title ?? 'Untitled'} recipe`,
     },
   };
 
@@ -108,6 +136,16 @@ export class Recipe extends CardDef {
             alt='Share preview for {{@model.title}}'
           />
         {{/if}}
+
+        {{! A capture URL is served behind realm read; SignedCaptureLink
+            mints a short-lived token at click time so the download works
+            on a private realm. Disabled until the PDF has been captured. }}
+        <SignedCaptureLink
+          @url={{@model.captureURLs.printable}}
+          @download={{true}}
+        >
+          Download printable recipe
+        </SignedCaptureLink>
       </article>
       <style scoped>
         .article {
