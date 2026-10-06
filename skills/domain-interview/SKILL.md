@@ -4,7 +4,9 @@ description: >-
   Use when the user asks for a spec or a brief ("spec this out", "help me think this through"),
   picks "plan it with me first" at the index's routing question, or asks for an app, kit or card in a
   domain with rules a builder would not know ("build me a scheduling app for salons"). Not when
-  the user wants a quick mockup of something generic, and not when a brief already exists. Interviews the user and writes a buildable brief as a brief card — schema, coverage
+  the user wants a quick mockup of something generic. When a brief already exists — a Brief card, or an
+  older brief written as a Wiki card or markdown file — it refines or upgrades that brief instead of
+  starting over. Interviews the user and writes a buildable brief as a brief card — schema, coverage
   matrix, per-screen content contracts, flows, real sample data — that a builder builds from. NOT for layout, style or motion (boxel-design and the design-playbook own those).
 boxel:
   kind: skill
@@ -262,11 +264,50 @@ into a JSON string and never patched into a card that is not indexed yet:
    The tool serializes it; do not escape newlines or quotes yourself. `spec` is this skill's own
    field, so replacing it whole touches nothing another stage wrote.
 
+**Writing it from a terminal agent** (Claude Code, Codex — anything without the assistant's tools).
+`run-realm-code`, `read-card-for-ai-assistant`, `patch-fields` and `apply-markdown-edit` do not
+exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
+
+1. **Check it does not exist.** `boxel file read Brief/<slug>.json --realm <realm-url>` must 404.
+   If it does not, refine the existing brief (below) rather than overwrite it.
+2. **Build the JSON with code, not by hand**: a short script that reads the spec markdown from a
+   file and writes `{ data: { type: 'card', attributes: { cardInfo: { name, summary }, spec,
+   designDirection: null, motion: null }, meta: { adoptsFrom: { module:
+   '@cardstack/catalog/cards/projects/brief', name: 'Brief' } } } }` with `JSON.stringify`.
+3. **Write it**: `boxel file write Brief/<slug>.json --realm <realm-url> --file <local.json>`. The
+   positional is the destination; without `--file` the command writes empty stdin and still prints
+   success.
+4. **Check it landed and indexed**: `boxel file read` it back and compare the `spec` length with what
+   you wrote, then confirm it is a card with `boxel search --realm <realm-url> --query
+   '{"filter":{"contains":{"item.cardInfo.name":"<name>"}}}'` returning `<realm-url>Brief/<slug>`.
+
+A later change rewrites the whole file the same way. That is safe here only because you rebuild the
+JSON from the card you just read, changing `spec` alone; never write a `designDirection` or `motion`
+value you did not read back.
+
 **Refining a brief that already exists.** A change to one section of an existing `spec` — a
 screen's content contract, a schema row — is an `apply-markdown-edit` on the `spec` field with that
 section as `currentContent`, not a second full `patch-fields`: the field is long, and re-sending all
 of it to change one paragraph is how a paragraph elsewhere gets dropped. Other stages' fields are
 never yours to edit.
+
+**Upgrading an older brief.** A brief written before the Brief card — a Wiki card's `content`, or
+a markdown file — is the starting point, not something to re-interview. Read it whole, then:
+
+- **Ask only what it does not settle**: what the user says has changed, the gaps they point at, and
+  its open questions. Skip round 1 when it already says what the thing is and who it is for. The
+  depth is set by these answers, as for a new brief.
+- **Write a new Brief card**, carrying everything the old brief settled forward unchanged, and say in
+  the header line which brief it supersedes. Leave the old one untouched; deleting it is the user's
+  call.
+- A builder may have changed the build since the old brief was written (a field added, a card split
+  out). Read the current schema and fold what it shows into the new spec, so the brief matches what
+  exists.
+
+**When the user picks "keep refining".** Ask the brief's open questions as interview rounds, through
+the choice UI as above. Fold each answer into the section it changes (the schema, a content contract,
+a rule, the sample data), then delete that open question. Do not leave answers in a separate log: the
+builder reads the sections, not the history.
 
 **Then check it landed.** Read the card back. If `spec` is empty or shorter than the spec you
 wrote, patch it again — never tell the user the brief is saved until the card you read back holds
