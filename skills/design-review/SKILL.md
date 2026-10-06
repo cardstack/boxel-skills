@@ -150,6 +150,17 @@ useful part.
 
 After the aesthetic gate, check what would make the design wrong rather than plain:
 
+- **Main action** ([`critical-rules.md`](../boxel-design/references/critical-rules.md) → *Main
+  action always on screen*). Name the primary user and their main action from the UI; if the UI
+  does not let you name it, that is a finding. Then check it is a button on Home without scrolling,
+  at desktop and phone widths, and what it does: an external target links out or opens a marked
+  slot naming what is needed; an internal target creates or changes a card that then shows where
+  the operator would look. Severity: **blocker** when no main action is visible; **major** when an
+  internal main action is a stub or fails, or a secondary action is a dead button that looks live;
+  **minor** when it sits below the fold, is missing at phone width, or is not repeated on the card
+  where it applies. When you cannot run the action from the session, say it was not exercised
+  rather than passing it.
+
 - **Accessibility** — contrast on every text-bearing surface, focus states, hit targets, and the
   motion-off pass for anything animated. The reduced-motion check is not "is there a fallback" but
   two questions the pass answers: does every element survive with animations off — upstream's rule

@@ -219,6 +219,8 @@ a record card's sections come from its content matrix (Stage 0f). The first scre
 answers the visitor's first question with the answer itself at full size (a list, a photo, a
 number, a form, something to try), and the headline captions it. Then, where a section has a layout problem, use the move from [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) that is **for** that problem and say why; zero moves is a valid answer, and "make it look premium" is not a reason.
 
+Place the app's main action ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Main action always on screen*) as the one primary-styled button on Home: in the header on wide screens, within reach without scrolling on a phone, and repeated on the cards where it applies. One primary style per screen.
+
 Hold the taste-maker in your head as you work. Bierut, Sagmeister, Paula Scher, Khoi Vinh, Massimo Vignelli, Mark Boulton — whoever fits the brief. The internal critic raises the bar; do NOT name them in your code or commit messages.
 
 ### Brand-guided imagery during mockup (not as a late asset fill)

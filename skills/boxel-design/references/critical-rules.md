@@ -35,13 +35,39 @@ care"). When one is missing:
    real item is ("A patient review — ideally one that mentions the kids' room"). Never an invented
    number with "(sample)" beside it.
 
-A marked slot never removes the main action. The thing a visitor comes to do (book a seat, buy,
-enrol, sign up) is always on screen as a real button, even when its target is unknown; until the
-user supplies the link, it opens or points at a marked slot that says what goes there ("Booking
-link: your box office or ticketing page").
+A marked slot never removes the main action. See *Main action always on screen* below.
 
 This is about claims a page makes about a real business. Sample records inside an app (a recipe,
 a task, a product in a demo catalogue) are still invented freely.
+
+### Main action always on screen
+
+Every app has one main action: the thing its primary user comes to do. Name it before you build the
+Home card, from the step-1 answer about who it is for.
+
+- Public apps (visitors): book a seat, buy, enrol, sign up.
+- Internal apps (operators): add a swimmer, take attendance, new booking. Prefer the operator's most
+  frequent daily task; when unsure, the single-record create.
+- Apps with both audiences: one main action per audience's view.
+
+The main action is a real button. It is visible on the Home card without scrolling, at desktop and
+phone widths, and repeated on the cards where it applies (a session card shows "Take attendance").
+
+How it behaves depends on where its target lives:
+
+- **Outside the app** (ticketing, payment, an external form): use the link the user gave. With none,
+  the button still shows and opens a marked slot that says what goes there ("Booking link: paste
+  your ticketing URL"). Never hide the button because the link is missing, and never build a
+  booking system in its place unless the user said the app *is* the booking system.
+- **Inside the app** (creating or changing cards in this realm): it works in the first build, as an
+  `@operation` invoked through `operations()`
+  ([`card-operations-authoring`](../../card-operations-authoring/SKILL.md)). A button that only
+  says "coming soon" is not a marked slot; it is a broken app.
+
+Only the main action has to work in the first build. List the other actions in a short "Next to add"
+note on the Home card; never show them as buttons that look live and do nothing. If the main
+operation cannot be made to pass its checks, show the button disabled with the reason beside it,
+and report it as open in the build's hand-off.
 
 ### Images in templates
 
