@@ -1151,6 +1151,14 @@ granting `appendActivity` granted `create`, the caller could mint a
 `transform`, they could run any program over the classroom. The narrowness is
 the whole reason to declare the operation.
 
+**A field one grant reads must be out of reach of every grant, not just its
+own.** In a batch, each entry is judged against what the entries before it in
+a serial run left, or, in a parallel group, against what the group started
+from (`card-operations-authoring` §3). So a granted `update` of `status`,
+followed in the same batch by a `delete` whose grant reads `.status == "draft"`,
+deletes a card the caller could never have deleted on its own. Check each
+grant's predicate against everything every other grant on the type can write.
+
 A named operation is only as narrow as its declaration. One that writes a
 caller-supplied `params` value into the field a grant reads is a raw `update`
 under another name. The `addTeacher` in §11 is one, so it is `nonGrantable`.
@@ -1188,8 +1196,9 @@ it**:
 - **On the governed card, written only by the realm's own writers.** A predicate
   reads the card it judges, and a stored link is only a URL, so a classroom also
   stores its teachers' Matrix ids in `teacherIds`, mirrored from the roster
-  links. The policy grants no write that reaches `teacherIds`. The IT admin
-  syncs the mirror with an ordinary `update` the realm's write permission
+  links. The policy grants no write that reaches `teacherIds`: a
+  raw `update` would write the mirror like any other field, so none is
+  granted. The IT admin syncs the mirror with an ordinary `update` the realm's write permission
   admits.
 - **Behind a `nonGrantable` operation**, where the card itself declares the
   write (§11).
@@ -1209,8 +1218,10 @@ index's delay. Suppose a classroom has a computed `headTeacher`, or a
 `searchable` link to its coordinator's roster card that the predicate reads
 the coordinator's Matrix id through. Change the computed value's inputs, or
 the id on the roster card, and the grant keeps deciding on the old value until
-the classroom is indexed again. Re-pointing the link itself takes effect at
-once (§8). The delay is usually short, but it grows while the realm's
+the classroom is indexed again. Re-pointing the link revokes at once, because the
+indexed fields count only while the stored link still names the card the index
+expanded (§8). A grant that should hold through the new link's target waits for
+the reindex, and admits nothing until then. The delay is usually short, but it grows while the realm's
 index is busy. The gap applies to writes too: the write lock judges a snapshot
 grant against the same indexed copy.
 
