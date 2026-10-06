@@ -171,7 +171,7 @@ This URL is served straight from the realm's MediaCache: a **ledger hit** on rep
 Any `_capture/` URL — the capture-spec form (`?type=pdf[&media=print]`) and a declared slot's `?name=<slot>` alike — accepts two params that shape only the response's `Content-Disposition`:
 
 - **`download`** — present with no value, or `1`/`true`, serves `Content-Disposition: attachment`, so the browser saves the file instead of displaying it. `0`/`false` is inline. Any other value is a `400`.
-- **`filename=<name>`** — names the saved file for this response, overriding the declared name or the default. The server sanitizes it: control characters and path separators are removed, the length is capped at 120 characters before the extension, and the content type's extension (`.pdf`, `.png`, `.jpg`, `.webp`) is ensured.
+- **`filename=<name>`** — names the saved file for this response, overriding the declared name or the default. The server sanitizes it: control characters become spaces, path separators become `-`, runs of whitespace collapse, leading dots are dropped, the part before the extension is capped at 120 code points and 240 UTF-8 bytes (whichever binds first), and the content type's extension (`.pdf`, `.png`, `.jpg`, `.webp`) is ensured. A name that sanitizes to nothing falls back to the declared name or the default.
 
 ```
 https://my.realm/_capture/Invoice/2026-0042?type=pdf&media=print&download=1&filename=Invoice%202026-0042
@@ -191,7 +191,7 @@ The host provides two components, importable from `@cardstack/boxel-host/lib/sig
   - **`@download={{true}}`** — the click mints a signed URL for the capture URL plus `download=1` (and `filename=` when given), fetches it, and saves the bytes under the name in the response's `Content-Disposition`. It stays on the page — no new tab — and a failed response (e.g. a `404` while the capture isn't available) renders the error beside the link instead of navigating away.
   - **`@filename='…'`** — adds `filename=` to the URL. Alone, it names the document the new-tab viewer shows; with `@download`, it names the saved file.
 
-  The rendered `href` carries the same params (durable URL + `download`/`filename`), so right-click → "Save link as" and copy link work too. It works on private and public realms, and is disabled while `@url` is `undefined` (a declared capture that hasn't landed yet).
+  The rendered `href` carries the same params (durable URL + `download`/`filename`), so copy link shares the stable reference. On a publicly readable realm, right-click → "Save link as" works too; on a private realm it can't, since the `href` carries no token and a direct navigation sends no `Authorization` header — clicking the link is the download path there. The click works on private and public realms alike, and the link is disabled while `@url` is `undefined` (a declared capture that hasn't landed yet).
 - **`SignedCapture`** — a renderless provider: `<SignedCapture @url={{…}} as |signedUrl error|>` yields `undefined` while minting, then the URL to load — the tokened variant, or the durable URL itself on a publicly readable realm. Use it for render-time attributes: an `<object>` PDF pane, an `<embed>`, an `<img>` you want to prove loads without the worker.
 
 ```gts
