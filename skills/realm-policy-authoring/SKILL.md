@@ -68,8 +68,10 @@ deliberate, and each is the kind a reader learns about only when it bites.
   policy card in a realm the writer can't read (§1).
 - **Search is not a prompt revocation boundary.** A direct read judges the card
   as stored and refuses on the next request. A search answers from the index and
-  keeps listing the card until it is reindexed. To revoke urgently, change the
-  card or the policy, and use the direct lane until the reindex lands (§3, §7).
+  keeps listing the card until it is reindexed. To revoke urgently, change what
+  the grant reads on the card: a direct read refuses at once, and a search once
+  the card is reindexed. A policy-card edit reaches both only once the policy
+  card is reindexed (§3, §7).
 - **A `snapshot: true` predicate is a window.** It decides on indexed values,
   so taking someone off a roster a computed value reads from doesn't revoke
   them until the card is reindexed (§8).
@@ -83,12 +85,14 @@ deliberate, and each is the kind a reader learns about only when it bites.
 - **Timing is not concealed.** A caller who can't read the realm gets the same
   bytes for a card a grant refused as for one that isn't there, but a refusal
   that evaluated a predicate takes measurably longer (§13).
-- **A subtype that redeclares a field a `query` grant compares is left out of
-  that search**, though a direct read may still admit its cards (§7).
+- **A subtype that declares a compared field differently is left out of a
+  `query` grant's search** (as a computed or query-backed field, another type, a
+  list, or not at all), though a direct read may still admit its cards (§7).
 - **A caller who can't read the realm doesn't name their cards.** The realm
   mints the id of every card they create (§4).
-- **An archived realm tells callers it is archived where the policy would
-  admit them** (§13).
+- **An archived realm tells a caller only the policy admits that it is
+  archived where a grant would admit them**, and tells every signed-in caller
+  on the routes that serve stored bytes (§13).
 
 ## 1. Linking a policy
 
@@ -1137,8 +1141,10 @@ Some cards decide who may do what. No grant reaches them:
   chain — can't be granted; a grant naming it records
   `grants-authorization-infrastructure`. A subtype that redeclares it without
   the flag doesn't make it grantable. A flag on a *subtype* is different: a
-  grant on the supertype records nothing, and the realm refuses it at runtime
-  for the subtype's cards alone. `explain` and `validate` are always
+  grant on the supertype records nothing, and the realm refuses the operation
+  invoked on one of the subtype's cards. A search through the supertype is
+  judged by the supertype and its ancestors, so the subtype's cards can still
+  come back in it. `explain` and `validate` are always
   `nonGrantable`. Mark a card's own operation this way when the card holds
   authorization — a field a predicate reads to decide access:
 
@@ -1409,10 +1415,12 @@ For the rest of an operation's refusals, see `card-operations-authoring` §5.
   Everywhere else they get the answer the realm gives while it is active, so
   the seal tells them nothing a grant doesn't.
 - On the routes that serve stored bytes (the `card+source` read, and the file
-  serve of a data file or a card's `.json`) and the scoped-CSS serve, every
-  signed-in caller of an archived, private realm with a policy meets the seal
-  on a `GET`, whether or not a grant reaches the file. A `HEAD` from a caller
-  who can't read the realm gets the realm's discovery answer.
+  serve of a data file or a card's `.json`), every signed-in caller of an
+  archived, private realm with a policy meets the seal on a `GET`, whether or
+  not a grant reaches the file. A `HEAD` from a caller who can't read the realm
+  gets the realm's discovery answer. The scoped-CSS serve shows the seal only
+  where it would serve a stylesheet, so a hash it doesn't hold is not found,
+  archived or not.
 
 ## 14. Before calling a policy done
 

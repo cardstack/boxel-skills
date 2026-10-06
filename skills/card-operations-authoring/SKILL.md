@@ -85,7 +85,7 @@ delete: asking that card to delete itself archives it.
 
 A def carries `explain` and `validate` only where a card declares an
 operation on them, and each must be `nonGrantable` (`realm-policy-authoring`
-§9, §10).
+§9, §10, §11).
 
 `readSource` is **not declarable** under any name or as any `base`: the realm
 answers it before it would consult a stored definition, so a declaration under
@@ -1110,9 +1110,9 @@ same refusals from the policy author's side.
 **The realm's own read/write permissions come first.** Any caller who can write
 the realm can invoke any mutating operation on it, a `nonGrantable` one
 included; any caller who can read it can invoke any read the card carries,
-except an operation that failed to lower, which refuses everyone, and an
-`explain` or `validate`, which also need read on every other realm they
-consult. A realm that names a policy is consulted only for what those
+except an `explain` or `validate`, which also need read on every other realm
+they consult. An operation that failed to lower refuses every caller, realm
+writers included, with 422 `invalid-operation`. A realm that names a policy is consulted only for what those
 permissions declined: everything, for a caller with no permission on the
 realm; writes, for one who may read it.
 
