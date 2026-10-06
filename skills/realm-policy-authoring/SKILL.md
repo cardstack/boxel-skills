@@ -1129,7 +1129,9 @@ one, so it never admits a visitor; the realm records
 `anonymous-grant-reads-actor` as a warning, and the grant stays live for
 signed-in callers. The same goes for a named operation whose program,
 template or output reads `actor()`: the warning sits on the grant's
-`operation`, and the grant opens nothing to visitors. Scope an anonymous grant
+`operation`, and the grant opens nothing to visitors. A subtype that redeclares an
+opened operation so that it reads `actor()` admits no visitor to the
+subtype's cards, while the grant still serves the parent type's cards. Scope an anonymous grant
 by what the card holds:
 
 | Means                              | `where`                                   |
