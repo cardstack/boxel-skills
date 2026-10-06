@@ -1217,6 +1217,16 @@ signed-in callers. Scope an anonymous grant by what the card holds:
 An unconditional anonymous grant on `CardDef` opens every card in the realm.
 Name the narrowest type, and a `where` wherever one card differs from another.
 
+**A visitor receives everything a granted row carries** (§3, §9): a granted
+`read` or a row a `query` grant admits arrives with its whole link closure in
+`included`, and a search row with its prerendered HTML, which draws the linked
+cards too. So opening a type to visitors also shows them every card its rows
+link to, including cards no anonymous grant opens. Heed the reach warnings on
+an anonymous grant. A named query with a narrower `links` can't be opened to
+visitors, so for search the fix is the type itself: open only types whose
+links are safe to show, or declare `links: 'ids'` on the type's `read` for a
+direct read.
+
 ### Acting users for writes
 
 An anonymous `create`, `update`, `delete`, `transform`, `appendContainsMany` or
@@ -1328,7 +1338,9 @@ named query is never opened to visitors.
   one whose limit the visitor has used up is counted failed
   (`meta.incomplete: true`) while the others still answer. When no realm named
   admits the visitor at all, blocked everywhere included, the whole search is
-  401.
+  401. A visitor's federated search may name only a few private realms (two by
+  default); one naming more is 401. Archived realms are never asked.
+- **A named query is 401 to a visitor**, on a realm's own `_search` too.
 
 **Hiding a control that won't work.** `@context.canInvoke` answers for a
 visitor too, so a public page can hide its submit button when `canInvoke`
