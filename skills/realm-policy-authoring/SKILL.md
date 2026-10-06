@@ -915,6 +915,7 @@ The answer is a `PolicyExplanation`, the object `explain(…)` resolves to:
 | `admittedBy` | `{ rule, grant }`: the grant that admitted it, where one did                              |
 | `draft`      | `{ issues }`, when answered against a draft                                              |
 | `search`     | What the policy composes into a search, when a search was asked about                   |
+| `anonymous`  | For `actor: ""`: the target realm's visitor settings (§12): `limit` (`{ requests, windowSeconds }`), `limitFrom` (`realm` or `platform`), and `invalidBlocklistEntries`. Any entry there means the realm admits no visitor |
 
 **`admittedBy` indexes the explanation, not the policy.** `{ "rule": 0,
 "grant": 0 }` is the first grant listed in the explanation's first rule. That
@@ -929,7 +930,13 @@ the status (§13).
 Each listed grant carries its `path`, its `where` as written (absent for an
 unconditional grant), the `tier` its predicate reads (`stored`, or `snapshot`
 for one marked `snapshot: true`, which is checked against the index's copy of
-the card, §8), and an `outcome`:
+the card, §8), and an `outcome`. A grant that opts in to visitors also carries
+`anonymous`, whoever the explain is about: `{}` for a read, and for a write its
+`actingUserKey` with either the `actingUser` it resolves to or an
+`actingUserFailure` (`key-missing`, `not-a-matrix-id` or `no-write`). A grant
+also carries `issues`, the policy issues recorded at its path, such as
+`anonymous-grant-reads-actor` (§9). A grant an issue made inactive isn't
+listed at all. Its `outcome`:
 
 | `outcome`       | Means                                                                          |
 | --------------- | ------------------------------------------------------------------------------ |
@@ -1301,10 +1308,12 @@ realm's.
 **Explain a visitor's request** with `actor: ""` (§10). Where the policy opens
 the operation to visitors, the gate judges the question against the grants
 that opt in, and a write against the same acting-user check the write itself
-gets. So does `canInvoke` for a visitor's write. An explain that answers `denied` for a write
-you expected a visitor to make often means the acting user didn't resolve: check that the governed realm's `config` holds
-the grant's `actingUser` key, that its value is a Matrix user id, and that the
-user has write on the realm.
+gets. So does `canInvoke` for a visitor's write. The answer says what a visitor
+meets that a signed-in caller doesn't (§10): the realm's limit and where it
+comes from, any blocklist entry that closes the realm, and for each anonymous
+write grant the acting user it resolves to, or why it doesn't (`key-missing`,
+`not-a-matrix-id`, `no-write`). The policy card's **Explain a decision**
+panel shows the same; leave the person empty to ask about a visitor.
 
 ### Worked examples
 
