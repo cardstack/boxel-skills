@@ -829,12 +829,11 @@ or accept that it is published with the card.
   can read the policy card's realm, and every realm the compile read, may ask.
 - **That gate covers the answers, not the realm's behavior.** Any writer of a
   realm may point it at a policy card in a realm they cannot read, and the
-  realm then loads and applies that card on the server's own authority (§1). A
-  caller the realm declines can therefore tell from its answers whether a
+  realm then loads and applies that card on the server's own authority. Asking
+  as a signed-in caller the realm declines, that writer can tell whether a
   compiling policy sits at the URL (a 500 against an ordinary refusal), and can
-  exercise its grants against cards the writer controls. So a policy's rules
-  are not secret from the writers of other realms on the server. **Keep nothing
-  in a policy's predicates that must stay secret.**
+  exercise its grants against cards they control. So a policy's rules are not
+  secret from other realms' writers, and §1 says what follows from that.
 
 **An edit reaches the gate within seconds.** The compiled policy is
 revalidated when the index of the policy card, or of a type its rules read,
