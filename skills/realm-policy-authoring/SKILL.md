@@ -1197,8 +1197,9 @@ same reason as the acting user:
 - **Only an admitted request counts.** A refused one costs the visitor nothing,
   and neither does a scoped stylesheet served with a card's markup.
 - **A capability check counts once per pair it asks about**, charged before
-  anything is checked. A check that doesn't fit in what's left of the window
-  gets 429 whole, and answers nothing.
+  anything is checked, from the same budget as the visitor's reads. A check
+  that doesn't fit in what's left of the window gets 429 whole, and answers
+  nothing; one asking about more pairs than `requests` always does.
 - **`anonymousBlocklist`** holds IP addresses and CIDR ranges. A visitor from
   one is admitted by no grant. A range whose address has bits set below its
   prefix (`192.0.2.1/24`) isn't a range. **An entry that isn't an address or a
@@ -1216,6 +1217,7 @@ same reason as the acting user:
 | The visitor's address is blocked, or the blocklist is malformed | 401 `actor-required`, as above                  |
 | The policy won't compile                                    | 401 `actor-required`, as above: a policy that won't compile opens nothing to visitors. Check its issues (§9) |
 | The visitor is over the realm's limit                       | 429 `rate-limited`, with `Retry-After` in seconds; nothing is done |
+| The limit can't be counted right now                        | 503 `rate-limit-unavailable`, with `Retry-After`; nothing is done |
 | An anonymous create is admitted                             | The realm chooses the new card's id (§4)            |
 | The realm is archived, and a grant admits the visitor      | 403 `archived`, as a signed-in caller is told; a visitor no grant admits still gets the 401 |
 | A batch has an entry no grant admits                        | 401 `actor-required` for the whole batch; nothing is written |
