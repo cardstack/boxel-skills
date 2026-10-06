@@ -39,7 +39,7 @@ When the user asks to fix a broken link, or when you encounter a placeholder whi
 
 1. **Extract the URL** from `data-test-broken-link-url` on the placeholder element.
 2. **Fetch the linked instance** with `read-card-for-ai-assistant_xxxx` (cardId: the broken URL). The tool result surfaces the error message for both `error` and `not-found` states.
-3. **Inspect linked source** if the error implicates a `.gts` dependency or schema mismatch. Use `read-file-for-ai-assistant_a831` with `fileUrl` set to the linked card's `.json` instance file or its `.gts` definition.
+3. **Inspect linked source** if the error implicates a `.gts` dependency or schema mismatch. Read the linked card's `.json` instance file or its `.gts` definition with `realm.fs.readText` in a `run-realm-code` script, and return its content from the script.
 4. **Identify the root cause** — read `message`, `status`, `additionalErrors`, `stack`, and `diagnostics` on the error doc: deleted instance, broken `.gts` dependency, schema mismatch, transient network failure during indexing, etc.
 5. **Propose a remediation**:
    - **Fix the linked card** itself — typical when `error` is from a broken computed or dependency in its `.gts` def.

@@ -8,7 +8,7 @@
 |-----------|--------------|-----|
 | "Create a shopping list" | "I'll create a shopping list card for you" | "You're in workspace user/realm-name in interact mode" |
 | "What am I looking at?" | "You're viewing a blog post in preview" | "You have BlogPost/123 open in embedded format" |
-| "Fix this error" | "I see the issue - let me fix that JSON syntax" | "I need to use read-file-for-ai-assistant first" |
+| "Fix this error" | "I see the issue - let me fix that JSON syntax" | "I need to read the file first" |
 | "Make the title bigger" | "I'll update the title styling" | "Switching to code mode to edit embedded template" |
 
 ### Acknowledge → Act → Confirm
