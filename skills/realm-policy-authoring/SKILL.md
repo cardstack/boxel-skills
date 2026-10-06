@@ -81,7 +81,7 @@ The pointer is the `policy` string on the realm's `RealmConfig` card —
 | An absolute `http(s)` card URL                          | Is governed by that card                                                                    |
 | A prefix-form id (`@cardstack/catalog/policies/…`)      | Is governed by that card, for a prefix the server maps to a realm                           |
 | A relative path, an unmapped prefix, a non-`http(s)` URL, or a non-string | **Names no policy.** The value is dropped and the realm serves on its permissions alone |
-| A well-formed id of a card that is missing, errored, or not a `RealmPolicy` | **Refuses every caller its permissions decline**, with a 500 (§9)       |
+| A well-formed id of a card that is missing, errored, or not a `RealmPolicy` | **Refuses every caller its permissions decline**: a 500 for a signed-in caller, the 401 `actor-required` for one who isn't (§9, §12) |
 
 The last two rows are the trap. A typo in the *shape* of the pointer silently
 removes the policy. A well-formed pointer to the wrong card fails closed.
@@ -154,7 +154,8 @@ grant that admits signed-in callers only.
 key besides `bxl` and `snapshot`, a `bxl` that isn't a string, or a `snapshot`
 that isn't a boolean (`"yes"`) fails the card when it is indexed. The realm then
 records `policy-card-unloadable` and the whole policy is out of force: every
-caller the realm's permissions decline gets 500 (§9).
+signed-in caller the realm's permissions decline gets 500, and every caller who
+isn't signed in gets 401 `actor-required` (§9).
 
 The card also carries operations no grant can reach: `validate`, which
 answers what the policy compiles to (§9), and `explain` with its draft, search
