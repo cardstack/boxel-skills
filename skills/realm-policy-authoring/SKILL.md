@@ -1,6 +1,6 @@
 ---
 name: realm-policy-authoring
-description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, file and source-read grants and why code needs the realm''s own read, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), and the refusals a caller sees. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `readSource`, `grants-module-source`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, "why was this caller refused", "what would this rule change".'
+description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, file and source-read grants and why code needs the realm''s own read, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), opening a grant to callers who aren''t signed in (`anonymous: true`, the `actingUser` a write is made as, the realm''s `anonymousRateLimit` and `anonymousBlocklist`), and the refusals a caller sees. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `readSource`, `grants-module-source`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, `anonymous: true`, `actingUser`, `anonymousRateLimit`, `anonymousBlocklist`, `actor-required`, `rate-limited`, "anyone may read", "a public form", "why was this caller refused", "what would this rule change".'
 boxel:
   kind: skill
 ---
@@ -115,8 +115,10 @@ The definitions live in the catalog realm:
 RealmPolicy   (CardDef)   rules     = containsMany(PolicyRule)
 PolicyRule    (FieldDef)  targetType = contains(CodeRefField)
                           grants    = containsMany(OperationGrant)
-OperationGrant(FieldDef)  operation = contains(StringField)
-                          where     = contains(PolicyPredicateField)
+OperationGrant(FieldDef)  operation  = contains(StringField)
+                          where      = contains(PolicyPredicateField)
+                          anonymous  = contains(BooleanField)
+                          actingUser = contains(StringField)
 ```
 
 An instance adopts from `@cardstack/catalog/realm-policy/realm-policy`, name
@@ -144,6 +146,10 @@ re-exports the type works too.
 `""` (or whitespace) is not "no condition"; it records `invalid-predicate`.
 Leave `where` out for an unconditional grant.
 
+**`anonymous`** and **`actingUser`** open a grant to callers who aren't signed
+in, and name the user an anonymous write is made as (§12). Leave both out for a
+grant that admits signed-in callers only.
+
 **Any other shape breaks the whole card, not just the grant.** An object with a
 key besides `bxl` and `snapshot`, a `bxl` that isn't a string, or a `snapshot`
 that isn't a boolean (`"yes"`) fails the card when it is indexed. The realm then
@@ -161,7 +167,8 @@ operation (§10). Its isolated view runs both.
 reaches the policy — a realm writer's write and a realm reader's read evaluate
 no predicate. The policy is consulted only for what the permissions declined:
 everything, for a caller with no permission on the realm; writes, for a caller
-who may read it.
+who may read it. A caller who isn't signed in reaches it only through a grant
+that opts in (§12).
 
 **Grants union.** A request is admitted when any grant in any rule that
 matches holds. Order changes nothing, and nothing in a policy denies. Two rules
@@ -341,7 +348,7 @@ as given**:
   `ETag`.
 - **A refused `GET` is a 404 identical to a missing path**, and a refused
   `HEAD` gets the realm's discovery answer, as for any path such a caller can't
-  read (§12).
+  read (§13).
 
 ### Predicates on a file
 
@@ -639,11 +646,14 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `partial-match`                       | inactive | grant    | `where` calls a partial-match builtin (§6)                             |
 | `unsnapshotted-policy-read`           | inactive | grant    | `where` reads a value its form can't (§8)                              |
 | `policy-not-filterable`               | inactive | grant    | A `query` grant's `where` can't compile to a search filter (§7)        |
+| `anonymous-not-base-operation`        | inactive | grant    | `anonymous: true` on a named operation or a named query (§12)          |
+| `anonymous-write-without-acting-user` | inactive | grant    | An anonymous write grant names no `actingUser` (§12)                   |
+| `anonymous-grant-reads-actor`         | warning  | grant    | An anonymous grant's `where` calls `actor()`, so it admits no visitor (§12) |
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
 
 A card-level issue makes the whole policy uncompilable, and every caller the
-realm's permissions decline gets 500 (§12). The two warnings keep their grant
+realm's permissions decline gets 500 (§13). The three warnings keep their grant
 live; every other code takes its part out.
 
 ### The reach warnings
@@ -904,7 +914,7 @@ the same form a policy issue's `path` takes.
 **`refusal` is what the actor sees, not what the asker sees.** An actor who
 can't read the target's realm is refused with 404 `target-not-found` whatever
 the reason; `reason` still says why. Over a card+json route, the actor sees only
-the status (§12).
+the status (§13).
 
 Each listed grant carries its `path`, its `where` as written (absent for an
 unconditional grant), the `tier` its predicate reads (`stored`, or `snapshot`
@@ -931,7 +941,7 @@ the card, §8), and an `outcome`:
 | `authorization-infrastructure` | The target is the realm's config card or its policy card, or the operation reads, writes or mints a policy card (§11) |
 | `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, or module source |
 | `not-resolved`                 | The target doesn't carry the operation; `refusal` says how it's refused      |
-| `actor-required`               | `actor` is `""` and the permissions don't let an anonymous caller in: 401   |
+| `actor-required`               | `actor` is `""`, the permissions don't let an anonymous caller in, and the policy opens the operation to no visitor: 401 (§12) |
 | `policy-unloadable`            | The realm can't load its policy (`decision: failed`)                         |
 
 **An operation built on `query`, explained on a card, answers `query-lane`**,
@@ -1070,7 +1080,199 @@ teacher `update` a classroom whose `teacherIds` admits them lets them add
 anyone to it. Grant a named operation that writes only what the caller should
 change, and mark the authorization-bearing write `nonGrantable`.
 
-## 12. Refusals a caller sees
+## 12. Callers who aren't signed in
+
+A grant admits only signed-in callers unless it says otherwise. A grant that
+says `anonymous: true` also admits a visitor with no session: "anyone may read
+the published articles", "anyone may submit feedback".
+
+### Opting a grant in
+
+```json
+{ "operation": "read", "anonymous": true, "where": ".status == \"published\"" }
+```
+
+- **Off by default.** A grant without `anonymous: true` never admits a visitor,
+  an unconditional one included, so no grant written before this field starts
+  admitting callers who aren't signed in.
+- **Only a base operation, under its own name:** `read`, `readSource`,
+  `query`, `create`, `update`, `delete`, `transform`, `appendContainsMany`,
+  `appendLine`. On a named operation (`rename`) or a named query
+  (`listMine`) it records `anonymous-not-base-operation`, and the grant is
+  inactive. A type that redeclares a base operation under the base's own name
+  still counts. Named operations and named queries are contracts written for
+  signed-in callers.
+- **An anonymous `query` grant must compile a filter** (§7). One that records
+  `policy-not-filterable` opens search to nobody.
+- **The grant still admits signed-in callers** the realm's permissions decline,
+  as any grant does.
+
+`anonymous` is a boolean on the `OperationGrant`, beside `operation` and
+`where`; `actingUser` (below) is a string.
+
+### Scoping an anonymous grant
+
+A visitor has no actor. A `where` that calls `actor()` isn't evaluated for
+one, so it never admits a visitor; the realm records
+`anonymous-grant-reads-actor` as a warning, and the grant stays live for
+signed-in callers. Scope an anonymous grant by what the card holds:
+
+| Means                              | `where`                                   |
+| ---------------------------------- | ----------------------------------------- |
+| Published articles only            | `.status == "published"`                  |
+| Open tickets only, on an `update`  | `.status == "open"`                       |
+| Every card the rule's type covers  | absent                                    |
+
+An unconditional anonymous grant on `CardDef` opens every card in the realm.
+Name the narrowest type, and a `where` wherever one card differs from another.
+
+### Acting users for writes
+
+An anonymous `create`, `update`, `delete`, `transform`, `appendContainsMany` or
+`appendLine` is made **on behalf of a user the governed realm names**. The
+grant names the setting that holds the user, and the realm's `realm.json`
+holds the user in its `config` map:
+
+```json
+{ "operation": "create", "anonymous": true, "actingUser": "feedbackWriter" }
+```
+
+```json
+"config": { "feedbackWriter": "@feedback-bot:school.example" }
+```
+
+- **An anonymous write grant with no `actingUser` records
+  `anonymous-write-without-acting-user`**, and the grant is inactive. A read
+  grant names none.
+- **The setting is read at every invocation.** Its value must be a Matrix user
+  id, and that user must hold write on the realm's own permissions. A missing
+  key, a value that isn't a user id, or a user without write refuses the write.
+  Changing the setting, removing it, or taking the user's write takes effect on
+  the next write, with no edit to the policy.
+- **The write carries the acting user's identity**, wherever the realm records
+  who wrote. It never brings realm-owner authority: `realm.json`, policy cards
+  and module source stay out of reach (§11).
+- **`actor()` is still the caller, never the acting user.** A grant
+  `where .ownerId == actor()` never lets a visitor edit the acting user's own
+  cards.
+- **Different grants can write as different users**: feedback as
+  `feedbackWriter`, sign-ups as `signupWriter`, each a key in `config`.
+
+The realm names the user, not the policy, because a policy card can live in
+another realm (§1). That card's writers must not decide whose identity this
+realm's writes carry. Changing `realm.json` already takes this realm's write,
+and the acting user must hold it too, so a realm writer can only hand anonymous
+writes to another realm writer.
+
+A write grant's `where` is judged as every write's is: on the stored card
+before the write, for an `update` or `delete`, and on the card being minted, for
+a `create` (§4).
+
+### The realm's own traffic controls
+
+Two settings on the realm's `RealmConfig` card (`realm.json`) govern every
+visitor the policy admits. They live on the realm, not the policy, for the
+same reason as the acting user:
+
+```json
+"anonymousRateLimit": { "requests": 30, "windowSeconds": 60 },
+"anonymousBlocklist": ["192.0.2.7", "198.51.100.0/24", "2001:db8::/32"]
+```
+
+- **`anonymousRateLimit`** replaces the platform's limit (300 requests per 60
+  seconds unless the server is configured otherwise), for this realm alone.
+  It counts per realm, per caller address; an IPv6 caller is counted by the
+  `/64` their address is in. Both fields must be whole numbers, `requests`
+  from 1 to 1,000,000 and `windowSeconds` from 1 to 86,400. A limit outside
+  that is ignored, and the platform's applies.
+- **Only an admitted request counts.** A refused one costs the visitor nothing.
+  A scoped stylesheet served with a card's markup, and a capability check, never
+  count.
+- **`anonymousBlocklist`** holds IP addresses and CIDR ranges. A visitor from
+  one is admitted by no grant. A range whose address has bits set below its
+  prefix (`192.0.2.1/24`) isn't a range. **An entry that isn't an address or a
+  range closes the realm to every visitor until it is fixed**, since dropping
+  it would let in the caller its author meant to keep out.
+- **The address is the one the platform's proxy reports**, never a header the
+  visitor sends. A visitor whose address can't be determined is refused.
+- **Signed-in callers are never limited or blocked** by these settings.
+
+### What visitors see
+
+| Situation                                                   | Answer                                              |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| No anonymous grant admits the request, or the card is missing | 401 `actor-required`, the same bytes either way   |
+| The visitor's address is blocked, or the blocklist is malformed | 401 `actor-required`, as above                  |
+| The visitor is over the realm's limit                       | 429 `rate-limited`, with `Retry-After` in seconds; nothing is done |
+| An anonymous create is admitted                             | The realm chooses the new card's id (§4)            |
+| A batch has one entry no grant admits, or over the limit     | The whole batch is refused, and nothing is written  |
+
+A visitor never learns whether a card exists from a refusal: a card no grant
+admits and a missing card answer alike, for reads and writes.
+
+**Search.** An anonymous `query` grant narrows a visitor's `_search` and
+`_federated-search` the way it narrows a signed-in caller's (§7). In a federated
+search, a realm whose limit the visitor has used up is counted failed, and the
+result carries `meta.incomplete: true`; the other realms still answer.
+
+**Showing a control only when it works.** `@context.canInvoke` answers for a
+visitor too, so a public page can show a submit button only when the visitor's
+submit would be admitted (`card-operations-authoring` §3). A capability check
+invokes nothing and never counts against the limit.
+
+**A realm whose permissions already let anyone read** (`"*": ["read"]`)
+answers anonymous reads on its permissions alone, without the policy, its
+limit or its blocklist. A policy only widens (§3).
+
+**Explain a visitor's request** with `actor: ""` (§10). Where the policy opens
+the operation to visitors, the gate judges the question against the grants
+that opt in.
+
+### Worked examples
+
+**Published articles are public.** Visitors may open and list published
+articles, and nothing else:
+
+```json
+{
+  "targetType": { "module": "../article", "name": "Article" },
+  "grants": [
+    { "operation": "read",  "anonymous": true, "where": ".status == \"published\"" },
+    { "operation": "query", "anonymous": true, "where": ".status == \"published\"" }
+  ]
+}
+```
+
+Both grants: a `read` grant puts nothing in search results, and a `query`
+grant opens no card (§3). `status` must be a `StringField` for the `query`
+grant to compile (§7). Check what a published article's `read` carries in
+`included` (`grant-reaches-ungranted-type`, §9): a visitor receives all of it.
+
+**A public feedback form.** Visitors may submit `Feedback` cards, written as a
+dedicated user, at a tighter rate than the platform's:
+
+```json
+{
+  "targetType": { "module": "../feedback", "name": "Feedback" },
+  "grants": [
+    { "operation": "create", "anonymous": true, "actingUser": "feedbackWriter" }
+  ]
+}
+```
+
+with the governed realm's `realm.json` holding:
+
+```json
+"config": { "feedbackWriter": "@feedback-bot:school.example" },
+"anonymousRateLimit": { "requests": 5, "windowSeconds": 300 }
+```
+
+and `@feedback-bot:school.example` holding write on the realm. Visitors can't
+read what they submitted, since no grant opens `read`. The form's card asks
+`@context.canInvoke('create', Feedback, { realm })` before showing its submit
+button.
+
+## 13. Refusals a caller sees
 
 How the realm refuses depends on whether the caller may read the realm:
 
@@ -1080,7 +1282,8 @@ How the realm refuses depends on whether the caller may read the realm:
 | The type doesn't carry the operation        | 405 `operation-not-allowed`                       | 404, identical to "not found"           |
 | A predicate threw and no other grant held   | 500 `policy-predicate-failed`                     | 404, identical to "not found"           |
 | The policy won't compile                    | 500 `internal-error`, "Policy unavailable" (on writes) | 500 `internal-error`, "Policy unavailable" |
-| Nobody signed in, on a gated route          | —                                                 | 401 `actor-required`                    |
+| Nobody signed in, and no anonymous grant admits it | —                                          | 401 `actor-required`                    |
+| Nobody signed in, over the realm's limit    | —                                                 | 429 `rate-limited`, with `Retry-After` (§12) |
 
 The codes are the `code` on an `_operations` error. A card+json route answers
 with the same status and a title, and its body carries no `code`, so over those
@@ -1091,7 +1294,7 @@ that isn't there and a card a grant refuses answer the same bytes. A realm with
 no policy answers with its permissions' own 401 and 403. For the rest of an
 operation's refusals, see `card-operations-authoring` §5.
 
-## 13. Before calling a policy done
+## 14. Before calling a policy done
 
 - The policy card's issues list is empty, or holds only warnings you mean to keep.
 - Every membership test is `any(. == actor())`, parenthesized inside `or`/`and`.
@@ -1102,5 +1305,10 @@ operation's refusals, see `card-operations-authoring` §5.
 - Every `readSource` grant on a card type is meant to reveal the whole stored
   document, and every file rule names the narrowest `FileDef` that fits.
 - No grant can write the field its own predicate reads.
+- Every `anonymous: true` grant is on a base operation, scoped by what the card
+  holds rather than `actor()`, and meant to reach every visitor. Every anonymous
+  write grant names an `actingUser` that resolves, in the governed realm's
+  `config`, to a user with write on the realm, and the realm's
+  `anonymousRateLimit` suits what a visitor may write.
 - You explained each grant for a caller it should admit and one it shouldn't
   (§10), and explained a draft before widening any rule.
