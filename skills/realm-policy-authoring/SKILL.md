@@ -1246,8 +1246,10 @@ holds the user in its `config` map:
   `anonymous-write-without-acting-user`**, and the grant is inactive. A read
   grant names none.
 - **The setting is read at every invocation.** Its value must be a Matrix user
-  id, and that user must hold write on the realm's own permissions. A missing
-  key, a value that isn't a user id, or a user without write refuses the write.
+  id, and that user must hold write on the realm's own permissions. With a
+  missing key, a value that isn't a user id, or a user without write, the grant
+  admits nothing, and the visitor gets the 401 unless another grant admits the
+  write.
   Changing the setting, removing it, or taking the user's write takes effect on
   the next write, with no edit to the policy.
 - **The write carries the acting user's identity**, wherever the realm records
@@ -1256,6 +1258,9 @@ holds the user in its `config` map:
 - **`actor()` is still the caller, never the acting user.** A grant
   `where .ownerId == actor()` never lets a visitor edit the acting user's own
   cards.
+- **A visitor writes through the card+json routes (`POST`, `PATCH`,
+  `DELETE`) and `_operations`.** The `card+source` write and `_atomic` stay
+  closed to visitors, whatever the grants say.
 - **Different grants can write as different users**: feedback as
   `feedbackWriter`, sign-ups as `signupWriter`, each a key in `config`.
 
@@ -1315,7 +1320,9 @@ same reason as the acting user:
 | A batch has an entry no grant admits                        | 401 `actor-required` for the whole batch; nothing is written |
 | A batch would take the visitor over the limit               | 429 `rate-limited` for the whole batch; nothing is written |
 
-**A batch counts once per entry.** A batch with more entries than the realm's
+**A write counts once, and a batch once per entry**, after the whole batch is
+admitted and before anything is written, so a refused write costs nothing. A
+batch with more entries than the realm's
 `requests` is refused with 429 however long the visitor waits, so set
 `requests` above the largest batch a visitor's page sends.
 
@@ -1357,7 +1364,8 @@ limit or its blocklist. A policy only widens (§3).
 
 **Explain a visitor's request** with `actor: ""` (§10). Where the policy opens
 the operation to visitors, the gate judges the question against the grants
-that opt in.
+that opt in, and a write against the same acting-user check the write itself
+gets. So does `canInvoke` for a visitor's write.
 
 ### Worked examples
 
