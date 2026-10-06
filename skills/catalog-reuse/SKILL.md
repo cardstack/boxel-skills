@@ -64,7 +64,11 @@ tell you how to build well, not whether to build at all.
 5. **Evaluate** each hit against the need; broaden once before calling anything
    a gap.
 6. **Build only confirmed gaps**, and record them.
-7. **Self-audit** before finishing.
+7. **Say what the user now holds.** After every turn in which you reference,
+   specialize, install, or remix, end with one line: a reference to the
+   catalog that keeps receiving its fixes, or a copy that is theirs and will
+   not.
+8. **Self-audit** before finishing.
 
 Step 2 is the default because a catalog definition can be referenced where it
 lives. Step 3 hands the user a copy — a separate thing to own, which cannot be
@@ -145,7 +149,10 @@ identical either way.
 
 - **The `search-entries` tool**, which this skill makes available wherever tools
   are. It spans every realm you can read, catalog included, so you need no realm
-  URL and should not go looking for one.
+  URL and should not go looking for one. If you do narrow with `realms`, pass a
+  realm root such as `…/catalog/` — a module folder inside it
+  (`…/catalog/<app-folder>/`) is not a realm and the search fails. To narrow to
+  one app, anchor `on` its type or `matches` its name instead.
 - **`npx boxel search --realm <realm-url> --query '<filter-json>' --json`**,
   where you have a shell instead. Here `--realm` is required and repeatable, so
   the catalog realm has to be passed explicitly; your environment guidance names
@@ -240,8 +247,18 @@ naming why the hit itself could not be linked, installed, or copied.
   code that already exists costs a large multiple of any reuse and drifts from
   the original. Visual or naming differences are never a reason to skip reuse —
   reference and restyle. When the user wants their own bundle, install rather
-  than re-type, and remix when they will change its schema. `catalog-listing`
-  has the mechanics.
+  than re-type, and remix when the bundle they own will diverge from the
+  catalog's. `catalog-listing` has the mechanics.
+- **A change request runs the same workflow.** When a later message changes
+  what you built — a custom scale of values, an extra field, a new rule — take
+  the changed parts through the required workflow: enumerate them, search Specs,
+  evaluate the hits, and settle each part as reference, specialize (`extends`,
+  or a factory the Spec ships), or a recorded gap. Act on what the workflow
+  settles and state any assumption in one line; do not stop to ask what it
+  already answers. When part of the change is beyond what the platform can do,
+  build the parts within reach and name the limit — reporting the limit is not
+  a substitute for the parts you can build. Changing behavior is not asking to
+  own a copy — Listings stay behind step 3's words.
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.
@@ -258,6 +275,8 @@ Re-read what you built. For everything you authored from scratch:
   trace back to something the user asked to own.
 - If I authored instance JSON, did I check whether the catalog already ships one?
 - Does every refusal name its mismatch, and is every real gap recorded?
+- Did I end on a question the workflow had already answered?
+- Did I tell the user, in one line, whether they hold a reference or a copy?
 
 If the honest answer to any of these is "I didn't look", that thing needs
 replacing with its catalog equivalent. Only then is it done.
