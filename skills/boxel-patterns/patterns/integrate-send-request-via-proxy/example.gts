@@ -5,7 +5,8 @@ import SendRequestViaProxyCommand from '@cardstack/boxel-host/tools/send-request
 
 // 🧩 PATTERN: Arbitrary HTTP through SendRequestViaProxyCommand.
 //
-// The host handles credentials per URL host. Cards never see API keys.
+// The realm server adds the API key for allowlisted destinations. Cards never
+// see API keys.
 
 class WeatherFetchInput extends CardDef {
   @field city = contains(StringField);
@@ -22,31 +23,33 @@ export default class WeatherFetchCommand extends Command<
 > {
   static actionVerb = 'Fetch weather';
 
-  async getInputType() { return WeatherFetchInput; }
+  async getInputType() {
+    return WeatherFetchInput;
+  }
 
   protected async run(input: WeatherFetchInput): Promise<WeatherResult> {
     if (!input.city) throw new Error('city is required');
 
     const proxy = new SendRequestViaProxyCommand(this.toolContext);
 
-    // 1) Build the URL. The realm matches the host (api.weatherapi.com)
-    //    and injects the configured API key automatically — we don't
-    //    set an Authorization header ourselves.
+    // 1) Build the URL. When api.weatherapi.com is on the realm server's
+    //    allowlist, the server adds its configured API key, so we don't set
+    //    one ourselves. Only the query value comes from input; the origin is
+    //    fixed.
     const url = `https://api.weatherapi.com/v1/current.json?q=${encodeURIComponent(input.city)}`;
 
     // 2) Execute the proxied request.
-    const response = await proxy.execute({
+    const result = await proxy.execute({
       url,
       method: 'GET',
       headers: { Accept: 'application/json' },
     });
 
-    if (response.status >= 400) {
-      throw new Error(`Weather API failed: ${response.status} ${response.body.slice(0, 200)}`);
+    // 3) result.response is a standard Response.
+    if (!result.response.ok) {
+      throw new Error(`Weather API failed: ${result.response.status}`);
     }
-
-    // 3) Body is a string — parse it.
-    const data = JSON.parse(response.body);
+    const data = await result.response.json();
 
     return new WeatherResult({
       summary: data.current?.condition?.text ?? 'Unknown',

@@ -1,6 +1,6 @@
 ---
 name: realm-policy-authoring
-description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, file and source-read grants and why code needs the realm''s own read, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), opening a grant to callers who aren''t signed in (`anonymous: true`, the `actingUser` a write is made as, the realm''s `anonymousRateLimit` and `anonymousBlocklist`), and the refusals a caller sees. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `readSource`, `grants-module-source`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, `anonymous: true`, `actingUser`, `anonymousRateLimit`, `anonymousBlocklist`, `actor-required`, `rate-limited`, "anyone may read", "a public form", "why was this caller refused", "what would this rule change".'
+description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, file and source-read grants and why code needs the realm''s own read, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), opening a grant to callers who aren''t signed in (`anonymous: true`, the `actingUser` a write is made as, the realm''s `anonymousRateLimit` and `anonymousBlocklist`), the refusals a caller sees, and the judgment calls (a named operation over a raw `update`, keeping authorization-bearing fields out of reach, when snapshot staleness is acceptable, the `read`/`query` split, reading an explanation). Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `readSource`, `grants-module-source`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, `anonymous: true`, `actingUser`, `anonymousRateLimit`, `anonymousBlocklist`, `actor-required`, `rate-limited`, "anyone may read", "a public form", "why was this caller refused", "what would this rule change", "should I grant update", "is snapshot ok here".'
 boxel:
   kind: skill
 ---
@@ -624,7 +624,7 @@ What a snapshot read costs:
 - **No create** — §4.
 
 Whether a given grant may rest on index-time values is a judgment about how
-stale a decision may be; make it per grant.
+stale a decision may be. Make it per grant (§14).
 
 ## 9. When a policy is wrong
 
@@ -1088,7 +1088,7 @@ Only the realm's own writers can change these cards. **Keep the field a
 predicate reads out of reach of the grant it authorizes**: a grant that lets a
 teacher `update` a classroom whose `teacherIds` admits them lets them add
 anyone to it. Grant a named operation that writes only what the caller should
-change, and mark the authorization-bearing write `nonGrantable`.
+change, and mark the authorization-bearing write `nonGrantable` (§14).
 
 ## 12. Callers who aren't signed in
 
@@ -1360,7 +1360,253 @@ that isn't there and a card a grant refuses answer the same bytes. A realm with
 no policy answers with its permissions' own 401 and 403. For the rest of an
 operation's refusals, see `card-operations-authoring` §5.
 
-## 14. Before calling a policy done
+## 14. Choosing what to grant
+
+The realm accepts a policy that compiles, and it compiles plenty of policies
+that let a caller widen their own access. The engine can't tell a grant you
+meant from one that hands over the keys. The calls below are yours to make, and
+each one has a counterpart in the school example realms (§10):
+
+```json
+{ "targetType": { "module": "../../school-code/classroom", "name": "Classroom" },
+  "grants": [
+    { "operation": "read",
+      "where": "(.teacherIds | any(. == actor())) or (.leadTeacherIds | any(. == actor()))" },
+    { "operation": "appendActivity", "where": ".teacherIds | any(. == actor())" }
+  ] },
+{ "targetType": { "module": "../../school-code/service-plan-schedule", "name": "ServicePlanSchedule" },
+  "grants": [
+    { "operation": "read", "where": ".providerId == actor()" },
+    { "operation": "listMySchedules", "where": ".providerId == actor()" }
+  ] }
+```
+
+### A named operation, not a raw base
+
+**Prefer a named operation to a raw `update` wherever a grant rests on a
+field.** A write's predicate is judged against the card as it stands before the
+write (`card-operations-authoring` §6). So a teacher granted `update` because
+`teacherIds` lists them may send a `teacherIds` of their own in the same
+request. The grant holds, because the old list admitted them, and the new list
+says whatever they wrote. They can add a colleague, remove the lead teacher, or
+take the classroom for themselves. Nothing in the policy can stop it: a
+predicate never sees what the caller sent (`params()` is refused, §6).
+
+A named operation constrains what it writes. `Classroom.appendActivity` mints a
+`ClassroomActivity` and fills it with values the caller can't forge:
+
+```ts
+@operation static appendActivity = {
+  base: 'create',
+  of: ClassroomActivity,
+  params: { note: StringField },
+  fill: {
+    note: params('note'),
+    author: actor(),
+    classroom: instance('id'),
+  },
+} satisfies OperationDeclaration;
+```
+
+The caller chooses the note and nothing else. `author` is always the caller,
+`classroom` is always the card it was invoked on, and nothing about it can
+reach `teacherIds`. The predicate's inputs stay outside the caller's reach, so
+whether the grant holds tomorrow doesn't depend on anything the caller does
+today. **The policy decides whether; the operation decides what.**
+
+That is why **a grant on a named operation never grants its base** (§3). If
+granting `appendActivity` granted `create`, the caller could mint a
+`ClassroomActivity` with any `author` they liked. If granting `rename` granted
+`transform`, they could run any program over the classroom. The narrowness is
+the whole reason to declare the operation.
+
+**A field one grant reads must be out of reach of every grant, not just its
+own.** In a batch, each entry is judged against what the entries before it in
+a serial run left, or, in a parallel group, against what the group started
+from (`card-operations-authoring` §3). So a granted `update` of `status`,
+followed in the same batch by a `delete` whose grant reads `.status == "draft"`,
+deletes a card the caller could never have deleted on its own. Check each
+grant's predicate against everything every other grant on the type can write.
+
+A named operation is only as narrow as its declaration. One that writes a
+caller-supplied `params` value into the field a grant reads is a raw `update`
+under another name. The `addTeacher` in §11 is one, so it is `nonGrantable`.
+Check what each granted declaration's `fill`, `set` and `append` write, and
+whether any of it comes from `params`.
+
+In the school example, Alice teaches Room 204 and may log activities there. A
+raw `update` of Room 204's `teacherIds`, sent as Alice, is refused with the 404
+she gets for anything the policy doesn't grant, and the stored list is
+unchanged. Explaining it answers `no-grant`, with the `Classroom` rule listed
+and its `grants: []`.
+
+### Keep authorization-bearing fields out of reach
+
+**Never grant raw `update`, `transform`, `appendContainsMany` or `delete` on
+a type whose predicate reads a field those operations can change, unless every
+caller who passes the predicate is trusted with the consequence.** `update` and
+`transform` rewrite the field. A raw `appendContainsMany` lets the caller name
+the field and the items, so it adds anyone to `teacherIds`. `delete` removes
+the field along with the card, so any caller the predicate admits decides alone
+whether the card and its roster go on existing.
+
+Sometimes the consequence is fine. Take a draft whose `ownerId` admits its
+owner to `update`: they can hand the draft to someone else, and that's an
+ordinary part of owning a draft. It is not fine when the field is a roster
+someone else maintains. A teacher should never edit the list of who teaches.
+
+Where the people who change the authorizing data and the people it authorizes
+are different audiences, **keep the authorizing data where no grant writes
+it**:
+
+- **On a different card, in a realm the policy grants nothing in.** The school
+  keeps its staff roster in `school-org`, which no grant reaches. The working
+  data, the classrooms and schedules, is in `school-education`.
+- **On the governed card, written only by the realm's own writers.** A predicate
+  reads the card it judges, and a stored link is only a URL, so a classroom also
+  stores its teachers' Matrix ids in `teacherIds`, mirrored from the roster
+  links. The policy grants no write that reaches `teacherIds`: a
+  raw `update` would write the mirror like any other field, so none is
+  granted. The IT admin syncs the mirror with an ordinary `update` the realm's write permission
+  admits.
+- **Behind a `nonGrantable` operation**, where the card itself declares the
+  write (§11).
+
+An anonymous write grant needs the same care. Its predicate can't read the
+caller, so it reads only the card, and every visitor who satisfies it gets the
+write. The write is made as the realm's acting user (§12), which never widens
+what the grant reaches. Never open a raw write to visitors on a type whose
+predicate reads a field that write can change.
+
+A mirror decides on what it holds, not on the roster it copies. Until someone
+syncs it, a teacher removed from the roster still reads their old classroom.
+That gap is a human step. Give the people who keep the mirror a way to see when
+it disagrees with its source: the school's classroom page warns when the two
+differ.
+
+### When `snapshot: true` is acceptable
+
+A snapshot grant reads the card's stored fields as they are now, and its
+computed values and `searchable` linked cards' fields as the index last saw
+them (§8). Those indexed values open a time-of-check gap the length of the
+index's delay. Suppose a classroom has a computed `headTeacher`, or a
+`searchable` link to its coordinator's roster card that the predicate reads
+the coordinator's Matrix id through. Change the computed value's inputs, or
+the id on the roster card, and the grant keeps deciding on the old value until
+the classroom is indexed again. Re-pointing the link revokes at once, because the
+indexed fields count only while the stored link still names the card the index
+expanded (§8). A grant that should hold through the new link's target waits for
+the reindex, and admits nothing until then. The delay is usually short, but it grows while the realm's
+index is busy. The gap applies to writes too: the write lock judges a snapshot
+grant against the same indexed copy.
+
+The annotation is acceptable when **a removed person keeping access a little
+longer harms nobody**:
+
+- A `read` of information they recently had anyway, such as a schedule they
+  provided last week.
+- A value that changes rarely and is never revoked under pressure.
+- A `query` grant: every search is already as fresh as the index (§7), so the
+  snapshot adds no new gap to that lane.
+
+It isn't acceptable when **revocation has to be immediate**:
+
+- A grant that writes or deletes, where the removed person is the one racing the
+  change.
+- Access that is withdrawn for cause, such as someone leaving, a safeguarding
+  concern, or a compromised account.
+- Any grant whose consequence you'd have to undo by hand.
+
+For those, put the value the predicate reads in a stored field, as the school
+does with `teacherIds` and `providerId` in place of reading through the roster
+links. A stored predicate decides on the card as it is stored at the moment of
+the request, so a change to the classroom takes effect on its next request.
+The gap moves to whatever keeps the stored field current, which you control.
+
+A snapshot grant also admits nothing for a card the index hasn't seen, or whose
+index row is an error. A card created a moment ago is refused through such a
+grant until it is indexed. That direction fails closed, but a caller may report
+it as a refusal.
+
+### `read` and `query` are separate grants
+
+**A `read` grant never lists a card, and a `query` grant never opens one**
+(§3, §7). A schedule's provider can read it and list it because the rule
+grants both, `read` and the named `listMySchedules`, each with
+`.providerId == actor()`. In the school example, a provider who sends an ad-hoc
+search over schedules finds nothing: no grant names `query`, and the `read`
+grant contributes nothing to a search.
+
+Writing the same predicate twice is **the cost of the separation, not a smell**.
+Each grant states one lane's condition, and the lanes differ:
+
+- **They are judged differently.** A `read` predicate is evaluated against the
+  card as stored. A `query` predicate is compiled to a filter over the index,
+  so it must stay inside what compiles (§7). The gate accepts some predicates,
+  `realmConfig()` and string functions among them, that no filter can express.
+- **They can mean different things.** Being allowed to open a card you were
+  sent a link to is different from being allowed to enumerate every card like
+  it.
+- **Each can change without the other.** Narrowing who may list a type
+  shouldn't silently narrow who may open a card they were already given.
+
+When the two are meant to match, write them identically and change them
+together. Explain both after an edit: `explain` for the read and
+`explainSearch` for the listing.
+
+### Reading an explanation
+
+`explain` answers what the policy decides (§10). What to make of the answer:
+
+1. **Read `acl` first.** `"acl": { "read": true }` with `reason: "acl"` means
+   the policy was never consulted. The actor gets in through the realm's own
+   permissions, and no edit to the policy changes that. If they shouldn't get
+   in, change the realm's permissions. For `actor: ""`, a 401
+   `actor-required` refusal means the policy opens the operation to no
+   visitor, or the realm's permissions want a signed-in caller (§12).
+2. **Read `reason` for the cause and `refusal` for the experience.** The two
+   differ on purpose. Alice's read of Room 206 answers `predicate-false`, but
+   she sees 404 `target-not-found`, the same as for a classroom that doesn't
+   exist. A report that "the card isn't there" from someone without realm read
+   is a refusal until an explain says otherwise.
+3. **`no-grant` and `predicate-false` point at different edits.**
+   - `no-grant` with no rules listed means no rule governs the target's type.
+     Check the `targetType` and whether the rule names an ancestor of the card's
+     type, not a subtype.
+   - `no-grant` with a rule listed and `grants: []` means the rule governs the
+     type but no live grant names this operation. Either nothing grants it, as
+     with a raw `update` beside a granted named operation, or the grant has an
+     issue that takes it out. Run `validate` (§9).
+   - `predicate-false` means the right grant was found and its condition didn't
+     hold for this card and actor. Look at the card's data before the
+     predicate: a stale mirror is the usual cause.
+4. **Check each grant's `tier` before you trust its `outcome`.** A `stored`
+   outcome reflects the card as it is now. A `snapshot` outcome
+   reflects the index's copy of the card's computed and linked values (§8), so
+   a `did-not-hold` just after an edit to one of those can be the index
+   catching up. Explain again once it has. Every `query` grant's outcome comes
+   from the index too: `index.pending` on a search explanation says whether
+   that index has caught up.
+5. **`threw` is a bug in the policy, not a refusal.** When no other grant
+   held, the answer is `decision: "failed"` and the invocation would answer
+   500 to a realm reader. When another grant held, the explanation can
+   be `allowed` with a `threw` grant inside it. The bug is still there, and it
+   refuses the first card that only the throwing grant could admit. Guard the value the predicate
+   assumed (§6).
+6. **An unexpected `allowed` is the case to chase.** Follow `admittedBy` into
+   the explanation's `rules`, then that grant's `path` into the policy card, and
+   read the predicate that held. A policy wider than you meant produces no
+   reports, so look for this one deliberately.
+
+**The loop around an edit:** explain the draft before you save it, and the live
+policy after. Before saving, `explainDraft` the cases the change is meant to
+affect: a caller it should admit, one it shouldn't, and an operation it must
+still refuse, such as the raw `update` beside a named one. Add `explainSearch`
+for any listing it touches. Check that `draft.issues` is empty. Once the edit
+has reached the gate (§9), explain the same cases against the live policy and
+compare the answers.
+
+## 15. Before calling a policy done
 
 - The policy card's issues list is empty, or holds only warnings you mean to keep.
 - Every membership test is `any(. == actor())`, parenthesized inside `or`/`and`.
@@ -1370,7 +1616,12 @@ operation's refusals, see `card-operations-authoring` §5.
   card a teacher should open also has a `read` grant.
 - Every `readSource` grant on a card type is meant to reveal the whole stored
   document, and every file rule names the narrowest `FileDef` that fits.
-- No grant can write the field its own predicate reads.
+- No grant can write the field its own predicate reads. Every write grant that
+  rests on a field names a named operation, not a raw `update`, `transform`,
+  `appendContainsMany` or `delete`, unless everyone it admits is trusted with
+  that write (§14).
+- Every `snapshot: true` grant can tolerate a removed person keeping access
+  until the card is indexed again (§14).
 - Every `anonymous: true` grant is on a base operation, scoped by what the card
   holds rather than `actor()`, and meant to reach every visitor. Every anonymous
   write grant names an `actingUser` that resolves, in the governed realm's
