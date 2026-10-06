@@ -681,7 +681,7 @@ in `_federated-search` contributes:
 | Unreadable, with no policy                              | No rows; the realm is not mounted, and its `realm.json` is read from disk |
 | Unreadable, and its policy cannot be judged — the realm won't mount, the policy won't load or compile, or a compiled grant filter throws when the search runs (a grant recording `policy-not-filterable` just contributes nothing) | Counted failed: its rows are withheld, the other realms answer, and the result carries `meta.incomplete: true` |
 | Archived                                                | No rows                                                      |
-| Not public, from an anonymous caller                    | The rows its anonymous `query` grants admit where its policy opens `query` to callers who aren't signed in, or counted failed (`meta.incomplete: true`) once the caller is over its anonymous rate limit; no rows where it doesn't. When no realm named admits the caller, 401 for the whole request |
+| Not public, from an anonymous caller                    | The rows its anonymous `query` grants admit where its policy opens `query` to callers who aren't signed in, or counted failed (`meta.incomplete: true`) once the caller is over its anonymous rate limit; no rows where it doesn't. When none of the named realms the caller can't otherwise read admits them, 401 for the whole request |
 | A URL the registry does not know                        | 404 `Realms not found`                                       |
 
 **A realm's own `_search` differs from `_federated-search`.** A realm with no

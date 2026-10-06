@@ -934,8 +934,9 @@ the status (§13).
 Each listed grant carries its `path`, its `where` as written (absent for an
 unconditional grant), the `tier` its predicate reads (`stored`, or `snapshot`
 for one marked `snapshot: true`, which is checked against the index's copy of
-the card, §8), and an `outcome`. A grant that opts in to visitors also carries
-`anonymous`, whoever the explain is about: `{}` for a read, and for a write its
+the card, §8), and an `outcome`. A grant that opens its operation to visitors also
+carries `anonymous`, whoever the explain is about (one whose named operation
+reads `actor()` opens nothing, so it carries only its issue): `{}` for a read, and for a write its
 `actingUserKey` with either the `actingUser` it resolves to or an
 `actingUserFailure` (`key-missing`, `not-a-matrix-id` or `no-write`). A grant
 also carries `issues`, the policy issues recorded at its path, such as
@@ -998,7 +999,7 @@ the search itself would be refused:
 | `denied` / `no-grant`        | Returns nothing: no grant on its operation compiled a filter               |
 | `denied` / `non-grantable`   | Returns nothing: a grant compiled, and a declaration keeps the query out of every policy |
 | `denied` / `not-resolved`    | Is refused as sent: no such named query, or a filter the search grammar rejects. `refusal` is the search's own |
-| `denied` / `actor-required`  | Is refused 401: `actor` is `""` and the realm's permissions want someone |
+| `denied` / `actor-required`  | Is refused 401: `actor` is `""`, the realm's permissions want someone, and the policy opens the search's operation to no visitor |
 | `failed` / `policy-unloadable` | Fails: the realm can't load its policy                                  |
 
 The answer's `search` holds `operation`; `types`, the types whose rules count
@@ -1145,8 +1146,9 @@ template or output reads `actor()`: the warning sits on the grant's
 `operation`, and the grant opens nothing to visitors. A subtype that redeclares an
 opened operation so that it reads `actor()` admits no visitor to the
 subtype's cards, while the grant still serves the parent type's cards.
-Explaining such a refusal with `actor: ""` answers reason `reads-actor`; the
-visitor still gets the 401. Scope an anonymous grant
+Explaining that subtype's refusal with `actor: ""` answers reason
+`reads-actor`. Where the rule's own type reads `actor()`, the policy opens the
+operation to no visitor, and the reason is `actor-required`. Scope an anonymous grant
 by what the card holds:
 
 | Means                              | `where`                                   |
@@ -1208,7 +1210,9 @@ holds the user in its `config` map:
   visitors' writes to index as they wait for their own. A busy public form
   would slow its editor down.
 - **Different grants can write as different users**: feedback as
-  `feedbackWriter`, sign-ups as `signupWriter`, each a key in `config`.
+  `feedbackWriter`, sign-ups as `signupWriter`, each a key in `config`. Each
+  write in a batch is checked against its own grant's user, but the batch's
+  index pass is credited to the first entry's.
 
 The realm names the user, not the policy, because a policy card can live in
 another realm (§1). That card's writers must not decide whose identity this
@@ -1250,7 +1254,9 @@ same reason as the acting user:
   it would let in the caller its author meant to keep out.
 - **The address is the one the platform's proxy reports**, never a header the
   visitor sends. A visitor whose address can't be determined is refused.
-- **Signed-in callers are never limited or blocked** by these settings.
+- **Signed-in callers are never limited or blocked** by these settings, and
+  neither are the platform's own services, such as a prerender of your cards.
+  Their requests are counted, not refused.
 
 ### What visitors see
 
@@ -1289,18 +1295,21 @@ named query is never opened to visitors.
   policy opens `query` to visitors serves the rows its grants admit, one whose
   policy doesn't, or whose blocklist covers the visitor, serves no rows, and
   one whose limit the visitor has used up is counted failed
-  (`meta.incomplete: true`) while the others still answer. When no realm named
-  admits the visitor at all, blocked everywhere included, the whole search is
-  401. A visitor's federated search may name only a few private realms (two by
+  (`meta.incomplete: true`) while the others still answer. When none of the
+  realms named that the visitor can't otherwise read admits them, blocked
+  everywhere included, the whole search is 401, even if a public realm named
+  beside them would have answered. A visitor's federated search may name only a few private realms (two by
   default); one naming more is 401. Archived realms are never asked.
-- **A named query is 401 to a visitor**, on a realm's own `_search` too.
+- **A named query is 401 to a visitor** in a realm whose permissions don't
+  already let anyone read, on its own `_search` too.
 
 **Hiding a control that won't work.** `@context.canInvoke` answers for a
 visitor too, so a public page can hide its submit button when `canInvoke`
 answers `false`. Hide on `false`, never on `undefined` (`card-operations-authoring`
 §3): a prerender, a pending check and a failed one all answer `undefined`, and a
-page that gates on `true` serves visitors no button. Every pair a page asks
-about counts against the visitor's limit, so a public page that gates thirty
+page that gates on `true` serves visitors no button. In a realm whose
+permissions don't already let anyone read, every pair a page asks about counts
+against the visitor's limit, so a public page that gates thirty
 controls spends thirty of it on each load. Ask only about the controls a
 visitor can act on, and set `anonymousRateLimit` with those checks in mind.
 
@@ -1588,9 +1597,10 @@ together. Explain both after an edit: `explain` for the read and
 1. **Read `acl` first.** `"acl": { "read": true }` with `reason: "acl"` means
    the policy was never consulted. The actor gets in through the realm's own
    permissions, and no edit to the policy changes that. If they shouldn't get
-   in, change the realm's permissions. For `actor: ""`, a 401
-   `actor-required` refusal means the policy opens the operation to no
-   visitor, or the realm's permissions want a signed-in caller (§12).
+   in, change the realm's permissions. For `actor: ""`, read `reason`:
+   `actor-required` means the policy opens the operation to no visitor,
+   `blocklist-invalid` that a bad blocklist entry closes the realm, and
+   `reads-actor` that the operation depends on who asks (§12).
 2. **Read `reason` for the cause and `refusal` for the experience.** The two
    differ on purpose. Alice's read of Room 206 answers `predicate-false`, but
    she sees 404 `target-not-found`, the same as for a classroom that doesn't
