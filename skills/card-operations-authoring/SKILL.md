@@ -714,6 +714,18 @@ index, so a card whose edit takes a caller out of a grant (their id removed from
 the field it reads) still lists for them until the card is reindexed. A direct
 `GET` judges the stored card and refuses at once.
 
+**A filter and a grant on one path into a list must meet in one element.** The
+caller's filter and the grants run as one query, so when both test the same
+path into a list (the list itself, or the same field of the cards it links to),
+one element of the list must satisfy both. Conditions on different fields of a
+list's items are each met by any element, not necessarily the same one. A
+teacher whose grant reads `.teacherIds | any(. == actor())` finds every
+classroom they teach by searching `teacherIds` for themselves, and no classroom
+at all by searching `teacherIds` for a colleague, not even one that lists them
+both. Write such a search against another field. A saved search's own filter is
+composed the same way. The limit only ever removes rows; it never admits one the
+grant does not.
+
 **A render the realm runs as itself is never scoped to a viewer.** Its search
 consults no policy, and a realm it cannot read contributes no rows, so the
 prerendered HTML is the same for everyone. That is also why a saved search
