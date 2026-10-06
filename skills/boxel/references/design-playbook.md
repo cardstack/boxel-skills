@@ -237,7 +237,7 @@ brand DNA (palette, voice, reference vocabulary)
 
 For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-tone background, oak browns, no high contrast), composition constraint (lower-third negative space for headline overlay), and visual reference (Made Thought monograph aesthetic). Generic prompts ("Inset Shaker kitchen") produced generic photos.
 
-To source and link the images, follow [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md). It covers when to generate, when a stock photo or a placeholder is the better call, and how each one reaches the instance.
+To source and link the images, follow [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md): every media slot of every sample instance gets an image in the first build (from a terminal, real photos from Openverse; otherwise labelled placeholders). A gradient, initials or a box drawn in CSS where a photo belongs is not an image. It covers when to generate, when a stock photo or a placeholder is the better call, and how each one reaches the instance.
 
 **What "designed" looks like in stage 1 — non-negotiables:**
 

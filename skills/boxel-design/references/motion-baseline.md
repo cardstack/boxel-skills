@@ -69,8 +69,9 @@ The screen assembles in reading order on load.
 @media (prefers-reduced-motion: reduce) { .arrive { animation: none; } }
 ```
 
-- Set `--i` inline per child (`style='--i: 2'`). The `min(…, 7)` caps the delay so a long list does
-  not take seconds.
+- Set `--i` per child with the `cssVar` helper, `style={{cssVar i=2}}` (or `i=index` inside an
+  `#each`), imported from `@cardstack/boxel-ui/helpers`. A literal `style='--i: 2'` fails lint
+  (`no-inline-styles`). The `min(…, 7)` caps the delay so a long list does not take seconds.
 - **Move, never fade.** The keyframe has no opacity, so every element is visible from the first
   frame. A capture taken mid-arrival shows the whole page with some blocks a few pixels low, never
   an empty section, and `design-review` scores from those captures.

@@ -99,6 +99,19 @@ if (file.endsWith('.json')) text = text.replace(/\\n/g, '\n').replace(/\\"/g, '"
 
 // First definition wins: the light theme on :root comes before any dark override.
 const vars = {};
+// A StructuredTheme card keeps its tokens as JSON keys (`rootVariables.cardForeground`), not as
+// `--name: value` text. Read those first, in kebab case, so they map to roles like any CSS token.
+if (file.endsWith('.json')) {
+  try {
+    const attrs = JSON.parse(readFileSync(file, 'utf8'))?.data?.attributes ?? {};
+    for (const [key, value] of Object.entries(attrs.rootVariables ?? {})) {
+      const name = key.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+      if (typeof value === 'string' && !(name in vars)) vars[name] = value.trim();
+    }
+  } catch {
+    // Not a card document: fall through to the text scan below.
+  }
+}
 for (const m of text.matchAll(/--([\w-]+)\s*:\s*([^;}{]+)[;}]/g)) {
   const name = m[1].toLowerCase();
   if (!(name in vars)) vars[name] = m[2].trim();

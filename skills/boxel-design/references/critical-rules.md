@@ -35,6 +35,11 @@ care"). When one is missing:
    real item is ("A patient review — ideally one that mentions the kids' room"). Never an invented
    number with "(sample)" beside it.
 
+A marked slot never removes the main action. The thing a visitor comes to do (book a seat, buy,
+enrol, sign up) is always on screen as a real button, even when its target is unknown; until the
+user supplies the link, it opens or points at a marked slot that says what goes there ("Booking
+link: your box office or ticketing page").
+
 This is about claims a page makes about a real business. Sample records inside an app (a recipe,
 a task, a product in a demo catalogue) are still invented freely.
 
