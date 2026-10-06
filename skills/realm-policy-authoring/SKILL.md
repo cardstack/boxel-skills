@@ -74,9 +74,9 @@ deliberate, and each is the kind a reader learns about only when it bites.
   card is reindexed (§3, §7).
 - **A `snapshot: true` predicate is a window.** It decides on indexed values,
   so taking someone off a roster a computed value reads from doesn't revoke
-  them until the card is reindexed (§8).
+  them until the card is reindexed (§8, §14).
 - **A write is judged on the card before it.** A grant that admits a caller
-  because of a field doesn't stop that caller writing the field (§11).
+  because of a field doesn't stop that caller writing the field (§11, §14).
 - **A grant reaches what the card carries.** Linked cards, query-backed
   results, rendered formats and computed values derived from other cards come
   with a granted card, whether or not anything grants them (§3, §9).
