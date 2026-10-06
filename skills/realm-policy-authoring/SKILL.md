@@ -570,11 +570,17 @@ How a filter and its predicate can differ:
   comparison**, so its cards aren't judged by a field that means something else
   there. If the realm can't name such a subtype in a filter, the grant records
   `policy-not-filterable`.
-- **A caller's own condition on the same list field the grant reads must be
-  satisfied by the same element.** With the grant
-  `.teacherIds | any(. == actor())`, a teacher's search for "classrooms whose
-  `teacherIds` include my colleague" returns nothing, even for classrooms that
-  list both. Filter such a search on another field.
+- **A caller's filter and a grant that test the same path into a list must
+  be satisfied by one element of it.** The search runs the caller's filter and
+  the grants as one query, so where both test the list itself, or the same
+  field of the cards it links to, one element has to meet both conditions.
+  With the grant `.teacherIds | any(. == actor())`, a teacher who searches
+  `teacherIds` for themselves finds every classroom they teach, but a search of
+  `teacherIds` for a colleague finds nothing, not even a classroom that lists
+  them both. Write such a search against another field. Conditions on
+  different fields of a list's items are each met by any element, not
+  necessarily the same one. A saved search's own filter is composed the same
+  way. The limit only ever removes rows, never adds one.
 
 A `query` grant compiles only on a card type, so a caller a grant reaches never
 searches file rows. The config card and every policy card are left out of
