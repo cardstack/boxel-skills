@@ -681,7 +681,7 @@ in `_federated-search` contributes:
 | Unreadable, with no policy                              | No rows; the realm is not mounted, and its `realm.json` is read from disk |
 | Unreadable, and its policy cannot be judged — the realm won't mount, the policy won't load or compile, or a compiled grant filter throws when the search runs (a grant recording `policy-not-filterable` just contributes nothing) | Counted failed: its rows are withheld, the other realms answer, and the result carries `meta.incomplete: true` |
 | Archived                                                | No rows                                                      |
-| Not public, from an anonymous caller                    | 401 for the whole request                                    |
+| Not public, from an anonymous caller                    | The rows its anonymous `query` grants admit where its policy opens `query` to callers who aren't signed in, or counted failed (`meta.incomplete: true`) once the caller is over its anonymous rate limit; no rows where it doesn't. When none of the named realms the caller can't otherwise read admits them, 401 for the whole request |
 | A URL the registry does not know                        | 404 `Realms not found`                                       |
 
 **A realm's own `_search` differs from `_federated-search`.** A realm with no
@@ -1103,7 +1103,7 @@ type by URL or registered prefix.
 **A card+json error body carries a status and a title, and no `code`.** Over
 those routes the status is the whole answer.
 
-[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12 states the
+[`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §13 states the
 same refusals from the policy author's side.
 
 ## 6. Access posture
@@ -1118,6 +1118,12 @@ a caller with no permission on the realm; writes, for one who may read it.
 operation and card type at a time, and never narrows what the permissions
 allow. Writing one is
 [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md).
+
+**A caller who isn't signed in is admitted only by a grant that opts in.** An
+`anonymous: true` grant on an operation, a named one included (never a named query), admits a visitor, rate-limited and
+blockable by the governed realm, and an anonymous write is made as the user the
+realm's config names. Every other grant admits signed-in callers alone
+([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12).
 
 **A write's predicate is judged under the write lock, against the state before
 the write.** The card the grant reads is the one the write changes, as it
