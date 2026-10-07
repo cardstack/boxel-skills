@@ -811,6 +811,8 @@ or accept that it is published with the card.
 - **The realm's config card** shows whether the policy its pointer names is in
   force, beside the `policy` field. It is the only place the pointer problems
   (`policy-card-missing`, `not-a-policy`) appear for a card that isn't there.
+  Only a caller who can read the realm the pointer names, and every realm the
+  compile read, sees it.
 - **`validate`**, invoked on the policy card (or `validatePolicy` on the realm's
   config card), answers the same thing as data:
 
@@ -829,6 +831,13 @@ or accept that it is published with the card.
   `path`. A rule or grant missing from `rules` is inactive; a grant carrying
   `admitsNothing: "unfilterable"` is kept but admits nothing. Only a caller who
   can read the policy card's realm, and every realm the compile read, may ask.
+- **That gate covers the answers, not the realm's behavior.** Any writer of a
+  realm may point it at a policy card in a realm they cannot read, and the
+  realm then loads and applies that card on the server's own authority. Asking
+  as a signed-in caller the realm declines, that writer can tell whether a
+  compiling policy sits at the URL (a 500 against an ordinary refusal), and can
+  exercise its grants against cards they control. So a policy's rules are not
+  secret from other realms' writers, and §1 says what follows from that.
 
 **An edit reaches the gate within seconds.** The compiled policy is
 revalidated when the index of the policy card, or of a type its rules read,
