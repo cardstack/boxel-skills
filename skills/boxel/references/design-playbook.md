@@ -105,7 +105,7 @@ Without stage 0, the agent reaches for `name`, `description`, `date` as fields â
 Stage 0 forces the agent to:
 - Identify the one or two SIGNATURE fields that make this card visually distinctive (a hero image, a price, a rating, a status pill, a brand mark).
 - Decide BEFORE writing schema what the fitted view's job is â€” show the price? show the photo? show the badge?
-- Write sample data with real names, real prices, real photographs (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards.
+- Write sample data with real names, real prices, real photographs (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards. Which image goes in each media slot, and never a guessed URL: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
 
 Then stage 1's mockup has substance to arrange.
 

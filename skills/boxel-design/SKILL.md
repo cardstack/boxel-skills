@@ -43,6 +43,6 @@ Choose the governing style source before stage 1:
 ## References this skill still owns
 
 - [`references/critical-rules.md`](references/critical-rules.md) — anti-LLM-cliché checklist ("Rounded Rectangle Syndrome", "Center-All Disease", "Card Grid Autopilot", etc.) + image-URL field-routing rule + design-excellence mindset. Read alongside design-playbook stage 1 to sharpen the internal taste-maker.
-- [`references/asset-selection-guidelines.md`](references/asset-selection-guidelines.md) — concrete image-handling guidance: every media slot ships with an image, the source order (the user's own, an Openverse photo from a terminal, a labelled placeholder, AI images), placeholder rules, and what never to do. Useful regardless of process.
+- [`references/asset-selection-guidelines.md`](references/asset-selection-guidelines.md) — concrete image-handling guidance: priority order for asset integration, format choices, fit semantics. Useful regardless of process. Images for a build's sample instances: [`sample-images.md`](../boxel-file-def/references/sample-images.md).
 
 The previous five files (`style-reference.md`, `design-controls.md`, `design-discovery-process.md`, `the-design-challenge-standard.md`, `base-theme-variables.md`) were removed — superseded by the design-playbook's stages 1–2.
