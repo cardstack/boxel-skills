@@ -62,12 +62,48 @@ How it behaves depends on where its target lives:
 - **Inside the app** (creating or changing cards in this realm): it works in the first build, as an
   `@operation` invoked through `operations()`
   ([`card-operations-authoring`](../../card-operations-authoring/SKILL.md)). A button that only
-  says "coming soon" is not a marked slot; it is a broken app.
+  says "coming soon" is not a marked slot; it is a broken app. The card it creates must look like
+  the rest of the app: link the app's theme on it (`cardInfo.theme`), or have its CardDef take
+  `cardTheme` from a card it always links to. A new record with no theme opens on a white page in
+  system fonts.
 
-Only the main action has to work in the first build. List the other actions in a short "Next to add"
-note on the Home card; never show them as buttons that look live and do nothing. If the main
-operation cannot be made to pass its checks, show the button disabled with the reason beside it,
-and report it as open in the build's hand-off.
+If the main operation cannot be made to pass its checks, show the button disabled with the reason
+beside it, and report it as open in the build's hand-off.
+
+### Every visible control works
+
+Anything that looks pressable works, or it is not drawn: a button, a row with a chevron or hover
+cue, a tab, a checkbox. After the main action works, add up to **three** other controls, and only
+these cheap ones, which reuse what the host and the build already have:
+
+| Cheap: may be on screen | How |
+|---|---|
+| Open a record beside this one (the side panel) | `this.args.viewCard?.(card, 'isolated', { openCardInRightMostStack: true })` |
+| Edit a record (the host's edit view is the short form) | `this.args.viewCard?.(card, 'edit', { openCardInRightMostStack: true })` |
+| A linked card | render it with `<@fields.x />`; the host makes it open on click |
+| Tabs, filters, "Show all" | a `@tracked` value over rows already loaded on the screen |
+| An external link | `<a href>` to a real URL |
+
+Where `viewCard` is missing (some previews), render the row as plain text, with no chevron and no
+hover cue. Never build a drawer, dialog or off-canvas panel inside a card for this: the host's side
+stack already handles scroll, focus and close. Everything else waits in a short "Next to add" note
+on Home: a second `@operation` ("Mark arrived"), a custom form, search, a new "All …" page, anything
+that calls out. A control that is not finished when the build check runs is deleted and listed
+there, never left half-wired.
+
+### First build: Home and four card types at most
+
+The first build of an app is Home plus **at most four card types** the build defines (the theme
+and catalog cards it links to do not count). Pick them from the main action: the record it creates
+or changes, the people involved, and one or two types the Home cannot be read without. Anything
+that needs no page of its own is a field on one of them (a pet's vaccinations, a clinic's visit
+types). Every other type waits in the Home's "Next to add" note.
+
+Each card type is three formats to design, fitted at several sizes. In test builds, a vet app with
+nine types took about an hour and scored lower than smaller builds, because every extra type is one
+more surface built in a hurry and one more for the review to mark down. A brief that names more
+types keeps them; the first build makes the four the main action needs, and the next build adds
+the rest.
 
 ### Images in templates
 

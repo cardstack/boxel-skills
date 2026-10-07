@@ -72,31 +72,42 @@ repeated.
 | Role | Does | Must not |
 |---|---|---|
 | **Builder** (the main agent) | builds the first screen from the brief card; applies fixes each round | score its own work |
-| **Reviewer** (a separate subagent, fresh context each round) | captures, runs the benchmark, ticks the acceptance lines, scores, names the gaps | read the source, or see the builder's reasoning |
+| **Reviewer** (a separate subagent, fresh context each round) | captures, runs the benchmark, ticks the acceptance lines, scores, names the gaps; from round 2, says whether each earlier gap's fix landed | read the source, or see the builder's reasoning |
 
 The split exists because a model that has just built something scores it high. The reviewer is
-given only the captures, the brief card and the benchmark. It reports in the normal `Output` shape.
+given only the captures, the brief card and the benchmark, and from round 2 the previous round's gap
+list with one line per gap on what changed. Without that list, each fresh reviewer re-judges from
+scratch and can reverse the last one's advice: in one test, round 2 asked for a large hero tile and
+round 4 called the same tile arbitrary. A reviewer reverses an earlier gap only when the fix made
+things worse, and says so. It reports in the normal `Output` shape.
 Where the harness cannot spawn a subagent, say so, and treat the round's scores as provisional.
 
 ### The loop
 
 ```
-build → capture → review (independent) → pass? ── yes → report, stop
+build → check → capture → review (independent) → 9+? ── yes → report, stop
                                    │
-                                   no → fix the named gaps only → capture → review …
+                                   no → fix the named gaps once → check → capture → review → report
+                                        (another round only when the user picks it)
 ```
 
-1. **Build** the first screen the brief card names, in full.
+1. **Build** the first screen the brief card names, in full, then run the builder's pass/fail
+   check ([`build-check.md`](build-check.md)) and fix what fails.
 2. **Capture**, then **review** with the benchmark. The reviewer returns the acceptance tally,
    the six scores, the gap list and a verdict.
 3. **Pass** means every acceptance line ticked, the aesthetic score at or above 8.5, and no
-   constraint failure (contrast, focus, motion-off). Stop and report.
+   constraint failure (contrast, focus, motion-off). That clears the gate.
 4. **Fix** only what the gap list names, in the order it gives, at most the top three gaps per
-   round. A round that rewrites things nobody flagged makes the next score meaningless; report
+   round. A gap is a cause: one template cutting off names in six tiles is one gap. Run the build
+   check again on every view a fix touched, at desktop and phone width, before the next capture.
+   A round that rewrites things nobody flagged makes the next score meaningless; report
    what changed and what was left alone.
-5. **Stop early** when any of these holds, and report the best round, not the last:
-   - **two fix rounds** have run (the cap);
-   - the aesthetic score did **not rise** this round;
+5. **One fix round, then the user decides.** The automatic loop fixes once and re-scores, then
+   reports the best round, not the last, with "Keep improving: one more round" as a choice. In test
+   builds the first fix round raised the score by about 0.5; second and third rounds moved it by
+   no more than noise (8.2 → 7.8, 7.5 → 7.8; three fresh reviews of the same captures scored 7.4,
+   7.5 and 7.6) at 10 to 15 minutes each. Skip the fix round when:
+   - every acceptance line is ticked and the score is already **9 or more**;
    - a failure traces to the `## Design direction` decision itself, not its execution. Surface
      that to the user as a choice (Phase 1's rule); do not loop on it.
 

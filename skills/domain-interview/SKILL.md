@@ -277,7 +277,9 @@ It carries the sections below, trimmed to the depth the answers set (see Size th
 - **Overview** — one paragraph: what it does, who for, the single deliverable.
 - **Domain primer** — enough for an engineer with no domain knowledge to make sensible calls:
   why the domain exists, a glossary, and the practitioner's workflow as steps, not screens.
-- **Schema** — CardDefs, FieldDefs, relationships. Say which fields are computed, which are
+- **Schema** — CardDefs, FieldDefs, relationships. Mark the at most four CardDefs the first build
+  makes ([`critical-rules.md`](../boxel-design/references/critical-rules.md) → *First build: Home
+  and four card types at most*); the rest wait for the next build. Say which fields are computed, which are
   sensitive, which are **links rather than contained copies** — that call is load-bearing, because
   the build declares the real link from the first screen rather than standing it in. **Any field
   whose data is an image is an image field, never a URL string**: the catalog's `Image Source Field`

@@ -105,7 +105,7 @@ Without stage 0, the agent reaches for `name`, `description`, `date` as fields �
 Stage 0 forces the agent to:
 - Identify the one or two SIGNATURE fields that make this card visually distinctive (a hero image, a price, a rating, a status pill, a brand mark).
 - Decide BEFORE writing schema what the fitted view's job is — show the price? show the photo? show the badge?
-- Write sample data with real names, real prices, real photographs (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards.
+- Write sample data with real names, real prices, real photographs (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards. Give each card type one instance with the longest realistic name the domain has, so the fitted and phone views are designed for the worst case, not the shortest.
 
 Then stage 1's mockup has substance to arrange.
 
@@ -372,7 +372,7 @@ Push each format.
 
 ## After stage 4 — automatic design review (not optional)
 
-When the build is done, run [`design-review`](../../design-review/SKILL.md) without being asked: `set` mode across the app and `card` mode on every CardDef the build produced, scored against the brief's acceptance lines and an award-site benchmark. Fix the top gaps, re-capture and re-score, at most two rounds, and report whether it cleared 8.5. Skip only for a utility card with no user-facing surface.
+When the build is done, capture it yourself and fix every line of the pass/fail [build check](../../design-review/references/build-check.md): names, fill, media, phone, colour roles, type, controls, main action, one signature, job first, same facts. Then run [`design-review`](../../design-review/SKILL.md) without being asked: `set` mode across the app and `card` mode on every CardDef the build produced, scored against the brief's acceptance lines and an award-site benchmark. Fix the top gaps once, re-capture and re-score, and report whether it cleared 8.5, offering another round as a choice. Skip only for a utility card with no user-facing surface.
 
 ---
 

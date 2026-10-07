@@ -58,11 +58,15 @@ that is not the main picture of a tile.
    and Pexels search pages refuse non-browser requests, so never scrape them.
 3. **A labelled placeholder** in theme colours, sized to the slot. This is the default in the
    Boxel app, where the assistant cannot make network requests, and the fallback in a terminal:
-   `https://placehold.co/<w>x<h>/<surface-hex>/<accent-hex>.png?text=<url-encoded label>` (the `.png` gives a raster; without it the service returns SVG)
+   `https://placehold.co/<w>x<h>/<surface-hex>/<muted-ink-hex>.png?text=<url-encoded label>` (the `.png` gives a raster; without it the service returns SVG)
    - The label names the slot and its subject, 40 characters or fewer: `Film still · Paris, Texas`
      becomes `?text=Film+still+%C2%B7+Paris%2C+Texas`. A slot name alone (`image1`) is not a label.
    - Hex colours from the theme, without `#`. Use a surface two steps off the page (`--muted`
-     rather than `--card`) so the box reads as a picture slot on a dark page.
+     rather than `--card`) so the box reads as a picture slot on a dark page, and the muted text
+     colour for the label, so the placeholder stays quieter than the real content around it.
+   - The label shrinks with the picture. When one image shows both large and in a small tile, keep
+     the label to two or three words (`Clinic photo`, `Rabbit`), and ask for twice the largest
+     size it is shown at, so it is sharp there and still readable in the tile.
    - Shape follows the slot, at about twice the display size: poster 2:3 (`600x900`), still or hero
      16:9 (`1280x720`), listing or food 4:3 (`800x600`), avatar or product 1:1 (`400x400`).
 4. **In the Boxel app, after the build:** offer AI images once, as one batched single-select question

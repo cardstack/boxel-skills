@@ -66,7 +66,7 @@ Choose the governing style source before stage 1:
 ## Pair with
 
 - **`domain-interview`** — when the domain needs interviewing first; its brief card is what this skill builds from.
-- **`design-review`** — the last design step: runs automatically after every build, scoring the app (`set`) and each related card (`card`) from captures, with at most two fix rounds. This skill decides; it is not the end of the line.
+- **`design-review`** — the last design step: runs automatically after every build, scoring the app (`set`) and each related card (`card`) from captures, after the builder's own pass/fail build check, with one automatic fix round and more on request. This skill decides; it is not the end of the line.
 - **`boxel-ui-guidelines`** — turns design intent into working markup (template-level rules, `@fields` vs `@model`, delegated-render control, format-choice).
 - **`boxel-theme-development`** — turns design-system source material into a Theme, Style Reference, Detailed Style Reference, or Brand Guide artifact.
 - **`boxel`** — once the design is decided and you're implementing the card. Also hosts the playbook itself.

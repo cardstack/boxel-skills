@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Score a built Boxel screen, card or whole app against its brief and an aesthetic bar, from screenshots — never from code. Runs automatically after every build of an app, card family or user-facing card (set and card modes, at most two fix rounds). Also use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), right after a screen is built and before more are, when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists.
+description: Score a built Boxel screen, card or whole app against its brief and an aesthetic bar, from screenshots — never from code. Runs automatically after every build of an app, card family or user-facing card (set and card modes, one fix round, then more on request). Also use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), right after a screen is built and before more are, when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists.
 boxel:
   kind: skill
 ---
@@ -38,18 +38,31 @@ are the surfaces that get built in passing and scored by nothing.
 not optional or offered. When a build of an app, a card family or a single user-facing card
 finishes, run this loop without being asked, over **everything the build produced**:
 
-1. **Capture and review the whole unit** (from a terminal with `npx boxel screenshot`, see
+1. **The builder's check comes first** ([`references/build-check.md`](references/build-check.md)):
+   the builder captures its own work and fixes every pass/fail line (names, fill, media, phone,
+   colour roles, type, controls, main action, one signature, job first, same facts) before any review round. It gives no score.
+2. **Capture and review the whole unit** (from a terminal with `npx boxel screenshot`, see
    [`references/capture.md`](references/capture.md)): `set` mode across every screen, and `card` mode on every
    CardDef the build produced or the screens link to — the cards behind the links are the surfaces
    that get written in passing and scored by nothing. A single card is reviewed in `card` mode.
-2. **Score** with the benchmark (reuse it across rounds) and the brief's acceptance lines.
-3. **Fix the top gaps only**, at most three per round, on the failing screens or cards alone. Report
-   what changed and what was left alone.
-4. **Re-capture and re-score.** At most **two fix rounds**. Stop early when every acceptance line is
-   ticked and the score is at or above 8.5, when the score did not rise, or when a failure traces
-   to the direction itself (surface that as a choice; do not loop on it).
-5. **One report at the end**: the tally and score per round, what is still short of the bar and why,
-   and the next step as a structured choice. Say plainly if it did not clear the gate.
+3. **Score** with the benchmark (reuse it across rounds) and the brief's acceptance lines.
+4. **Fix the top gaps only**, at most three per round, on the failing screens or cards alone. A gap
+   is a cause, not an instance: names cut off in six fitted tiles by one template is one gap. Then
+   run the build check again on every view the fix touched, at desktop and phone width: a fix that
+   widens a grid or adds a field often breaks the phone view. Report what changed and what was
+   left alone.
+5. **Re-capture and re-score, once.** The automatic loop runs **one fix round**: in test builds the
+   first fix round raised the score by about 0.5 and later rounds changed it by no more than
+   reviewer noise (three fresh reviews of the same captures scored 7.4 to 7.6), while each round
+   cost 10 to 15 minutes. Skip the fix round when the first review already scores 9 or more with
+   every acceptance line ticked, or when a failure traces to the direction itself (surface that as
+   a choice; do not loop on it). The re-score's reviewer also gets the gap list with one line per
+   gap on what changed, so it can say whether each fix landed; it reverses an earlier gap's advice
+   only when the fix made things worse, and says so.
+6. **One report at the end**: the tally and score per round, what is still short of the bar and why,
+   and the next step as a structured choice, with **"Keep improving: one more round"** first when
+   it did not clear the gate. Say plainly if it did not clear it. Each further round the user picks
+   runs the same way, with the same gap list.
 
 Where the harness can spawn a subagent, an independent reviewer does steps 1–2 each round (see
 `references/benchmark-and-refine.md`); otherwise say the scores are provisional. Skip the loop only
@@ -61,6 +74,10 @@ You cannot judge a design from CSS. Capture before scoring, and stop if you cann
 review reads as a real review and is not one. Service first for everything it supports, browser
 only for the rest; if the browser is unavailable, review the service captures and list the
 uncaptured views by name rather than blocking.
+
+**Re-capture before reporting a fault that loading could cause**: a blank or stale image, an old
+version of a screen, a control that looks disabled, a missing font. Report it only if the second
+capture shows it too; one that does not is a capture fault, not the design's.
 
 **A blank region in a capture is a finding.** Entrances move and never fade, so no baseline
 animation paints a section empty; a card still loading can, so re-capture a blank region once,
@@ -286,12 +303,12 @@ app rather than an app, and it predicts exactly what wiring will find.
 
 ## Fix loop
 
-If the user wants one, cap it at two rounds. (The automatic loop above runs it by default, with an independent reviewer each round and the same two-round cap; see `references/benchmark-and-refine.md`.) Each round reports what it changed and what it left
+If the user wants more, run one round per request. (The automatic loop above runs the first one by default, with an independent reviewer each round; see `references/benchmark-and-refine.md`.) Each round reports what it changed and what it left
 alone — a round that silently rewrites things nobody objected to makes the next review meaningless.
 
 **After reporting a verdict, ask what happens next as a structured choice**, in the choice UI
 — do not just leave the report and wait. Options: "Start
-fixing" (recommended on ITERATE, capped at two rounds), "Review the next screen / run `set` or
+fixing" or "Keep improving: one more round" (recommended on ITERATE), "Review the next screen / run `set` or
 `card` mode" (recommended once this unit passes and others remain), "Revisit a decision in the brief"
 (when a failure traces to the decision itself, not its execution — see Phase 1), or "Stop here"
 (recommended once everything in scope has passed) — plus room for the user to name something else.
@@ -338,5 +355,6 @@ Read these live on each run. Links are relative to this skill's folder.
 
 ## Sections (load on demand)
 
-- `references/benchmark-and-refine.md` — the award-site benchmark, and `refine` mode and the automatic loop: independent review, fix, to the 8.5 gate with a two-round cap
+- `references/benchmark-and-refine.md` — the award-site benchmark, and `refine` mode and the automatic loop: independent review, fix, one automatic fix round, more on request (the gate stays 8.5)
+- `references/build-check.md` — the builder's pass/fail screenshot check that runs before the first review round
 - `references/capture.md` — which tool captures which view, the capture service's batch and time budgets, where captures go, and the blank-region and selector flakiness rules
