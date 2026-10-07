@@ -127,6 +127,12 @@ Score and name the specific thing behind each number:
 
 - **Typography** — does the pairing look chosen? Read the declared **style family** first and score against *its* check in [`boxel-design/references/style-families.md`](../boxel-design/references/style-families.md): editorial wants large-light against small-bold, playful and vibrant want a heavy display against a plain body, brutalist wants hard and heavy. In every family, everything between 500 and 600 with a small step is a fail. Is there tracking on uppercase micro-labels where the family uses them? With no family declared, say so and judge on role clarity.
 - **Honest gaps are not unfinished.** A section left out, a role in place of a name, or a marked slot where the business's real review, price or rating will go is correct ([`boxel-design/references/critical-rules.md`](../boxel-design/references/critical-rules.md) → *Never invent proof*). Never score it down as incomplete. An invented rating, name, year or testimonial is a finding.
+  A **labelled placeholder image** is the same kind of gap: the build puts one where no photo may be
+  used (a real person, the user's own product, a real film poster) or none could be found
+  ([`asset-selection-guidelines.md`](../boxel-design/references/asset-selection-guidelines.md) →
+  *Source order*). Score that slot as if a fitting photo stood in it: its space, crop, shape and
+  place in the composition. Never score the placeholder itself: not its colours, not its label,
+  not that it is a box instead of a photo, and not how many of them there are.
 - **Colour** — against the declared colour strategy. Restrained families: one accent in at most two places. Playful, vibrant, vintage: several colours are right when each has a named role and none competes for the same job. Colours with no assigned role fail in any family.
 - **Composition** — does something dominate, or is it a row of equals? Is the reading order legible
   in the screenshot alone? Name the signature treatment on the dominant object and say whether it
@@ -140,7 +146,8 @@ Score and name the specific thing behind each number:
   that a card with an image never renders a text-only tile. A blank Media row on a unit that has an
   image field is itself a finding — the decision was never made. So is a media slot (a poster, a
   listing photo, a dish, a profile photo) that ships as a gradient, a lone glyph or initials: the
-  first build fills it, at least with a labelled placeholder.
+  first build fills it, at least with a labelled placeholder. A labelled placeholder there passes
+  this row (*Honest gaps*, above).
 - **Detail** — the editorial micro-objects that signal care: an eyebrow with a rule, a stat slab
   bounded by lines rather than boxed, a fold cue. Two or three, not all of them.
 - **Motion** — first check the **baseline** from [`boxel-design/references/motion-baseline.md`](../boxel-design/references/motion-baseline.md): arrival or scroll reveal on the `isolated` view, hover and focus feedback on controls, timing matching the declared motion character with one ease and one duration set, nothing missing with motion off. A unit missing the baseline caps at 8, unless the user asked for

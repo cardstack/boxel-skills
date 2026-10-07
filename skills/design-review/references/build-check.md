@@ -34,7 +34,7 @@ Each line passes or fails on every capture.
    content matrix promises (design-playbook, Stage 0f). Room left over goes to the photo or the
    primary fact, not to blank space.
 3. **Media.** Every media slot shows a loaded image or a labelled placeholder, never initials or a
-   gradient where a photo belongs. A placeholder's label is readable at its display size
+   gradient where a photo belongs. A placeholder's label is readable in the panel it fills (a small avatar that shares its URL is exempt)
    ([`asset-selection-guidelines.md`](../../boxel-design/references/asset-selection-guidelines.md)).
 4. **Phone.** At 390px, no horizontal scroll, no clipped text or controls. Every `@container`
    query has a container: a fitted view's comes from the host, any other needs `container-type`
