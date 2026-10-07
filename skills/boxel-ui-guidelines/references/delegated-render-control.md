@@ -648,7 +648,7 @@ Everything above is how the PARENT overrides the host's chrome. The contract has
 |---|---|---|
 | `isolated` | `height: 100%; overflow-y: auto` (the root fills the fixed-height container and scrolls; `min-height` does not — the container clips), inner padding, inner grid/flex layout | `border-radius`, `border`, `box-shadow`, `overflow: hidden`, `min-height` in place of `height: 100%`, background/foreground overrides (use the theme's) |
 | `embedded` | same as isolated — plus MAY use a different background/foreground pairing from the theme (e.g. `--card` + `--card-foreground`) | `border-radius`, `border`, `box-shadow`, `overflow`, `width`/`height`/`max-width` |
-| `fitted` | a background/foreground pairing different from the theme's (e.g. `--card` + `--card-foreground`), inner padding, inner grid template, inner gap | `border-radius`, `border`, `box-shadow`, `width`, `height`, `min-height`, `max-height`, `container-type`, `container-name` (the host sets these) |
+| `fitted` | `width: 100%; height: 100%` to fill the host wrapper, a background/foreground pairing different from the theme's (e.g. `--card` + `--card-foreground`), inner padding, inner grid template, inner gap | `border-radius`, `border`, `box-shadow`, fixed or `min-`/`max-` width and height, `container-type`, `container-name` (the host sets these) |
 | `atom` | inline content only (text node, small inline icon) | `padding` (host provides), `border`, `border-radius`, `background`, any `display` other than inline-by-default |
 | `edit` | form field spacing, internal stack/grid layout | outer chrome same as isolated (keep the theme's background/foreground) |
 
@@ -682,7 +682,7 @@ The single most common symptom in agent-generated cards is rounded-corner embedd
 Before any `static isolated|embedded|fitted|atom|edit = class { ... }` is considered complete:
 
 1. Does the outermost element have `border-radius`, `border`, or `box-shadow`? If yes — move that decision to the Theme card, or remove it. For `isolated` and CardDef `edit`, also don't override the theme's background/foreground; `fitted` and `embedded` may use a different pairing (e.g. `--card` + `--card-foreground`).
-2. For `fitted`: does the outermost element set `width`, `height`, `min/max-height`, `container-type`, or `container-name`? If yes — remove. The host sets these on `.field-component-card.fitted-format`. (`background-color` paired with `color` is fine on a fitted root — boxel-ui's `FittedCard` sets both.)
+2. For `fitted`: does the outermost element set a fixed or `min`/`max` width or height, `container-type`, or `container-name`? If yes — remove (`width: 100%; height: 100%` to fill the wrapper is fine). The host sets these on `.field-component-card.fitted-format`. (`background-color` paired with `color` is fine on a fitted root — boxel-ui's `FittedCard` sets both.)
 3. For `atom`: is the outermost element doing anything more than inline text + maybe one inline icon? If yes — restructure. Atoms are inline content, not chips. (Chips are the parent's job; see `@displayContainer={{false}}` recipes.)
 4. Open the card both standalone (in the stack) and embedded inside another card. Does it look right in BOTH contexts? If only one, the child is decorating the outer.
 

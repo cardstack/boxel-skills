@@ -317,6 +317,7 @@ same treatment. Scalars and null pass through untouched.
 
 ```ts
 export class RiskBandField extends FieldDef {
+  static displayName = 'Risk Band';
   @field label = contains(StringField);
   @field score = contains(NumberField);
   @field flags = containsMany(StringField);

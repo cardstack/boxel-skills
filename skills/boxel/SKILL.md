@@ -43,6 +43,8 @@ You are generating idiomatic Boxel: **Card Definitions** in `.gts` (Glimmer Type
 ```
 Needs own identity / referenced from multiple places? → CardDef + linksTo
 URL pointing at a card or realm file?                → linksTo / linksToMany — never StringField/UrlField (Rule 16)
+Fixed set of values (status, priority)?              → enumField(StringField, { options: [{ value, label }, …] }) (see references/enumerations.md)
+A date, or any value with a known shape?             → DateField, EmailField, UrlField, … — never a StringField (see references/base-field-catalog.md)
 Image / document / file asset?                       → FileDef subtype + linksTo (see boxel-file-def)
 Generated/uploaded media payload?                    → Write bytes with WriteBinaryFileCommand, then linksTo FileDef/ImageDef/PngDef. Never StringField data URI.
 Compound data only AND list of ~1–3 items?           → FieldDef + containsMany
@@ -149,7 +151,7 @@ Sibling skills:
 - `<@fields.items />` without `.container > .containsMany-field { gap }` → items collapse together.
 - Empty `linksToMany` written as `[]` in JSON → use `"self": null`.
 - Unstyled `<Button />` → always style Pret UI and boxel-ui components to your theme.
-- Emoji or Boxel icons in templates → use inline SVG.
+- Emoji or inline SVG icons in templates → use `@cardstack/boxel-icons` components with explicit `width`/`height` (see `references/icons.md`).
 - Self-import → import a sibling, not yourself.
 - Helper import mistakes in GTS templates, especially missing imports for `(fn ...)`, `{{on ...}}`, `concat`, `get`, `array`, `hash`, formatters, and predicate helpers, the invalid `ember-concurrency/helpers/perform` import, or use of `(perform ...)` in strict-mode templates. See `references/common-imports.md`.
 - Unused or duplicated imports → lint error (`@typescript-eslint/no-unused-vars`). Import each helper once, from one source, and only if the template actually uses it. Don't import a predicate (`eq`, `gt`, `not`, `and`) from both `@ember/helper` and `@cardstack/boxel-ui/helpers`.
@@ -161,9 +163,10 @@ Sibling skills:
 
 - For code-generation/editing, use the **`run-realm-code`** tool (see `source-code-editing`).
 - Run the import preflight from `references/common-imports.md` AND the lint gate from `references/lint-workflow.md` before reporting a `.gts` file as done.
-- Assign an icon to every CardDef and FieldDef.
+- Assign `static icon` (a `@cardstack/boxel-icons` component) to every CardDef and FieldDef. See `references/icons.md`.
 - Provide an `embedded` template for every FieldDef.
-- Compute `cardTitle` from the primary identifier field (a `title` field of your own is just data — the host reads `cardTitle` for the display name).
+- Give every FieldDef a `static displayName`; its default atom is built from it (`Untitled Field` when it's missing).
+- The base `cardTitle` already reads `cardInfo.name`, with an `Untitled <displayName>` fallback. Override it to fall back to a primary field, reading `cardInfo.name` first (recommended, not required). Render `<@fields.cardTitle />` unconditionally, and show `cardDescription` / `cardThumbnailURL` where the card has a summary or image. See `references/core-patterns.md`.
 - Provide empty states for arrays.
 - Use theme variables only; link a Theme on an instance only when it should use a specific one (`theme.css` supplies the defaults).
 - Store media as linked FileDef/ImageDef/PngDef; only small durable `http(s)` URLs belong in string fields.

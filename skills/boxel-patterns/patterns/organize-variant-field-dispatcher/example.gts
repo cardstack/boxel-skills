@@ -5,6 +5,7 @@ import { FieldDef, StringField, contains, field, Component } from '@cardstack/ba
 // One FieldDef holds the data; configuration.variant picks the edit component.
 
 class RatingConfig extends FieldDef {
+  static displayName = 'Rating Config';
   @field variant = contains(StringField); // 'stars' | 'dots' | 'number'
   @field max = contains(StringField);     // store as string, parse at use site
 }

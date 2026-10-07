@@ -48,6 +48,7 @@ class OptimisticSave {
 }
 
 class PipelineStep extends FieldDef {
+  static displayName = 'Pipeline Step';
   @field name = contains(StringField);
   @field status = contains(StringField); // pending | running | completed | failed
   @field notes = contains(StringField);
@@ -55,6 +56,7 @@ class PipelineStep extends FieldDef {
 }
 
 class PipelineLog extends FieldDef {
+  static displayName = 'Pipeline Log';
   @field at = contains(DatetimeField);
   @field level = contains(StringField);
   @field message = contains(StringField);
