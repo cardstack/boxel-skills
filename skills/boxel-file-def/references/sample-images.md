@@ -1,31 +1,35 @@
 # Sample Images at Build Time
 
 How the assistant fills the image fields of a build's sample instances: a hero photo, a product
-shot, a headshot. There are four sources. This file covers picking one and then getting the image
+shot, a headshot. There are five sources. This file covers picking one and then getting the image
 into the instance without breaking the realm. For a card that makes images at runtime (a button
 the user clicks), use the `integrate-openrouter-image-generation` and `integrate-thumbnail-card-ai`
 patterns instead.
 
 Fill every media slot of every sample instance in the first build: posters, stills, dishes,
 listings, products, rooms, vehicles, profile photos. A gradient, a lone glyph, initials or a box
-drawn in CSS where a photo belongs is not an image; it makes the build look unfinished. Images go
-in during the mockup pass, as the design-playbook says, not as a fill-in afterwards.
+drawn in CSS where a photo belongs is not an image; it makes the build look unfinished. Real images
+or labelled placeholders go in during the mockup pass, as the design-playbook says, not as a fill-in
+afterwards. A hotlinked photo or a placeholder is the draft state; the playbook's "real photographs
+(URLs into the realm or attached)" is met by the download step (*Stock photo* below) once the draft
+is kept, and a later AI pass replaces placeholders with prompts built from the finished design.
 
 ## Pick the source
 
 | Source | Use it when | Cost | How it gets in |
 |---|---|---|---|
 | **The user's own** | The image shows something real: their product, their team, their place | none | They upload it, or give a URL; you download it, look at it, then link it (*The user's own image* below) |
+| **Already in the realm or catalog** | An image file that already exists for this subject (a logo, a product shot from an earlier build) | none | Search files with `catalog-reuse` (`scope: 'files'`) and link what you find |
 | **AI-generated** | The image must match the style exactly, or no photo of the subject exists (a fictional product, a styled scene) | OpenRouter credit; each call needs approval | `generate-thumbnail` writes it to the realm |
 | **Openverse photo** (CC0 or public domain) | A real photo of a generic subject (seats, a dish, a pool, an interior) when the session can run `curl`: Claude Code or any terminal | free, no key | One API call per subject (*Openverse* below); the URL goes in the URL half of the field |
-| **Labelled placeholder** (placehold.co) | The default in the Boxel app, where the assistant has no tool to look up photos; the fallback in a terminal; always for named fictional people and real copyrighted subjects | free | External URL in the URL half of the field |
+| **Labelled placeholder** (placehold.co) | The default in the Boxel app, where the assistant has no declared tool to look up photos; the fallback in a terminal; always for named fictional people and real copyrighted subjects | free | External URL in the URL half of the field |
 
 Choose by the scenario:
 
 - **Something real**: the user's company, product or people. Ask for their own images. Never
   generate or pick a stock photo that claims to be a real person, product or place. Until they
   provide one, use a placeholder and say so.
-- **A first build** (the "Just build it" path, or a build from a brief): every media slot gets an
+- **A first build** (a first build with no brief, or a build from a brief): every media slot gets an
   image. From a terminal, a real photo from **Openverse** (below); otherwise, or when Openverse has
   no match, a labelled placeholder sized to the slot and named for what belongs there. Stock photos
   stay as URLs in the first draft; download them only when the draft is kept. Rules on which slots
@@ -39,7 +43,7 @@ Choose by the scenario:
 - **Unclear, and the choice costs credit**: ask once, as a single-select question in the choice
   UI. Keep the labels plain: "Placeholder images (fastest)" · "Real stock photos (free)" ·
   "AI images made to match the style (uses credit)". In the Boxel app, leave out the stock-photo
-  option: the assistant has no tool to look one up.
+  option: the assistant has no declared tool to look one up.
 
 ## Never guess an image URL
 
@@ -227,7 +231,7 @@ A placeholder goes in its `url` sub-field, with no relationship:
 
 ```json
 "attributes": {
-  "heroImage": { "sourceMode": "url", "url": "https://picsum.photos/seed/beaumont-kitchen/1600/900" }
+  "heroImage": { "sourceMode": "url", "url": "https://placehold.co/1600x900/e5e7eb/6b7280.png?text=Beaumont+Kitchen" }
 }
 ```
 

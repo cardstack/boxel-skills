@@ -65,7 +65,7 @@ that is not the main picture of a tile. A fitted tile shows the item's own image
    [`sample-images.md`](../../boxel-file-def/references/sample-images.md) → *Openverse*. Never
    scrape Unsplash or Pexels search pages.
 3. **A labelled placeholder** in theme colours, sized to the slot. This is the default in the
-   Boxel app, where the assistant has no tool to look up photos, and the fallback in a terminal:
+   Boxel app, where the assistant has no declared tool to look up photos, and the fallback in a terminal:
    `https://placehold.co/<w>x<h>/<surface-hex>/<muted-ink-hex>.png?text=<url-encoded label>` (the `.png` gives a raster; without it the service returns SVG)
    - The label names the subject in as few words as still read at the smallest size the image
      shows (when one URL serves an avatar and a tile, label it for the avatar): `Paris, Texas still` in a hero (`?text=Paris%2C+Texas+still`), a name alone in a tile,
