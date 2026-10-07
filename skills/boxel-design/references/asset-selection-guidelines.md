@@ -67,17 +67,19 @@ that is not the main picture of a tile. A fitted tile shows the item's own image
 3. **A labelled placeholder** in theme colours, sized to the slot. This is the default in the
    Boxel app, where the assistant has no declared tool to look up photos, and the fallback in a terminal:
    `https://placehold.co/<w>x<h>/<surface-hex>/<muted-ink-hex>.png?text=<url-encoded label>` (the `.png` gives a raster; without it the service returns SVG)
-   - The label names the subject in as few words as still read at the smallest size the image
-     shows (when one URL serves an avatar and a tile, label it for the avatar): `Paris, Texas still` in a hero (`?text=Paris%2C+Texas+still`), a name alone in a tile,
-     initials in an avatar under about 64px. A slot name alone (`image1`) is not a label.
+   - The label names the subject in as few words as read in the panel it fills: `Paris, Texas
+     still` in a hero (`?text=Paris%2C+Texas+still`), a name alone in a tile. When one URL also
+     serves a small avatar, label it for the panel, never with initials: the label will not read in
+     the avatar, and initials would fill the panel. A slot name alone (`image1`) is not a label.
    - Hex colours from the theme, without `#`. Use a surface two steps off the page (`--muted`
      rather than `--card`) so the box reads as a picture slot on a dark page, and the muted text
      colour for the label, so the placeholder stays quieter than the real content around it. With no
-     theme yet, `e5e7eb` and `6b7280`.
+     theme yet (a stage-1 mockup), `e5e7eb` and `6b7280`; switch them to the theme's once it exists.
+     The colours are fixed in the URL, so a later theme change needs the placeholders rewritten.
    - The label shrinks with the picture: ask for twice the largest size the image is shown at, so
      it is sharp there and the label still reads where it is shown small.
-   - Shape follows the slot, at about twice the display size: poster 2:3 (`600x900`), still or hero
-     16:9 (`1280x720`), listing or food 4:3 (`800x600`), avatar or product 1:1 (`400x400`).
+   - Shape follows the slot, at about twice the display size: poster 2:3 (`600x900`), still
+     16:9 (`1280x720`), full-width hero 16:9 (`1920x1080`), listing or food 4:3 (`800x600`), avatar or product 1:1 (`400x400`).
 4. **AI images in the Boxel app.** When the user asked for them, or the design is brand-heavy,
    generate them during the mockup pass (design-playbook → *Brand-guided imagery during mockup*).
    Otherwise, after the build, offer them once, as one single-select question ("Generate 6 images
@@ -111,7 +113,8 @@ only where the caption names no subject (a decorative hero, a background, a text
 
 In templates, handle an image that fails to load (an `onerror`, or an empty `resolvedUrl`) with a
 gradient from the theme's tokens. That fallback is for a runtime failure only; it is never the image
-a build ships with.
+a build ships with. `FittedCard`'s `:placeholder` slot is the same case: an instance whose image a
+user later cleared, never a sample instance in the first build.
 
 #### Other sources that work
 

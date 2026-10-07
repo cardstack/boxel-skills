@@ -26,9 +26,11 @@ is kept, and a later AI pass replaces placeholders with prompts built from the f
 
 Choose by the scenario:
 
-- **Something real**: the user's company, product or people. Ask for their own images. Never
-  generate or pick a stock photo that claims to be a real person, product or place. Until they
-  provide one, use a placeholder and say so.
+- **Something real**: the user's company, product or people, including items they call their own
+  ("our cakes", "our team"). Ask for their own images. Never generate or pick a stock photo that
+  claims to be a real person, product or place. Until they provide one, use a placeholder and say
+  so. Invented sample items (a made-up film, a sample dish in an app with no named business) are
+  not real subjects and can take an Openverse photo.
 - **A first build** (a first build with no brief, or a build from a brief): every media slot gets an
   image. From a terminal, a real photo from **Openverse** (below); otherwise, or when Openverse has
   no match, a labelled placeholder sized to the slot and named for what belongs there. Stock photos
@@ -107,8 +109,8 @@ example.
 ## Openverse: real photos from a terminal
 
 Openverse indexes openly licensed photos and needs no key. One query per subject the app needs
-(seats, popcorn, a swimming pool, a dish, an interior), at most three per build, reused across
-instances:
+(seats, popcorn, a swimming pool, a dish, an interior), a few per build, reused across instances.
+Pick a photo for each sample item; never change a sample item to fit a photo:
 
 ```bash
 curl -s -A "boxel-skills" "https://api.openverse.org/v1/images/?q=swimming+pool&license=cc0,pdm&category=photograph&size=large&aspect_ratio=wide&page_size=20"
@@ -165,8 +167,9 @@ it cannot take this shortcut.
 
 ### Downloading, when it is time
 
-Also declared in `host-commands-reference.md`. Download the photo into the realm instead of
-hotlinking it, so the card keeps working if the remote URL changes, and the image is a real
+Also declared in `host-commands-reference.md`. From a terminal, the same host command runs through
+`npx boxel run-command @cardstack/boxel-host/tools/download-file-to-realm/default --realm <realm-url>
+--input '<json>'`. Download the photo into the realm instead of hotlinking it, so the card keeps working if the remote URL changes, and the image is a real
 `ImageDef` the index can track.
 
 | Input | Value |
