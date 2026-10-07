@@ -68,7 +68,7 @@ that is not the main picture of a tile. A fitted tile shows the item's own image
    Boxel app, where the assistant has no tool to look up photos, and the fallback in a terminal:
    `https://placehold.co/<w>x<h>/<surface-hex>/<muted-ink-hex>.png?text=<url-encoded label>` (the `.png` gives a raster; without it the service returns SVG)
    - The label names the subject in as few words as still read at the smallest size the image
-     shows: `Paris, Texas still` in a hero (`?text=Paris%2C+Texas+still`), a name alone in a tile,
+     shows (when one URL serves an avatar and a tile, label it for the avatar): `Paris, Texas still` in a hero (`?text=Paris%2C+Texas+still`), a name alone in a tile,
      initials in an avatar under about 64px. A slot name alone (`image1`) is not a label.
    - Hex colours from the theme, without `#`. Use a surface two steps off the page (`--muted`
      rather than `--card`) so the box reads as a picture slot on a dark page, and the muted text
@@ -80,13 +80,15 @@ that is not the main picture of a tile. A fitted tile shows the item's own image
      16:9 (`1280x720`), listing or food 4:3 (`800x600`), avatar or product 1:1 (`400x400`).
 4. **AI images in the Boxel app.** When the user asked for them, or the design is brand-heavy,
    generate them during the mockup pass (design-playbook → *Brand-guided imagery during mockup*).
-   Otherwise, after the build, offer them once, as one single-select question ("Generate 8 images
-   for the posters and stills? This uses OpenRouter credit."), never one question per image. Make
+   Otherwise, after the build, offer them once, as one single-select question ("Generate 6 images
+   for the dishes? This uses OpenRouter credit."), never one question per image. Leave out the slots
+   that always take a placeholder (below), unless the user asks. Make
    every `generate-thumbnail` call in one reply, so the user approves them together; each writes a
    file into the realm, linked in the `ImageDef` half.
 
 Always a labelled placeholder, never a stock or random photo, for **named fictional people**
-(drivers, hosts, reviewers: a real face must not pose as a made-up person) and **real copyrighted
+(drivers, hosts, reviewers: a real face must not pose as a made-up person; an AI portrait is fine
+when the user asks for one) and **real copyrighted
 or branded subjects** (actual film posters, branded products, real property listings). An invented
 sample item is not a real subject: a made-up film can take a photo that fits its title as its still
 or its poster.
