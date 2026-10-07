@@ -80,14 +80,14 @@ Surface tokens name a background. Each pairs with its own `-foreground`, which i
 
 ### Typography
 
-Font stacks. All three have `theme.css` defaults (the IBM Plex families). `CardContainer` applies `--font-sans` as the card's default `font-family` and as the fallback family for every typography role, so it never needs redeclaring. `--font-serif` is applied to nothing by the container: a serif voice is opted into by declaring `font-family: var(--font-serif)` once at the highest element that needs it, or by a typography slot naming it. `--font-mono` is applied only inside rendered Markdown; a bare `<code>`, `<pre>`, `<kbd>`, or `<samp>` in a template gets the fixed Boxel mono (`--boxel-monospace-font-family`) from the global stylesheet, so a template that wants the theme's mono stack on those elements declares `font-family: var(--font-mono)` on them.
+**Font stacks.** All three have `theme.css` defaults (the IBM Plex families). `--font-sans` is the default family of the `heading` and `body` roles, and the other roles follow those two (see Roles), inside a card and out. Inside a card, text takes the body role's family and `h1`–`h3` take their heading role's; the other roles' families apply only where a template reads them. So declare `font-family: var(--font-sans)` only where text must stay sans under a theme whose body or heading family is something else. `--font-serif` is applied to nothing by the container: a serif voice is opted into by declaring `font-family: var(--font-serif)` once at the highest element that needs it, or by a typography slot naming it. `--font-mono` is applied only inside rendered Markdown; a bare `<code>`, `<pre>`, `<kbd>`, or `<samp>` in a template gets the fixed Boxel mono (`--boxel-monospace-font-family`) from the global stylesheet, so a template that wants the theme's mono stack on those elements declares `font-family: var(--font-mono)` on them.
 
 ```css
 --font-sans   --font-serif   --font-mono
---tracking-normal                          /* base letter-spacing */
+--tracking-normal                          /* body letter-spacing default */
 ```
 
-**Roles.** The theme's `typography` field has one slot per role: `heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label` (control text, table headers, badges), and `eyebrow` (the small tracked-out kicker above a title). Each slot carries family, size, weight, line-height, and letter-spacing. They reach templates as `--boxel-<role>-*`: `theme.css` declares the defaults, and `CardContainer` publishes the theme's values over them. The label role publishes as `--boxel-ui-label-*` because `--boxel-label-*` is the Label component's own contract.
+**Roles.** The theme's `typography` field has one slot per role: `heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label` (control text, table headers, badges), and `eyebrow` (the small tracked-out kicker above a title). Each slot carries family, size, weight, line-height, and letter-spacing. They reach templates as `--boxel-<role>-*`. Outside a card each takes its `:root` default from `theme.css`. Inside one, `CardContainer` declares each role again from the theme's slot and falls back to a default where the slot is unset; those defaults match `theme.css` except that sizes come from the card's own `--boxel-font-size-*` ladder, which follows `--theme-font-size`. So a theme sets a role through its `typography` field, never by redeclaring the variable. Some unset properties follow a related role: `sectionHeading` and `subheading` use `heading`'s family, and follow its line-height and letter-spacing only where the theme sets them on `heading` (`sectionHeading` follows its weight the same way), otherwise keeping their own defaults; `caption` and `label` use `body`'s family and letter-spacing; `eyebrow` uses `label`'s family. The label role publishes as `--boxel-ui-label-*` because `--boxel-label-*` is the Label component's own contract.
 
 ```css
 --boxel-heading-font-family          --boxel-heading-font-size          --boxel-heading-font-weight          --boxel-heading-line-height          --boxel-heading-letter-spacing
@@ -99,7 +99,7 @@ Font stacks. All three have `theme.css` defaults (the IBM Plex families). `CardC
 --boxel-eyebrow-font-family          --boxel-eyebrow-font-size          --boxel-eyebrow-font-weight          --boxel-eyebrow-line-height          --boxel-eyebrow-letter-spacing
 ```
 
-Body, caption, and label letter-spacing follow `--tracking-normal` unless the slot sets its own.
+Body letter-spacing defaults to `--tracking-normal`.
 
 **Scale knobs.** Two theme fields drive every derived ladder on this page. `themeFontSize` (`--theme-font-size`, default 1rem) is the base size `--boxel-font-size` resolves to. `themeScale` (`--theme-scale`, default 1.333, Perfect Fourth) is the ratio between steps of the `--boxel-fs-*` and `--boxel-sp-*` ladders.
 
@@ -115,7 +115,7 @@ Body, caption, and label letter-spacing follow `--tracking-normal` unless the sl
 
 --boxel-fs-2xl  --boxel-fs-xl  --boxel-fs-lg  --boxel-fs-md  --boxel-fs  --boxel-fs-sm  --boxel-fs-xs  --boxel-fs-2xs
 
---boxel-line-height-xl  --boxel-line-height-lg  --boxel-line-height  --boxel-line-height-sm  --boxel-line-height-xs
+--boxel-line-height-xl  --boxel-line-height-lg  --boxel-line-height-md  --boxel-line-height  --boxel-line-height-sm  --boxel-line-height-xs
 ```
 
 The `--boxel-lsp-*` letter-spacing steps are fixed Boxel values, not derived from the theme; themed text takes its role's letter-spacing token instead.
