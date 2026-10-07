@@ -1,6 +1,6 @@
 {
   "name": "boxel-skills",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Official Boxel card-building skills. Install alongside the boxel-cli plugin from the cardstack/boxel marketplace.",
   "skills": "./skills/",
   "author": {
