@@ -123,8 +123,8 @@ OpenRouter calls go through `/_request-forward` to the external `https://openrou
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/_capture` | POST | Capture a settled render of a card — PNG (default) or paged PDF (`captureSpec.type: 'pdf'`, `media: 'screen' \| 'print'`). Backs `CaptureTool` (whose input is PNG-only; pass `captureSpec.type`/`media` when POSTing directly). Pattern: `integrate-capture-card-format`. |
-| `{realm}_capture/{path}?…` | GET | Durable serving URL for an on-demand capture — `?type=pdf[&media=print]` yields an always-current PDF (ledger hit on repeat, re-capture after an edit); embed instead of storing base64. Requires realm read: an `Authorization` header, or a `?token=` minted by `_sign-capture-urls` for the loads the service worker can't reach (`<object>`/`<embed>`, new-tab navigation). |
+| `/_capture` | POST | Capture a settled render of a card — PNG (default) or paged PDF (`captureSpec.type: 'pdf'`, `media: 'screen' \| 'print'`). Backs `CaptureTool` (whose input takes the same `type`/`media`; pass `captureSpec.type`/`media` when POSTing directly). Pattern: `integrate-capture-card-format`. |
+| `{realm}_capture/{path}?…` | GET | Durable serving URL for an on-demand capture — `?type=pdf[&media=print]` yields an always-current PDF (ledger hit on repeat, re-capture after an edit); embed instead of storing base64. `download` and `filename=` params set only the `Content-Disposition` (attachment, saved name) — same bytes, no re-capture. Requires realm read: an `Authorization` header, or a `?token=` minted by `_sign-capture-urls` for the loads the service worker can't reach (`<object>`/`<embed>`, new-tab navigation). |
 | `{realm}_sign-capture-urls` | QUERY | Mint signed capture URLs: body `{ "urls": [ …1–100 of this realm's `_capture/` URLs… ] }` → `{ "signed": [{ "url", "signedUrl", "expiresAt" }] }`. Realm-read gate (grants nothing the caller lacks); 15-minute single-URL tokens; anonymous callers on a public realm get URLs echoed unsigned. Card code uses the `SignedCaptureLink`/`SignedCapture` components instead of calling this. Pattern: `integrate-capture-card-format`. |
 | `/_federated-search` | QUERY | Cross-realm search (used by `npx boxel search` + `SearchCardsByQueryCommand` when crossing realms). |
 | `/_federated-search-prerendered` | QUERY | Same with prerendered card results. |
@@ -240,7 +240,7 @@ The command returns `fileIdentifier`; assign a new `ImageDef` / `PngDef` with `i
 
 ### `SendRequestViaProxyCommand` — generic HTTP
 
-Underlying primitive for any API. Pattern: `integrate-send-request-via-proxy`. Use when OneShot or a specific API recipe does not cover your shape.
+Underlying primitive for any API that needs a key the realm server holds, or that blocks browser requests. Pattern: `integrate-send-request-via-proxy`. Use when OneShot or a specific API recipe does not cover your shape. A public, CORS-open API takes plain `fetch` instead (same pattern, "Calling a public API directly").
 
 ---
 
@@ -408,7 +408,7 @@ npx boxel consolidate-workspaces                            Merge multiple watch
 | Add a file/image field | §1 (FileDef subtypes) + pattern `add-file-field` |
 | Call an LLM | §3 (host commands) + §7 (AI services) + pattern `integrate-one-shot-llm` |
 | Generate an AI image | §7 (OpenRouter image generation) + pattern `integrate-openrouter-image-generation`; write output bytes with `WriteBinaryFileCommand` |
-| Hit a third-party HTTP API | §3 + §7 + pattern `integrate-send-request-via-proxy` |
+| Hit a third-party HTTP API | Needs a key or blocks browser requests: §3 + §7 + pattern `integrate-send-request-via-proxy`. Public and CORS-open: plain `fetch`, per that pattern's "Calling a public API directly" |
 | Embed Three.js / Leaflet / chess.js | §8 (ESM CDN) + patterns `integrate-three-js-via-cdn` etc. |
 | Render BFM | §9 (BFM features) + pattern `show-runtime-markdown-html` |
 | Write BFM (static markdown format) | §9 + skill `boxel-markdown-format` |

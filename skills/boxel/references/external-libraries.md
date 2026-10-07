@@ -38,7 +38,7 @@ private loadLibrary = task(async () => {
 **Key Rules:**
 1. Use Modifiers for DOM access
 2. Use ember-concurrency tasks for async
-3. Bind external data to model fields
+3. Drive libraries from model fields; keep fetched data in tracked component state
 4. Provide loading states
 
 **Task types:**
@@ -58,56 +58,82 @@ For fetching data from external APIs, use `ember-concurrency`. The core of this 
 - keepLatest: Drops intermediate queued tasks but keeps the most recent one to run after the current task completes.
 
 Here is an example where we are:
-- loading data when component is first rendered, 
-- reloading it when user clicks on a button,
-- adding some artificial delay using `await timeout(ms)` from `ember-concurrency`. Caution:  do not use `setTimeout`.
+- loading data when component is first rendered,
+- reloading it when user clicks on a button.
 
 Do not import `perform` from `ember-concurrency/helpers/perform`; that subpath is not fetchable in realms. Also do not use `(perform this.taskName)` directly in strict-mode templates. Define a synchronous local handler that calls `.perform()`, then bind that handler with `{{on}}`.
 
+The loaded data lives in tracked component state, not in the card's fields: writing a field saves the card and reindexes it, so a load that writes fields does that on every view. For a third-party API, follow "Calling a public API directly" in the `integrate-send-request-via-proxy` pattern, which adds the timeout, caching and response-handling rules.
+
 ```
-import { CardDef, field, contains, Component } from '@cardstack/base/card-api';
-import StringField from '@cardstack/base/string';
+import { CardDef, Component } from '@cardstack/base/card-api';
 import { tracked } from '@glimmer/tracking';
-import { restartableTask, timeout } from 'ember-concurrency';
+import { restartableTask } from 'ember-concurrency';
 import { Button } from '@cardstack/pretui/components/button';
 import { on } from '@ember/modifier';
+import CoinsIcon from '@cardstack/boxel-icons/coins';
 
+// A fixed, public, keyless endpoint (placeholder).
+const CURRENCIES_URL = 'https://api.example.com/v1/currencies';
+
+// Declared outside the card: Glint rejects @tracked inside an inline
+// `static isolated = class …` expression.
+class Isolated extends Component<typeof CurrencyLoader> {
+  @tracked loadingStatus = '';
+  @tracked currencies: string[] = [];
+
+  constructor(owner: any, args: any) {
+    super(owner, args);
+    this.loadCurrencies.perform();
+  }
+
+  private loadCurrencies = restartableTask(async () => {
+    this.loadingStatus = 'Loading...';
+    try {
+      const response = await fetch(CURRENCIES_URL, {
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!response.ok) {
+        throw new Error(`currencies answered ${response.status}`);
+      }
+      this.currencies = await response.json();
+      this.loadingStatus = '';
+    } catch {
+      this.loadingStatus = 'Could not load currencies.';
+    }
+  });
+
+  startLoadCurrencies = () => {
+    this.loadCurrencies.perform();
+  };
+
+  <template>
+    <section>
+      <h1><@fields.cardTitle /></h1>
+      <p role='status'>{{this.loadingStatus}}</p>
+      <ul>
+        {{#each this.currencies as |currency|}}
+          <li>{{currency}}</li>
+        {{else}}
+          <li>No currencies loaded.</li>
+        {{/each}}
+      </ul>
+
+      <Button {{on 'click' this.startLoadCurrencies}}>
+        Reload Currencies
+      </Button>
+    </section>
+  </template>
+}
+
+// A complete card also needs `embedded` and `fitted` formats that don't fetch;
+// see the integrate-send-request-via-proxy pattern for one.
 export class CurrencyLoader extends CardDef {
   static displayName = 'Currency Loader';
-  
-  @field loadingStatus = contains(StringField);
-  @field currencies = contains(StringField);
-  
-  static isolated = class Isolated extends Component<typeof this> {
-    constructor(owner: any, args: any) {
-      super(owner, args);
-      this.loadCurrencies.perform();
-    }
-    
-    private loadCurrencies = restartableTask(async () => {
-      this.args.model.loadingStatus = 'Loading...';
-      const response = await fetch('/api/currencies');
-      await timeout(1000); // Visual feedback
-      
-      this.args.model.currencies = await response.json();
-      this.args.model.loadingStatus = "";
-    });
-
-    startLoadCurrencies = () => {
-      this.loadCurrencies.perform();
-    };
-    
-    <template>
-      <div>
-        <p>Status: {{@model.loadingStatus}}</p>
-        <p>Data: {{@model.currencies}}</p>
-        
-        <Button {{on 'click' this.startLoadCurrencies}}>
-          Reload Currencies
-        </Button>
-      </div>
-    </template>
-  };
+  static icon = CoinsIcon;
+  static isolated = Isolated;
 }
 ```
 
@@ -177,5 +203,5 @@ To read a task's result reactively in a template without awaiting it, use the ta
 **Key Rules:**
 1. **Always use Modifiers for DOM access** - Never manipulate DOM directly
 2. **Use ember-concurrency tasks** for async operations like loading libraries
-3. **Bind external data to model fields** for reactive updates
+3. **Drive libraries from model fields** for reactive updates; keep data fetched from an API in tracked component state, not in fields
 4. **Use proper loading states** while libraries initialize

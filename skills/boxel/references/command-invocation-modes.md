@@ -80,7 +80,7 @@ _TODO: examples of the same Command exposed via multiple modes at once._
 
 _TODO: capture the common confusions._
 
-- ❌ **Direct `fetch` instead of `SendRequestViaProxyCommand`** — fetch bypasses the realm proxy's credentials handling. Use the host command.
+- ❌ **Direct `fetch` to an API that needs a secret key** — a key in card code is exposed to every viewer. Use `SendRequestViaProxyCommand`, which adds the key server-side. A public, keyless API that sends CORS headers is the opposite case: call it with plain `fetch`, following "Calling a public API directly" in `integrate-send-request-via-proxy`.
 - ❌ **Hand-rolled `restartableTask` for a one-shot read** — `commandData<T>` is the typed, reactive replacement.
 - ❌ **Burying multi-step logic inside one `run()` block with no run card** — for anything observable, lift the steps into a run card with logs (`command-optimistic-pipeline`).
 - ❌ **Putting menu integration in `command-development.md` only** — discoverable via `link-command-menu-item` pattern now; the reference is for the run-time mechanics.

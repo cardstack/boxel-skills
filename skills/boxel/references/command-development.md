@@ -29,7 +29,7 @@ export class MyCommand extends Command<typeof MyInput, undefined> {
 
 ### Host Commands (IO Operations)
 
-**Never use `fetch` directly - always use host commands:**
+**Use host commands for realm IO and for APIs that need a key — never `fetch` for those.** A public, CORS-open API takes plain `fetch`, per "Calling a public API directly" in `integrate-send-request-via-proxy`.
 
 ```gts
 import SaveCardCommand from '@cardstack/boxel-host/tools/save-card';
@@ -195,10 +195,10 @@ import { type MenuItemOptions } from '@cardstack/boxel-ui/helpers';
 ### Critical Rules
 
 - ✅ **Validate inputs first** - fail early with clear errors
-- ✅ **Use host commands for normal IO** - prefer `SaveCardCommand`, `GetCardCommand`, `SearchCardsByQueryCommand`, and `SendRequestViaProxyCommand`
+- ✅ **Use host commands for normal IO** - prefer `SaveCardCommand`, `GetCardCommand`, `SearchCardsByQueryCommand`, and `SendRequestViaProxyCommand` (for APIs that need a key the realm server holds; public, CORS-open APIs take plain `fetch`, per "Calling a public API directly" in `integrate-send-request-via-proxy`)
 - ✅ **Include `on` in queries** - for eq/contains/range filters
 - ✅ **Delegate to catalog commands** - don't reimplement uploads/services
 - ✅ **Wrap JSON parsing in try-catch** - handle malformed responses
 - ✅ **Track progress states** - use `@tracked` for UI feedback
 - ✅ **Record long-running work as cards** - use a run/job card with typed steps and logs instead of hidden console state
-- ⚠️ **Only use direct `fetch` for documented host-command gaps** - e.g. sticky-bat's binary upload workaround for virtual-network byte corruption, with authorization and `X-Boxel-Client-Request-Id`
+- ⚠️ **For realm IO, only use direct `fetch` for documented host-command gaps** (public, CORS-open third-party APIs are separate and take plain `fetch`) - e.g. sticky-bat's binary upload workaround for virtual-network byte corruption, with authorization and `X-Boxel-Client-Request-Id`
