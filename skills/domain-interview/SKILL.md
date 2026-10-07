@@ -266,29 +266,39 @@ into a JSON string and never patched into a card that is not indexed yet:
 `run-realm-code`, `read-card-for-ai-assistant`, `patch-fields` and `apply-markdown-edit` do not
 exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
 
-1. **Check it does not exist.** `boxel file read Brief/<slug>.json --realm <realm-url>` must 404.
-   If it does not, refine the existing brief rather than overwrite it: from a terminal, rewrite the
-   whole file as the paragraph after these steps describes.
-2. **Build the JSON with code, not by hand**: a short script that reads the spec markdown from a
+1. **Look for an earlier brief first.** A project may already have one under another path: a
+   `Brief` card with another slug, or an older brief in a Wiki card (`Wiki/…`) or a markdown file.
+   Check the realm (`boxel search`, the `Wiki/` folder), and ask the user when it is unclear. If one
+   turns up, follow *Upgrading an older brief* below instead of starting a new interview.
+2. **Check the destination.** `boxel file read Brief/<slug>.json --realm <realm-url>`, by its
+   status: `404` means it is free, so go on; `200` means a brief is there, so refine it (the
+   paragraph after these steps) and never write a fresh card over it; any other status (no token,
+   a network error) means stop and report it, since it proves neither.
+3. **Build the JSON with code, not by hand**: a short script that reads the spec markdown from a
    file and writes `{ data: { type: 'card', attributes: { cardInfo: { name, summary }, spec,
    designDirection: null, motion: null }, meta: { adoptsFrom: { module:
    '@cardstack/catalog/cards/projects/brief', name: 'Brief' } } } }` with `JSON.stringify`.
-3. **Write it**: `boxel file write Brief/<slug>.json --realm <realm-url> --file <local.json>`. The
+4. **Write it**: `boxel file write Brief/<slug>.json --realm <realm-url> --file <local.json>`. The
    positional is the destination; without `--file` the command writes empty stdin and still prints
    success.
-4. **Check it landed and indexed**: `boxel file read` it back and compare the `spec` length with what
-   you wrote, then confirm it is a card with `boxel search --realm <realm-url> --query
-   '{"filter":{"contains":{"cardInfo.name":"<name>"}}}'` returning `<realm-url>Brief/<slug>`. Write
+5. **Check it landed and indexed**: `boxel file read` it back and compare the stored `spec` with the
+   string you wrote, exactly, then confirm it is a card with `boxel search --realm <realm-url> --query
+   '{"filter":{"contains":{"cardInfo.name":"<name>"}}}'`: one result must be exactly
+   `<realm-url>Brief/<slug>` (the realm URL ends in `/`); an empty result can mean indexing has not
+   caught up, so wait a few seconds and search again before calling it a failure. Write
    the key without `item.`: the CLI adds that prefix itself, and `item.cardInfo.name` goes out as
    `item.item.cardInfo.name`, which matches nothing and reads as "not indexed".
 
-A later change rewrites the whole file the same way, and `boxel file write` replaces the file with
-no version check: the last writer wins. So it is safe only while this stage is the card's only
-writer. Read the card immediately before writing, copy every attribute, `cardInfo` key and
-relationship from that read, and change `spec` alone. After writing, read it back and confirm
-`designDirection` and `motion` still match what you read; if another stage wrote in between, its
-change is lost, so stop and tell the user rather than writing again. This guard is narrower than the
-assistant's `apply-markdown-edit`, which changes one section in place.
+A later change rewrites the whole file the same way: parse the JSON you read, set
+`data.attributes.spec`, and write that object back, so every other attribute, `cardInfo` key,
+relationship and `meta` key goes back as it was. `boxel file write` replaces the file with no
+version check, so the last writer wins, and nothing you read afterwards can show that another
+stage's write landed between your last read and yours: your write puts back the values you read.
+So use this path only when no other stage is editing the card. Re-read just before writing; if
+anything besides `spec` changed since your first read, rebuild from the new read. After writing,
+read it back: if `spec` is not yours, someone wrote after you, so stop and tell the user rather than
+writing again. This is coarser than the assistant's `apply-markdown-edit`, which changes one section
+in place; prefer the assistant when it is available.
 
 **Refining a brief that already exists.** A change to one section of an existing `spec` — a
 screen's content contract, a schema row — is an `apply-markdown-edit` on the `spec` field with that
@@ -306,16 +316,17 @@ a markdown file — is the starting point, not something to re-interview. Read i
   the header line which brief it supersedes. Leave the old one untouched; deleting it is the user's
   call.
 - A builder may have changed the build since the old brief was written (a field added, a card split
-  out). Read the current schema and fold what it shows into the new spec, so the brief matches what
-  exists.
+  out). Read the current schema and compare it with the old brief. Where they differ, do not pick
+  one silently: write the difference down and ask the user which is meant, since a build can drift
+  by accident.
 
 **When the user picks "keep refining".** Ask the brief's open questions as interview rounds, through
-the choice UI as above. Fold each answer into the section it changes (the schema, a content contract,
+the choice UI as above (an agent with no choice tool lists the options as numbered lines). Fold each answer into the section it changes (the schema, a content contract,
 a rule, the sample data), then delete that open question. Do not leave answers in a separate log: the
 builder reads the sections, not the history.
 
 **Then check it landed.** Read the card back. If `spec` is empty or shorter than the spec you
-wrote, patch it again (from a terminal, write it again) — never tell the user the brief is saved until the card you read back holds
+wrote, patch it again (from a terminal, write it again only when no other stage may be writing; see above) — never tell the user the brief is saved until the card you read back holds
 it.
 
 It carries the sections below, trimmed to the depth the answers set (see Size the interview from the answers):
