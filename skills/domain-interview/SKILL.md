@@ -204,7 +204,9 @@ answers; if still none, your research on the domain; and where those disagree, t
 choice. Never decide by asking the user again. A skip is never re-asked.
 
 **Record every decision you made for them**, in a `## Assumptions` section of the `spec`, one line
-each: *the question · what you chose · why*. Keep it separate from Open questions, which are things
+each: *the question · what you chose · why*. A rule, threshold or field the spec proposes that the
+user never mentioned (a reminder 30 days ahead, a monthly total) is a decision too: list it there,
+so the user sees it before the build treats it as theirs. Keep it separate from Open questions, which are things
 nobody knows yet.
 
 **What a skip never does** (guards):
@@ -270,7 +272,8 @@ exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
 
 1. **Look for an earlier brief first.** A project may already have one under another path: a
    `Brief` card with another slug, or an older brief in a Wiki card (`Wiki/…`) or a markdown file.
-   Check the realm (`boxel search`, the `Wiki/` folder), and ask the user when it is unclear. If one
+   `boxel file list --realm <realm-url>` shows every file, a markdown brief and `Wiki/` cards
+   included; read any that looks like a plan. Ask the user when it is unclear. If one
    turns up, follow *Upgrading an older brief* below instead of starting a new interview.
 2. **Check the destination.** `boxel file read Brief/<slug>.json --realm <realm-url>`, by its
    status: `404` means it is free, so go on; `200` means a brief is there, so refine it (the
@@ -292,8 +295,9 @@ exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
    `item.item.cardInfo.name`, which matches nothing and reads as "not indexed".
 
 A later change rewrites the whole file the same way: parse the JSON you read, set
-`data.attributes.spec`, and write that object back, so every other attribute, `cardInfo` key,
-relationship and `meta` key goes back as it was. `boxel file write` replaces the file with no
+`data.attributes.spec` (and `cardInfo.summary` when the Overview changed, since it holds that
+paragraph), and write that object back, so every other attribute, `cardInfo` key, relationship and
+`meta` key goes back as it was. `boxel file write` replaces the file with no
 version check, so the last writer wins, and nothing you read afterwards can show that another
 stage's write landed between your last read and yours: your write puts back the values you read.
 So use this path only when no other stage is editing the card. Re-read just before writing; if
@@ -315,7 +319,7 @@ a markdown file — is the starting point, not something to re-interview. Read i
   its open questions. Skip round 1 when it already says what the thing is and who it is for. The
   depth is set by these answers, as for a new brief.
 - **Write a new Brief card**, carrying everything the old brief settled forward unchanged, and say in
-  the header line which brief it supersedes. Leave the old one untouched; deleting it is the user's
+  the header line which brief it supersedes and, in one line, what changed since it. Leave the old one untouched; deleting it is the user's
   call.
 - A builder may have changed the build since the old brief was written (a field added, a card split
   out). Read the current schema and compare it with the old brief. Where they differ, do not pick
@@ -388,9 +392,10 @@ questions, say so in one line before the hand-off. If you decided anything for t
 decisions are in `## Assumptions`, in the same line.
 
 **Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
-the choice UI (same rules as the interview rounds): build it (`boxel-design` asks one quick
-question about the look, then it and the design-playbook build the first screen from this brief),
-or keep refining this brief. Recommend
+the choice UI: build it (`boxel-design` asks one quick question about the look, then it and the
+design-playbook build the first screen from this brief),
+keep refining this brief, or stop here. It carries no skip option: the next stage is the user's
+call, and a skip would hand it back to you. Recommend
 building when the brief has no open questions left; recommend refining when it does. Do not start
 the build yourself — naming the next stage is as far as this skill goes.
 
