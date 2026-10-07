@@ -52,7 +52,9 @@ A *media slot* is any place the real product would show a picture: posters, film
 listings, products, destinations, vehicles, hero banners, profile photos. Cinema, food, real-estate,
 travel, fashion and marketplace apps are mostly media slots, but judge by slot, not by app type.
 
-In the first build, every media slot in every sample instance has an image. A gradient panel, a lone
+In the first build, every media slot in every sample instance has an image. That is a rule for
+sample data: the template still shows a designed state for an instance with no image, since real
+records often have none (*Load failure*, below). A gradient panel, a lone
 glyph, or initials in a photo-sized panel is a defect; initials are fine only in a small avatar chip
 that is not the main picture of a tile. A fitted tile shows the item's own image, cropped to the tile
 (the design-playbook's "focused crop of the hero"), never a second stock photo.
