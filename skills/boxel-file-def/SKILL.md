@@ -17,6 +17,8 @@ Need to reference an image / document / file asset?
 ├── External URL only (cover from Open Library, avatar from gravatar)?
 │   └── → `contains(StringField)` with a `url` field ONLY for small durable
 │         `http(s)` URLs. Never store `data:`, `blob:`, or base64 here.
+│         An image a user may later replace with an upload takes the URL/ImageDef
+│         pair or the catalog `ImageSourceField` instead (references/sample-images.md).
 │
 ├── File lives inside this realm and you want to display it?
 │   └── → `linksTo(ImageDef)` for images, `linksTo(MarkdownDef)` for markdown,
