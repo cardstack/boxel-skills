@@ -87,7 +87,7 @@ For a `linksToMany(ImageDef)` gallery, the URL twin is `containsMany(UrlField)`:
 - Uploaded card-side images go in the linked ImageDef as a normal `linksTo` relationship.
 - The rule cuts both ways: a URL that points at a **realm resource** never goes in a `UrlField`/`StringField` attribute — see "Realm-resource URLs — always a relationship, never a string" below.
 
-**Future direction (not implemented yet):** a single compound `Image` FieldDef that wraps either a URL or an ImageDef link and exposes a unified `.src` accessor. Until then, use the pair-of-fields approach above.
+**One field for both:** the catalog's `ImageSourceField` (`@cardstack/catalog/fields/image-source/image-source`) wraps this pair, with a `sourceMode` switch (`url` or `file`) and a computed `resolvedUrl`. Use it, or the pair-of-fields approach above.
 
 ### 🔗 Realm-resource URLs — always a relationship, never a string
 
@@ -186,7 +186,7 @@ These extend `FileDef` and must be used with `linksTo`, never `contains`. See `b
 | Field | Import | Notes |
 |---|---|---|
 | `FileDef` *(generic)* | `'@cardstack/base/file-api'` | Generic file slot. Use a specific subtype when possible. |
-| `ImageDef` | `'@cardstack/base/image'` | Generic image. Polymorphic — accepts any image subtype. |
+| `ImageDef` | `'@cardstack/base/image-file-def'` | Generic image. Polymorphic — accepts any image subtype. |
 | `PngDef` | `'@cardstack/base/png-image-def'` | PNG-specific. |
 | `JpgDef` | `'@cardstack/base/jpg-image-def'` | JPG. |
 | `WebpDef` | `'@cardstack/base/webp-image-def'` | WebP. |
