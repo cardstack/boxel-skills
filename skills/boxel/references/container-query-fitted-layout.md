@@ -863,15 +863,15 @@ A card looks art-directed when these six moves are all present. Missing any one 
 One serif (the body voice: headline, dek, lede, stat values) and one sans-serif (the micro-labels: eyebrows, stat labels, byline meta, review counts). Never mix three families. Never set the eyebrow in the serif. Never set a stat value in the sans.
 
 ```css
-/* Only the serif needs declaring: --font-sans is the theme's default body
-   font, inherited from CardContainer. Both stacks are contract tokens with
-   theme.css defaults, so they are read bare — no fallbacks */
+/* Only the serif needs declaring while the theme's body family is sans:
+   the micro-labels inherit it from CardContainer. Both stacks are contract
+   tokens with theme.css defaults, so they are read bare — no fallbacks */
 .headline   { font-family: var(--font-serif); }
 .dek        { font-family: var(--font-serif); font-style: italic; }
 .stat-val   { font-family: var(--font-serif); }
 ```
 
-The theme card supplies `--font-serif`, `--font-sans`, and `--font-mono`. Always reference them, never a literal family. `--font-sans` is already the default `font-family` on every card, so micro-labels (eyebrow, stat labels, review counts) get it by inheritance and need no `font-family` rule; only the serif elements are set explicitly.
+The theme card supplies `--font-serif`, `--font-sans`, and `--font-mono`. Always reference them, never a literal family. Micro-labels (eyebrow, stat labels, review counts) inherit the body role's family, which is `--font-sans` unless the theme changes it, so under such a theme they need no `font-family` rule and only the serif elements are set explicitly. When a theme makes the body family the serif, see **Font stacks** in `boxel-ui-guidelines/references/theme-token-contract.md`.
 
 #### 2. Weight rhythm — pair a large, light serif with tiny, bold sans
 
