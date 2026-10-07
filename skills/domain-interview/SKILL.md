@@ -269,7 +269,8 @@ into a JSON string and never patched into a card that is not indexed yet:
 exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
 
 1. **Check it does not exist.** `boxel file read Brief/<slug>.json --realm <realm-url>` must 404.
-   If it does not, refine the existing brief (below) rather than overwrite it.
+   If it does not, refine the existing brief rather than overwrite it: from a terminal, rewrite the
+   whole file as the paragraph after these steps describes.
 2. **Build the JSON with code, not by hand**: a short script that reads the spec markdown from a
    file and writes `{ data: { type: 'card', attributes: { cardInfo: { name, summary }, spec,
    designDirection: null, motion: null }, meta: { adoptsFrom: { module:
@@ -316,7 +317,7 @@ a rule, the sample data), then delete that open question. Do not leave answers i
 builder reads the sections, not the history.
 
 **Then check it landed.** Read the card back. If `spec` is empty or shorter than the spec you
-wrote, patch it again — never tell the user the brief is saved until the card you read back holds
+wrote, patch it again (from a terminal, write it again) — never tell the user the brief is saved until the card you read back holds
 it.
 
 It carries the sections below, trimmed to the depth the answers set (see Size the interview from the answers):
