@@ -5,8 +5,8 @@ instance without breaking the realm. For a card that makes images at runtime (a 
 clicks), use the `integrate-openrouter-image-generation` and `integrate-thumbnail-card-ai` patterns;
 for the rule on bytes in card JSON, [`no-inline-binary.md`](no-inline-binary.md).
 
-This is an interim recipe: Openverse from a terminal and placeholders in the app stand in until the
-platform has a server-side image search both can call.
+This is an interim recipe: stock photos you already know and have looked at, Openverse from a
+terminal, and placeholders stand in until the platform has a server-side image search both can call.
 
 ## The rule: every media slot ships with an image
 
@@ -28,26 +28,43 @@ Take the first that fits:
 |---|---|---|
 | 1. The user's own image | Download, look, then link (*The user's own image*) | Same |
 | 2. An image already in the realm or catalog | Search files with [`catalog-reuse`](../../catalog-reuse/SKILL.md) (`scope: 'files'`) and link it | Same |
-| 3. A real photo of a generic subject | An Openverse photo (*Openverse*); its URL goes in the field | No tool to look one up: skip |
-| 4. A labelled placeholder | When nothing above fits, or a lookup fails | The default |
-| 5. AI images | Not available: `generate-thumbnail` fails from the CLI | Offered once (*AI images*) |
+| 3. A stock photo you know | A known Unsplash, Pexels or Pixabay URL, load-checked and looked at (*Known stock photos*) | A known URL, then look at the rendered card (*Known stock photos*) |
+| 4. A photo found by search | An Openverse photo (*Openverse*); its URL goes in the field | No tool to search: skip |
+| 5. A labelled placeholder | When nothing above fits, or a check fails | When nothing above fits, or a check fails |
+| 6. AI images | Not available: `generate-thumbnail` fails from the CLI | Offered once (*AI images*) |
 
 **Real subjects never take a stock photo.** A real person, the user's own products ("our cakes",
 "our team"), and a real copyrighted or branded subject (an actual film poster, a real listing) get a
 labelled placeholder until the user supplies their own image. A named fictional person gets a
 placeholder too, or an AI portrait if the user asks for one; never a stock photo of a real face. An
 invented sample item (a made-up film, a sample dish in an app with no named business) is not a real
-subject and can take an Openverse photo, as its still or its poster.
+subject and can take a stock photo, as its still or its poster.
 
-## Never guess an image URL
+## Known stock photos
 
-A made-up stock URL either 404s or loads an unrelated photo that looks deliberate: a guessed Pexels ID
-returns *some* photo, just not the one you described. Use only a URL the user gave you, an Openverse
-result that passed the load check, a photo page you actually opened in a real browser, or a
-placeholder. Pexels refuses requests from a terminal, and neither Pexels nor Unsplash has a search a
-terminal can call without a key, so from Claude Code use Openverse. A Google image result is never
-hotlinked: its page is not the image's host, and its licence is unknown. Dead patterns, never use
-them: `source.unsplash.com`, `via.placeholder.com`.
+A photo ID you remember from Unsplash, Pexels or Pixabay often loads the subject you expect, but not
+always: in testing, a remembered Unsplash URL showed a house, not the car it was taken for, and a
+made-up ID returned 404. So a known URL is used only once you have seen it show the slot's subject:
+
+- **From a terminal:** run the load check (*Openverse*, below), download the image and look at it.
+- **In the app:** write it into the instance, then `view-visually` the card. Replace a broken image or
+  a wrong subject with a placeholder, in the same pass.
+
+A wrong subject is one a viewer would not take for the item: farfalle for a spaghetti recipe, a
+pineapple pizza for a margherita. A close variant (another plain cake for an olive-oil cake) is fine.
+Pick a photo for each sample item; never change the item to fit a photo you know. Choosing which
+item a page features (a hero, "Cook tonight") is not changing it: feature one with a real photo.
+
+Use the image's own address, never its page: `images.unsplash.com/photo-…`,
+`images.pexels.com/photos/…`, `cdn.pixabay.com/photo/…`. A photo page (`pexels.com/photo/…`) is HTML
+and renders as a broken image. A Wikimedia thumbnail loads only at a standard width (`500px-…` works,
+`640px-…` returns 400). These sites' searches need a key or refuse a terminal, so for a subject with
+no known photo, use Openverse from a terminal and a placeholder in the app.
+
+Never use a URL you made up, or one from a service that picks the photo for you: `picsum.photos`
+returns a random photo whatever the seed says, and `source.unsplash.com` and `via.placeholder.com` no
+longer work. A Google image result is never hotlinked: its page is not the image's host, and its
+licence is unknown.
 
 ## Labelled placeholders
 
@@ -67,8 +84,8 @@ raster; without it the service returns SVG).
 
 ## Openverse: real photos from a terminal
 
-Openverse indexes openly licensed photos and needs no key. A few queries per build, one per subject,
-reused across instances:
+For a subject with no known photo. Openverse indexes openly licensed photos and needs no key. A few
+queries per build, one per subject, reused across instances:
 
 ```bash
 curl -s -A "boxel-skills" "https://api.openverse.org/v1/images/?q=swimming+pool&license=cc0,pdm&category=photograph&size=large&aspect_ratio=<wide|tall|square>&page_size=20"

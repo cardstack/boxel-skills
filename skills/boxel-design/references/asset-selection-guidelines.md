@@ -33,10 +33,12 @@
 
 ### Images in a build
 
-Which image a build puts in each media slot (the user's own, an Openverse photo, a labelled
-placeholder or an AI image), and how it gets into the card without breaking the realm, is in
+Which image a build puts in each media slot (the user's own, a known stock photo it has looked at,
+an Openverse photo, a labelled placeholder or an AI image), and how it gets into the card without
+breaking the realm, is in
 [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md).
-The sources above name where a person would look for a style; a build never guesses a URL from them.
+The sources above name where a person would look for a style; a build uses a URL from them only after
+looking at the photo, never a made-up one.
 
 - Icons: `@cardstack/boxel-icons` ([`icons.md`](../../boxel/references/icons.md)), not hotlinked SVGs.
 - NASA public domain: `https://images-assets.nasa.gov/image/<id>/<id>~thumb.jpg`, with a real id.
