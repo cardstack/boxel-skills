@@ -78,6 +78,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **[`boxel-ui-component-discovery/`](skills/boxel-ui-component-discovery/SKILL.md)** — Mandatory catalog search for a component Spec before hand-rolling any UI primitive in a `.gts` template: Pret UI first, boxel-ui only where Pret UI has no equivalent yet.
 <!-- /feature:catalog-reuse -->
 - **[`boxel-design/`](skills/boxel-design/SKILL.md)** — Visual design language, mood, typography, asset direction.
+- **[`domain-interview/`](skills/domain-interview/SKILL.md)** — Interview the user before a build and write a brief as a catalog `Brief` card — schema, coverage matrix, per-screen content contracts, flows, sample data in its `spec` field — with no design decisions. Use it when the user asks for a spec or a brief, or wants to plan first; it stops at the brief card.
 - **[`boxel-theme-development/`](skills/boxel-theme-development/SKILL.md)** — The theme artifact itself: creating, converting, auditing, or patching StructuredTheme / StyleReference / BrandGuide cards, DESIGN.md import/export, logo and functional-palette placement.
 - **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
 - **[`boxel-flavored-markdown/`](skills/boxel-flavored-markdown/SKILL.md)** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
