@@ -279,11 +279,17 @@ exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
    success.
 4. **Check it landed and indexed**: `boxel file read` it back and compare the `spec` length with what
    you wrote, then confirm it is a card with `boxel search --realm <realm-url> --query
-   '{"filter":{"contains":{"item.cardInfo.name":"<name>"}}}'` returning `<realm-url>Brief/<slug>`.
+   '{"filter":{"contains":{"cardInfo.name":"<name>"}}}'` returning `<realm-url>Brief/<slug>`. Write
+   the key without `item.`: the CLI adds that prefix itself, and `item.cardInfo.name` goes out as
+   `item.item.cardInfo.name`, which matches nothing and reads as "not indexed".
 
-A later change rewrites the whole file the same way. That is safe here only because you rebuild the
-JSON from the card you just read, changing `spec` alone; never write a `designDirection` or `motion`
-value you did not read back.
+A later change rewrites the whole file the same way, and `boxel file write` replaces the file with
+no version check: the last writer wins. So it is safe only while this stage is the card's only
+writer. Read the card immediately before writing, copy every attribute, `cardInfo` key and
+relationship from that read, and change `spec` alone. After writing, read it back and confirm
+`designDirection` and `motion` still match what you read; if another stage wrote in between, its
+change is lost, so stop and tell the user rather than writing again. This guard is narrower than the
+assistant's `apply-markdown-edit`, which changes one section in place.
 
 **Refining a brief that already exists.** A change to one section of an existing `spec` — a
 screen's content contract, a schema row — is an `apply-markdown-edit` on the `spec` field with that
