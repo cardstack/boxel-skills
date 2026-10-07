@@ -64,8 +64,9 @@ tell you how to build well, not whether to build at all.
 5. **Evaluate** each hit against the need; broaden once before calling anything
    a gap.
 6. **Build only confirmed gaps**, and record them.
-7. **Say what the user now holds.** After every turn in which you reference,
-   specialize, install, or remix, end your reply with one line: a reference
+7. **Say what the user now holds.** After every turn that reuses — referencing
+   a part, pointing a relationship at an instance, specializing, installing,
+   remixing, or copying any of them — end your reply with one line: a reference
    to the catalog that keeps receiving its fixes, or a copy that is theirs and
    will not.
 8. **Self-audit** before finishing.
@@ -149,7 +150,8 @@ identical either way.
 
 - **The `search-entries` tool**, which this skill makes available wherever tools
   are. It spans every realm you can read, catalog included, so you need no realm
-  URL and should not go looking for one.
+  URL; if you scope it, narrow with `matches`, never by pointing its `realms` at
+  a module folder (the realm-root rule below).
 - **`npx boxel search --realm <realm-url> --query '<filter-json>' --json`**,
   where you have a shell instead. Here `--realm` is required and repeatable, so
   the catalog realm has to be passed explicitly; your environment guidance names
