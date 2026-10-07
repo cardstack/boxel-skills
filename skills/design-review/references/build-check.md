@@ -54,7 +54,9 @@ Each line passes or fails on every capture.
    a tracked value, or invokes the main operation, and every link has a real `href`.
 9. **One app, one signature.** The signature the Home uses (a lane rope, a ticket stub, a kraft
    label) marks each card's main object once, so the cards read as one family. It is not stamped
-   on every row: a list of five bordered slips reads as a pattern, not a signature.
+   on every row: a list of five bordered slips reads as a pattern, not a signature. A catalog
+   card shown through its own stock template fails this line
+   ([`catalog-reuse`](../../catalog-reuse/SKILL.md) → *Reuse the model, own the look*).
 10. **Job first.** Each screen's largest element is what its user opens it to do: on a booking page
     the free times, on a staff card today's list, on Home what the day needs next. A screen led by
     the record's name, a form's first field or a placeholder photo fails.

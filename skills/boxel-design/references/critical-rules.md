@@ -84,6 +84,10 @@ these cheap ones, which reuse what the host and the build already have:
 | Tabs, filters, "Show all" | a `@tracked` value over rows already loaded on the screen |
 | An external link | `<a href>` to a real URL |
 
+The three counts kinds of control you build, not instances: one filter row is one, and every row
+that opens its record is one. A linked card and a real link (`tel:`, `mailto:`, a URL) cost nothing
+to build, so they do not count.
+
 Where `viewCard` is missing (some previews), render the row as plain text, with no chevron and no
 hover cue. Never build a drawer, dialog or off-canvas panel inside a card for this: the host's side
 stack already handles scroll, focus and close. Everything else waits in a short "Next to add" note
