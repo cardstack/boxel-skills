@@ -14,9 +14,12 @@ _How to use FileDef, ImageDef, MarkdownDef, and related types for file fields in
 ```
 Need to reference an image / document / file asset?
 │
-├── External URL only (cover from Open Library, avatar from gravatar)?
-│   └── → `contains(StringField)` with a `url` field ONLY for small durable
-│         `http(s)` URLs. Never store `data:`, `blob:`, or base64 here.
+├── External URL only (a photo URL, a cover from Open Library, an avatar from gravatar)?
+│   └── → the catalog `ImageSourceField` (or the URL/ImageDef pair): the URL goes
+│         in its `url` half, and the slot can switch to a realm file later with no
+│         schema change (references/sample-images.md). A link to a non-image file
+│         elsewhere is `contains(UrlField)`. Never store `data:`, `blob:`, or
+│         base64 in either.
 │
 ├── File lives inside this realm and you want to display it?
 │   └── → `linksTo(ImageDef)` for images, `linksTo(MarkdownDef)` for markdown,
@@ -69,3 +72,4 @@ Need to reference an image / document / file asset?
 - `references/markdowndef-vs-markdownfield.md` — MarkdownDef vs MarkdownField
 - `references/filedef-vs-base64imagefield.md` — FileDef vs Base64ImageField
 - `references/no-inline-binary.md` — Mandatory no-inline-media rule, generated image workflow, and A Million Dreams MP3 FileDef example
+- `references/sample-images.md` — Build-time sample images: pick a source by scenario (the user's own, AI-generated with `generate-thumbnail`, a real photo from the Openverse API from a terminal, or a labelled placeholder), then link it without breaking the realm

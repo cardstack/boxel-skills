@@ -57,6 +57,14 @@ boxel:
         name: default
       requiresApproval: true
     - codeRef:
+        module: '@cardstack/boxel-host/tools/generate-thumbnail'
+        name: default
+      requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/download-file-to-realm'
+        name: default
+      requiresApproval: true
+    - codeRef:
         module: '@cardstack/boxel-host/tools/update-room-skills'
         name: default
       requiresApproval: false
@@ -87,6 +95,11 @@ Quick lookup of every command available to this skill, what it does, and notable
 - `copy-card_eefc` — Duplicate a card (requires approval).
 - `copy-source_5d09` — Duplicate a file (requires approval).
 - `transform-cards_33d7` — Bulk update with a command (requires approval).
+
+## Media
+
+- `generate-thumbnail_b5a0` — Generate one image with OpenRouter (default `google/gemini-2.5-flash-image`) and save it into a realm (requires approval; spends credit). Makes any image, not only thumbnails. Required: `prompt`, `targetRealmIdentifier`; optional: `targetPath`, `cardName`, `sourceImageUrl`, `llmModel`, `targetCardId` (links the image to `cardInfo.cardThumbnail` only). Returns `imageDefIdentifier`. Fails from `npx boxel run-command`. Recipe: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
+- `download-file-to-realm_47d4` — Save a file from a URL into a realm (requires approval). Required: `sourceUrl`, `path` (with the right extension: the realm infers the type from it); optional: `realm`, `useNonConflictingFilename`. Returns `fileIdentifier`. Runs in the browser, so the source must allow CORS. Recipe: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
 
 ## Reading
 
@@ -142,4 +155,4 @@ What you can and cannot see:
 ## Approval requirements
 
 The following require user approval before execution:
-- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `create-workspace_cf0f`, `delete-workspace_a465`
+- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `generate-thumbnail`, `download-file-to-realm`, `create-workspace_cf0f`, `delete-workspace_a465`

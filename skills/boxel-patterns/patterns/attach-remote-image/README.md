@@ -27,7 +27,7 @@ Two fields, one logical concept, template-side resolution.
 import { CardDef, Component, contains, field, linksTo } from '@cardstack/base/card-api';
 import StringField from '@cardstack/base/string';
 import UrlField from '@cardstack/base/url';
-import ImageDef from '@cardstack/base/image';
+import ImageDef from '@cardstack/base/image-file-def';
 
 export class Property extends CardDef {
   static displayName = 'Property';
@@ -138,4 +138,4 @@ The relationship link points at a real ImageDef instance in the realm — never 
 
 ## Future direction
 
-A single compound `Image` FieldDef that wraps either a URL or an ImageDef link and exposes a unified `.src` accessor. Until then, the pair-of-fields approach is canonical.
+Implemented: the catalog's `ImageSourceField` wraps this pair; see [`base-field-catalog.md`](../../../boxel/references/base-field-catalog.md) → *One field for both*. The pair-of-fields approach remains valid.

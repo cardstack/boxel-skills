@@ -948,7 +948,7 @@ The schema is a stage; the JSON instance is the performance. Voice cues that pas
 - **Author has a believable name and provenance.** Sofia Lombardi reads more designed than "Chef Mike". You're sample-styling a fictional publication; respect the fiction.
 - **Rating numbers are plausible.** 4.8 with 1,247 reviews reads published. 5.0 with 3 reviews reads seeded.
 - **Cuisine names a region, not a continent.** "Roman, Lazio" over "Italian".
-- **Image is a real food photo.** Unsplash food URLs are fine. Generic stock-art directives are not — "photo of pasta" is plumbing. The instance should reference a specific URL the design can render.
+- **Image is a real food photo.** A real, verified food URL is fine ([`sample-images.md`](../../boxel-file-def/references/sample-images.md)); a guessed one is not. Generic stock-art directives are not either — "photo of pasta" is plumbing. The instance should reference a specific URL the design can render.
 
 ### Self-critique checklist — run BEFORE declaring done
 
@@ -969,7 +969,7 @@ Apply this list to your output. If any answer is "no" or "maybe", revise.
 - [ ] Does the composition end with a fold cue (rules + "Continue below" or equivalent)?
 - [ ] Are there at least 8 schema fields driving the masthead (title, subtitle, cuisine, author, rating, reviews, description, image, plus optional difficulty/keyIngredient/calories)?
 - [ ] Does the JSON instance read like editorial writing (sentence-shaped subtitle, scene-setting description, real-feeling author name)?
-- [ ] Does the image URL point to a real, specific photo — not a placeholder?
+- [ ] Does the image URL point to a real, specific photo from a verified source — or, where none is available, a labelled placeholder? Never a guessed URL.
 - [ ] Are all colors except amber-for-stars routed through theme tokens (`var(--primary)`, `var(--border)`, `var(--muted-foreground)`, etc.)?
 - [ ] If you held a specific taste-maker in mind during the pass, would they specifically respect *something* in the output? If not, identify the weakest move and strengthen it.
 
@@ -983,7 +983,7 @@ These are the failure modes the Design Pass exists to prevent. If you find any i
 - **Untracked micro-labels.** Eyebrows set in mixed case with no letter-spacing. Reads like a button label, not a publication.
 - **Schema thinness.** Two visible fields (title + servings) trying to carry the design. The fix is more fields, not bigger typography.
 - **Weak content fit.** Sample copy that reads "Lorem ipsum" or "Tasty recipe!". Editorial design demands editorial voice.
-- **Generic photography directives.** No image, or a stock-photo-of-X placeholder. Use a real URL.
+- **Generic photography directives.** No image, or a stock-photo-of-X placeholder. Use a real, verified URL; a labelled placeholder only where none exists ([`sample-images.md`](../../boxel-file-def/references/sample-images.md)).
 - **Two accents.** Cuisine in primary + author in accent + price in destructive. Three colors = no accent.
 - **Boxed-up stats.** A bordered card-within-the-card for the stats slab instead of two rules. Boxes read as form fields; rules read as editorial.
 - **No fold framing.** Composition runs to the bottom of the viewport without a "Continue below" signal. The brief specifically says "framed as such" — frame it.

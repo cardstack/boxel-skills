@@ -314,7 +314,7 @@ A clue that a realm doesn't exist: `npx boxel search --realm <url> --query '{}'`
 
 Some host commands require a browser context with a Matrix client to persist their results. Notable examples:
 
-- **`generate-thumbnail`** — generates a card thumbnail image. From the CLI it runs, returns a base64 blob, but cannot persist it because there's no browser-side Matrix client to write the resulting file/relationship to the realm. Run these from the Boxel host UI ("Generate Thumbnail" button on the card), not via `npx boxel run-command`.
+- **`generate-thumbnail`** — generates an image and saves it to the realm. From the CLI it fails before generating anything ("Cannot login to realm server without matrix client"). Run it from the Boxel host UI (the AI assistant, or the "Generate Thumbnail" button on the card), not via `npx boxel run-command`.
 - Any command whose docstring mentions "saves the card" or "uploads to realm" with a browser-only auth dependency.
 
 CLI-friendly commands (no browser dependency): `get-card-type-schema`, `full-reindex-realm`, `invalidate-realm-identifiers`, `search-cards`, `instantiate-card` for read-only schema introspection.
