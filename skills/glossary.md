@@ -161,6 +161,9 @@ The 4-stage recommended process for any user-facing card:
 
 → `boxel/references/design-playbook.md`
 
+- **Layout vocabulary** — eight layout moves (layered surface, bento, masonry, unequal split, edge overlap, editorial type, bleed, sticky scroll), each with what it is for, when not to use it, and its in-card CSS; sections come first, and zero moves is valid. → `boxel-design/references/layout-vocabulary.md`
+- **Layout gravity wells** — the defaults a layout drifts into when nobody decided it, mostly on app screens (header as hero, equal-card grid, every list a table, dropdown as the main control, sidebar by habit, empty state as apology), each with why it fails and what to do instead; a reference to check a finished layout against, not a step. → `boxel-design/references/layout-gravity.md`
+
 ## 8. Lint workflow
 
 - **`npx boxel file lint <path> --realm <url> --file <local-file>`** — Local lint before push. Use during development.
