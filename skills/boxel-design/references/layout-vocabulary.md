@@ -44,12 +44,13 @@ below is a container query against `fitted-card` or the card root, never a viewp
 Depth from three cheap cues together: a hairline border, a soft low-opacity shadow, and one
 background step between page and card. Any one alone reads as a flat box.
 
-- Border `1px solid` at low contrast (`color-mix(in srgb, var(--foreground) 10%, transparent)`),
-  shadow two layers (a tight 1–2px and a wide 16–32px at ≤12% opacity), surface one step off
-  `--background` (`--card` or `--muted`). Tokens only; no hex.
+- Border `1px solid var(--border)`, one step of the contract's shadow scale
+  (`var(--shadow-sm)` at rest), surface one step off `--background` (`--card` or `--muted`). Contract
+  tokens only: no hex, no hand-built shadow layers, no `color-mix()` hairline, so a theme can retune
+  all three.
 - Elevation by role, as in [`layout-gravity.md`](layout-gravity.md): containers sit at rest, the actionable item lifts.
   Shadow is punctuation, not chrome ([`critical-rules.md`](critical-rules.md) *Shadow Everything*):
-  apply the two-layer shadow to the one or two items that act or lead, never to every box.
+  raise the shadow one step (`--shadow-md`) on the one or two items that act or lead, never on every box.
 - **Check:** with the shadow removed, the card is still separable from the ground by border and tone.
 
 ## 2 · Bento
@@ -97,7 +98,7 @@ One dominant thing and a quiet companion at unequal weight, so the eye has an an
 One element laps onto another's edge because the reader must read them together — the price on
 the photo of what it buys — so they read as one thing stacked in space.
 
-- A negative margin or `translate` (`margin-block-start: calc(var(--space) * -1)`), `position:
+- A negative margin or `translate` (`margin-block-start: calc(-1 * var(--boxel-sp-lg))`, the same step as the padding it counters), `position:
   relative; z-index: 1` on the overlapping element, and a border or surface that separates it
   from the image under it.
 - Keep it to one or two overlaps, offset by a fixed small amount. This is the *Layered* spatial
