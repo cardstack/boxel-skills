@@ -92,7 +92,7 @@ concept in its option descriptions and recommends an answer.
 
 | What the answers show | Depth | Rounds | At most | The `spec` holds |
 |---|---|---|---|---|
-| The prompt or first answers already give names, numbers, sections or domain terms | **Quick** | 1 and 4 | 3 calls | Overview · Scope (Must only) · Schema · Content contracts · Sample data · Open questions |
+| The prompt or first answers already give names, numbers, sections or domain terms | **Quick** | 1 and 4 | 3 calls | Overview · Scope (Must only) · Schema · Content contracts · Sample data · Open questions · Interview record |
 | Real answers, but gaps the user has not thought about | **Standard** | 1, 2 and 4 | 6 calls | Every section. The primer is the glossary alone, and the unwritten rules come from your research, not a round |
 | "Not sure" on most questions, or a domain with regulation, money, safety or specialist vocabulary | **Deep** | 1–4, with upskilling throughout | 10 calls | Every section, in full |
 
@@ -227,6 +227,23 @@ nobody knows yet.
 and in the Finish line say how many decisions you made, so the user can read the Assumptions and
 change any of them. Do not offer the interview again unless they ask.
 
+### Keep a record of every question and answer
+
+Every question you ask goes into the brief's `## Interview record`, in order, with the user's answer
+as they gave it: the option label they picked, "(Recommended)" included when it carried it, or what
+they typed, in full. It is the trail of how the brief was reached, and it shows the build which
+answers were the user's and which were decided for them. Start with the routing question when the
+index asked one ("Plan it with me first").
+
+- A question asked in plain chat is recorded the same way.
+- "Not sure, suggest for me" is recorded as the answer, followed by what the user picked next.
+- A skip, picked or typed, is recorded as `Skipped`, and "Skip the rest" as `Skipped the rest` once;
+  the decision a skip led to is in `## Assumptions`, so the row points there instead of repeating it.
+- The hand-off question at *Finish* comes after the card is written, so it is not recorded.
+
+The record is evidence, not the spec. Every answer is still folded into the section it changes,
+and where the record and a section differ, the section is what the build follows.
+
 ## Output
 
 The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
@@ -244,7 +261,7 @@ instance adopts from that alias and nothing is written to the realm but the inst
 |---|---|
 | `cardInfo.name` | the brief title — `{Name}`, without a "— brief" suffix |
 | `cardInfo.summary` | the Overview paragraph |
-| `spec` | the spec markdown, from Overview to Open questions |
+| `spec` | the spec markdown, from Overview to the Interview record |
 | `designDirection` | empty — the build stage writes it |
 | `motion` | empty — the build stage writes it, and only when the user asked for heavy motion |
 
@@ -317,7 +334,8 @@ a markdown file — is the starting point, not something to re-interview. Read i
   its open questions. Skip round 1 when it already says what the thing is and who it is for. The
   depth is set by these answers, as for a new brief.
 - **Write a new Brief card**, carrying everything the old brief settled forward unchanged, and say in
-  the header line which brief it supersedes and, in one line, what changed since it. Leave the old one untouched; deleting it is the user's
+  the header line which brief it supersedes and, in one line, what changed since it. Its Interview
+  record holds this session's questions only. Leave the old one untouched; deleting it is the user's
   call.
 - A builder may have changed the build since the old brief was written (a field added, a card split
   out). Read the current schema and compare it with the old brief. Where they differ, do not pick
@@ -326,8 +344,9 @@ a markdown file — is the starting point, not something to re-interview. Read i
 
 **When the user picks "keep refining".** Ask the brief's open questions as interview rounds, through
 the choice UI as above (an agent with no choice tool lists the options as numbered lines). Fold each answer into the section it changes (the schema, a content contract,
-a rule, the sample data), then delete that open question. Do not leave answers in a separate log: the
-builder reads the sections, not the history.
+a rule, the sample data), then delete that open question. Add the new questions and answers to the
+Interview record too, but never only there: the build follows the sections, and the record is the
+history behind them.
 
 **Then check it landed.** Read the card back. If `spec` is empty or shorter than the spec you
 wrote, patch it again (from a terminal, write it again only when no other stage may be writing; see above) — never tell the user the brief is saved until the card you read back holds

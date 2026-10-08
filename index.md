@@ -26,6 +26,14 @@ The skill catalog below covers the workflows that produce these deliverables.
 
 Match the user's intent to a skill in the catalog below and read it before starting. If several could apply, list the candidates with one-line summaries and ask the user to pick — don't barrel forward on a guess.
 
+**A short build request is routed with one question, not a guess.** Some requests name a thing to build but say nothing about how far along the user is: "create me a landing page", "build a CRM", "make a recipe card". Before loading any skill for one of these, ask one single-select question through the choice UI (`AskUserQuestion` in Claude Code; lettered options in chat when no choice tool exists). The options:
+
+- **Just build it** → `boxel-design` and the design-playbook, straight to a first version: the page, or for an app, its linked cards and Home card. **The default recommendation**, because most users want to see something first. List it first.
+- **Plan it with me first** → `domain-interview`, which asks for the main input first and sizes the rest of the interview from how the user answers. Recommend this instead only when the domain has regulation, money, safety or specialist vocabulary a builder would not know.
+- **I already have a brief or a design** → go straight to the build, reading the brief card when one exists.
+
+Each option's description says what happens next in one line. Any question can be skipped, through options in the choice UI and never a prose line ("Skip, you decide"; "Skip the rest" on the last question of a call), or by typing "skip"; a skip takes the recommended option; the full rules and guards are in [`skills/domain-interview/SKILL.md`](skills/domain-interview/SKILL.md) → *Skipping*. The routing question is a call of its own and carries "Skip, you decide", which takes **Just build it**. Skip the question when the user has already made the choice: they asked for a spec or a brief, named a skill, attached a skill, or gave enough detail to build from. A choice made here runs one skill. That skill offers the next stage when it finishes, as its own single-select question, and nothing moves on until the user picks.
+
 **Acting on the app takes one more read.** This index carries no host commands, and neither does any skill page: the commands live in [`skills/boxel-environment/references/host-commands-reference.md`](skills/boxel-environment/references/host-commands-reference.md), and reading that file is what makes `switch-submode`, `show-card`, `search-cards`, and the rest callable. Anything beyond answering in prose — creating a card, editing a file, switching mode, searching a realm — needs it, so read it alongside the skill you picked.
 
 Read it before you plan out loud. Describing a plan you have no tools to carry out, or asking the user to switch modes by hand, means this step was skipped.
