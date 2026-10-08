@@ -151,23 +151,25 @@ Dense professional layouts with thoughtful scaling:
 - Radius: match the aesthetic (sharp for technical, soft for friendly)
 - Shadows: subtle elevation for interactive elements; keep z-index conservative (<10)
 
-Implementation tip: Define local CSS variables at the component root, referencing theme tokens directly — no hardcoded fallbacks (the `--boxel-*` tokens are always defined).
+Implementation tip: Read theme tokens directly at each use site, with no hardcoded fallbacks (the theme contract and the `--boxel-*` tokens are always defined). Don't rename a token through a private variable (`--card-padding: var(--boxel-sp)`): that alias layer hides which token a rule reads.
 
-The same hoisting applies to raw metric values that don't map to a theme token: hardcoded font-sizes, widths/heights, and border-radii belong in component-prefixed custom properties declared once on the component root (the `--fc-*` variables on `FittedCard` are the reference style), not scattered as literals through child selectors.
+Two kinds of value earn a private custom property, declared once on the component root with the `--_` prefix (`--_card-bleed`; a bare `--card-*` name is a knob callers may set, like the `--fc-*` knobs on `FittedCard`, so it exists only when documented) and never scattered as literals through child selectors: a metric the system has no name for (a raw font-size, width/height or radius off the token ladder), and a metric several declarations must change together, such as a negative margin and the padding that cancels it. Colors never take an alias: rules that must match a color read the same role token (a tint from `color-mix()` on the root is a derived value, not an alias).
 
 ```css
 .component {
-  --card-padding: var(--boxel-sp);
-  --card-radius: var(--boxel-border-radius-sm);
-  --card-shadow: var(--boxel-box-shadow);
-  --card-thumb-size: 3.75rem; /* raw metric, hoisted and named */
-  padding: var(--card-padding);
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
+  --_card-thumb-size: 3.75rem; /* off the ladder: hoisted and named */
+  --_card-bleed: var(--boxel-sp); /* one name: the root padding and the media bleed change together */
+  padding: var(--_card-bleed);
+  border-radius: var(--boxel-border-radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+.component .media {
+  margin-inline: calc(-1 * var(--_card-bleed));
+  padding-inline: var(--_card-bleed);
 }
 .component .thumb {
-  width: var(--card-thumb-size);
-  height: var(--card-thumb-size);
+  width: var(--_card-thumb-size);
+  height: var(--_card-thumb-size);
 }
 ```
 
