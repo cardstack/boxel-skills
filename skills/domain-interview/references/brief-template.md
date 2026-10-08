@@ -4,7 +4,7 @@
 > heading is not part of the field; the field starts at the line below and its sections at `##`.
 
 > **Depth decides which sections appear.** Quick writes Overview, Scope (Must rows only), Schema,
-> Content contracts, Sample data and Open questions, plus one line saying the build's
+> Content contracts, Sample data, Open questions and the Interview record, plus one line saying the build's
 > `catalog-reuse` search fills the reuse column. Standard writes every section, with the primer
 > cut to the glossary. Deep writes every section in full.
 
@@ -71,3 +71,12 @@ Written by `domain-interview` on {date}, at {Quick | Standard | Deep} depth. Con
 
 ## Open questions
 - [ ] {what the user still needs to decide}
+
+## Interview record
+*(Every question asked, in order, with the answer as the user gave it. The sections above are what the build follows; this is the trail behind them.)*
+
+| # | Question | Answer |
+|---|---|---|
+| 1 | {the routing question, when the index asked one} | Plan it with me first |
+| 2 | {question as asked} | {the option picked, or the user's words in full} |
+| 3 | {question} | Skipped (see Assumptions) |
