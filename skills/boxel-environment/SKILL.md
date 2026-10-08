@@ -91,15 +91,15 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 │   ├─ Create card / definition      → `run-realm-code` with `realm.fs.writeText`
 │   ├─ Switch to code                → switch-submode_dd88 (submode: "code"; pass codePath to target a specific realm — a bare switch stays in the current realm)
 │   ├─ Open workspace                → open-workspace_1696 (lands in interact mode)
-│   ├─ Create workspace              → create-workspace_cf0f (opens the new workspace; report its URL from the result context)
-│   └─ Delete workspace              → delete-workspace_a465 (permanent; confirm with the user first)
+│   ├─ Create workspace              → `run-realm-code` with `realm.workspaces.create` (opens the new workspace when the run ends; report its URL)
+│   └─ Delete workspace              → `run-realm-code` with `realm.workspaces.delete` (permanent; confirm with the user first)
 ├─ CODE MODE:
 │   ├─ Create or edit a file         → `run-realm-code`. Never call switch-submode_dd88 again for a file the tab already shows — the last tool result's `context.codeMode.currentFile` tells you where you are
 │   ├─ Preview card + module         → preview-format_cb94
 │   ├─ Open file in editor           → update-code-path-with-selection_f749
 │   ├─ Switch to interact            → switch-submode_dd88 (submode: "interact")
-│   ├─ Create workspace              → create-workspace_cf0f (opens the new workspace; report its URL from the result context)
-│   ├─ Delete workspace              → delete-workspace_a465 (permanent; confirm with the user first)
+│   ├─ Create workspace              → `run-realm-code` with `realm.workspaces.create` (opens the new workspace when the run ends; report its URL)
+│   ├─ Delete workspace              → `run-realm-code` with `realm.workspaces.delete` (permanent; confirm with the user first)
 │   └─ Open workspace                → open-workspace_1696 (⚠️ exits code mode — to change realm and stay in code mode, switch-submode with a codePath in that realm)
 └─ EITHER MODE:
     └─ Toggle mode                   → switch-submode_dd88
