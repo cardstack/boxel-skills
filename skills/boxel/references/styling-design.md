@@ -153,7 +153,7 @@ Dense professional layouts with thoughtful scaling:
 
 Implementation tip: Read theme tokens directly at each use site, with no hardcoded fallbacks (the theme contract and the `--boxel-*` tokens are always defined). Don't rename a token through a private variable (`--card-padding: var(--boxel-sp)`): that alias layer hides which token a rule reads.
 
-Two kinds of value earn a private custom property, declared once on the component root with the `--_` prefix (`--_card-bleed`; a bare `--card-*` name is a knob callers may set, like the `--fc-*` knobs on `FittedCard`, so it exists only when documented) and never scattered as literals through child selectors: a metric the system has no name for (a raw font-size, width/height or radius off the token ladder), and a metric several declarations must change together, such as a negative margin and the padding that cancels it. Colors never take an alias: rules that must match a color read the same role token (a tint from `color-mix()` on the root is a derived value, not an alias).
+Two kinds of value earn a private custom property, declared once on the component root with the `--_` prefix (`--_card-bleed`; a bare `--card-*` name is a knob callers may set, like the `--fc-*` knobs on `FittedCard`, so it exists only when documented) and never scattered as literals through child selectors: a metric the system has no name for (a raw font-size, width/height or radius off the token ladder), and a metric several declarations must change together, such as a negative margin and the padding that cancels it. In a themed component colors never take an alias: rules that must match a color read the same role token (a tint from `color-mix()` on the root is a derived value, not an alias).
 
 ```css
 .component {

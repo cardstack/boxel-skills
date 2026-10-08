@@ -98,7 +98,7 @@ One dominant thing and a quiet companion at unequal weight, so the eye has an an
 One element laps onto another's edge because the reader must read them together — the price on
 the photo of what it buys — so they read as one thing stacked in space.
 
-- A negative margin or `translate` (`margin-block-start: calc(-1 * var(--boxel-sp-lg))`, the same step as the padding it counters), `position:
+- A negative margin or `translate` (`margin-block-start: calc(-1 * var(--boxel-sp-lg))`, the same step as the padding it counters; when that padding is the component's own, both read one private variable, `--_x-overlap`, so they can't drift apart), `position:
   relative; z-index: 1` on the overlapping element, and a border or surface that separates it
   from the image under it.
 - Keep it to one or two overlaps, offset by a fixed small amount. This is the *Layered* spatial
