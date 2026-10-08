@@ -3,9 +3,11 @@
 Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 
 Defaults a generator drifts into when nobody decided the layout, most of them on app screens
-(desks, lists, forms, settings) rather than front pages, which
-[`critical-rules.md`](critical-rules.md) covers. A reference to check a finished layout against, not
-a step: name any well the layout still contains, and keep one only when you can say why.
+(desks, lists, forms, settings) rather than front pages; for front pages see the clichés in
+[`critical-rules.md`](critical-rules.md) and the first-screen rule in
+[`layout-vocabulary.md`](layout-vocabulary.md). A reference to check a finished layout against, not
+a step: name any well the layout still contains, and keep one only when you can say why. A well the
+user asked for stays: this check is for defaults nobody chose, so don't flag it again.
 
 | Well | Looks like | Why it fails | Resist with |
 |---|---|---|---|
@@ -22,4 +24,4 @@ a step: name any well the layout still contains, and keep one only when you can 
 | Empty state as apology | "No items yet." | Nothing to do next | Name the first action and what will appear |
 | Same padding everywhere | One spacing value for hero, cards and rows | No rhythm, no grouping | Bigger gaps between groups than inside them |
 | Uniform radius and shadow | Every box rounded and lifted alike | Everything floats, nothing is grounded | Radius and elevation by role — containers flat, actionable items lifted — see *layered surface* in [`layout-vocabulary.md`](layout-vocabulary.md) |
-| Stock photo tile | Image, title, price, button, repeated | E-commerce default, forgettable | Let the style decide the media treatment: cut-out, tinted, framed, or none |
+| Stock photo tile | Image, title, price, button, repeated | E-commerce default, forgettable | Choose the media treatment deliberately: cut-out, tinted, framed, or none |

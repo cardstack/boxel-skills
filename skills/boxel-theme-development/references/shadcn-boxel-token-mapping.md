@@ -49,7 +49,7 @@ Sources to re-check when this model changes:
 | `--shadow-2xs` … `--shadow-2xl`, `--shadow-inset` | Elevation scale on cards, popovers, and sunken wells. | Set the composed scale; the `--shadow-x/y/blur/spread/opacity/color` primitives are stored for round-tripping and do not drive rendered shadows. |
 | `--radius` | Card/container radius, form control radius, button radius through Boxel component variables. | Use one base radius that works for buttons and framed card chrome. |
 | `--spacing` | Multiplied by 4 to produce `--boxel-sp`; Boxel spacing scale derives from that base. | Normalize incoming spacing scales before assigning the value. |
-| `--font-sans`, `--theme-font-size`, typography slots | Card container sets Boxel font families, role sizes, line heights, weights, and tracking. | Use role tokens for display/body/caption behavior instead of ad hoc component text sizes. |
+| `--font-sans`, `--tracking-normal`, `--theme-font-size`, typography slots | `CardContainer` builds the role tokens from these (see Roles in `theme-token-contract.md`); `theme.css` holds the role tokens' defaults outside a card. | Use role tokens for display/body/caption behavior instead of ad hoc component text sizes. |
 
 ## Spacing Normalization
 

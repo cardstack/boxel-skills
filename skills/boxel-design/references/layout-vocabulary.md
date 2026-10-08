@@ -2,11 +2,17 @@
 
 Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 
-**Sections first, moves second.** Decide the page's sections from what the visitor is there to
-decide (the index's "Just build it" step 3, or the brief's content contract). Then use a move only
+**Sections first, moves second.** Decide the page's sections, in priority order, from what the
+visitor is there to decide (the request or brief usually states it). Then use a move only
 where a section has the problem that move solves. Zero, one or two moves is normal, and a plain
 stacked page is a valid answer. A section order carried over from other sites is not a move; it is
 the thing to justify.
+
+**A reference, not a checklist.** Adapt, combine or skip these moves to fit a section's problem;
+flexible means fitting the content, not returning to a default [`layout-gravity.md`](layout-gravity.md)
+names. **A layout the user names is the decision:** build it, and use this file only for the
+sections they left open. If their choice is in a move's *Not when*, say so once, in one line, and
+build it anyway.
 
 **The first screen is not a move.** It shows the answer to the visitor's first question at full
 size, with the headline as its caption. A move only shapes that answer once it is chosen; it never
@@ -41,7 +47,7 @@ background step between page and card. Any one alone reads as a flat box.
 - Border `1px solid` at low contrast (`color-mix(in srgb, var(--foreground) 10%, transparent)`),
   shadow two layers (a tight 1–2px and a wide 16–32px at ≤12% opacity), surface one step off
   `--background` (`--card` or `--muted`). Tokens only; no hex.
-- Elevation by role, as in the gravity table: containers sit at rest, the actionable item lifts.
+- Elevation by role, as in [`layout-gravity.md`](layout-gravity.md): containers sit at rest, the actionable item lifts.
   Shadow is punctuation, not chrome ([`critical-rules.md`](critical-rules.md) *Shadow Everything*):
   apply the two-layer shadow to the one or two items that act or lead, never to every box.
 - **Check:** with the shadow removed, the card is still separable from the ground by border and tone.
@@ -52,8 +58,10 @@ One dominant tile, supporting tiles at smaller and varied spans. Answers *Equal-
 *Identical tiles*.
 
 - `display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-flow: dense;`
-  then `grid-column: span 2; grid-row: span 2` on the lead tile. Span follows the content
-  contract's priority order, not the item's data size.
+  then `grid-column: span 2; grid-row: span 2` on the lead tile. Span follows the sections'
+  priority order, not the item's data size. Keep the DOM order equal to the reading order; drop
+  `dense` if it moves a visible tile out of that order, since keyboard and screen-reader users
+  follow the DOM.
 - Collapse by container query: 4 columns → 2 → 1, and the lead tile drops to `span 2` then `span 1`.
 - Each tile is its own format (`embedded` or `fitted`); the lead may be a richer one. Name the
   owner of the cell size ([`delegated-render-control.md`](../../boxel-ui-guidelines/references/delegated-render-control.md)).
@@ -81,7 +89,7 @@ One dominant thing and a quiet companion at unequal weight, so the eye has an an
 
 - `grid-template-columns: minmax(0, 2fr) minmax(0, 3fr)`. The subject takes the 3.
 - Below the container breakpoint, stack with the subject first.
-- The subject is the dominant object from Phase 2; the text column holds the one action.
+- The subject is the section's dominant object; the text column holds the one action.
 - **Check:** at no width does it sit at 50/50 on the way between layouts.
 
 ## 5 · Edge overlap
@@ -140,5 +148,6 @@ One region holds while a sequence of chapters passes beside it.
 - Choose sections first; then a move only where a section has the problem it is **for**. Zero to
   two per screen is normal. Several at once is the *Average Quality Trap*, not a design.
 - Moves 2, 3, 4 and 6 pick the layout; 1 and 5 set the spatial model; 7 and 8 are about how the
-  layout meets the card edge and the scroll, so they belong with the interaction table.
+  layout meets the card edge and the scroll, so decide them with the card's scroll and edge
+  behaviour.
 - When you use a move, say which section needed it and why. Naming a move is never a goal.

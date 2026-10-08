@@ -109,14 +109,19 @@ more surface built in a hurry and one more for the review to mark down. A brief 
 types keeps them; the first build makes the four the main action needs, and the next build adds
 the rest.
 
-### Images in templates
+### Image URL in templates
 
-Never put a relationship in `src`: `<img src={{@model.heroImage}}>` is wrong when `heroImage` is `linksTo(ImageDef)`, because that value is a card, not a URL. Pick the field by what the image needs:
+When using image URLs, route them through the field system so instances can override them:
 
-1. **An image that may be an external URL** (a placeholder, a stock photo, a URL the user pastes), later perhaps a realm file: the URL/ImageDef pair, `linksTo(ImageDef)` + `contains(UrlField)` (Cardinal Rule 12; recipe in [`base-field-catalog.md`](../../boxel/references/base-field-catalog.md)). The catalog's `ImageSourceField` (default export of `@cardstack/catalog/fields/image-source/image-source`) packages that pair with a `sourceMode` switch and a computed `resolvedUrl`: render `{{@model.hero.resolvedUrl}}`, or `<@fields.hero @format='embedded' />`. For several images, `MultiImageSourceField` (`@cardstack/catalog/fields/multi-image-source/multi-image-source`).
-2. **Uploads only**: `linksTo(ImageDef)`, rendered with `<@fields.hero @format='embedded' />`. It cannot hold a URL, so a slot that the first build fills with a placeholder or photo URL needs route 1.
+```hbs
+<img src={{@model.heroImage}} alt='Hero' />
+```
 
-An external URL never goes in `relationships.<field>.links.self` (Cardinal Rule 12). Both routes keep the image editable per instance.
+This keeps the image editable per-instance, and the CardDef provides a sensible default URL or fallback handling.
+
+Here `heroImage` is a URL field. A `linksTo(ImageDef)` value is a card, not a URL: never put it in
+`src`; render it with `<@fields.heroImage @format='embedded' />`. A slot that may hold either takes
+the URL/ImageDef pair or `ImageSourceField` ([`base-field-catalog.md`](../../boxel/references/base-field-catalog.md)).
 
 ### Design Excellence Mindset
 
