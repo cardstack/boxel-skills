@@ -96,7 +96,7 @@ Two mechanical checks close the step:
 
 ### 8. Markup and accessibility
 
-Headings for titles, `<p>` for prose, `<header>` for intro blocks, `role='toolbar'` with `aria-label` for control groups, `<output>` for readouts, `aria-label` on icon-only controls, `aria-hidden` on decoration. `data-test-*` last on every element. DOM queries scoped to the card's own container.
+Headings for titles, `<p>` for prose, `<header>` for intro blocks, `role='toolbar'` with `aria-label` for control groups, `<output>` for readouts, `aria-label` on icon-only controls, `aria-hidden` on decoration. Element order: attributes, then modifiers, then `data-test-*`, with `...attributes` (in a component's own template) as the very last entry, so a caller can override. Exception: an attribute the component's correctness depends on (`type='button'` on a native button, `aria-hidden` on decorative markup, an `id` another element points at, a `role` its keyboard handling assumes) goes after the splat, with a short comment saying why. DOM queries scoped to the card's own container.
 
 A card that handles Escape itself (dismissing a dropdown, clearing a search) must call `stopPropagation()` on the keydown, and the handler must sit on every element that can hold focus in that widget, not only the text input. The operator mode listens for Escape at the document and closes the card when the target is anything other than an input, textarea or select, so an unstopped Escape from a focused result button closes the whole workspace.
 
