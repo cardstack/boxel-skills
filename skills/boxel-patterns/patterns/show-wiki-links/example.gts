@@ -74,12 +74,6 @@ export class WikiPage extends CardDef {
   @field tags = contains(StringField);
   @field relatedPages = linksToMany(() => WikiPage);
 
-  @field cardTitle = contains(StringField, {
-    computeVia: function (this: WikiPage) {
-      return this.cardInfo?.name ?? this.cardInfo?.title ?? 'Untitled Page';
-    },
-  });
-
   static isolated = class Isolated extends Component<typeof WikiPage> {
     get outgoingWikiLinks() {
       return extractWikiLinks(this.args.model.content ?? '');

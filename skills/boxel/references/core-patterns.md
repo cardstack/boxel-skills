@@ -7,28 +7,49 @@ does NOT set the display name — the host reads `cardTitle`, not `title`. A
 plain `title` field is just ordinary data; that's fine when it's the primary
 field a `cardTitle` override reads or real domain data (a blog post's title, a
 job title), but on its own it leaves the card showing "Untitled" everywhere.
+A computed `title` (`@field title = contains(StringField, { computeVia … })`)
+is the same mistake: atoms, search results and card pickers still show
+"Untitled". Put that `computeVia` on `cardTitle` instead.
 
 ```gts
 export class BlogPost extends CardDef {
+  static displayName = 'Blog Post';
   @field headline = contains(StringField);
   
   @field cardTitle = contains(StringField, {
     computeVia: function(this: BlogPost) {
-      return this.headline ?? 'Untitled Post';
+      return this.cardInfo?.name?.trim() || this.headline?.trim() || `Untitled ${this.constructor.displayName}`;
     }
   });
 }
 ```
 
+The override replaces the base computation, so it reads `cardInfo.name` first
+to keep a name the user sets, as the base cards and the catalog do. That's the
+recommended form, not a requirement: an override that skips it leaves the
+card-info panel's Name input doing nothing, since the panel's heading shows
+`cardTitle` and nothing else on an ordinary card reads `cardInfo.name`.
+
 In templates, render `<@fields.cardTitle />` (or read `@model.cardTitle` for a
 raw string). Never hand-roll the fallback — `{{if @model.title @model.title
 'Untitled Foo'}}` is a violation: the `Untitled <displayName>` fallback is
-already built into `cardTitle`. Instance JSON sets the name via
-`cardInfo.name`.
+already built into `cardTitle`. Never wrap it in a condition either
+(`{{#if @model.cardInfo.name}}`, `{{#if @model.cardTitle}}`): every card has a
+title, so `<@fields.cardTitle />` renders unconditionally. Instance JSON sets
+the name via `cardInfo.name`.
+
+The rest of `cardInfo` reaches templates the same way: render
+`cardDescription` (from `cardInfo.summary`) and `cardThumbnailURL` where the
+card shows a summary or an image (for fitted, see
+`boxel-ui-guidelines/references/template-patterns.md`). A template that
+shows only its own fields hides what the user set. When the card derives a
+summary or image of its own, override `cardDescription` / `cardThumbnailURL`
+the same way, `cardInfo` first (see `core-concept.md`).
 
 **Field definition:**
 ```gts
 export class AddressField extends FieldDef {
+  static displayName = 'Address';
   @field street = contains(StringField);
   @field city = contains(StringField);
   
@@ -69,14 +90,15 @@ export class BlogPost extends CardDef {
   @field cardTitle = contains(StringField, {
     computeVia: function(this: BlogPost) {
       try {
-        // A user-set cardInfo.name always wins over the derived value
-        const baseTitle = this.cardInfo?.name ?? this.headline ?? 'Untitled Post';
+        // A user-set cardInfo.name wins over the derived value
+        const baseTitle =
+          this.cardInfo?.name?.trim() || this.headline?.trim() || `Untitled ${this.constructor.displayName}`;
         const maxLength = 50;
         if (baseTitle.length <= maxLength) return baseTitle;
         return baseTitle.substring(0, maxLength - 3) + '...';
       } catch (e) {
         console.error('BlogPost: Error computing cardTitle', e);
-        return 'Untitled Post';
+        return `Untitled ${this.constructor.displayName}`;
       }
     }
   });

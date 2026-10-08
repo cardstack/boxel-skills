@@ -17,6 +17,7 @@ import DateTimeField from '@cardstack/base/datetime';
 // drive {{#each}} with `<@fields.notes.[i] />`.
 
 export class Note extends FieldDef {
+  static displayName = 'Note';
   @field text = contains(StringField);
   @field createdAt = contains(DateTimeField);
 

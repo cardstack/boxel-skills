@@ -72,15 +72,7 @@ export class BoardPlacement extends FieldDef {
 
 export class WorkItem extends CardDef {
   static displayName = 'Work Item';
-
-  @field title = contains(StringField);
   @field owner = contains(StringField);
-
-  @field cardTitle = contains(StringField, {
-    computeVia: function (this: WorkItem) {
-      return this.cardInfo.name?.trim() || this.title || 'Untitled work item';
-    },
-  });
 
   static isolated = class extends Component<typeof WorkItem> {
     <template>
@@ -98,14 +90,14 @@ export class WorkItem extends CardDef {
 
   static embedded = class extends Component<typeof WorkItem> {
     <template>
-      <span>{{@model.title}}</span>
+      <span><@fields.cardTitle /></span>
     </template>
   };
 
   static fitted = class extends Component<typeof WorkItem> {
     <template>
       <article class='item-card'>
-        <strong>{{@model.title}}</strong>
+        <strong><@fields.cardTitle /></strong>
         {{#if @model.owner}}<span>{{@model.owner}}</span>{{/if}}
       </article>
       <style scoped>
@@ -139,7 +131,7 @@ export class WorkBoard extends CardDef {
 
   @field cardTitle = contains(StringField, {
     computeVia: function (this: WorkBoard) {
-      return this.cardInfo.name?.trim() || this.boardTitle || 'Work Board';
+      return this.cardInfo.name?.trim() || this.boardTitle?.trim() || 'Work Board';
     },
   });
 

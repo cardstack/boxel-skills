@@ -234,7 +234,7 @@ computeVia: function (this: CardDef) {
 
 #### Override `cardTitle` to compute from a primary field (canonical pattern)
 
-When your card has a natural identifier field (`headline`, `firstName + lastName`, `email`, etc.), override `cardTitle` to fall back to that field. **Always respect user-entered `cardInfo.name` first** — this is the rule the catalog follows.
+When your card has a natural identifier field (`headline`, `firstName + lastName`, `email`, etc.), override `cardTitle` to fall back to that field. Read `cardInfo.name` first, as the base cards and the catalog do (recommended, not required; see the table).
 
 ```gts
 // ✅ Canonical — respects cardInfo.name, then primary field, then default
@@ -242,17 +242,18 @@ When your card has a natural identifier field (`headline`, `firstName + lastName
   computeVia: function (this: BlogPost) {
     return this.cardInfo?.name?.trim()?.length
       ? this.cardInfo.name
-      : (this.headline ?? `Untitled ${this.constructor.displayName}`);
+      : (this.headline?.trim() || `Untitled ${this.constructor.displayName}`);
   },
 });
 ```
 
-Three real catalog patterns:
+Real catalog patterns, plus the one to avoid unless you mean it:
 
 | Form | Example | Use when |
 |---|---|---|
 | `cardInfo.name` first → primary field → `Untitled` | `BlogPost`, *recommended default* | Card has both a user-editable identity AND a meaningful primary field. |
 | `cardInfo.name ?? this.displayName` | `WineBottle`, `WineCellar` | Card has no obvious primary field; rely on user input. |
+| Primary field → `Untitled` | — | The title must always come from the field; the Name input then does nothing. |
 | Static return | `Blackjack` (`return 'Blackjack'`) | Card is conceptually singleton — the title is fixed. |
 
 #### Same idea for `cardDescription`

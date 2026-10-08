@@ -14,6 +14,7 @@ import NumberField from '@cardstack/base/number';
 export class CommentThread extends FieldDef {
   static displayName = 'Comment Thread';
 
+  @field title = contains(StringField);
   @field authorName = contains(StringField);
   @field body = contains(TextAreaField);
   @field depth = contains(NumberField);
@@ -31,6 +32,9 @@ export class CommentThread extends FieldDef {
     <template>
       <article class='comment'>
         <header>
+          {{#if @model.title}}
+            <h3><@fields.title /></h3>
+          {{/if}}
           <strong>{{if @model.authorName.length @model.authorName 'Anonymous'}}</strong>
         </header>
         <p>{{@model.body}}</p>
@@ -45,6 +49,11 @@ export class CommentThread extends FieldDef {
           border-left: 2px solid var(--border);
           padding-left: 0.75rem;
           margin-block: 0.5rem;
+        }
+
+        .comment h3 {
+          margin: 0 0 0.25rem;
+          font-size: 1rem;
         }
 
         .comment p {
@@ -66,15 +75,7 @@ export class CommentThread extends FieldDef {
 export class Discussion extends CardDef {
   static displayName = 'Discussion';
   static prefersWideFormat = true;
-
-  @field title = contains(StringField);
   @field comments = containsMany(CommentThread);
-
-  @field cardTitle = contains(StringField, {
-    computeVia: function (this: Discussion) {
-      return this.cardInfo?.name ?? this.title ?? 'Discussion';
-    },
-  });
 
   static isolated = class Isolated extends Component<typeof Discussion> {
     <template>

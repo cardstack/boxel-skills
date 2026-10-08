@@ -42,9 +42,9 @@ Fitted cards are rendered at many different container sizes — from small badge
 - Use `text-overflow: ellipsis` with `white-space: nowrap` for single-line labels, or clamp multi-line text with `-webkit-line-clamp`
 - Override inherited font sizes to fit the smaller space — but keep text legible. Depending on the font, you can go as small as 0.5rem, but ideally no smaller
 
-#### The `FittedCard` component — a good option for most cases
+#### The `FittedCard` component — the default for standard compositions
 
-`FittedCard` from `@cardstack/boxel-ui/components` handles all responsive container-query breakpoints, image column sizing, text clamping, and overflow — you only supply named content blocks. Reach for it when the design fits its slot model; hand-roll a fitted template (next section) when it does not.
+`FittedCard` from `@cardstack/boxel-ui/components` handles all responsive container-query breakpoints, image column sizing, text clamping, and overflow — you only supply named content blocks. Any fitted view made of an image or icon, eyebrow, title, subtitle, meta and footer uses it; a hand-rolled flex row of the same pieces is a miss. Hand-roll a fitted template (next section) only for a bespoke composition its slots cannot express.
 
 ```gts
 import { FittedCard } from '@cardstack/boxel-ui/components';
@@ -83,7 +83,7 @@ static fitted = class Fitted extends Component<typeof this> {
 | Block         | Description                                                                                                                              | Required |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | `title`       | Primary heading                                                                                                                          | Yes      |
-| `placeholder` | Icon/content in the image column when `@imageUrl` is absent. Yielding empty content removes the column entirely.                         | No       |
+| `placeholder` | Icon/content in the image column when `@imageUrl` is absent, usually the card's `static icon`. Yielding empty content removes the column entirely. | No       |
 | `image`       | Custom image block (alternative to `@imageUrl`)                                                                                          | No       |
 | `background`  | Absolutely-positioned background graphics layer                                                                                          | No       |
 | `badgeLeft`   | Absolutely-positioned group at top-left (over the image when present)                                                                    | No       |
@@ -128,7 +128,7 @@ Every visual metric has an `--fc-*` override, set on the `FittedCard` root; the 
 
 The full list, with defaults, is in the component source: `packages/boxel-ui/src/components/fitted-card/index.gts` (and its `usage.gts`). Verify there before relying on a name not shown above.
 
-#### Customising caller-owned content per breakpoint
+#### Customizing caller-owned content per breakpoint
 
 `FittedCard` handles its own layout at every size. For caller-owned content that needs show/hide per breakpoint, add `@container fitted-card` rules in your own `<style scoped>`:
 

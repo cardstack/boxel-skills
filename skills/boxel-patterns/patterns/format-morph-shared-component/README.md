@@ -103,6 +103,7 @@ export class Article extends CardDef {
 const VibeTemplate = class extends GlimmerComponent<...> { /* ... */ };
 
 export class Vibe extends FieldDef {
+  static displayName = 'Vibe';
   static [primitive]: string;
   static embedded = VibeTemplate;
   static edit     = VibeTemplate;

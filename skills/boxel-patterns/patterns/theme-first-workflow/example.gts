@@ -23,7 +23,7 @@ export class BlogPost extends CardDef {
     computeVia: function (this: BlogPost) {
       return this.cardInfo?.name?.trim()?.length
         ? this.cardInfo.name
-        : (this.headline ?? `Untitled ${this.constructor.displayName}`);
+        : (this.headline?.trim() || `Untitled ${this.constructor.displayName}`);
     },
   });
 
