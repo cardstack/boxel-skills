@@ -20,7 +20,7 @@
 ┌─────────────────────────────────────────────────────┐
 │ LEVEL 1 (root object)                               │
 │ ┌─────────────────────────────────────────────────┐ │
-│ │ "name": "show-card_566f"        ← STRING        │ │
+│ │ "name": "patch-fields_3e67"     ← STRING        │ │
 │ │ "payload": {                    ← OBJECT        │ │
 │ │   ┌───────────────────────────────────────────┐ │ │
 │ │   │ LEVEL 2 (inside payload)                  │ │ │
@@ -43,7 +43,7 @@
 
 | Level | Key | Type | What Goes Here |
 |-------|-----|------|----------------|
-| **1** | `"name"` | STRING | Command name with hash suffix (e.g., `"show-card_566f"`) |
+| **1** | `"name"` | STRING | Command name with hash suffix (e.g., `"patch-fields_3e67"`) |
 | **1** | `"payload"` | **OBJECT** | Wrapper that contains levels 2 and 3 |
 | **2** | `"description"` | STRING | Brief text explaining what this call does |
 | **2** | `"attributes"` | **OBJECT** | Contains level 3 key-value pairs |
@@ -51,7 +51,7 @@
 
 **⚠️ CRITICAL CLARIFICATION:** 
 - Level 3 is NOT called "parameters" — it's just the key-value pairs INSIDE `attributes`
-- The keys at level 3 vary per command (e.g., `cardId` for show-card, `submode` + `codePath` for switch-submode)
+- The keys at level 3 vary per command (e.g., `cardId` for patch-fields, `submode` + `codePath` for switch-submode)
 - `attributes` is ALWAYS a JSON object `{ }`, NEVER a string
 
 ### 🔴 THE ONE TRUE FORMAT (Copy This Exactly)
@@ -93,20 +93,7 @@ Before generating ANY command call, verify:
 
 ## 📋 Working Examples
 
-### Example 1: show-card
-```json
-{
-  "name": "show-card_566f",
-  "payload": {
-    "description": "Display the burger menu card",
-    "attributes": {
-      "cardId": "https://realms-staging.stack.cards/workspace/Card/id"
-    }
-  }
-}
-```
-
-### Example 2: switch-submode (multiple attributes)
+### Example 1: switch-submode (multiple attributes)
 ```json
 {
   "name": "switch-submode_dd88",
@@ -121,7 +108,7 @@ Before generating ANY command call, verify:
 ```
 **Note:** `codePath` pins code mode to the target realm — a bare `submode` switch stays in whatever realm the UI last showed. It is a plain file URL. Do not pass `createFile: true` before writing a new file with `run-realm-code`: it creates an empty file, and `realm.fs.writeText` then refuses it.
 
-### Example 3: Empty attributes (when no params needed)
+### Example 2: Empty attributes (when no params needed)
 ```json
 {
   "name": "some-command_xxxx",

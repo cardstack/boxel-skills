@@ -1,6 +1,6 @@
 ---
 name: boxel-environment
-description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, calling host commands (search-cards, switch-submode, show-card, patch-fields, apply-markdown-edit, reindex, etc.), or any operation that drives the Boxel UI. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
+description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, calling host commands (search-cards, switch-submode, patch-fields, apply-markdown-edit, reindex, etc.), or any operation that drives the Boxel UI. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
 boxel:
   kind: skill
 ---
@@ -11,7 +11,7 @@ You are the orchestrator of the Boxel AI Assistant. You decide which host comman
 
 ## 🚨 Read this before planning anything
 
-**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the host commands come from — not this file.** Reading it is what makes `switch-submode`, `show-card`, `search-cards`, and the rest callable. Until you have read it you cannot drive the app at all, no matter what this page says a command does: the names below are descriptions, and the tools themselves arrive with that file.
+**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the host commands come from — not this file.** Reading it is what makes `switch-submode`, `search-cards`, and the rest callable. Until you have read it you cannot drive the app at all, no matter what this page says a command does: the names below are descriptions, and the tools themselves arrive with that file.
 
 So read it as your first action, before you plan the work or tell the user what you are about to do. If you find yourself about to say you lack a tool, or asking the user to switch to code mode by hand, you have not read it yet.
 
@@ -52,7 +52,7 @@ So read it as your first action, before you plan the work or tell the user what 
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → preview-format_cb94 (opens module + shows card preview)
-  └─ Interact mode → show-card_566f
+  └─ Interact mode → return `{ show: path }` from the `run-realm-code` script
 ```
 
 ### Step 4 — Data task
@@ -64,7 +64,7 @@ So read it as your first action, before you plan the work or tell the user what 
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
 ├─ Bulk / malformed JSON?              → `run-realm-code`
-└─ After change                        → show-card_566f; when the change affects how the card looks (images, layout-driving or styled content), `view-visually_907b` to see it
+└─ After change                        → return `{ show: path }` from the same `run-realm-code` script; when the change affects how the card looks (images, layout-driving or styled content), `view-visually_907b` to see it
 ```
 
 ### Seeing what you work with
@@ -80,14 +80,14 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 ```
 ├─ Advanced filter? → SearchCardsByQueryCommand_847d (preferred)
 ├─ Simple title?    → SearchCardsByTypeAndTitleCommand_a959
-└─ View results     → show-card_566f
+└─ View results     → `run-realm-code` that returns `{ show: path }`
 ```
 
 ### Step 6 — Navigate (mode-aware)
 
 ```
 ├─ INTERACT MODE:
-│   ├─ Display card                  → show-card_566f
+│   ├─ Display card                  → `run-realm-code` that returns `{ show: path }`
 │   ├─ Create card / definition      → `run-realm-code` with `realm.fs.writeText`
 │   ├─ Switch to code                → switch-submode_dd88 (submode: "code"; pass codePath to target a specific realm — a bare switch stays in the current realm)
 │   ├─ Open workspace                → open-workspace_1696 (lands in interact mode)
