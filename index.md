@@ -45,8 +45,9 @@ Read it before you plan out loud. Describing a plan you have no tools to carry o
 
 This step is not done until a search has returned and every hit is dispositioned — adopted, or refused naming what mismatched. **Reading pattern and design references is not a substitute**: they tell you how to build well, not whether to build at all. A game, an app, a tool, a one-off — if it ships as a card, it goes through the query first.
 
-**Templates take one more read: [`skills/boxel-ui-component-discovery/SKILL.md`](skills/boxel-ui-component-discovery/SKILL.md).** Before writing a template, read it and use the Pret UI component for every control it covers (buttons, inputs, selects, accordions, tabs, tables); boxel-ui only where Pret UI has no equivalent. Hand-roll a control only where the component search returns nothing that matches, and name the gap.
 <!-- /feature:catalog-reuse -->
+
+**Templates take one more read: [`skills/boxel-ui-component-discovery/SKILL.md`](skills/boxel-ui-component-discovery/SKILL.md).** Before writing a template, read it and use the Pret UI component for every control it covers (buttons, inputs, selects, accordions, tabs, tables); boxel-ui only where Pret UI has no equivalent. Hand-roll a control only where the component search returns nothing that matches, and name the gap.
 
 **Writing any file takes one more read: [`skills/source-code-editing/SKILL.md`](skills/source-code-editing/SKILL.md).** It declares the `run-realm-code` tool, which is the only way to create or edit a file. The tool runs a short JavaScript script against the realm: `await realm.fs.readText(path)`, `await realm.fs.list(path)` to see what a folder holds, `await realm.fs.exists(path)`, `await realm.fs.replace(path, exactCurrentText, replacement)` for an existing file, and `await realm.fs.writeText(path, content)` for a new one. Paths are relative to the realm root. Each write is saved when its call returns. The script runs in a small QuickJS sandbox: the only global it adds is `realm`, and there is no `console`, `print`, `nodeRepl`, `require` or `fetch`. The tool result is only the value that the script returns, so `return` what you want to see. The shape, so you recognise it:
 
@@ -84,9 +85,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 ### UI & content
 
 - **[`boxel-ui-guidelines/`](skills/boxel-ui-guidelines/SKILL.md)** — Template UI rules: theme tokens, `@fields` vs `@model`, container queries, layout safety.
-<!-- feature:catalog-reuse -->
 - **[`boxel-ui-component-discovery/`](skills/boxel-ui-component-discovery/SKILL.md)** — Mandatory catalog search for a component Spec before hand-rolling any UI primitive in a `.gts` template: Pret UI first, boxel-ui only where Pret UI has no equivalent yet.
-<!-- /feature:catalog-reuse -->
 - **[`boxel-design/`](skills/boxel-design/SKILL.md)** — Visual design language, mood, typography, asset direction.
 - **[`domain-interview/`](skills/domain-interview/SKILL.md)** — Interview the user before a build and write a brief as a catalog `Brief` card — schema, coverage matrix, per-screen content contracts, flows, sample data in its `spec` field — with no design decisions. Use it when the user asks for a spec or a brief, or wants to plan first; it stops at the brief card.
 - **[`boxel-theme-development/`](skills/boxel-theme-development/SKILL.md)** — The theme artifact itself: creating, converting, auditing, or patching StructuredTheme / StyleReference / BrandGuide cards, DESIGN.md import/export, logo and functional-palette placement.
