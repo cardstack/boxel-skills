@@ -41,9 +41,9 @@ So read it as your first action, before you plan the work or tell the user what 
 
 ```
 □ Boxel Development skill active?
-  └─ NO → activate via update-room-skills_3875
+  └─ NO → read `skills/boxel/SKILL.md`
 □ Source Code Editing skill active?
-  └─ NO → activate via update-room-skills_3875
+  └─ NO → read `skills/source-code-editing/SKILL.md` (reading it makes `run-realm-code` callable)
 → Need file content? `realm.fs.readText` in a `run-realm-code` script. Need to see what is in a folder? `realm.fs.list`.
 → Use `run-realm-code` tool. For NEW files, call `realm.fs.writeText` with the complete contents.
 → Put every file the task needs in ONE `run-realm-code` call.
