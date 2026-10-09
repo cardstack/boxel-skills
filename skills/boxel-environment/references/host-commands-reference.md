@@ -142,7 +142,7 @@ What you can and cannot see:
 
 ## Skill / LLM management
 
-- `update-room-skills_3875` — Activate/deactivate skills in the current room.
+- `update-room-skills_3875` — Activate/deactivate skills in the current room. Use it only when the user asks you to change the room's skills. To use a skill yourself, read its `SKILL.md` with `readRealmFile` — `index.md` lists the skills. Reading the file loads the skill's instructions and tools; activating it in the room is not necessary.
 - `set-active-llm_1887` — Switch AI model.
 
 ## Indexing (requires write access)
