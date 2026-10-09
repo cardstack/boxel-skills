@@ -47,7 +47,7 @@ export class OperationalStub extends CardDef {
 
   @field cardTitle = contains(StringField, {
     computeVia: function (this: OperationalStub) {
-      return [this.firstName, this.lastName].filter(Boolean).join(' ')
+      return [this.firstName, this.lastName].map((p) => p?.trim()).filter(Boolean).join(' ')
         || `Stub ${this.recordId ?? ''}`;
     },
   });
@@ -84,7 +84,7 @@ export class FullRecord extends CardDef {
   @field cardTitle = contains(StringField, {
     computeVia: function (this: FullRecord) {
       const f = this.identity?.firstName, l = this.identity?.lastName;
-      return [f, l].filter(Boolean).join(' ') || `Record ${this.identity?.recordId ?? ''}`;
+      return [f, l].map((p) => p?.trim()).filter(Boolean).join(' ') || `Record ${this.identity?.recordId ?? ''}`;
     },
   });
 

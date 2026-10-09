@@ -14,6 +14,8 @@ validated: source-proven
 
 ```ts
 export class CommentThread extends FieldDef {
+  static displayName = 'Comment Thread';
+  @field title = contains(StringField);
   @field body = contains(TextAreaField);
   @field replies = containsMany(() => CommentThread);
 }

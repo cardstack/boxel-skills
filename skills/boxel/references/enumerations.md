@@ -197,14 +197,9 @@ const PriorityField = enumField(StringField, {
 });
 
 export class Task extends CardDef {
-  @field taskName = contains(StringField);
+  static displayName = 'Task';
+  // The task's name is cardInfo.name; templates render it as <@fields.cardTitle />.
   @field priority = contains(PriorityField);
-  
-  @field cardTitle = contains(StringField, {
-    computeVia: function(this: Task) {
-      return this.cardInfo?.name ?? this.taskName ?? 'Untitled Task';
-    }
-  });
 }
 ```
 

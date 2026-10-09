@@ -367,7 +367,7 @@ export class PdfAnnotationCard extends CardDef {
 
   @field cardTitle = contains(StringField, {
     computeVia: function (this: PdfAnnotationCard) {
-      return this.documentTitle || this.pdfFile?.name || 'PDF annotation';
+      return this.documentTitle?.trim() || this.pdfFile?.name || this.constructor.displayName;
     },
   });
 

@@ -21,6 +21,8 @@ style='                        [0-9]v[hw]                     @media (other than
 <[A-Z][A-Za-z]*Icon (without width= and height=)
 overflow-wrap: anywhere         word-break: break-all          word-break: break-word
 @variant=                       (and any other argument a component's contract marks deprecated)
+@field title = contains(        (fine as domain data, or as the field a cardTitle override reads; not as a copy of cardInfo.name)
+{{#if @model.cardInfo.name}}  /  {{#if @model.cardTitle}}   (around cardTitle, which always renders)
 ```
 
 ### 1. Decide the theme posture, then hold it
@@ -64,6 +66,7 @@ Either the template follows the realm's theme, or it is pinned to a fixed theme.
 
 - A child card's chrome is styled through a `class` on its component (`<item.component class='…' />`, `<@fields.x class='…' />`, `<Item class='…' />` in a loop), which lands on its `CardContainer`. Never `:deep(.boxel-card-container)` or `:deep(.field-component-card)`.
 - The host's boundary ring already draws a 1px `--border` edge; do not add a border on top. When the parent draws its own edge, shadow or larger radius, pass `@displayContainer={{false}}`.
+- The card under review is a child card too: each format's outermost element follows the per-format table in `delegated-render-control.md` ("Per format — what's safe and what isn't on the outermost element"), and the isolated root is the page, not a smaller painted box inside it. A fitted view of standard pieces is a `FittedCard`.
 - What `:deep()` is left for: host-generated DOM with no class hook, such as the SVG inside an icon rendered from an HTML string. Reaching into another component's internals (a layout's sidebar or header) is a missing argument on that component, not a `:deep()` rule.
 
 ### 7. Components

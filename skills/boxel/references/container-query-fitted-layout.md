@@ -71,7 +71,7 @@ Source: [`packages/boxel-ui/src/components/fitted-card/`](https://github.com/car
 
 Tune, don't fork: when the composition IS standard, prefer setting `--fc-*` variables and `@container fitted-card (...)` overrides from your card's scoped CSS over forking the layout. When it isn't — see the special-template rule above — hand-roll from the start; the File Inventory references show what that looks like.
 
-### Customising caller-owned content per breakpoint
+### Customizing caller-owned content per breakpoint
 
 `FittedCard` handles its own layout at every size. For caller-owned content that needs show/hide per breakpoint, add `@container fitted-card` rules in your own `<style scoped>`:
 

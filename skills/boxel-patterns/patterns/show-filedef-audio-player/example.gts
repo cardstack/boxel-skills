@@ -33,7 +33,7 @@ export class AudioTrack extends CardDef {
 
   @field cardTitle = contains(StringField, {
     computeVia: function (this: AudioTrack) {
-      return this.title || this.mp3File?.name || 'Untitled audio';
+      return this.title?.trim() || this.mp3File?.name || `Untitled ${this.constructor.displayName}`;
     },
   });
 

@@ -20,7 +20,7 @@ export class BlogPost extends CardDef {
         return this.cardInfo.name;
       }
       // 2) Fall back to the primary field.
-      if (this.headline) {
+      if (this.headline?.trim()) {
         return this.headline;
       }
       // 3) Final fallback — the default behavior.
@@ -42,7 +42,7 @@ export class Person extends CardDef {
       if (this.cardInfo?.name?.trim()?.length) {
         return this.cardInfo.name;
       }
-      let parts = [this.firstName, this.lastName].filter(Boolean);
+      let parts = [this.firstName, this.lastName].map((p) => p?.trim()).filter(Boolean);
       return parts.length ? parts.join(' ') : `Untitled ${this.constructor.displayName}`;
     },
   });
@@ -53,17 +53,8 @@ export class Person extends CardDef {
 export class Recipe extends CardDef {
   static displayName = 'Recipe';
 
-  @field title        = contains(StringField);
   @field totalMinutes = contains(NumberField);
   @field servings     = contains(NumberField);
-
-  @field cardTitle = contains(StringField, {
-    computeVia: function (this: Recipe) {
-      return this.cardInfo?.name?.trim()?.length
-        ? this.cardInfo.name
-        : (this.title ?? `Untitled ${this.constructor.displayName}`);
-    },
-  });
 
   @field cardDescription = contains(StringField, {
     computeVia: function (this: Recipe) {
