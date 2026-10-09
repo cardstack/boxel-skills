@@ -105,7 +105,7 @@ Without stage 0, the agent reaches for `name`, `description`, `date` as fields �
 Stage 0 forces the agent to:
 - Identify the one or two SIGNATURE fields that make this card visually distinctive (a hero image, a price, a rating, a status pill, a brand mark).
 - Decide BEFORE writing schema what the fitted view's job is — show the price? show the photo? show the badge?
-- Write sample data with real names, real prices, real photographs (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards. Which image goes in each media slot, and never a guessed URL: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
+- Write sample data with real names, real prices, real photographs (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards. Which image goes in each media slot, and never a guessed URL: [`sample-images.md`](../../boxel-file-def/references/sample-images.md). Give each card type one instance with the longest realistic name the domain has, so the fitted and phone views are designed for the worst case, not the shortest.
 
 Then stage 1's mockup has substance to arrange.
 
@@ -213,6 +213,14 @@ Push to the realm after each stage so you can compare visually.
 
 > Do a design exploration and generate only the above-the-fold view in isolated, framed as such. Write sample content for this use case and fit the elements in there as a design challenge executed by a brand-focused art director of Pentagram, judged by the preeminent taste maker in that field. (Specify who in your thinking, not your final summary.)
 
+Decide the sections from what the visitor is there to decide before any layout. For an app, that
+is the Home card's sections, one per CardDef from Stage 0, never one card holding the whole app;
+a record card's sections come from its content matrix (Stage 0f). The first screen
+answers the visitor's first question with the answer itself at full size (a list, a photo, a
+number, a form, something to try), and the headline captions it. Then, where a section has a layout problem, use the move from [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) that is **for** that problem and say why; zero moves is a valid answer, and "make it look premium" is not a reason.
+
+Place the app's main action ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Main action always on screen*) as the one primary-styled button on Home: in the header on wide screens, within reach without scrolling on a phone, and repeated on the cards where it applies. One primary style per screen.
+
 Hold the taste-maker in your head as you work. Bierut, Sagmeister, Paula Scher, Khoi Vinh, Massimo Vignelli, Mark Boulton — whoever fits the brief. The internal critic raises the bar; do NOT name them in your code or commit messages.
 
 ### Brand-guided imagery during mockup (not as a late asset fill)
@@ -231,14 +239,17 @@ brand DNA (palette, voice, reference vocabulary)
 
 For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-tone background, oak browns, no high contrast), composition constraint (lower-third negative space for headline overlay), and visual reference (Made Thought monograph aesthetic). Generic prompts ("Inset Shaker kitchen") produced generic photos.
 
+To source and link the images, follow [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md): every media slot of every sample instance gets an image in the first build (from a terminal, real photos from Openverse; otherwise labelled placeholders). A gradient, initials or a box drawn in CSS where a photo belongs is not an image. It covers when to generate, when a stock photo or a placeholder is the better call, and how each one reaches the instance.
+
 **What "designed" looks like in stage 1 — non-negotiables:**
 
 - **Schema rich enough to compose with.** A card with 3-4 thin fields will look thin no matter the layout. If the design needs `cuisine`, `subtitle`, `rating`, `reviews`, `author`, `keyIngredient`, `difficulty`, `calories`, `description`, `imageUrl` — add them. Don't be precious about schema size.
-- **Real, evocative sample content.** Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
-- **Hardcoded values everywhere.** `#fdfbf7`, `'Lyon Display', 'Garamond Premier Pro', serif`, `2.125rem`, `letter-spacing: 0.22em`. Real choices, no `var(--*)`, no theme tokens, no calc against tokens.
-- **Typography pairing.** Two families with clear roles. Serif body + sans micro-labels is one option. Mono numerals + serif body is another. Two-sans-weights is a third. Pick deliberately.
-- **Weight rhythm.** Large at LIGHT weight (300-400). Tiny at BOLD weight (700-800). Avoid uniform 500-600 weights — that's UI, not editorial.
-- **ONE accent color in ≤2 places.** Pick a single accent that carries meaning (a brand color, a category tag, an action). Use it twice at most. Everything else neutral.
+- **Real, evocative sample content** — but no invented proof about a real business (names, ratings, years, prices): [`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*. Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
+- **Hardcoded values everywhere.** `#0f2a3d`, `'Archivo', sans-serif`, `2.125rem`, `letter-spacing: 0.22em`. Real choices, no `var(--*)`, no theme tokens, no calc against tokens.
+- **Typography pairing.** Two families with clear roles (display, body, optional label), chosen from the style family the brief calls for — [`style-families.md`](../../boxel-design/references/style-families.md). Serif body + sans micro-labels is one option; a heavy rounded display + friendly sans is another; a slab + warm serif a third. Pick deliberately, and do not default to the editorial one.
+- **Weight rhythm.** A clear contrast between the display role and the body role, set by the family. Editorial and luxury: large at LIGHT weight (300-400), tiny at BOLD (700-800). Playful, vibrant, brutalist: a HEAVY display (700-900) against a plain body. In every family, avoid everything sitting at 500-600 — that's UI.
+- **Colour with a job.** Per the family's colour strategy. Restrained families: ONE accent in ≤2 places, everything else neutral. Playful, vibrant, vintage: a multi-colour palette is right when every colour has a named role. Never colours nobody assigned.
+- **Baseline motion.** The mockup ships with the CSS motion in [`motion-baseline.md`](../../boxel-design/references/motion-baseline.md) (arrival, scroll reveal, hover feedback, at most one ambient loop), in the family's motion character. Not optional, not a separate stage.
 - **Letter-spacing on micro-labels.** `0.05em` to `0.22em` on uppercase eyebrows. Untracked uppercase reads cheap.
 - **Editorial micro-objects.** Eyebrow + rules. Author avatar with initial. Star rating with fill states. Drop cap. Fold cue. Stats slab framed by `border-top` / `border-bottom` rather than enclosed in a box. Pick 2-3 of these moves; don't apply all of them.
 - **Media is featured.** If the card has imagery (hero, cover, headshot), it appears at scale. Don't hide it in a corner.
@@ -356,6 +367,12 @@ A single line, maybe with a chip. Use atom format when the card appears inline i
 **Edit** — usually leave to host default unless your design truly demands a custom form layout.
 
 Push each format.
+
+---
+
+## After stage 4 — automatic design review (not optional)
+
+When the build is done, capture it yourself and fix every line of the pass/fail [build check](../../design-review/references/build-check.md): names, fill, media, phone, colour roles, type, controls, main action, one signature, job first, same facts. Then run [`design-review`](../../design-review/SKILL.md) without being asked: `set` mode across the app and `card` mode on every CardDef the build produced, scored against the brief's acceptance lines and an award-site benchmark. Fix the top gaps once, re-capture and re-score, and report whether it cleared 8.5, offering another round as a choice. Skip only for a utility card with no user-facing surface.
 
 ---
 
