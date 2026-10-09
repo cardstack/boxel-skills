@@ -14,6 +14,7 @@ validated: source-proven
 
 ```ts
 export class RatingsSummary extends FieldDef {
+  static displayName = 'Ratings Summary';
   @field average = contains(NumberField);
   @field count = contains(NumberField);
   @field isEditable = contains(BooleanField);

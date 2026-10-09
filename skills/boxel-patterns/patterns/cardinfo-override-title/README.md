@@ -13,7 +13,7 @@ validated: source-proven
 The canonical order is:
 1. Respect `cardInfo.name` if non-empty.
 2. Else use the primary field.
-3. Else `Untitled <DisplayName>`.
+3. Else a fallback: usually `Untitled <DisplayName>`, or any string that suits the card.
 
 **Recipe shape:**
 
@@ -22,7 +22,7 @@ The canonical order is:
   computeVia: function (this: <YourCardClass>) {
     return this.cardInfo?.name?.trim()?.length
       ? this.cardInfo.name
-      : (this.<primaryField> ?? `Untitled ${this.constructor.displayName}`);
+      : (this.<primaryField>?.trim() || `Untitled ${this.constructor.displayName}`);
   },
 });
 ```
@@ -33,7 +33,7 @@ For multi-field composition:
 @field cardTitle = contains(StringField, {
   computeVia: function (this: Person) {
     if (this.cardInfo?.name?.trim()?.length) return this.cardInfo.name;
-    let parts = [this.firstName, this.lastName].filter(Boolean);
+    let parts = [this.firstName, this.lastName].map((p) => p?.trim()).filter(Boolean);
     return parts.length ? parts.join(' ') : `Untitled ${this.constructor.displayName}`;
   },
 });
@@ -51,9 +51,9 @@ For multi-field composition:
 ```
 
 **Gotchas:**
-- **Don't omit the `cardInfo.name` check.** Catalog cards `WineBottle` and `WineCellar` do `this.cardInfo?.name ?? this.displayName` — that loses the primary-field fallback. The fuller pattern (cardInfo → primary → default) is the recommended default.
+- **Reading `cardInfo.name` first is recommended, not required.** Skip it only when the title must always come from the field, and know the cost: an override that skips it leaves the card-info panel's Name input doing nothing, since the panel's heading shows `cardTitle` and nothing else on an ordinary card reads `cardInfo.name`.
 - **Optional chaining matters.** `this.cardInfo?.name?.trim()?.length` is right; `this.cardInfo.name.length` will throw when `cardInfo.name` is null.
-- **Use `this.constructor.displayName`**, not a hard-coded string — the `displayName` is set on the class and benefits from subclass overrides.
+- **Prefer `` `Untitled ${this.constructor.displayName}` `` to a hard-coded "Untitled …" string** — the `displayName` is set on the class and benefits from subclass overrides.
 - **Don't reference computed fields in the computation.** Reading `this.cardTitle` (your own override) from within the compute creates a circular dependency. Use the raw fields (`this.headline`, etc.) directly.
 - **You can override `cardDescription`, `cardThumbnailURL`, and `cardTheme` the same way.** The base class only provides default pass-throughs.
 - **For singleton-ish cards** where the title is conceptually fixed (`Blackjack`, `WeeklyDigest`), a static return is fine: `computeVia: function () { return 'Blackjack'; }`. But this is the exception.

@@ -75,6 +75,7 @@ A `FieldDef` may declare its own `linksTo` / `linksToMany`, so a `searchable` pa
 
 ```gts
 class Profile extends FieldDef {
+  static displayName = 'Profile';
   @field lead = linksTo(Person);
   @field members = linksToMany(Person);
 }

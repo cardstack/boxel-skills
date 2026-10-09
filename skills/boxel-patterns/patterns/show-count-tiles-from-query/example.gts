@@ -155,7 +155,7 @@ export class DashboardOverview extends CardDef {
 
   @field cardTitle = contains(StringField, {
     computeVia: function (this: DashboardOverview) {
-      return this.heading ?? 'Dashboard Overview';
+      return this.heading?.trim() || this.constructor.displayName;
     },
   });
 

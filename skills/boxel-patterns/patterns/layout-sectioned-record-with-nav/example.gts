@@ -103,7 +103,7 @@ export class SectionedRecord extends CardDef {
 
   @field cardTitle = contains(StringField, {
     computeVia: function (this: SectionedRecord) {
-      return this.identity?.displayName || 'Untitled Record';
+      return this.identity?.displayName || `Untitled ${this.constructor.displayName}`;
     },
   });
 

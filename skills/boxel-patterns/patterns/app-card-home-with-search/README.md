@@ -28,7 +28,6 @@ A query-backed field with no `filter` matches every card of its declared type in
 ```ts
 // surge.gts (or row-and-rail.gts, or whatever the brand demands)
 import { CardDef, Component, field, contains, linksTo, linksToMany } from '@cardstack/base/card-api';
-import StringField from '@cardstack/base/string';
 import TextAreaField from '@cardstack/base/text-area';
 import BoltIcon from '@cardstack/boxel-icons/bolt';
 import { Meet } from './meet';
@@ -39,7 +38,6 @@ export class Surge extends CardDef {
   static icon = BoltIcon;
   static prefersWideFormat = true;             // ← edge-to-edge home
 
-  @field welcome = contains(StringField);
   @field tagline = contains(TextAreaField);
   @field headlineMeet = linksTo(() => Meet);   // optional spotlight pin
 
@@ -50,14 +48,6 @@ export class Surge extends CardDef {
   });
   @field swimmers = linksToMany(() => Swimmer, {
     query: { sort: [{ by: 'lastName', direction: 'asc' }] },
-  });
-
-  @field cardTitle = contains(StringField, {
-    computeVia: function (this: Surge) {
-      return this.cardInfo?.name?.trim()?.length
-        ? this.cardInfo.name
-        : (this.welcome ?? 'SURGE');
-    },
   });
 
   static isolated = class Isolated extends Component<typeof Surge> {
@@ -136,7 +126,6 @@ For a grid of fitted cards, loop the field (`{{#each @fields.meets as |Meet|}}`)
   "data": {
     "type": "card",
     "attributes": {
-      "welcome": "SURGE",
       "tagline": "The youth swim meet platform.",
       "cardInfo": { "name": "SURGE — Home", "summary": "Realm home." }
     },
@@ -158,7 +147,6 @@ Reach for `@context.searchResultsComponent` instead of a field when a section ne
 ```ts
 // surge.gts (or row-and-rail.gts, or whatever the brand demands)
 import { CardDef, Component, field, contains, linksTo } from '@cardstack/base/card-api';
-import StringField from '@cardstack/base/string';
 import TextAreaField from '@cardstack/base/text-area';
 import {
   codeRef,
@@ -178,17 +166,8 @@ export class Surge extends CardDef {
   static icon = BoltIcon;
   static prefersWideFormat = true;             // ← edge-to-edge home
 
-  @field welcome = contains(StringField);
   @field tagline = contains(TextAreaField);
   @field headlineMeet = linksTo(() => Meet);   // optional spotlight pin
-
-  @field cardTitle = contains(StringField, {
-    computeVia: function (this: Surge) {
-      return this.cardInfo?.name?.trim()?.length
-        ? this.cardInfo.name
-        : (this.welcome ?? 'SURGE');
-    },
-  });
 
   static isolated = class Isolated extends Component<typeof Surge> {
     // codeRef(here, relPath, ExportName) returns { module, name } — the canonical CodeRef
