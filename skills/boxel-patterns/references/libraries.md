@@ -103,7 +103,6 @@ import {
 import ReadFileForAiAssistantCommand    from '@cardstack/boxel-host/tools/read-file-for-ai-assistant';
 import PatchFieldsCommand               from '@cardstack/boxel-host/tools/patch-fields';
 import ApplyMarkdownEditCommand         from '@cardstack/boxel-host/tools/apply-markdown-edit';
-import WriteTextFileCommand             from '@cardstack/boxel-host/tools/write-text-file';
 import CopyCardCommand                  from '@cardstack/boxel-host/tools/copy-card';
 import CopySourceCommand                from '@cardstack/boxel-host/tools/copy-source';
 import TransformCardsCommand            from '@cardstack/boxel-host/tools/transform-cards';
