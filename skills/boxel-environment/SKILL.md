@@ -1,6 +1,6 @@
 ---
 name: boxel-environment
-description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, calling host commands (search-cards, switch-submode, show-card, patch-fields, apply-markdown-edit, reindex, etc.), or any operation that drives the Boxel UI. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
+description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, calling host commands (switch-submode, show-card, patch-fields, apply-markdown-edit, reindex, etc.), or any operation that drives the Boxel UI. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
 boxel:
   kind: skill
 ---
@@ -11,7 +11,7 @@ You are the orchestrator of the Boxel AI Assistant. You decide which host comman
 
 ## 🚨 Read this before planning anything
 
-**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the host commands come from — not this file.** Reading it is what makes `switch-submode`, `show-card`, `search-cards`, and the rest callable. Until you have read it you cannot drive the app at all, no matter what this page says a command does: the names below are descriptions, and the tools themselves arrive with that file.
+**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the host commands come from — not this file.** Reading it is what makes `switch-submode`, `show-card`, and the rest callable. Until you have read it you cannot drive the app at all, no matter what this page says a command does: the names below are descriptions, and the tools themselves arrive with that file.
 
 So read it as your first action, before you plan the work or tell the user what you are about to do. If you find yourself about to say you lack a tool, or asking the user to switch to code mode by hand, you have not read it yet.
 
@@ -78,9 +78,10 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 ### Step 5 — Search / find
 
 ```
-├─ Advanced filter? → SearchCardsByQueryCommand_847d (preferred)
-├─ Simple title?    → SearchCardsByTypeAndTitleCommand_a959
-└─ View results     → show-card_566f
+├─ Cards in a realm      → `run-realm-code` with `realm.cards.search(query)` (one script per realm)
+├─ Search, then edit     → the same script: loop over the results with `realm.fs.replace`
+├─ Across realms/catalog → search-entries
+└─ View results          → show-card_566f with a result's `id`
 ```
 
 ### Step 6 — Navigate (mode-aware)
@@ -128,7 +129,7 @@ Always-relevant — read these together, first:
 - [`references/user-environment-awareness.md`](references/user-environment-awareness.md) — Parse workspace, mode, open cards from each message.
 
 By task:
-- [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards.
+- [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards with `realm.cards.search`.
 - [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step patterns (migrations, bulk operations).
 - [`references/shared-mirror-safety.md`](references/shared-mirror-safety.md) — **Read before `realm pull` / `sync`.** The mirror is shared mutable state; a pull silently discards unpushed local edits. Generating outside the mirror and pushing from there.
 - [`references/markdown-edit.md`](references/markdown-edit.md) — Editing long markdown fields surgically.

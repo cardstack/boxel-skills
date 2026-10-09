@@ -43,7 +43,7 @@ Each option's description says what happens next in one line. Any question can b
 
 Plain words, labels the user would say themselves. Every skip is an option in the choice UI, never a line asking the user to type "skip". Skip any question the prompt already answers: for the feel, named colours, a mood word, a brand, a logo or a reference site; for the details, facts already in the prompt. Use supplied details verbatim, and never invent facts about the user's own place or business: no made-up business name, address, staff names, rating, reviews, founding year, awards or prices of theirs; a missing one gets a marked slot or its section is left out, as the user picked. Sample records (the contacts in a CRM, the dishes on a recipe card) still look real, as the design-playbook asks. That is the whole interview for this path: one call, then build. Anything more is `domain-interview`'s job.
 
-**Acting on the app takes one more read.** This index carries no host commands, and neither does any skill page: the commands live in [`skills/boxel-environment/references/host-commands-reference.md`](skills/boxel-environment/references/host-commands-reference.md), and reading that file is what makes `switch-submode`, `show-card`, `search-cards`, and the rest callable. Anything beyond answering in prose — creating a card, editing a file, switching mode, searching a realm — needs it, so read it alongside the skill you picked.
+**Acting on the app takes one more read.** This index carries no host commands, and neither does any skill page: the commands live in [`skills/boxel-environment/references/host-commands-reference.md`](skills/boxel-environment/references/host-commands-reference.md), and reading that file is what makes `switch-submode`, `show-card`, and the rest callable. Anything beyond answering in prose — creating a card, editing a file, switching mode, searching a realm — needs it, so read it alongside the skill you picked.
 
 Read it before you plan out loud. Describing a plan you have no tools to carry out, or asking the user to switch modes by hand, means this step was skipped.
 
@@ -106,7 +106,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 
 ### Runtime
 
-- **[`boxel-environment/`](skills/boxel-environment/SKILL.md)** — Driving the live Boxel app: switch-submode, host commands, search-cards, indexing.
+- **[`boxel-environment/`](skills/boxel-environment/SKILL.md)** — Driving the live Boxel app: switch-submode, host commands, searching for cards, indexing.
 - **[`catalog-listing/`](skills/catalog-listing/SKILL.md)** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
 - **[`boxel-create-edit-cards/`](skills/boxel-create-edit-cards/SKILL.md)** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (host-command combos for card create/edit).
 
