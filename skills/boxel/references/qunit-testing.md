@@ -68,6 +68,8 @@ The following modules are available in the `boxel test` environment:
 - `@universal-ember/test-support` — `getService`, `settled`, etc.
 - `@ember/owner` — Ember owner lookup
 - `@cardstack/runtime-common` — `baseRealm` and other runtime utilities
+- `glimmer-motion/test-support` — `setupMotion(hooks)`, `animationsSettled()`, `bounds`, `shape` for cards that animate
+- `@cardstack/choreo/test-support` — `setupChoreo(hooks)`, `live()`, `orphanCount()`, `strandedTransforms()` for cards that render `<Choreo>` (see `card-motion/references/testing.md`)
 
 ## Key patterns
 
