@@ -275,14 +275,14 @@ into a JSON string and never patched into a card that is not indexed yet:
    the object and stringifying it means nothing is hand-escaped; the long markdown comes later, through
    `patch-fields`. `writeText` refuses a file that already exists, so an existing brief is read, never recreated.
 2. **Wait until it is a card.** `patch-fields` applies only to an indexed card. Read the instance
-   back with `read-card-for-ai-assistant`; if it does not resolve yet, read again rather than
+   back with `await realm.cards.get('Brief/<slug>')` in a `run-realm-code` script; if it does not resolve yet, read again rather than
    patching a card that is not there.
 3. **Fill `spec`** with `patch-fields` on that card, passing the whole spec markdown as the value.
    The tool serializes it; do not escape newlines or quotes yourself. `spec` is this skill's own
    field, so replacing it whole touches nothing another stage wrote.
 
 **Writing it from a terminal agent** (Claude Code, Codex — anything without the assistant's tools).
-`run-realm-code`, `read-card-for-ai-assistant`, `patch-fields` and `apply-markdown-edit` do not
+`run-realm-code`, `patch-fields` and `apply-markdown-edit` do not
 exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
 
 1. **Look for an earlier brief first.** A project may already have one under another path: a

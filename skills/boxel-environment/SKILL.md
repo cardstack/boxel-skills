@@ -42,7 +42,7 @@ So read it as your first action, before you plan the work or tell the user what 
 ```
 □ Not read the boxel and source-code-editing skills yet in this conversation?
   └─ Read both SKILL.md files (links below) in ONE readRealmFile call
-→ Need file content? `realm.fs.readText` in a `run-realm-code` script. Need to see what is in a folder? `realm.fs.list`.
+→ Need file content? `realm.fs.readText` in a `run-realm-code` script. Need to see what is in a folder? `realm.fs.list`. Need a card's data? `realm.cards.get`.
 → Use `run-realm-code` tool. For NEW files, call `realm.fs.writeText` with the complete contents.
 → Put every file the task needs in ONE `run-realm-code` call.
 → For code-change intent, ALWAYS use the `run-realm-code` tool. Data/document commands are secondary.
