@@ -45,7 +45,7 @@ Each option's description says what happens next in one line. Any question can b
 
 Plain words, labels the user would say themselves. Every skip is an option in the choice UI, never a line asking the user to type "skip". Skip any question the prompt already answers: for the feel, named colours, a feel word that names one of the options or a colour ("dark", "bold", "light and calm"; a word like "quiet and refined" only leans, so ask and put the closest option first), a brand, a logo or a reference site; for the details, facts already in the prompt. Use supplied details verbatim and, unless the user picked the concept-or-pitch answer, never invent facts about the user's own place or business: no made-up business name, address, staff names, rating, reviews, founding year, awards or prices of theirs; a missing one gets a marked slot or its section is left out, as the user picked. Sample records (the contacts in a CRM, the dishes on a recipe card) still look real, as the design-playbook asks. The full rule, and the demo mode the concept-or-pitch answer turns on, are in [`critical-rules.md`](skills/boxel-design/references/critical-rules.md) → *Never invent proof*. That is the whole interview for this path: one call, then build. Anything more is `domain-interview`'s job.
 
-**Acting on the app takes one more read.** This index carries no host commands, and neither does any skill page: the commands live in [`skills/boxel-environment/references/host-commands-reference.md`](skills/boxel-environment/references/host-commands-reference.md), and reading that file is what makes `run-realm-code`, `search-cards`, and the rest callable. Anything beyond answering in prose — creating a card, editing a file, switching mode, searching a realm — needs it, so read it alongside the skill you picked.
+**Acting on the app takes one more read.** This index carries no host commands, and neither does any skill page: the commands live in [`skills/boxel-environment/references/host-commands-reference.md`](skills/boxel-environment/references/host-commands-reference.md), and reading that file is what makes `run-realm-code` and the rest callable. Anything beyond answering in prose — creating a card, editing a file, switching mode, searching a realm — needs it, so read it alongside the skill you picked.
 
 Read it before you plan out loud. Describing a plan you have no tools to carry out, or asking the user to switch modes by hand, means this step was skipped.
 
@@ -114,7 +114,7 @@ Every skill lives in `skills/`. Read only the ones the task needs, not all of th
 
 ### Runtime
 
-- **[`boxel-environment/`](skills/boxel-environment/SKILL.md)** — Driving the live Boxel app: run-realm-code, host commands, search-cards, indexing.
+- **[`boxel-environment/`](skills/boxel-environment/SKILL.md)** — Driving the live Boxel app: run-realm-code, host commands, searching for cards, indexing.
 - **[`catalog-listing/`](skills/catalog-listing/SKILL.md)** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
 - **[`boxel-create-edit-cards/`](skills/boxel-create-edit-cards/SKILL.md)** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (host-command combos for card create/edit).
 

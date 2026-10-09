@@ -21,14 +21,6 @@ boxel:
         name: default
       requiresApproval: true
     - codeRef:
-        module: '@cardstack/boxel-host/tools/search-cards'
-        name: SearchCardsByQueryCommand
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/search-cards'
-        name: SearchCardsByTypeAndTitleCommand
-      requiresApproval: false
-    - codeRef:
         module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
 ---
@@ -81,8 +73,7 @@ What you can and cannot see:
 
 ## Search
 
-- `SearchCardsByQueryCommand_847d` — Advanced search with filters (preferred).
-- `SearchCardsByTypeAndTitleCommand_a959` — Simple title search.
+- Cards in one realm — `await realm.cards.search(query)` in a `run-realm-code` script (see `source-code-editing`). It searches the realm the script runs in; for several realms, run one script in each. Each result's `path` goes to `realm.fs` and to `{ show: path }`. Query syntax: `references/searching-and-querying.md`.
 - Not a host command: to find what exists across realms and the catalog (Specs, listings, files), call `await realm.entries.search(query, { realms, scope, limit })` inside a `run-realm-code` script. It is an API of the script sandbox, so it cannot be called as a command (see `source-code-editing`).
 
 ## Skill / LLM management
