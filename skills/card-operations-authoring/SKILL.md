@@ -1135,10 +1135,13 @@ operation and card type at a time, and never narrows what the permissions
 allow. Writing one is
 [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md).
 
-**A caller who isn't signed in is admitted only by a grant that opts in.** An
-`anonymous: true` grant on an operation, a named one included (never a named query), admits a visitor, rate-limited and
-blockable by the governed realm, and an anonymous write is made as the user the
-realm's config names. Every other grant admits signed-in callers alone
+**A caller who isn't signed in is admitted only by a grant that opts in.** For
+such a caller `actor()` is `"anonymous"`, and a grant whose `where` names it
+(`actor() == "anonymous"`) on an operation, a named one included (never a named
+query), admits a visitor, rate-limited and blockable by the grant's own
+`rateLimitRequests`, `rateLimitWindowSeconds` and `blocklist`. An anonymous
+write is made as the user the grant's `actingUser` expression names. Every
+other grant admits signed-in callers alone
 ([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12).
 
 **A write's predicate is judged under the write lock, against the state before
