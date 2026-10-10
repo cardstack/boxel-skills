@@ -98,6 +98,6 @@ Every card on the page and the host's own UI run on one instance of each library
 - [references/layout.md](references/layout.md) — `layout`, `layoutId`, `<LayoutGroup>`.
 - [references/drag-and-reorder.md](references/drag-and-reorder.md) — `drag`, drag controls, `<ReorderGroup>` / `<ReorderItem>`, touch rules.
 - [references/scroll.md](references/scroll.md) — `scrollProgress`, `InView`, `whileInView`.
-- [references/choreo.md](references/choreo.md) — `<Choreo>` scenes, steps and selectors, beacons, nested regions and far matching.
+- [references/choreo.md](references/choreo.md) — `<Choreo>` scenes, steps and selectors, beacons, nested regions and far matching; what makes a score play nothing, replay or play twice in a card, and how to prove a scene.
 - [references/view-transitions.md](references/view-transitions.md) — `viewTransition` scoped to the card, and when not to.
 - [references/testing.md](references/testing.md) — testing animated cards under `boxel test`.

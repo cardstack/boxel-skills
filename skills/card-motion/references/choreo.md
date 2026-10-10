@@ -87,6 +87,33 @@ To swap a card between two views (a grid and a detail page, say) as one Magic Mo
 
 Do not change the host's URL or title to drive it: the swap lives inside the card.
 
+## In a card: when a score misbehaves
+
+A region diffs every render of its block, and in a card a lot re-renders: live searches answering, the index updating, tracked state the scene never meant to read. Most Choreo failures in cards are one of these.
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Nothing plays on the first render | A region's first render has no previous render to diff | Mount the region after the data is in, or flip a tracked value inside it once loaded, so the entrance is a second render |
+| The entrance plays again on every render or hover | Any re-render of the region's block starts a new pass, which diffs again | Make the entrance one-shot: guard it with a flag that flips once |
+| Things fly in on load, or a scene plays twice | An asynchronous surface — `searchResultsComponent`, `getCards`, `getCard` — answers inside the region mid-flight, re-rendering it and cutting the pass | Hoist the search above the region and pass its results down as plain data; mount the region once every search the scene reads has answered, and keep it mounted through later refreshes |
+| A pass is cut mid-flight when nothing visible changed | The region read tracked state unrelated to the scene (a count, a loading flag) | Read only what the score needs inside the region; move the rest outside it |
+| A participant jitters between passes | An attribute is recomputed each render (a fresh `htmlSafe` style, a fresh object) | Cache stable attribute values by value, e.g. one `SafeString` per distinct style string |
+| A moved item shows two copies, or its old copy rides the leaving step | Rendering an id somewhere new makes the old element both the `counterpart` and `removed` | `<c.Hold @of={{c.counterpart 'role'}} @opacity={{0}} />` and `@swap='none'` on the `c.Move`, so one copy flies |
+| A kept sprite snaps to a wrong value after the run | A step wrote a property the element has no resting value for | Give every property the score writes a resting value, in scoped CSS or the modifier's `style=(styles …)` |
+| A class change on an ancestor re-lays the region and nothing plays | The class flipped outside the region, so the region never re-rendered | Read the tracked value inside the region, so the change is a render the region sees |
+| The layout breaks when `<Choreo>` is the grid or flex container | The region's root also holds its orphan layer and markers | Keep the region root a plain wrapper; put the layout on a child |
+| A grid item stretches or jumps as it moves | `c.Move` animates width and height against the grid track | `@size='scale'`, or `@size={{false}}` when the item never changes size |
+| A prerendered tile or published page shows the starting pose | Prerender captures the first render | Make the resting CSS the final state; let the timeline only add motion |
+
+## Proving a scene
+
+A score that played once is not a working score. Before calling one done:
+
+- Run the interaction three times without reloading; the third pass must look like the first. Replay and resting-value bugs show on passes two and three.
+- Interrupt a flight partway (click again, or change state mid-run): nothing may snap or be left stranded.
+- Make the data change underneath it: let a live search answer, or the card reindex, during a run.
+- Check the prerendered formats, which show resting CSS and never the timeline.
+
 ## When not
 
 One element, no ordering, no cross-element measurement → [element.md](element.md) / [presence.md](presence.md). A pure layout move → [layout.md](layout.md).
