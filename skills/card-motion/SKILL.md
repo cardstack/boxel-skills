@@ -55,7 +55,7 @@ Escalation order: element → presence → layout → Choreo.
 | "fade/slide/scale this in", hover/tap states, keyframes, variants, stagger | `{{motion}}` with `initial` / `animate` / `transition` | [element.md](references/element.md) |
 | "animate it when it's removed", list add/remove, a panel opening and closing | `<Presence>` + `exit` | [presence.md](references/presence.md) |
 | "it moved because the layout changed", a filtered grid, a tab indicator, a thumbnail opening into a detail view of the SAME thing | `layout=true` / `layoutId` / `<LayoutGroup>` | [layout.md](references/layout.md) |
-| drag, swipe-to-dismiss, a reorderable list or grid | `drag` / `<ReorderGroup>` | [drag-and-reorder.md](references/drag-and-reorder.md) |
+| drag, swipe-to-dismiss, a reorderable list or grid, dragging items into drop zones | `drag` / `<ReorderGroup>`, or your own pointer handling for drop zones | [drag-and-reorder.md](references/drag-and-reorder.md) |
 | parallax, a scroll progress bar, reveal-on-scroll | `scrollProgress` / `InView` / `whileInView` | [scroll.md](references/scroll.md) |
 | "first X, THEN everyone moves, THEN Y"; z-index for the span of a move; one element's motion computed from another's box; flying to a place that must not deform; two views of the card swapping as one Magic Move | `<Choreo>` timeline (+ `{{beacon}}`) | [choreo.md](references/choreo.md) |
 | a deliberate snapshot morph of part of the card | `viewTransition(update, element)` | [view-transitions.md](references/view-transitions.md) |
@@ -96,7 +96,7 @@ Every card on the page and the host's own UI run on one instance of each library
 - [references/element.md](references/element.md) — `{{motion}}`: targets, transitions, keyframes, variants, gestures, motion values.
 - [references/presence.md](references/presence.md) — `<Presence>`: exits, modes, the single-conditional-element form.
 - [references/layout.md](references/layout.md) — `layout`, `layoutId`, `<LayoutGroup>`.
-- [references/drag-and-reorder.md](references/drag-and-reorder.md) — `drag`, drag controls, `<ReorderGroup>` / `<ReorderItem>`, touch rules.
+- [references/drag-and-reorder.md](references/drag-and-reorder.md) — `drag`, drag controls, `<ReorderGroup>` / `<ReorderItem>`, touch rules, and the three traps in a drag you write yourself.
 - [references/scroll.md](references/scroll.md) — `scrollProgress`, `InView`, `whileInView`.
 - [references/choreo.md](references/choreo.md) — `<Choreo>` scenes, steps and selectors, beacons, nested regions and far matching.
 - [references/view-transitions.md](references/view-transitions.md) — `viewTransition` scoped to the card, and when not to.
