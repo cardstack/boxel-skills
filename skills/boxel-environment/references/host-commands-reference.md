@@ -9,10 +9,6 @@ boxel:
         name: default
       requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/tools/show-card'
-        name: default
-      requiresApproval: false
-    - codeRef:
         module: '@cardstack/boxel-host/tools/transform-cards'
         name: default
       requiresApproval: true
@@ -120,7 +116,7 @@ What you can and cannot see:
 ## Navigation
 
 - `switch-submode_dd88` — Toggle interact/code modes. Navigation only: it never writes, and it is not a step of creating or editing a file (`run-realm-code` does that). Call it at most once per task, and never when the tab is already in code mode on that file — the last tool result's `context.submode` and `context.codeMode.currentFile` tell you where you are. A bare `submode: "code"` opens code mode in whatever realm the UI last showed — when the task targets a specific realm, pass `codePath` with a plain file URL in that realm (never pass `createFile: true` before writing a new file: it creates an empty file, and `realm.fs.writeText` then refuses it because the file exists).
-- `show-card_566f` — Display a card instance in the current mode. `cardId` is the instance id: its URL without the `.json` extension. A `.gts` path is a definition, not a card — passing one opens the definition's own module in the base realm, which is never what you want. To open a file in the editor, use `switch-submode_dd88` with `codePath`.
+- To show a card instance in the current mode, return `{ show: path }` from a `run-realm-code` script, for example `return { show: 'Pet/mango' };`. `path` is the instance's path in the realm, with or without `.json`; a full instance URL in the realm also works. The card opens when the run ends — in the same call that wrote it, or in a call that only returns `{ show }` for a card that already exists. A `.gts` path is a definition, not a card. To open a file in the editor, use `switch-submode_dd88` with `codePath`.
 - `preview-format_cb94` — Open module + preview card (code mode; use after edits).
 - `update-code-path-with-selection_f749` — Open file in code editor.
 - `open-workspace_1696` — Navigate to a workspace by URL. Lands in **interact mode** — it exits code mode. To work on a specific realm in code mode, use `switch-submode` with a `codePath` in that realm instead.
