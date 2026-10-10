@@ -24,7 +24,7 @@
 
 ### 4. Bulk Relationship Mapping
 ```json
-`SearchCardsByQueryCommand_847d` with `attributes.query` set to valid query JSON that includes a filter
+`run-realm-code` that returns `(await realm.cards.search(query)).cards`, with a query that includes a filter
 → Prompt "detect relationship patterns"
 → Emit a code patch `run-realm-code` tool call to create a transformation command
 → `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk update
@@ -33,7 +33,7 @@
 ### 5. Context-Aware Migration
 ```json
 `run-realm-code` that returns `await realm.fs.readText('schema.gts')`
-→ `SearchCardsByQueryCommand_847d` with `attributes.query` set to valid query json with a filter specified
+→ `run-realm-code` that returns `(await realm.cards.search(query)).cards.map((card) => card.path)`, with a query that has a filter
 → Emit a code patch `run-realm-code` tool call creating a migration command
 → `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform bulk migration
 ```
@@ -41,7 +41,7 @@
 ### 6. Dependency Surfing
 ```json
 `run-realm-code` that returns `{ definition: await realm.fs.readText('card.gts'), instance: await realm.fs.readText('Card/instance.json') }`
-→ `SearchCardsByQueryCommand_847d` with `attributes.query` set to e.g. '{"filter": {"contains": {"imports": "card"}}}'
+→ `run-realm-code` that returns `(await realm.cards.search({ filter: { contains: { imports: 'card' } } })).cards.map((card) => card.path)`
 → Emit a code patch `run-realm-code` tool call
 ```
 
@@ -54,10 +54,7 @@ Switching to code mode is optional navigation for the user's benefit — at most
 One `run-realm-code` call that writes every file with `realm.fs.writeText` — the definition and every instance together — plus, if wanted, a `show-card_566f` call with `attributes.cardId` set to an instance's URL (the `.json` path without the extension). That call creates the files; no mode switch and no placeholder call comes first. If you switch to code mode so the user can watch, do it once, before the `run-realm-code` call.
 
 ### Search & Modify
-```json
-`SearchCardsByQueryCommand_847d` with `attriibutes.query` set
-→ `patchCardInstance` with `attributes.cardId` set to the card URL, and `attributes.patch` set to schema-conforming patch JSON
-```
+One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and edits each one's file with `realm.fs.replace(card.path, …)`, returning the paths it edited. A run edits at most 20 files; for more, collect the paths first and split the edits across calls.
 
 ### Schema Migration
 1. Update schema with breaking changes:
