@@ -234,7 +234,7 @@ For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-
 **What "designed" looks like in stage 1 — non-negotiables:**
 
 - **Schema rich enough to compose with.** A card with 3-4 thin fields will look thin no matter the layout. If the design needs `cuisine`, `subtitle`, `rating`, `reviews`, `author`, `keyIngredient`, `difficulty`, `calories`, `description`, `imageUrl` — add them. Don't be precious about schema size.
-- **Real, evocative sample content.** Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
+- **Real, evocative sample content.** Records are invented freely and realistically, but never copy that claims something about the user's real business ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*). Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
 - **Hardcoded values everywhere.** `#fdfbf7`, `'Lyon Display', 'Garamond Premier Pro', serif`, `2.125rem`, `letter-spacing: 0.22em`. Real choices, no `var(--*)`, no theme tokens, no calc against tokens.
 - **Typography pairing.** Two families with clear roles. Serif body + sans micro-labels is one option. Mono numerals + serif body is another. Two-sans-weights is a third. Pick deliberately.
 - **Weight rhythm.** Large at LIGHT weight (300-400). Tiny at BOLD weight (700-800). Avoid uniform 500-600 weights — that's UI, not editorial.
