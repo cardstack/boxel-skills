@@ -423,9 +423,10 @@ permissions decline:
 
 ### Predicates on a file
 
-A file has no document to read. A `where` on a file rule sees only the file's
-URL, through `instance("id")`, and the caller, through `actor()`. `.` holds no
-fields and `instance()` no other key, so write the predicate on those two:
+A file has no document to read. A `where` on a file rule sees the file's URL,
+through `instance("id")`, the caller, through `actor()`, and the realm's
+settings, through `realmConfig()`. `.` holds no fields and `instance()` no
+other key, so write the predicate on those:
 
 ```json
 {
@@ -448,26 +449,28 @@ but only on the part of that type's chain that is code:
   Other script extensions (`.mjs`, `.cjs`) are not module source to the realm:
   they are data files a `FileDef` rule serves.
 - **A rule on `FileDef` does not reach code.** A module's chain stops short of
-  `FileDef`, so the catch-all written for a realm's data files never starts
-  serving the modules that render them. Only a rule naming a code type does.
+  `FileDef`, so the catch-all written for a realm's data files never serves
+  the modules that render them. Only a rule naming a code type does.
 - **A `readSource` grant on a code type serves the modules it covers** to the
   callers its `where` admits: their source on `card+source`, and the
   transpiled module a browser imports, by path or by import name (see
   [Over HTTP](#over-http)).
-- **Its `where` reads what a data file's does**: `actor()` and
-  `instance("id")` (see [Predicates on a file](#predicates-on-a-file)).
+- **Its `where` reads what a data file's does**: `actor()`, `instance("id")`
+  and `realmConfig()` (see [Predicates on a file](#predicates-on-a-file)).
 - **A granted module is served `Cache-Control: private`** and compiled for that
-  request, outside the module caches, so it costs a compile on every read a
-  grant admits. A caller with the realm's own read is served from the caches.
-- **A module no grant reaches is refused as an empty path is:** a `GET` gets a
-  404 identical to a missing path, and a `HEAD` gets the realm's discovery
-  answer (§13).
+  request, outside the module caches, so every admitted read costs a compile.
+  A revalidation whose `If-None-Match` still matches answers 304 without one.
+  A caller with the realm's own read is served from the caches.
+- **A module no grant reaches is refused as any file is:** a signed-in caller's
+  `GET` gets a 404 identical to a missing path, a `HEAD` gets the realm's
+  discovery answer, and a caller who isn't signed in gets 401
+  `actor-required` (§12, §13).
 
 So **code and data can live in one realm.** A caller who reaches the realm only
 through grants needs the module behind every card they are granted, or the card
-reads and fails to render. Grant the code with the same predicate as the cards.
-A hip-recovery realm whose `realm.json` config lists the patient's caregivers
-lets them read and find the recovery plan, and load the code that renders it:
+reads and fails to render. Grant the code to the same people as the cards. A
+hip-recovery realm lets the patient's caregivers read and find the recovery
+plan, and load the code that renders it:
 
 ```json
 {
@@ -475,8 +478,8 @@ lets them read and find the recovery plan, and load the code that renders it:
     {
       "targetType": { "module": "../recovery/recovery-plan", "name": "RecoveryPlan" },
       "grants": [
-        { "operation": "read",  "where": "realmConfig(\"caregivers\") | any(. == actor())" },
-        { "operation": "query", "where": "realmConfig(\"caregivers\") | any(. == actor())" }
+        { "operation": "read",  "where": ".caregiverIds | any(. == actor())" },
+        { "operation": "query", "where": ".caregiverIds | any(. == actor())" }
       ]
     },
     {
@@ -489,6 +492,13 @@ lets them read and find the recovery plan, and load the code that renders it:
 }
 ```
 
+The cards' grants read a `containsMany` of text on the plan, because a `query`
+grant must compile to a search filter and `realmConfig()` never does (§7). A
+module has no fields, so its grant reads the same people from the realm's
+`config` (`"caregivers": ["@ana:family.example", …]`). Keep the two lists in
+step: a caregiver on the plan but not in the config can open the plan and not
+render it.
+
 A rule on `TsFileDef` serves every module in the realm, including ones no
 granted card uses. To serve fewer, narrow the predicate by path
 (`instance("id") | startswith(…)`), as for any file. Module source is
@@ -499,7 +509,7 @@ Keeping the definitions in a separate realm everyone can read, as the school
 example does with `school-code` (§10), is another arrangement, not a
 requirement.
 
-### What still needs the realm's own read
+### What needs the realm's own read
 
 A grant reaches files, never the realm's file tree or the routes that analyze
 its code:
@@ -1413,8 +1423,8 @@ a BXL expression that produces a Matrix user id:
 - **A constant of the wrong kind** (`"actingUser": "42"`) records
   `grant-expression-wrong-type` as a warning, and admits no visitor's write.
 - **The write carries the acting user's identity**, wherever the realm records
-  who wrote. It never brings realm-owner authority: `realm.json`, policy cards
-  and module source stay out of reach (§11).
+  who wrote. It never brings realm-owner authority: `realm.json` and policy
+  cards stay out of reach (§11), and no grant writes module source.
 - **`actor()` is still `"anonymous"`, never the acting user.** A grant
   `where .ownerId == actor()` never lets a visitor edit the acting user's own
   cards.
@@ -1720,7 +1730,7 @@ For the rest of an operation's refusals, see `card-operations-authoring` §5.
   Everywhere else they get the answer the realm gives while it is active, so
   the seal tells them nothing a grant doesn't.
 - On the routes that serve stored bytes (the `card+source` read, and the file
-  serve of a data file or a card's `.json`), every signed-in caller of an
+  and module serve of a file or a card's `.json`), every signed-in caller of an
   archived, private realm with a policy meets the seal on a `GET`, whether or
   not a grant reaches the file. A `HEAD` from a caller who can't read the realm
   gets the realm's discovery answer. The scoped-CSS serve shows the seal only
