@@ -19,15 +19,15 @@ mix across families when the brief calls for it, and name what you took from eac
    decides it. Stop here.
 2. **The brief.** The domain, the audience and the reader's moment: who they are, how they
    feel, what the thing sells or does.
-3. **Research.** For an award-style category, read what the best examples actually use (see
-   [`untrusted-content.md`](untrusted-content.md) for how to treat what you read).
-   In a fetched page's stylesheet, `font-family`, the heading `font-weight` and the colour variables
-   say more than the screenshot. Record the *principle* (display face is a heavy grotesque at 800;
-   five colours each tied to a product), not the brand's values.
+3. **Research, only if it is warranted** ([`untrusted-content.md`](untrusted-content.md) →
+   *When to research*). Look at what the best examples use, from a capture you saw: type weight and
+   colour roles are visual claims, and a fetched page's text cannot support them. Record the
+   *principle* (display face is a heavy grotesque at 800; five colours each tied to a product), not
+   the brand's values.
 4. **The guard.** Before finalising, write one line: *family · display face + weight · body face ·
    colour strategy*. If it reads "light serif or thin display + small sans + one accent", say which
-   sentence of the brief asked for that. If none did, pick another family. Two consecutive builds
-   for different briefs with the same line is a finding.
+   sentence of the brief asked for that. If none did, pick another family. When one task builds several units for different briefs, a
+   review treats the same line on all of them as a finding.
 
 ## Page colour: from a reason, not a habit
 

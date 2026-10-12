@@ -10,7 +10,7 @@ vocabulary** for that decision — what is achievable in a Boxel card with CSS, 
 ## Read this first
 
 **The aurora-gradient / glassmorphism / floating-particles family is the current default look.**
-Upstream's [`critical-rules.md`](../../boxel-design/references/critical-rules.md) names *Gradient Overuse* explicitly — "gradients are the 2024
+[`critical-rules.md`](../../boxel-design/references/critical-rules.md) names *Gradient Overuse* explicitly — "gradients are the 2024
 over-used signature; flat color with intentional contrast often wins" — and the same list names
 the *Average Quality Trap*. A blurred radial mesh behind a frosted card is what a generation of
 tools produces unprompted. Reaching for it is not a signature; it is the absence of one.
@@ -20,8 +20,9 @@ particular style already imply, and what is the strongest version of that?* A fi
 signature is a stipple and a hairline rule, not a gradient. A brutalist style's is a hard shadow
 and an oversized numeral. Pick the treatment the style earns.
 
-Use the list below as vocabulary, not a menu. If two different units in the same workspace end up
-with the same treatment, at least one of them was not designed.
+Use the list below as vocabulary, not a menu. If two units in one task built for different briefs end up with the same treatment, at least
+one of them was not designed. Units that share a Theme may share a treatment on purpose; say so
+in the hand-off.
 
 ## The techniques, and what each costs in a card
 
@@ -43,13 +44,14 @@ assembled. It is what a reader remembers, and it is worth reaching for when the 
 to present that object.
 
 It is also the treatment most likely to be asked for and most likely to be built the expensive way,
-so decide these in Phase 3 rather than at build time:
+so decide these in the planning stage, not at build time:
 
 - **One element, `transform` and `opacity` only.** `rotate`, `scale`, `translate` and opacity are
   compositor properties — they animate without layout or paint. Scrubbing `width`, `top`, `filter`
   or a box-shadow instead is the same effect at many times the cost, and it is what makes a
-  scroll page feel heavy. Drive the transform with `card-motion`'s `scrollProgress`
-  ([`scroll.md`](../../card-motion/references/scroll.md)); a single subject needs nothing more.
+  scroll page feel heavy. Drive the transform with `card-motion`'s `scrollProgress`, mapped through `transformValue`
+  ([`scroll.md`](../../card-motion/references/scroll.md)), so progress 0 to 1 becomes degrees or
+  scale; a single subject needs nothing more.
 - **A frame sequence is a different, much larger thing.** The Apple-style effect where the object is
   really a few hundred pre-rendered stills swapped by scroll position is a canvas plus a preload
   budget, not a transform — it becomes a JS way (a canvas drawn in a modifier), and a real weight decision.
@@ -63,8 +65,8 @@ so decide these in Phase 3 rather than at build time:
 
 ## Spatial model — the control that was never defined
 
-`spatial model` is the style control for depth, and until now it had
-no vocabulary, so it got filled in as "flat" by default. Four options:
+`spatial model` is the style control for depth, and left undefined it gets filled in as "flat"
+by default. Four options:
 
 | Spatial model | What it means | Fits |
 |---|---|---|
@@ -73,7 +75,7 @@ no vocabulary, so it got filled in as "flat" by default. Four options:
 | **Perspective** | CSS `perspective` + per-element `translateZ` / `rotateY` | a collection whose items deserve drama — showcases, reels, card sets |
 | **Scene** | a camera, a canvas runtime, a model | the content *is* spatial — an assembly, a map, a building |
 
-Upstream ships a proven pattern for the third: **`boxel-patterns/patterns/layout-3d-card-carousel`**
+The catalog ships a proven pattern for the third: **`boxel-patterns/patterns/layout-3d-card-carousel`**
 — results from `@context.searchResultsComponent` positioned on a virtual cylinder, auto-rotate,
 hover lift, click-to-focus, filter-reactive, **all CSS and tracked state, no library**. Its own
 guidance names the use: *"anywhere a flat grid feels too utilitarian"* and *"hero / landing sections
@@ -87,8 +89,8 @@ Two consequences to record with the pick:
 - **Spatial and flat are mutually exclusive, and the content decides.** A 3D hero on a field-guide
   style is not a bolder version of that style, it is a different one. *"Depends on the
   requirement"* has to mean the content is spatial — a collection, a showcase, an assembly — not
-  that the flat version looked boring. If the honest answer is boring, the fix is in Phase 2's
-  dominant object, not in adding an axis.
+  that the flat version looked boring. If the honest answer is boring, the fix is in the dominant
+  object, not in adding an axis.
 
 ## Four constraints that apply to all of them
 
@@ -120,6 +122,6 @@ The hero is not only an isolated concern:
   a colour band. Everything else is gone.
 - **`atom`** — text. The signature survives as wording, not decoration.
 
-Name the treatment in the build's hand-off line next to the layout, and in the stage-3 content matrix say
+Name the treatment in the build's hand-off line next to the layout, and in the content matrix say
 **which field is the hero** at each format — the matrix already lists fields in priority order; the
 hero is the one the format leads with.
