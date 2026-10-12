@@ -103,7 +103,6 @@ import {
 import ReadFileForAiAssistantCommand    from '@cardstack/boxel-host/tools/read-file-for-ai-assistant';
 import PatchFieldsCommand               from '@cardstack/boxel-host/tools/patch-fields';
 import ApplyMarkdownEditCommand         from '@cardstack/boxel-host/tools/apply-markdown-edit';
-import WriteTextFileCommand             from '@cardstack/boxel-host/tools/write-text-file';
 import CopyCardCommand                  from '@cardstack/boxel-host/tools/copy-card';
 import CopySourceCommand                from '@cardstack/boxel-host/tools/copy-source';
 import TransformCardsCommand            from '@cardstack/boxel-host/tools/transform-cards';
@@ -152,6 +151,19 @@ themselves — tag choice, what the `derive` profile refuses, aggregation over
 linked collections, and the traps that yield a plausible wrong value — is
 `bxl-authoring`.
 
+### `glimmer-motion` and `@cardstack/choreo` — animation
+
+```ts
+import { motion, Presence, LayoutGroup, spring, to } from 'glimmer-motion';
+import { Choreo, beacon } from '@cardstack/choreo';
+```
+
+Both are the host's own copies, shared with host UI and every other card.
+`motion-dom`, `motion` and `framer-motion` don't resolve in a realm: the
+engine's imperative surface (`motionValue`, `animate`, `transformValue`,
+`styleEffect`, `frame`) is re-exported from `glimmer-motion`. Choosing the
+pattern, the Glimmer rules and the per-card scoping rules are `card-motion`.
+
 ### Utility
 
 ```ts
@@ -194,6 +206,8 @@ Audio cards can also reach for the browser's built-in `AudioContext` directly �
 | `KanbanPlane`, `KanbanPlacement`, drag/drop board helpers | 2 | `@cardstack/boxel-ui/components` |
 | Any host command (`ai-assistant`, `switch-submode`, etc.) | 2 | `@cardstack/boxel-host/tools/<name>` |
 | `expression`, `fx`, `jq` for a `computeVia` formula | 2 | `@cardstack/bxl` |
+| `{{motion}}`, `Presence`, `LayoutGroup`, `motionValue`, `animate` | 2 | `glimmer-motion` — see `card-motion` |
+| `Choreo`, `beacon` (sequenced scenes) | 2 | `@cardstack/choreo` — see `card-motion` |
 | `restartableTask` | 2 | `ember-concurrency` |
 | `Resource`, `resource()` | 2 | `ember-resources` |
 | `modifier()` | 2 | `ember-modifier` |

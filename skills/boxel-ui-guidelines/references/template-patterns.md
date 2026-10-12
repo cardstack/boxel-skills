@@ -246,7 +246,7 @@ Choose elements by meaning; reserve `<div>` for pure geometry/layout machinery:
 - Computed/live readouts (counters, results, status values) use `<output>`.
 - Icon-only buttons are `IconButton` with its required `@label`, which becomes the `aria-label`; purely decorative elements (glyphs, ornaments, background shapes) get `aria-hidden='true'`.
 
-Attribute ordering: `data-test-*` attributes go **absolutely last** on an element — after all other attributes and after modifiers.
+Attribute ordering: `data-test-*` attributes go after all other attributes and after modifiers. In a component's own template, `...attributes` closes the element, after the test hook: `<div class='x' {{on 'click' this.go}} data-test-x ...attributes>`. Its position decides who wins a shared attribute (later wins; `class` merges), so last lets the caller override. Exception: an attribute the component's correctness depends on (`type='button'` on a native button, `aria-hidden` on decorative markup, an `id` another element points at, a `role` its keyboard handling assumes) goes after the splat, with a short comment saying why.
 
 ```gts
 import { on } from '@ember/modifier';

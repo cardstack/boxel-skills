@@ -87,7 +87,7 @@ await realm.fs.writeText(
 
 ## Skill catalog
 
-Every skill lives in `skills/` and auto-activates on its description triggers — you don't load them all upfront.
+Every skill lives in `skills/`. Read only the ones the task needs, not all of them upfront. In the Boxel AI assistant, read a skill's `SKILL.md` with `readRealmFile` — reading the file loads its instructions and the tools it declares. Do not activate skills with `update-room-skills` to use them.
 
 ### Foundation
 
@@ -112,6 +112,7 @@ Every skill lives in `skills/` and auto-activates on its description triggers �
 - **[`motion-authoring/`](skills/motion-authoring/SKILL.md)** — Opt-in: turns a user's explicit ask for scroll- or pointer-driven motion ("scroll like X", pinned, scrubbed, parallax) into the `motion` field of the unit's brief card — engine, load-bearing structure, every beat as numbers, and the three capture points.
 - **[`design-review/`](skills/design-review/SKILL.md)** — Scores a built screen, card family or whole app from captures — never from code — against the brief card's acceptance lines and an aesthetic bar, in screen / `set` / `card` modes.
 - **[`boxel-theme-development/`](skills/boxel-theme-development/SKILL.md)** — The theme artifact itself: creating, converting, auditing, or patching StructuredTheme / StyleReference / BrandGuide cards, DESIGN.md import/export, logo and functional-palette placement.
+- **[`card-motion/`](skills/card-motion/SKILL.md)** — Animating a card with glimmer-motion and Choreo: the smallest pattern for the job (`{{motion}}`, `<Presence>`, `layout` / `layoutId`, drag and reorder, scroll, a `<Choreo>` timeline), the imports a realm resolves (motion-dom only through glimmer-motion), the three Glimmer rules that silently stop motion, and scoping beacon names, participant ids and `layoutId`s by card id because every card shares the host's copy.
 - **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
 - **[`boxel-flavored-markdown/`](skills/boxel-flavored-markdown/SKILL.md)** — Authoring BFM content with `:card`/`::card` directives, mermaid, math, alerts.
 - **[`boxel-markdown-format/`](skills/boxel-markdown-format/SKILL.md)** — Static `markdown` template format with `markdownEscape` and helpers.

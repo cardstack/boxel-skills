@@ -57,6 +57,8 @@ validated: source-proven
 
 ## Gotchas
 
+- **It snapshots the whole page.** `document.startViewTransition` captures the host's entire document, not just the card, and anything alive inside the snapshot (a running animation, a video, another card's live content) freezes for the transition. For reorders, adds/removes and expands inside a card, glimmer-motion's `layout=true` / `layoutId` moves the real elements instead, and `viewTransition(update, element)` scopes a deliberate snapshot to the card where the browser can — see `card-motion`.
+
 - **Name collisions.** Two elements with the same `view-transition-name` in the same snapshot fall back to a crossfade silently. Use unique names — interpolate a stable id (card.id, not array index) into the value: `view-transition-name: card-{{card.id}}`.
 - **`startViewTransition` is one-shot.** Don't `await transition.finished` if you'll fire another transition before it resolves — the browser cancels overlapping transitions.
 - **Layout shift during snapshot.** The callback runs synchronously between the two snapshots; if your mutation triggers async data fetches, the browser snapshots the *placeholder* state, not the final one. Resolve data first, then call `startViewTransition`.
