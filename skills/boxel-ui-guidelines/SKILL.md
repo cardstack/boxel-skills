@@ -1,6 +1,6 @@
 ---
 name: boxel-ui-guidelines
-description: Use when IMPLEMENTING UI in Boxel templates — applying var(--*) theme tokens in <style scoped>, choosing between @fields and @model, using Pret UI components (Button, Chip, Avatar, Select) and the boxel-ui components Pret UI does not have yet (FittedCard, KanbanPlane, FilterList), controlling embedded-card chrome, or fixing layout/overflow issues. This is the template-implementation layer. Visual-language decisions belong to boxel-design; the Theme card artifact itself belongs to boxel-theme-development.
+description: Use when IMPLEMENTING or REVIEWING UI in Boxel templates (writing a template, or reviewing a change, diff or pull request that touches one) — applying var(--*) theme tokens in <style scoped>, choosing between @fields and @model, using Pret UI components (Button, Chip, Avatar, Select) and the boxel-ui components Pret UI does not have yet (FittedCard, KanbanPlane, FilterList), controlling embedded-card chrome, or fixing layout/overflow issues. This is the template-implementation layer. Visual-language decisions belong to boxel-design; the Theme card artifact itself belongs to boxel-theme-development.
 boxel:
   kind: skill
 ---
