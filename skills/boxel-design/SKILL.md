@@ -43,12 +43,16 @@ option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*
    last question, so it carries *Skip the rest*; the feel question alone ends with *You decide*. The rule behind these options, and what demo mode allows, is
    [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
 
-**Already answered** means any of: the user's prompt or attachments state it (a feel word, named
-colours, a brand, a logo or a reference site for question 1; facts for question 2); it was answered
+**Already answered** means any of: the user's prompt or attachments state it (named colours, a
+brand, a logo or a reference site, or a feel word that names one of the three options or a colour
+("dark", "bold", "light and calm"), for question 1; facts for question 2); a governing `BrandGuide`
+or Theme for this work (see *Brand and Style Source* below) answers question 1 too; it was answered
 earlier in this conversation; or the brief's `designDirection` field has a `Look:` or `Real details:`
 line, or older direction text that states a look (for question 1) or real details (for question 2);
 a note with neither answers nothing. Facts that sit only in the brief's `spec` do not answer
-question 2: they only decide its first option. "You decide" and "Leave those sections out" are answers. If both
+question 2: they only decide its first option. A feel word that names neither an option nor a colour ("quiet and refined") only leans: ask the
+question anyway and put the closest option first, marked recommended, with its reason in a few
+words. "You decide" and "Leave those sections out" are answers. If both
 are answered, make no call.
 
 **Record it on the brief**, when there is one, straight after the answer, including what the user's
