@@ -42,14 +42,16 @@ option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*
    free-text answer carries new details. The rule behind these options, and what demo mode allows, is
    [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
 
-**Choosing the look.** Read what the place is, and any cue the user gave (a logo, existing colours,
-a word like "earthy"). A stated cue beats the place's usual look. Offer exactly three looks in these
-roles, in this order:
+**Choosing the look.** Read what the place is, and any cue the user gave. A cue that
+settles the feel (a logo, named colours, a brand) answers question 1 by itself, so no looks are
+offered. A cue that only leans (a word like "earthy") beats the place's usual look in the three
+looks. Offer exactly three looks in these roles, in this order:
 
 1. **Expected**: the look most people would expect for this kind of place. Marked (recommended), with
-   a reason of eight words or fewer.
+   its reason of eight words or fewer in the option's description, not in the label.
 2. **Warmer or friendlier** than the first.
-3. **Bolder or more distinctive** than the first.
+3. **Bolder or more distinctive** than the first; for a solemn place (a funeral home, a hospice) it
+   stays muted.
 
 Write each as `<Mood> & <mood> — <base> with <accent>`, taking base and accent only from: white,
 off-white, cream, light grey, charcoal, black, soft blue, navy, teal, sage green, forest green,
@@ -66,7 +68,8 @@ These show the reasoning; they are examples, not a lookup table:
 - Nightclub: Dark & electric — black with plum
 - Yoga studio: Soft & grounded — off-white with sage green
 
-When the place is unclear, use the fallback set, each with its colours:
+When the place is unclear, use the fallback set, each with its colours; it is the one exception to
+the roles and the label template:
 *Light & calm — white with soft blue* (recommended) / *Dark & dramatic — charcoal with teal* /
 *Bold colour — white with coral*.
 
@@ -85,11 +88,14 @@ into a palette or fonts: the label of the option they picked, or the feel phrase
 and moody like a noir poster", not the whole request).
 
 ```
-Look: Dark & dramatic
+Look: Clean & reassuring — white with soft blue
 Real details: use what's in the brief | <the user's words> | leave marked slots | leave sections out | concept (demo mode)
 ```
 
-On `Look:` a skipped question records `You decide`. On `Real details:` the value is one of those
+On `Look:` a skip records the look it took, with the words you decide after it
+(`Look: Clean & reassuring — white with soft blue (you decide)`), so a later step knows which hue
+was taken; a cue from the prompt is recorded in the user's words (`Look: orange logo, brand colours`).
+On `Real details:` the value is one of those
 five, written exactly so (they are the stored form of the options, not their labels); a skip
 records the one it took. The build reads both lines as given: the look steers the mockup, and the
 real-details line decides what the build may write about the user's business. Facts in the brief's
