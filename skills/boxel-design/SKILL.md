@@ -26,9 +26,7 @@ The user decides the look up front, so every route into a build asks the same tw
 "Just build it" asks them in its first call (`index.md`, the paragraph under "Just build it" that
 begins "still gets one call of questions"). A build that starts from a brief ("Plan it with me"
 after `domain-interview`, or "I already have a brief") asks them here, because the brief makes no
-design decisions on purpose. A user who brings only a design (a mockup, a reference site, a Figma
-file) has answered the feel question by doing so; ask the real-details question only. Names and
-prices inside the design are not facts the user stated.
+design decisions on purpose.
 
 Ask only the questions that are still unanswered, together in one choice-UI call, each with its skip
 option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*):
