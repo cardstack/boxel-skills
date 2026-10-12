@@ -29,19 +29,18 @@ const soft = spring({ bounce: 0.14, visualDuration: 0.48 });
 
 ## Motion values: per-frame data without re-rendering
 
-Anything updating at pointer or frame rate — a follower, a scrub readout, a progress fill — must not go through tracked state: that is a render per frame. Make a motion value, bind it once through an object passed to `style=`, and drive it: `.set(v)` writes a value, `animate(value, to, transition)` animates to one, `.jump(v)` teleports and stops whatever was driving it.
+Anything updating at pointer or frame rate — a follower, a scrub readout, a progress fill — must not go through tracked state: that is a render per frame. Make a motion value, bind it once with `style=(styles …)`, and drive it: `.set(v)` writes a value, `animate(value, to, transition)` animates to one, `.jump(v)` teleports and stops whatever was driving it.
 
 ```gts
 import { CardDef, Component } from '@cardstack/base/card-api';
 import { on } from '@ember/modifier';
-import { animate, motion, motionValue, spring } from 'glimmer-motion';
+import { animate, motion, motionValue, spring, styles } from 'glimmer-motion';
 
 const tight = spring({ visualDuration: 0.2, bounce: 0 });
 
 export class Follower extends CardDef {
   static isolated = class Isolated extends Component<typeof this> {
     x = motionValue(0);
-    dot = { x: this.x };
     follow = (event: Event) => {
       let { clientX, currentTarget } = event as PointerEvent;
       let box = (currentTarget as HTMLElement).getBoundingClientRect();
@@ -49,7 +48,7 @@ export class Follower extends CardDef {
     };
     <template>
       <div class='stage' {{on 'pointermove' this.follow}}>
-        <span class='dot' {{motion style=this.dot}}></span>
+        <span class='dot' {{motion style=(styles x=this.x)}}></span>
       </div>
     </template>
   };
