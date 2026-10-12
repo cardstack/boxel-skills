@@ -211,9 +211,11 @@ nobody knows yet.
 
 **What a skip never does** (guards):
 
-- **It never invents the user's facts.** A business name, a price, a licence number, a person's
-  details are not yours to decide. Use an obvious placeholder and put the item in **Open
-  questions**, marked as needing the user.
+- **It never invents the user's facts.** A business name, a price of theirs, a licence number, a
+  person's details are not yours to decide. Use an obvious placeholder and put the item in **Open
+  questions**, marked as needing the user. Sample records a CardDef stores are the exception, and
+  the user saying the build is a concept or a pitch turns on demo mode: both are defined in
+  [`critical-rules.md`](../boxel-design/references/critical-rules.md) → *Never invent proof*.
 - **It never decides a rule you cannot verify.** In a domain with regulation, money, safety or
   specialist rules, a skipped question gets the conservative default, and the Assumptions line says
   *"placeholder: confirm against the real rule"*. Say once, in the Finish line, that the brief has
@@ -392,8 +394,9 @@ It carries the sections below, trimmed to the depth the answers set (see Size th
   button bound to another, both looking finished.
 - **Flows** — the two or three paths that matter, as steps.
 - **Sample data** — three to five instances per CardDef, written as real content: real names,
-  real numbers, real dates. Lorem ipsum here produces a thin-looking app later, because the
-  build stage composes against whatever content exists.
+  real numbers, real dates. This is for records the app stores; copy that claims something about the
+  user's real business needs a source (*Never invent proof*). Lorem ipsum here produces a
+  thin-looking app later, because the build stage composes against whatever content exists.
 
 ## Schema thickness
 

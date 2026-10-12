@@ -30,8 +30,13 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
   at…"), never as a promise from this business.
 - **A record the app stores and the user will edit or replace**: a menu item, a screening, a
   recipe, a product in a demo catalogue, a patient in a demo list. Invent it freely and
-  realistically, prices and times included. Ratings, testimonials, awards and founding years are
-  copy even when stored in a card, unless the app *is* a review or awards tracker.
+  realistically, prices and times included. An item is a record when it is one of many
+  interchangeable entries the user will edit or replace and the page only lists it (a dish, a drink,
+  a product, a screening). Fees for a service the business performs (treatments, consultations,
+  lessons, memberships) are copy even when stored as cards, because the figure is a commitment about
+  this business's own pricing, and so is a price written in prose or a headline ("from $89").
+  Ratings, testimonials, awards and founding years are copy even when stored in a card, unless the
+  app *is* a review or awards tracker.
 
 A source is something the user supplied: their prompt or answers, a file they attached, or a page
 whose URL they gave and you opened. A search result or "their website" you did not open is not a
@@ -56,104 +61,13 @@ mark every invented claim visibly with a small "Sample" label that stays on the 
 Never infer demo mode from a short or vague prompt: without the user's word, the rules above hold.
 Even in demo mode, invent nothing that could belong to someone real: no quote attributed to a real
 publication, no rating from a real platform, no award from a real body, no credential (medical,
-legal, financial), an obviously fictional street, a 555-01xx phone number and an `example.com`
-address. A personal site (a portfolio, a CV) never gets an invented identity: its owner's facts are
-always slots.
+legal, financial), an obviously fictional business name and street, a 555-01xx phone number and an
+`example.com` address.
 
-A marked slot never removes the main action. See *Main action always on screen* below.
-
-### Main action always on screen
-
-Most apps have one main action: the thing their primary user comes to do. Before writing the Home
-card, state it in one line in your plan, from the answer about who it is for.
-
-- Public apps (visitors): book a seat, buy, enrol, sign up.
-- Internal apps (operators): add a swimmer, take attendance, new booking. Prefer the operator's most
-  frequent daily task. When the app is plainly record-keeping and the brief names no task, the
-  single-record create.
-- Read-only apps (a dashboard, a reference, a portfolio): the main action may be to open the record
-  that matters most. Never invent a write workflow only to have a button.
-- Apps with both audiences: the first build serves the primary one, with at most one `@operation`;
-  the other audience's action is usually an outside link.
-
-The main action is a real control: a button for an in-app operation, a link for an outside
-destination. It is visible on the Home card without scrolling, at desktop and phone widths, and
-shown again on the card for the record it acts on (a session card shows "Take attendance").
-
-How it behaves depends on where its target lives:
-
-- **Outside the app** (ticketing, payment, an external form): link to the URL the user gave. With
-  none, draw the control in its final style, disabled, with a marked slot beside it: "Booking link
-  not set: paste your ticketing URL". Never hide it because the link is missing, never open a
-  dialog for it, and never build a booking system in its place unless the user said the app *is*
-  the booking system.
-- **Inside the app** (creating or changing cards in this realm): it works in the first build, as an
-  `@operation` invoked through `operations()`
-  ([`card-operations-authoring`](../../card-operations-authoring/SKILL.md)). A button that only
-  says "coming soon" is not a marked slot; it is a broken app. The card it creates must look like
-  the rest of the app: link the app's theme on it (`cardInfo.theme`), or have its CardDef take
-  `cardTheme` from a card it always links to. A new record with no theme opens on a white page in
-  system fonts.
-
-Disabled is the last resort, not a shortcut: only after the operation is written and still fails
-when run once against a real card (it errors, or the created card does not appear linked). Then
-show the button disabled with the reason beside it, and report it as open in the build's hand-off.
-These two disabled cases are the only exceptions to *Every visible control works*.
-
-### Every visible control works
-
-Anything that looks pressable works, or it is not drawn: a button, a row with a chevron or hover
-cue, a tab, a checkbox. After the main action:
-
-| Budget | Controls | How |
-|---|---|---|
-| **Free**, use as needed | A linked card | render it with `<@fields.x />`; the host makes it open on click |
-| | A real link the user gave (`tel:`, `mailto:`, a URL) | `<a href>`; never invent a number, address or URL to have one |
-| | A button a reused catalog card already wires and that works | keep it ([`catalog-reuse`](../../catalog-reuse/SKILL.md)); show operator buttons (confirm, check in) only where operators look, never on a page visitors see |
-| **Up to three kinds** | Open a record beside this one (the side panel) | `this.args.viewCard?.(card, 'isolated', { openCardInRightMostStack: true })` |
-| | Edit a record (the host's edit view is the short form) | `this.args.viewCard?.(card, 'edit', { openCardInRightMostStack: true })` |
-| | Tabs, filters, "Show all" | a `@tracked` value over rows already loaded on the screen |
-| **Not in the first build** | everything else | listed under "Next to add" |
-
-A kind counts once however many instances it has: one filter row is one, and every row that opens
-its record is one.
-
-Render an open-or-edit row as a control only when `@viewCard` is there; in some previews it is
-missing, and then the row is plain text, with no chevron and no hover cue:
-
-```hbs
-{{#if @viewCard}}
-  <button class='row row--link' {{on 'click' (fn this.open record)}}>{{record.title}}</button>
-{{else}}
-  <div class='row'>{{record.title}}</div>
-{{/if}}
-```
-
-Never build a drawer, dialog or off-canvas panel inside a card to open or edit a record: the
-host's side stack already handles scroll, focus and close.
-
-"Next to add" lists what waits: a second `@operation` ("Mark arrived"), a custom form, search, a
-new "All …" page, anything that calls an external service or API. The build's final reply to the
-user ends with it, as a short "Next to add" list, every time: even an empty list says "Nothing
-waits".
-It is shown on Home only in an internal app, as a short note, never on a page visitors see. A
-control that is not finished when the build check runs is deleted and listed there, never left
-half-wired.
-
-### First build: Home and four card types at most
-
-By default the first build of an app is Home plus **at most four card types** the build defines.
-Home does not count, and neither do the theme or cards from other realms the build links to but
-does not define. Pick the four from the main action: the record it creates or changes, the people
-involved, and one or two types the Home cannot be read without. A concept with no life of its own
-(no history, no list, never opened by itself) is a field on one of them (a contained FieldDef or
-`containsMany`): a status, a phone number, a clinic's visit types.
-
-Each card type is three formats to design (isolated, embedded, fitted), fitted at several sizes;
-every extra type is one more surface built in a hurry and one more for the review to mark down.
-When the brief names more types, build the four the main action needs and list the rest under
-"Next to add". If the user explicitly asks for all of them in this build, build them, and say once
-in the plan that a smaller first build usually comes out better.
+**A personal site (a portfolio, a CV) is the exception, even when the user picked demo mode:** never
+invent its owner. The name, headline, bio, employer, work history, clients, rates and contact are
+slots in the one placeholder style, not invented samples, and the two-slot cap does not apply to
+them.
 
 ### Image URL in templates
 
