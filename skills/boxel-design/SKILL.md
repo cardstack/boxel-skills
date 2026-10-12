@@ -31,7 +31,8 @@ design decisions on purpose.
 Ask only the questions that are still unanswered, together in one choice-UI call, each with its skip
 option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*):
 
-1. **How should it feel?** Light & calm / Dark & dramatic / Bold colour / You decide.
+1. **How should it feel?** Three looks written for this place (*Choosing the look*, below), most
+   fitting first and marked recommended, then You decide.
 2. **Real details:** "Anything true about this place a competitor couldn't say?" When the brief's
    `spec` already holds concrete facts (names, places, prices, house rules), the real options are
    **Use what's in the brief** (recommended) / *No details — leave marked slots for them* / *It's a
@@ -40,6 +41,34 @@ option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*
    out* / the concept-or-pitch option. Then *Skip the rest*, which takes the recommended option; the
    free-text answer carries new details. The rule behind these options, and what demo mode allows, is
    [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
+
+**Choosing the look.** Read what the place is, and any cue the user gave (a logo, existing colours,
+a word like "earthy"). A stated cue beats the place's usual look. Offer exactly three looks in these
+roles, in this order:
+
+1. **Expected**: the look most people would expect for this kind of place. Marked (recommended), with
+   a reason of eight words or fewer.
+2. **Warmer or friendlier** than the first.
+3. **Bolder or more distinctive** than the first.
+
+Write each as `<Mood> & <mood> — <base> with <accent>`, taking base and accent only from: white,
+off-white, cream, light grey, charcoal, black, soft blue, navy, teal, sage green, forest green,
+terracotta, warm yellow, coral, plum. "You decide" and "Skip the rest" take the first look. The
+colour words in the label are binding: the build takes its hue from the label the user picked, never
+from an example in another file.
+
+These show the reasoning; they are examples, not a lookup table:
+
+- Dental clinic: Clean & reassuring — white with soft blue (recommended: clinics read as clean and cool)
+- Bakery: Warm & homely — cream with terracotta (recommended: food and warmth)
+- Law firm: Calm & trustworthy — off-white with navy
+- Kids' climbing gym: Bright & playful — white with coral
+- Nightclub: Dark & electric — black with plum
+- Yoga studio: Soft & grounded — off-white with sage green
+
+When the place is unclear, use the fallback set, each with its colours:
+*Light & calm — white with soft blue* (recommended) / *Dark & dramatic — charcoal with teal* /
+*Bold colour — white with coral*.
 
 **Already answered** means any of: the user's prompt or attachments state it (a feel word, named
 colours, a brand, a logo or a reference site for question 1; facts for question 2); it was answered
