@@ -43,16 +43,16 @@ option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*
    [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
 
 **Choosing the look.** Read what the place is, and any cue the user gave. A cue that
-settles the feel (a logo, named colours, a brand) answers question 1 by itself, so no looks are
+settles the feel (a logo, named colours, a brand, a feel word such as "quiet" or "dark mode") answers question 1 by itself, so no looks are
 offered. A cue that only leans (a word like "earthy") moves the first look; the other two keep their
-roles. When the place is two things at once (a bar and a bookshop), pick the stronger reading and
-write the looks for it; the fallback set is only for a place you cannot read at all. Offer exactly three looks in these roles, in this order:
+roles. When the place is two things at once (a bar and a bookshop), pick the reading the brief's `spec`
+(or else the user's first words) puts first, and write the looks for it; the fallback set is only for a place you cannot read at all. Offer exactly three looks in these roles, in this order:
 
 1. **Expected**: the look most people would expect for this kind of place. Marked (recommended), with
    its reason of eight words or fewer in the option's description, not in the label.
 2. **Softer or friendlier** than the first: warmer when the first is cool, lighter when it is dark.
 3. **Bolder or more distinctive** than the first; for a solemn or high-trust place (a funeral home,
-   a hospice, a bank, a law firm, a clinic) it stays muted.
+   a hospice, a bank, a law firm, a clinic) it stays muted: its accent comes from soft blue, sage green, navy or teal.
 
 Write each as `<Mood> & <mood> — <base> with <accent>`, taking base and accent only from: white,
 off-white, cream, light grey, charcoal, black, soft blue, navy, teal, sage green, forest green,
@@ -85,7 +85,7 @@ are answered, make no call.
 
 **Record it on the brief**, when there is one, straight after the answer, including what the user's
 prompt already said. Write two lines into its `designDirection` field (this skill's field;
-`domain-interview` owns `spec`) with `run-realm-code`, changing only that field: add the two lines after any text already there, never deleting it; if the
+`domain-interview` owns `spec`) with `run-realm-code`, changing only that field: add the two lines after any text already there, after one blank line, never deleting it; if the
 attribute is missing or `null` in the brief's JSON, set it. The line is the user's own words, never expanded
 into a palette or fonts: the label of the option they picked, or the feel phrase they typed ("dark
 and moody like a noir poster", not the whole request).
@@ -99,7 +99,8 @@ On `Look:` a skip records the look it took, with the words you decide after it
 (`Look: Clean & reassuring — white with soft blue (you decide)`), so a later step knows which hue
 was taken. A cue from the prompt is recorded in the user's words (`Look: orange logo, brand
 colours`) and used as given; where the colour words above cannot say it, the build uses the user's
-own colour, and for a mode word with no hue ("dark mode") it takes charcoal with teal.
+own colour, and for a mode word with no hue ("dark mode") it takes charcoal with teal and records it after the
+user's words (`Look: dark mode (charcoal with teal)`).
 On `Real details:` the value is one of those
 five, written exactly so (they are the stored form of the options, not their labels); a skip
 records the one it took. The build reads both lines as given: the look steers the mockup, and the
