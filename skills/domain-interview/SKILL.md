@@ -410,7 +410,7 @@ questions, say so in one line before the hand-off. If you decided anything for t
 decisions are in `## Assumptions`, in the same line.
 
 **Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
-the choice UI: build it (`boxel-design` asks about the look if the brief does not record it, then it and the design-playbook build the first screen from this brief),
+the choice UI: build it (`boxel-design` asks about the feel and the real details if the brief does not record them, then it and the design-playbook build the first screen from this brief),
 keep refining this brief, or stop here. It carries no skip option: the next stage is the user's
 call, and a skip would hand it back to you. Recommend
 building when the brief has no open questions left; recommend refining when it does. Do not start

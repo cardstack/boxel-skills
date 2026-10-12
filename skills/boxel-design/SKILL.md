@@ -27,7 +27,8 @@ The user decides the look up front, so every route into a build asks the same tw
 begins "still gets one call of questions"). A build that starts from a brief ("Plan it with me"
 after `domain-interview`, or "I already have a brief") asks them here, because the brief makes no
 design decisions on purpose. A user who brings only a design (a mockup, a reference site, a Figma
-file) has answered the feel question by doing so; ask the real-details question only.
+file) has answered the feel question by doing so; ask the real-details question only. Names and
+prices inside the design are not facts the user stated.
 
 Ask only the questions that are still unanswered, together in one choice-UI call, each with its skip
 option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*):
@@ -53,7 +54,7 @@ question 2: they only decide its first option. "You decide" and "Leave those sec
 are answered, make no call.
 
 **Record it on the brief**, when there is one, straight after the answer, including what the user's
-prompt already said. Write two lines into its `designDirection` field (this skill's field;
+prompt already said. Write the `Look:` and `Real details:` lines it does not already have into its `designDirection` field (this skill's field;
 `domain-interview` owns `spec`) with `run-realm-code`, changing only that field: add the two lines after any text already there, never deleting it; if the
 attribute is missing or `null` in the brief's JSON, set it. The line is the user's own words, never expanded
 into a palette or fonts: the label of the option they picked, or the feel phrase they typed ("dark
@@ -66,7 +67,8 @@ Real details: use what's in the brief | facts: <the user's words> | leave marked
 
 On `Look:` a skipped question records `You decide`. On `Real details:` the value is one of those
 five, written exactly so (they are the stored form of the options, not their labels); details the
-user typed always start with `facts:`, so typed text can never be read as one of the other four. A
+user typed always start with `facts:`, so typed text can never be read as one of the other four, and
+they add to the facts the user stated in the brief, never replace them. A
 skip records the one it took. The build reads both lines as given: the look steers the mockup, and the
 real-details line decides what the build may write about the user's business. Only what the user stated counts as a source under
 [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*: the brief's Interview
