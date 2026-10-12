@@ -411,8 +411,9 @@ permissions decline:
   `./classroom` reaches `classroom.gts`, and the gate judges the module the
   name resolved to, so a grant on `GtsFileDef` serves it by either name.
 - **Neither the source cache nor the module caches.** Nothing the routes cached
-  for a reader answers them, and nothing read or compiled for them is cached
-  for anyone else: a granted module is compiled for that request alone.
+  for a reader answers them, and nothing read or compiled for them is kept
+  for anyone else: admitted callers asking for the same version of a module at
+  the same moment share one compile, and nothing outlives it.
 - **A granted response is always `Cache-Control: private`.**
 - **`If-None-Match` and the other validators count only after the gate has
   admitted the read**, so a refused caller can't probe a file's content with an
@@ -457,10 +458,16 @@ but only on the part of that type's chain that is code:
   [Over HTTP](#over-http)).
 - **Its `where` reads what a data file's does**: `actor()`, `instance("id")`
   and `realmConfig()` (see [Predicates on a file](#predicates-on-a-file)).
-- **A granted module is served `Cache-Control: private`** and compiled for that
-  request, outside the module caches, so every admitted read costs a compile.
-  A revalidation whose `If-None-Match` still matches answers 304 without one.
-  A caller with the realm's own read is served from the caches.
+- **A granted module is served `Cache-Control: private`** and compiled outside
+  the module caches. Nothing compiled is kept, so an admitted read costs a
+  compile unless another admitted caller is compiling the same version at that
+  moment. A revalidation whose `If-None-Match` still matches answers 304
+  without one. A caller with the realm's own read is served from the caches.
+- **A code grant can open modules to callers who aren't signed in**, as any
+  file grant can, when its `where` names them (§12). A card opened to visitors
+  needs its module opened to them too, or the card reads and fails to render.
+  Each module served to a visitor, a 304 included, counts against the grant's
+  rate limit, and a browser imports several modules for one card.
 - **A module no grant reaches is refused as any file is:** a signed-in caller's
   `GET` gets a 404 identical to a missing path, a `HEAD` gets the realm's
   discovery answer, and a caller who isn't signed in gets 401
