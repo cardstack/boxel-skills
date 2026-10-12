@@ -209,6 +209,8 @@ Push to the realm after each stage so you can compare visually.
 
 ## Stage 1 — Mockup pass (the design challenge)
 
+**Read the Look check first.** When the build starts from a brief, read the `Look:` and `Real details:` lines in its `designDirection` field (written by `boxel-design`'s *Look check*, which asks them if they are missing). `Look:` steers the mockup; `Real details:` sets what the sample content may claim about the user's business (`leave sections out` omits those sections, `concept (demo mode)` allows invented proof tagged "Sample"). A resumed session reads them from the brief, not from memory of the earlier conversation.
+
 **Use this verbatim framing for the design itself:**
 
 > Do a design exploration and generate only the above-the-fold view in isolated, framed as such. Write sample content for this use case and fit the elements in there as a design challenge executed by a brand-focused art director of Pentagram, judged by the preeminent taste maker in that field. (Specify who in your thinking, not your final summary.)

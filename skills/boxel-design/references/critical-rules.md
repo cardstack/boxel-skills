@@ -19,6 +19,8 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
 
 ### Never invent proof
 
+When the build starts from a brief, its `designDirection` `Real details:` line (see `boxel-design` → *Look check*) says which of the rules below applies: `leave sections out` and `leave marked slots` set how a missing claim is handled, and `concept (demo mode)` is the only value that allows invented proof.
+
 **Copy or record?** Before writing a fact, ask which it is.
 
 - **Copy that claims something about the user's real business**: a hero line, an About section, a
