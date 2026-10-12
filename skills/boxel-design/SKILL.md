@@ -33,11 +33,12 @@ option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*
 
 1. **How should it feel?** Light & calm / Dark & dramatic / Bold colour / You decide.
 2. **Real details:** "Anything true about this place a competitor couldn't say?" When the brief's
-   `spec` already holds concrete facts (names, places, prices, house rules), the first option is
-   **Use what's in the brief** (recommended); with none, that option is absent. Then *Leave marked
-   slots for them* / *Leave those sections out* / *It's a concept or pitch — make up realistic
-   details, marked as samples* / *Skip the rest*; the free-text answer carries new details. The
-   rule behind these options, and what demo mode allows, is
+   `spec` already holds concrete facts (names, places, prices, house rules), the real options are
+   **Use what's in the brief** (recommended) / *No details — leave marked slots for them* / *It's a
+   concept or pitch — make up realistic details, marked as samples*. With no such facts, they are
+   *No details — leave marked slots for them* (recommended) / *No details — leave those sections
+   out* / the concept-or-pitch option. Then *Skip the rest*, which takes the recommended option; the
+   free-text answer carries new details. The rule behind these options, and what demo mode allows, is
    [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
 
 **Already answered** means any of: the user's prompt or attachments state it (a feel word, named
@@ -49,16 +50,16 @@ are answered, make no call.
 
 **Record it on the brief**, when there is one, straight after the answer, including what the user's
 prompt already said: write two lines into its `designDirection` field (this skill's field;
-`domain-interview` owns `spec`), in the user's words and without expanding them into a palette or
-fonts. Write them with `run-realm-code`, changing only that field; if the attribute is missing from
-the brief's JSON, add it.
+`domain-interview` owns `spec`), word for word as the user said it (their typed feel, or the option label they picked), without
+expanding it into a palette or fonts. Write them with `run-realm-code`, changing only that field; if the attribute is missing or
+`null` in the brief's JSON, set it.
 
 ```
 Look: Dark & dramatic
 Real details: use what's in the brief | <the user's words> | leave marked slots | leave sections out | concept (demo mode) | you decide
 ```
 
-Keep only the value the user chose on each line (`Look: you decide` when they skipped). The build
+Keep only the value the user chose on each line (`Look: you decide` when they skipped; a skipped real-details question records the option it took). The build
 reads both lines as given: the look steers the mockup, and the real-details line decides what the
 build may write about the user's business.
 
