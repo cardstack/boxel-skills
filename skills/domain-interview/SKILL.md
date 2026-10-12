@@ -250,7 +250,7 @@ and where the record and a section differ, the section is what the build follows
 
 The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
 written from `references/brief-template.md`. The card URL is the deliverable. The card has one
-MarkdownField per stage — `spec` (this skill), `designDirection` and `motion` (the build stage's) — so no stage ever touches another stage's text.
+MarkdownField per stage — `spec` (this skill), `designDirection` (the `Look:` and `Real details:` lines `boxel-design`'s Look check writes at build time) and `motion` (the build stage's) — so no stage ever touches another stage's text.
 
 **Where it goes.** In the realm the user named. If they named none, the current realm — the
 `realmUrl` in your context — when its `realmPermissions.canWrite` is true; otherwise ask which
@@ -264,7 +264,7 @@ instance adopts from that alias and nothing is written to the realm but the inst
 | `cardInfo.name` | the brief title — `{Name}`, without a "— brief" suffix |
 | `cardInfo.summary` | the Overview paragraph |
 | `spec` | the spec markdown, from Overview to the Interview record |
-| `designDirection` | empty — the build stage writes it |
+| `designDirection` | empty — `boxel-design`'s Look check writes it when the build starts |
 | `motion` | empty — the build stage writes it, and only when the user asked for heavy motion |
 
 **Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
@@ -410,7 +410,7 @@ questions, say so in one line before the hand-off. If you decided anything for t
 decisions are in `## Assumptions`, in the same line.
 
 **Then hand off — offer the next stage, don't decide it.** Ask as one single-select question in
-the choice UI: build it (`boxel-design` and the design-playbook build the first screen from this brief),
+the choice UI: build it (`boxel-design` asks one quick question about the look, then it and the design-playbook build the first screen from this brief),
 keep refining this brief, or stop here. It carries no skip option: the next stage is the user's
 call, and a skip would hand it back to you. Recommend
 building when the brief has no open questions left; recommend refining when it does. Do not start
