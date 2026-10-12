@@ -49,19 +49,23 @@ they only decide its first option. "You decide" and "Leave those sections out" a
 are answered, make no call.
 
 **Record it on the brief**, when there is one, straight after the answer, including what the user's
-prompt already said: write two lines into its `designDirection` field (this skill's field;
-`domain-interview` owns `spec`), word for word as the user said it (their typed feel, or the option label they picked), without
-expanding it into a palette or fonts. Write them with `run-realm-code`, changing only that field; if the attribute is missing or
-`null` in the brief's JSON, set it.
+prompt already said. Write two lines into its `designDirection` field (this skill's field;
+`domain-interview` owns `spec`) with `run-realm-code`, changing only that field; if the attribute is
+missing or `null` in the brief's JSON, set it. The line is the user's own words, never expanded
+into a palette or fonts: the label of the option they picked, or the feel phrase they typed ("dark
+and moody like a noir poster", not the whole request).
 
 ```
 Look: Dark & dramatic
-Real details: use what's in the brief | <the user's words> | leave marked slots | leave sections out | concept (demo mode) | you decide
+Real details: use what's in the brief | <the user's words> | leave marked slots | leave sections out | concept (demo mode)
 ```
 
-Keep only the value the user chose on each line (`Look: you decide` when they skipped; a skipped real-details question records the option it took). The build
-reads both lines as given: the look steers the mockup, and the real-details line decides what the
-build may write about the user's business.
+On `Look:` a skipped question records `You decide`. On `Real details:` the value is one of those
+five, written exactly so (they are the stored form of the options, not their labels); a skip
+records the one it took. The build reads both lines as given: the look steers the mockup, and the
+real-details line decides what the build may write about the user's business. Facts in the brief's
+`spec` are facts the user supplied, so they count as a source under
+[`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
 
 With no brief, the answers stay in the conversation and the build uses them.
 
