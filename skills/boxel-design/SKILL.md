@@ -23,33 +23,44 @@ Read it in full before any user-facing card design. This skill (`boxel-design`) 
 ## Look check — before the first design decision
 
 The user decides the look up front, so every route into a build asks the same two questions once.
-"Just build it" asks them in its first call (index step 1). A build that starts from a brief
-("Plan it with me" after `domain-interview`, or "I already have a brief") asks them here, because
-the brief makes no design decisions on purpose.
+"Just build it" asks them in its first call (`index.md`, the paragraph under "Just build it" that
+begins "still gets one call of questions"). A build that starts from a brief ("Plan it with me"
+after `domain-interview`, or "I already have a brief") asks them here, because the brief makes no
+design decisions on purpose.
 
 Ask only the questions that are still unanswered, together in one choice-UI call, each with its skip
-option:
+option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*):
 
 1. **How should it feel?** Light & calm / Dark & dramatic / Bold colour / You decide.
 2. **Real details:** "Anything true about this place a competitor couldn't say?" When the brief's
    `spec` already holds concrete facts (names, places, prices, house rules), the first option is
-   **Use what's in the brief** (recommended). Then *Leave marked slots for them* / *Leave those
-   sections out* / *Skip the rest*; the free-text answer carries new details.
+   **Use what's in the brief** (recommended); with none, that option is absent. Then *Leave marked
+   slots for them* / *Leave those sections out* / *It's a concept or pitch — make up realistic
+   details, marked as samples* / *Skip the rest*; the free-text answer carries new details. The
+   rule behind these options, and what demo mode allows, is
+   [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
 
 **Already answered** means any of: the user's prompt or attachments state it (a feel word, named
 colours, a brand, a logo or a reference site for question 1; facts for question 2); it was answered
 earlier in this conversation; or the brief's `designDirection` field has a `Look:` or `Real details:`
-line, or older direction text. "You decide" and "Leave those sections out" are answers. If both are
-answered, make no call.
+line, or older direction text. Facts that sit only in the brief's `spec` do not answer question 2:
+they only decide its first option. "You decide" and "Leave those sections out" are answers. If both
+are answered, make no call.
 
-**Record it on the brief**, when there is one, straight after the answer: write two lines into its
-`designDirection` field (this skill's field; `domain-interview` owns `spec`), in the user's words
-and without expanding them into a palette or fonts:
+**Record it on the brief**, when there is one, straight after the answer, including what the user's
+prompt already said: write two lines into its `designDirection` field (this skill's field;
+`domain-interview` owns `spec`), in the user's words and without expanding them into a palette or
+fonts. Write them with `run-realm-code`, changing only that field; if the attribute is missing from
+the brief's JSON, add it.
 
 ```
-Look: Dark & dramatic (recommended for a cinema)
-Real details: use what's in the brief | <the user's words> | leave marked slots
+Look: Dark & dramatic
+Real details: use what's in the brief | <the user's words> | leave marked slots | leave sections out | concept (demo mode) | you decide
 ```
+
+Keep only the value the user chose on each line (`Look: you decide` when they skipped). The build
+reads both lines as given: the look steers the mockup, and the real-details line decides what the
+build may write about the user's business.
 
 With no brief, the answers stay in the conversation and the build uses them.
 
