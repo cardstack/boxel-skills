@@ -743,12 +743,13 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `anonymous-grant-reads-actor`         | warning  | grant    | A grant whose `where` names `"anonymous"` is on an operation whose program, template or output reads `actor()`, so it admits no visitor (§12). Recorded at `.operation` |
 | `acting-user-never-used`              | warning  | grant    | An `actingUser` on a grant whose `where` never names `"anonymous"`, or on an operation that doesn't write (§12) |
 | `grant-expression-wrong-type`         | warning  | grant    | An expression that is a single value of the wrong kind, such as `actingUser: "42"` or `rateLimitRequests: "\"lots\""` (§12) |
+| `acting-user-from-submitted-card`     | warning  | grant    | A `create` grant whose `where` names `"anonymous"` has an `actingUser` that reads `instance()`, which on a create is the card the visitor sends, so the visitor picks who the card is created as (§12). Recorded at `.actingUser` |
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
 
 A card-level issue makes the whole policy uncompilable, and every signed-in
 caller the realm's permissions decline gets 500 (§13). A caller who isn't
-signed in gets 401 `actor-required` instead (§12). The six warnings keep their grant
+signed in gets 401 `actor-required` instead (§12). The seven warnings keep their grant
 live; every other code takes its part out.
 
 ### The reach warnings
@@ -1227,9 +1228,12 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   admits a visitor: one with no `where`, one with `where: "true"`, and one
   whose `where` would hold for anybody (`.status == "published"`) included. So
   a grant written for signed-in callers never starts admitting everyone.
-- **Naming is the text `"anonymous"`** as a string literal anywhere in `where`,
-  so `.status == "anonymous"` opens the grant too. Write the comparison with
-  `actor()`, in double quotes as every BXL string is.
+- **Naming is comparing `actor()` with `"anonymous"`** in a way that can hold
+  for a visitor: `actor() == "anonymous"`, `"anonymous" == actor()` or
+  `NOT(actor() != "anonymous")`. A card field compared with that text
+  (`.status == "anonymous"`) names no caller, and `actor() != "anonymous"` only
+  ever keeps visitors out, so neither opens the grant. Write the text in double
+  quotes, as every BXL string is.
 - **The grant still admits signed-in callers** the realm's permissions decline,
   evaluated with their own `actor()`, for whom `actor() == "anonymous"` is
   false. `OR(actor() == "anonymous", .ownerId == actor())` admits visitors and
@@ -1307,7 +1311,7 @@ a BXL expression that produces a Matrix user id:
 | A setting in the realm's `config` | `realmConfig("submitter")`     |
 | Written out                     | `"@writer:example.com"`          |
 | A field of the policy card      | `policy("writer")`               |
-| A user the target card names    | `instance().owner`               |
+| A user the target card names    | `instance().owner` (never on a `create`) |
 
 ```json
 { "operation": "create", "where": "actor() == \"anonymous\"", "actingUser": "realmConfig(\"submitter\")" }
@@ -1342,7 +1346,11 @@ a BXL expression that produces a Matrix user id:
 - **`instance()` is the card being written**: the stored card for an `update`
   or `delete`, the card being minted for a `create`. `instance().owner` makes
   a visitor's edit as the user the card names, so that user must hold write on
-  the realm.
+  the realm. On a `create`, that card is the one the visitor sends, so the
+  visitor fills in `owner` and picks any of the realm's writers to write as.
+  An `actingUser` that reads `instance()` on a grant that admits a visitor's
+  `create` records `acting-user-from-submitted-card` as a warning; read the
+  user from `realmConfig` or the policy card instead.
 - **A constant of the wrong kind** (`"actingUser": "42"`) records
   `grant-expression-wrong-type` as a warning, and admits no visitor's write.
 - **The write carries the acting user's identity**, wherever the realm records
@@ -1369,8 +1377,11 @@ writes to one of the realm's writers. Who picks which writer differs by
 source: a `realmConfig` setting is chosen by the realm's own writers, since
 changing `realm.json` takes write on the realm; a constant or a `policy()`
 field is chosen by whoever writes the policy card, which can live in another
-realm (§1). When the policy card's writers aren't the realm's, read the user
-from `realmConfig`.
+realm (§1); and an `instance()` field is chosen by whoever wrote the card. On
+an `update` or `delete` that is whoever last wrote the field, and on a
+`create` it is the visitor. When the policy card's writers aren't the realm's,
+read the user from `realmConfig`, and never read it from `instance()` on a
+grant that admits a visitor's `create`.
 
 A write grant's `where` is judged as every write's is: on the stored card
 before the write, for an `update` or `delete`, and on the card being minted, for
