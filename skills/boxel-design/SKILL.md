@@ -26,46 +26,52 @@ The user decides the look up front, so every route into a build asks the same tw
 "Just build it" asks them in its first call (`index.md`, the paragraph under "Just build it" that
 begins "still gets one call of questions"). A build that starts from a brief ("Plan it with me"
 after `domain-interview`, or "I already have a brief") asks them here, because the brief makes no
-design decisions on purpose.
+design decisions on purpose. A user who brings only a design (a mockup, a reference site, a Figma
+file) has answered the feel question by doing so; ask the real-details question only.
 
 Ask only the questions that are still unanswered, together in one choice-UI call, each with its skip
 option (rules: [`domain-interview`](../domain-interview/SKILL.md) → *Skipping*):
 
 1. **How should it feel?** Light & calm / Dark & dramatic / Bold colour / You decide.
 2. **Real details:** "Anything true about this place a competitor couldn't say?" When the brief's
-   `spec` already holds concrete facts (names, places, prices, house rules), the real options are
+   `spec` already holds concrete facts the user stated (names, places, prices, house rules, as in its
+   Interview record), the real options are
    **Use what's in the brief** (recommended) / *No details — leave marked slots for them* / *It's a
    concept or pitch — make up realistic details, marked as samples*. With no such facts, they are
    *No details — leave marked slots for them* (recommended) / *No details — leave those sections
    out* / the concept-or-pitch option. Then *Skip the rest*, which takes the recommended option; the
-   free-text answer carries new details. The rule behind these options, and what demo mode allows, is
+   free-text answer carries new details. When this is the only question left in the call, it is the
+   last question, so it carries *Skip the rest*; the feel question alone ends with *You decide*. The rule behind these options, and what demo mode allows, is
    [`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
 
 **Already answered** means any of: the user's prompt or attachments state it (a feel word, named
 colours, a brand, a logo or a reference site for question 1; facts for question 2); it was answered
 earlier in this conversation; or the brief's `designDirection` field has a `Look:` or `Real details:`
-line, or older direction text. Facts that sit only in the brief's `spec` do not answer question 2:
-they only decide its first option. "You decide" and "Leave those sections out" are answers. If both
+line, or older direction text that states a look (for question 1) or real details (for question 2);
+a note with neither answers nothing. Facts that sit only in the brief's `spec` do not answer
+question 2: they only decide its first option. "You decide" and "Leave those sections out" are answers. If both
 are answered, make no call.
 
 **Record it on the brief**, when there is one, straight after the answer, including what the user's
 prompt already said. Write two lines into its `designDirection` field (this skill's field;
-`domain-interview` owns `spec`) with `run-realm-code`, changing only that field; if the attribute is
-missing or `null` in the brief's JSON, set it. The line is the user's own words, never expanded
+`domain-interview` owns `spec`) with `run-realm-code`, changing only that field: add the two lines after any text already there, never deleting it; if the
+attribute is missing or `null` in the brief's JSON, set it. The line is the user's own words, never expanded
 into a palette or fonts: the label of the option they picked, or the feel phrase they typed ("dark
 and moody like a noir poster", not the whole request).
 
 ```
 Look: Dark & dramatic
-Real details: use what's in the brief | <the user's words> | leave marked slots | leave sections out | concept (demo mode)
+Real details: use what's in the brief | facts: <the user's words> | leave marked slots | leave sections out | concept (demo mode)
 ```
 
 On `Look:` a skipped question records `You decide`. On `Real details:` the value is one of those
-five, written exactly so (they are the stored form of the options, not their labels); a skip
-records the one it took. The build reads both lines as given: the look steers the mockup, and the
-real-details line decides what the build may write about the user's business. Facts in the brief's
-`spec` are facts the user supplied, so they count as a source under
-[`critical-rules.md`](references/critical-rules.md) → *Never invent proof*.
+five, written exactly so (they are the stored form of the options, not their labels); details the
+user typed always start with `facts:`, so typed text can never be read as one of the other four. A
+skip records the one it took. The build reads both lines as given: the look steers the mockup, and the
+real-details line decides what the build may write about the user's business. Only what the user stated counts as a source under
+[`critical-rules.md`](references/critical-rules.md) → *Never invent proof*: the brief's Interview
+record and anything the user typed into it. Its Domain primer, Schema, Sample data and Assumptions
+are written by the assistant and are never a source, so "Use what's in the brief" leaves them out.
 
 With no brief, the answers stay in the conversation and the build uses them.
 
