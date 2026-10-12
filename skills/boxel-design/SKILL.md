@@ -67,7 +67,8 @@ Look: Dark & dramatic
 Real details: use what's in the brief | facts: <the user's words> | leave marked slots | leave sections out | concept (demo mode)
 ```
 
-On `Look:` a skipped question records `You decide`. On `Real details:` the value is one of those
+On `Look:` a skipped question records `You decide`, and a feel answered by a governing `BrandGuide` or
+Theme records `from the BrandGuide (<its name>)`. On `Real details:` the value is one of those
 five, written exactly so (they are the stored form of the options, not their labels); details the
 user typed always start with `facts:`, so typed text can never be read as one of the other four, and
 they add to the facts the user stated in the brief, never replace them. A
