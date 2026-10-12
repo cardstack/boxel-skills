@@ -29,8 +29,13 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
   at…"), never as a promise from this business.
 - **A record the app stores and the user will edit or replace**: a menu item, a screening, a
   recipe, a product in a demo catalogue, a patient in a demo list. Invent it freely and
-  realistically, prices and times included. Ratings, testimonials, awards and founding years are
-  copy even when stored in a card, unless the app *is* a review or awards tracker.
+  realistically, prices and times included. An item is a record when it is one of many
+  interchangeable entries the user will edit or replace and the page only lists it (a dish, a drink,
+  a product, a screening). Fees for a service the business performs (treatments, consultations,
+  lessons, memberships) are copy even when stored as cards, because the figure is a commitment about
+  this business's own pricing, and so is a price written in prose or a headline ("from $89").
+  Ratings, testimonials, awards and founding years are copy even when stored in a card, unless the
+  app *is* a review or awards tracker.
 
 A source is something the user supplied: their prompt or answers, a file they attached, or a page
 whose URL they gave and you opened. A search result or "their website" you did not open is not a
@@ -55,9 +60,13 @@ mark every invented claim visibly with a small "Sample" label that stays on the 
 Never infer demo mode from a short or vague prompt: without the user's word, the rules above hold.
 Even in demo mode, invent nothing that could belong to someone real: no quote attributed to a real
 publication, no rating from a real platform, no award from a real body, no credential (medical,
-legal, financial), an obviously fictional street, a 555-01xx phone number and an `example.com`
-address. A personal site (a portfolio, a CV) never gets an invented identity: its owner's facts are
-always slots.
+legal, financial), an obviously fictional business name and street, a 555-01xx phone number and an
+`example.com` address.
+
+**A personal site (a portfolio, a CV) is the exception, even when the user picked demo mode:** never
+invent its owner. The name, headline, bio, employer, work history, clients, rates and contact are
+slots in the one placeholder style, not invented samples, and the two-slot cap does not apply to
+them.
 
 ### Image URL in templates
 
