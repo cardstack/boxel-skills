@@ -1,6 +1,6 @@
 ---
 name: realm-policy-authoring
-description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, file and source-read grants and why code needs the realm''s own read, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), opening a grant to callers who aren''t signed in (`actor() == "anonymous"` in `where`, the `actingUser` expression a write is made as, the grant''s `blocklist`, `rateLimitRequests` and `rateLimitWindowSeconds`), the refusals a caller sees, and the judgment calls (a named operation over a raw `update`, keeping authorization-bearing fields out of reach, when snapshot staleness is acceptable, the `read`/`query` split, reading an explanation). Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `readSource`, `grants-module-source`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, `actor() == "anonymous"`, `actingUser`, `blocklist`, `rateLimitRequests`, `rateLimitWindowSeconds`, `actor-required`, `rate-limited`, "anyone may read", "a public form", "why was this caller refused", "what would this rule change", "should I grant update", "is snapshot ok here".'
+description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy". The reference for a `RealmPolicy` card: the `policy` pointer on `realm.json`, the `rules` → `targetType` / `grants` → `operation` / `where` shape, what a grant admits and what it never can, the create lane, file and source-read grants, granting module source so code and data share a realm, and what still needs the realm''s own read, writing `where` in the `policy` BXL profile (membership, the refused partial-match builtins, parentheses), which `query` grants compile to a search filter, `snapshot: true` reads, every issue code and its effect, `validate`, calling `explain` against the live policy or a draft (one card, a search, a page of cards), opening a grant to callers who aren''t signed in (`actor() == "anonymous"` in `where`, the `actingUser` expression a write is made as, the grant''s `blocklist`, `rateLimitRequests` and `rateLimitWindowSeconds`), the refusals a caller sees, and the judgment calls (a named operation over a raw `update`, keeping authorization-bearing fields out of reach, when snapshot staleness is acceptable, the `read`/`query` split, reading an explanation). Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()` in a grant, `nonGrantable`, `readSource`, `TsFileDef`, `GtsFileDef`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, `actor() == "anonymous"`, `actingUser`, `blocklist`, `rateLimitRequests`, `rateLimitWindowSeconds`, `actor-required`, `rate-limited`, "anyone may read", "a public form", "why was this caller refused", "what would this rule change", "should I grant update", "is snapshot ok here".'
 boxel:
   kind: skill
 ---
@@ -322,10 +322,10 @@ A create has no stored card to test, so it is matched and judged differently.
 
 ## 5. Files and source
 
-`readSource` is the read of a path's stored bytes: a data file's bytes, or a
-card's raw `.json`. It is the one operation a grant admits on a file, and it is
-judged differently from every other read, because it is matched on what is
-stored at the path rather than on an index row.
+`readSource` is the read of a path's stored bytes: a data file's bytes, a
+module's source, or a card's raw `.json`. It is the one operation a grant
+admits on a file, and it is judged differently from every other read, because
+it is matched on what is stored at the path rather than on an index row.
 
 ### How a file resolves to a type
 
@@ -354,7 +354,8 @@ covers every extension beneath it:
 | `data.json` whose bytes are not a card document | `JsonFileDef`                            | `FileDef`                        |
 | `Classroom/1.json` holding a card document  | The card's type, from its `adoptsFrom`       | That type's ancestors, up to `CardDef` |
 | `theme.css`, `site.yml`, `LICENSE`, `.gitignore`, `bundle.mjs` | `FileDef` itself          | —                                |
-| `classroom.gts`, `util.ts`, `app.js`, `app.gjs` | No type: module source (see below)       | Nothing                          |
+| `util.ts`, `app.js`                         | `TsFileDef`: module source (see below)       | Nothing else — not `FileDef`     |
+| `classroom.gts`, `app.gjs`                  | `GtsFileDef`: module source (see below)      | `TsFileDef` — not `FileDef`      |
 
 - **The extension is the last dot of the file name, in any case.** `photo.PNG`
   is a `PngDef`; `backup.tar.gz` is a `.gz`, which no def covers, so `FileDef`.
@@ -398,16 +399,20 @@ Name a narrower type in `targetType` the way §2 names any type —
 ### Over HTTP
 
 A `readSource` grant is honored on the routes that serve a path's bytes: the
-`card+source` read and the realm's raw file serve, `GET` and `HEAD`. For a
-caller the realm's permissions decline, those routes read the name **exactly
-as given**:
+`card+source` read, the realm's raw file serve, and the module serve a
+browser's `import` reaches, `GET` and `HEAD`. For a caller the realm's
+permissions decline:
 
-- **No extension fallback and no redirect.** Ask for `Classroom/1.json`, not
-  `Classroom/1`; `room.v2` is not redirected to `room.v2.json`, and
-  `./classroom` never reaches `classroom.gts`.
-- **No transpile, and neither the source cache nor the transpile cache.**
-  Nothing the route cached for a reader answers them, and nothing read for them
-  is cached for anyone else.
+- **The `card+source` read takes the name exactly as given: no extension
+  fallback and no redirect.** Ask for `Classroom/1.json`, not `Classroom/1`;
+  `room.v2` is not redirected to `room.v2.json`, and `classroom` is not
+  `classroom.gts`.
+- **The module serve resolves an import name as it does for a reader.**
+  `./classroom` reaches `classroom.gts`, and the gate judges the module the
+  name resolved to, so a grant on `GtsFileDef` serves it by either name.
+- **Neither the source cache nor the module caches.** Nothing the routes cached
+  for a reader answers them, and nothing read or compiled for them is cached
+  for anyone else: a granted module is compiled for that request alone.
 - **A granted response is always `Cache-Control: private`.**
 - **`If-None-Match` and the other validators count only after the gate has
   admitted the read**, so a refused caller can't probe a file's content with an
@@ -432,30 +437,85 @@ fields and `instance()` no other key, so write the predicate on those two:
 The path is a name a writer chose, so a path predicate inherits the rename
 caveat above: anyone who can write into `handouts/` decides what it serves.
 
-### Code needs the realm's own read
+### Code is a file a grant can name
 
-Module source is never grantable:
+Module source is matched like any other file, on the type its extension names,
+but only on the part of that type's chain that is code:
 
-- **`.ts`, `.gts`, `.js` and `.gjs` resolve to no type**, so no rule reaches
-  them. Neither the transpiled module a browser's `import` loads nor a
-  directory listing has a type either. Other script extensions (`.mjs`,
-  `.cjs`) are not module source to the realm: they are data files a `FileDef`
-  rule serves.
-- **A rule whose type is `TsFileDef` or `GtsFileDef`, or descends from one,
-  records `grants-module-source`**, and the whole rule is dropped (§9).
-  `GtsFileDef` extends `TsFileDef`, so a rule on either is caught.
-- **A caller who reaches the realm only through grants is told of code what
-  they are told of an empty path:** a `GET` gets a 404 identical to a missing
-  path, and a `HEAD` gets the realm's discovery answer. A caller who is not
-  signed in gets the realm's own plain-text 401 on a module path, not
-  `actor-required`.
+- **A rule on `TsFileDef` covers every module**: `.ts`, `.gts`, `.js` and
+  `.gjs`. A rule on `GtsFileDef` covers the ones with templates, `.gts` and
+  `.gjs`. `GtsFileDef` extends `TsFileDef`, so a `.gts` is matched by either.
+  Other script extensions (`.mjs`, `.cjs`) are not module source to the realm:
+  they are data files a `FileDef` rule serves.
+- **A rule on `FileDef` does not reach code.** A module's chain stops short of
+  `FileDef`, so the catch-all written for a realm's data files never starts
+  serving the modules that render them. Only a rule naming a code type does.
+- **A `readSource` grant on a code type serves the modules it covers** to the
+  callers its `where` admits: their source on `card+source`, and the
+  transpiled module a browser imports, by path or by import name (see
+  [Over HTTP](#over-http)).
+- **Its `where` reads what a data file's does**: `actor()` and
+  `instance("id")` (see [Predicates on a file](#predicates-on-a-file)).
+- **A granted module is served `Cache-Control: private`** and compiled for that
+  request, outside the module caches, so it costs a compile on every read a
+  grant admits. A caller with the realm's own read is served from the caches.
+- **A module no grant reaches is refused as an empty path is:** a `GET` gets a
+  404 identical to a missing path, and a `HEAD` gets the realm's discovery
+  answer (§13).
+
+So **code and data can live in one realm.** A caller who reaches the realm only
+through grants needs the module behind every card they are granted, or the card
+reads and fails to render. Grant the code with the same predicate as the cards.
+A hip-recovery realm whose `realm.json` config lists the patient's caregivers
+lets them read and find the recovery plan, and load the code that renders it:
+
+```json
+{
+  "rules": [
+    {
+      "targetType": { "module": "../recovery/recovery-plan", "name": "RecoveryPlan" },
+      "grants": [
+        { "operation": "read",  "where": "realmConfig(\"caregivers\") | any(. == actor())" },
+        { "operation": "query", "where": "realmConfig(\"caregivers\") | any(. == actor())" }
+      ]
+    },
+    {
+      "targetType": { "module": "@cardstack/base/ts-file-def", "name": "TsFileDef" },
+      "grants": [
+        { "operation": "readSource", "where": "realmConfig(\"caregivers\") | any(. == actor())" }
+      ]
+    }
+  ]
+}
+```
+
+A rule on `TsFileDef` serves every module in the realm, including ones no
+granted card uses. To serve fewer, narrow the predicate by path
+(`instance("id") | startswith(…)`), as for any file. Module source is
+readable code, so grant it only where the caller may read all of what it
+covers.
+
+Keeping the definitions in a separate realm everyone can read, as the school
+example does with `school-code` (§10), is another arrangement, not a
+requirement.
+
+### What still needs the realm's own read
+
+A grant reaches files, never the realm's file tree or the routes that analyze
+its code:
+
+- **The directory listing.** A caller who reaches the realm only through grants
+  is told a directory holds nothing.
+- **Code mode's routes**: `_dependencies`, `_card-dependencies` and `_lint`.
+- **A shimmed module**, which the host serves from its own bundle rather than
+  from the realm's files.
 
 So **code mode needs the realm's own read permission** — browsing the file tree
-and opening a module both do. The host doesn't offer code mode to a caller
-without it: the submode switcher, a card's error and an attached file offer no
-way in, and the assistant's tools that open code mode refuse. That is a
-courtesy, not the boundary; the endpoints are. A shared link can still land a
-grant-reached caller in code mode, where the file tree and every module are
+does, whatever the grants say about the files in it. The host doesn't offer
+code mode to a caller without it: the submode switcher, a card's error and an
+attached file offer no way in, and the assistant's tools that open code mode
+refuse. That is a courtesy, not the boundary; the endpoints are. A shared link
+can still land a grant-reached caller in code mode, where the file tree is
 refused and only a file a grant reaches opens — and a card's `.json` granted
 by `readSource` can show there beside a preview its missing `read` refuses.
 Anyone who authors code in a realm needs the realm's own read permission, and
@@ -726,7 +786,6 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `invalid-rule` (at `rules`)           | inactive | card     | `rules` is present and isn't a list. A card with no `rules` compiles to a policy that grants nothing |
 | `invalid-rule`                        | inactive | rule     | `targetType` lacks `module`/`name`, or `grants` isn't a list           |
 | `unresolved-type`                     | inactive | rule     | The `targetType` resolves to no exported type                          |
-| `grants-module-source`                | inactive | rule     | The rule's type is `TsFileDef` or `GtsFileDef`, or descends from one (§5) |
 | `invalid-grant`                       | inactive | grant    | The grant names no `operation`, or its `where` is neither a string nor `{ bxl, snapshot }` |
 | `unknown-operation`                   | inactive | grant    | The type has no such operation (and every grant on `BaseDef`)          |
 | `grants-invalid-operation`            | inactive | grant    | The operation is declared but failed to lower                          |
@@ -1066,7 +1125,7 @@ listed at all. Its `outcome`:
 | `non-grantable`                | The operation is `nonGrantable` on the type or an ancestor, or is an explain or a validate |
 | `query-lane`                   | The operation is built on `query`; see below                                  |
 | `authorization-infrastructure` | The target is the realm's config card or its policy card, or the operation reads, writes or mints a policy card (§11) |
-| `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, module source, or a path the realm ignores |
+| `unmatchable-target`           | No rule can match: a card whose index row is an error, a file for anything but `readSource`, a path that holds nothing, or a path the realm ignores |
 | `not-resolved`                 | The target doesn't carry the operation; `refusal` says how it's refused      |
 | `actor-required`               | `actor` is `""`, the permissions don't let an anonymous caller in, and no grant whose `where` names `"anonymous"` opens the operation: 401 (§12) |
 | `reads-actor`                  | `actor` is `""`, and the operation, as the target's type declares it, reads `actor()`, so no anonymous grant applies: 401 (§12) |
