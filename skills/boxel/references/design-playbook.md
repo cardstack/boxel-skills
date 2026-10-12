@@ -23,7 +23,7 @@ For any card family with **2+ related CardDefs**, produce these planning artifac
 | 0a. Goal | One paragraph: what the family does, who it serves, the single deliverable. | Prose in a plan card OR `.md` |
 | 0b. Brief | What makes this UNIQUE and IMPORTANT for users. Why a person would adopt this over their current spreadsheet/Notion/Airtable. The one-line value prop + the three concrete user moments. | Prose in the same card |
 | 0c. Data model | CardDef list + FieldDef list + relationships, as an ASCII data-flow diagram. Show which fields are sensitive vs shared. Show which fields have computed values. | ASCII diagram, fenced. See "ASCII data-model template" below. |
-| 0d. Sample data | 3-5 instances of each CardDef, written as plain-prose dossiers. The names, the numbers, the dates, the photo captions. Real-feeling content, not lorem ipsum. | Markdown bullets or a `Sample Data` card. |
+| 0d. Sample data | 3-5 instances of each CardDef, written as plain-prose dossiers. The names, the numbers, the dates, the photo captions. Real-feeling content, not lorem ipsum. Records are invented freely; copy about the user's real business needs a source ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*). | Markdown bullets or a `Sample Data` card. |
 | 0e. ASCII layout | A box layout for the `isolated` template of each CardDef. What's at the top-of-the-fold, what's eyebrow vs headline vs meta, where the image goes, what the divider strategy is. | ASCII art with labels. See "ASCII layout template" below. |
 | 0f. Micro mockups | Sketch each format (isolated, embedded, fitted, edit) at desktop AND mobile. Hi-fi mockups — exact placement, real fonts named, the divider strategy decided, what gets cut when the card shrinks to fitted. | A `MicroMockups` CardDef whose `static isolated` IS the mockup board. See `app.boxel.ai/.../actual-duck-82/micro-mockups.gts` for the shape. |
 
@@ -105,7 +105,7 @@ Without stage 0, the agent reaches for `name`, `description`, `date` as fields �
 Stage 0 forces the agent to:
 - Identify the one or two SIGNATURE fields that make this card visually distinctive (a hero image, a price, a rating, a status pill, a brand mark).
 - Decide BEFORE writing schema what the fitted view's job is — show the price? show the photo? show the badge?
-- Write sample data with real names, real prices, real photographs (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards. Which image goes in each media slot, and never a guessed URL: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
+- Write sample records with real names, real prices, real photographs (records only: copy that claims something about the user's real business needs a source, per [`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*) (URLs into the realm or attached). Lorem ipsum produces lorem-ipsum-looking cards. Which image goes in each media slot, and never a guessed URL: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
 
 Then stage 1's mockup has substance to arrange.
 
@@ -234,7 +234,7 @@ For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-
 **What "designed" looks like in stage 1 — non-negotiables:**
 
 - **Schema rich enough to compose with.** A card with 3-4 thin fields will look thin no matter the layout. If the design needs `cuisine`, `subtitle`, `rating`, `reviews`, `author`, `keyIngredient`, `difficulty`, `calories`, `description`, `imageUrl` — add them. Don't be precious about schema size.
-- **Real, evocative sample content.** Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
+- **Real, evocative sample content.** Records are invented freely and realistically, but never copy that claims something about the user's real business ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*). Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
 - **Hardcoded values everywhere.** `#fdfbf7`, `'Lyon Display', 'Garamond Premier Pro', serif`, `2.125rem`, `letter-spacing: 0.22em`. Real choices, no `var(--*)`, no theme tokens, no calc against tokens.
 - **Typography pairing.** Two families with clear roles. Serif body + sans micro-labels is one option. Mono numerals + serif body is another. Two-sans-weights is a third. Pick deliberately.
 - **Weight rhythm.** Large at LIGHT weight (300-400). Tiny at BOLD weight (700-800). Avoid uniform 500-600 weights — that's UI, not editorial.

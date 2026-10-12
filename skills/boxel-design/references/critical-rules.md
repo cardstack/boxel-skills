@@ -17,6 +17,57 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
 - **Gradient Overuse** — Not every element needs a gradient. Gradients are the 2024 over-used signature; flat color with intentional contrast often wins.
 - **Average Quality Trap** — Aim for top 1% execution, not median competence. The design-playbook's "internal taste-maker" framing exists to push past the default.
 
+### Never invent proof
+
+**Copy or record?** Before writing a fact, ask which it is.
+
+- **Copy that claims something about the user's real business**: a hero line, an About section, a
+  rating badge, a testimonial, "Trusted by 2,000 families", "Since 1998", an award, a named member
+  of staff, the business's own prices or opening hours stated as fact, a service or policy it
+  offers ("we see emergencies the same day", "ask about a sports guard"). It needs a source.
+  Without one, describe what this kind of visit or product involves in general ("a check-up looks
+  at…"), never as a promise from this business.
+- **A record the app stores and the user will edit or replace**: a menu item, a screening, a
+  recipe, a product in a demo catalogue, a patient in a demo list. Invent it freely and
+  realistically, prices and times included. An item is a record when it is one of many
+  interchangeable entries the user will edit or replace and the page only lists it (a dish, a drink,
+  a product, a screening). Fees for a service the business performs (treatments, consultations,
+  lessons, memberships) are copy even when stored as cards, because the figure is a commitment about
+  this business's own pricing, and so is a price written in prose or a headline ("from $89").
+  Ratings, testimonials, awards and founding years are copy even when stored in a card, unless the
+  app *is* a review or awards tracker.
+
+A source is something the user supplied: their prompt or answers, a file they attached, or a page
+whose URL they gave and you opened. A search result or "their website" you did not open is not a
+source. Quote people word for word. Other facts may be reformatted ("SINCE 2011", "Founded 2011")
+but never rounded, inflated or reworded into a bigger claim ("since 2011" does not become "over a
+decade of trusted care").
+
+When a copy fact is missing:
+
+1. **Omit it** by default. Rating badges, testimonial bands and "since" marks go unless the user
+   named them.
+2. **Use a role** instead of a person ("the owner"), only for a role the brief establishes. "Your
+   hygienist" claims the clinic has one.
+3. **Use a marked slot** only when the section is central (a restaurant's reviews, its booking
+   link): one visibly unfinished placeholder style and a plain label saying what goes there ("A
+   patient review goes here"). Outside demo mode, never an invented number with "(sample)" beside
+   it. Usually zero slots, at most two per page; reaching for a third means omitting instead.
+
+**Demo mode, only on the user's word.** When the user says the build is a concept, a mockup, a
+pitch or a demo (or picks that answer to the real-details question), invent realistic proof, and
+mark every invented claim visibly with a small "Sample" label that stays on the published page.
+Never infer demo mode from a short or vague prompt: without the user's word, the rules above hold.
+Even in demo mode, invent nothing that could belong to someone real: no quote attributed to a real
+publication, no rating from a real platform, no award from a real body, no credential (medical,
+legal, financial), an obviously fictional business name and street, a 555-01xx phone number and an
+`example.com` address.
+
+**A personal site (a portfolio, a CV) is the exception, even when the user picked demo mode:** never
+invent its owner. The name, headline, bio, employer, work history, clients, rates and contact are
+slots in the one placeholder style, not invented samples, and the two-slot cap does not apply to
+them.
+
 ### Image URL in templates
 
 When using image URLs, route them through the field system so instances can override them:
