@@ -4,8 +4,8 @@ Every unit needs something that arrests: a dominant object with a treatment nobo
 by default. The first screen shows the answer to the reader's first question at full size
 ([`index.md`](../../../index.md) step 3), and an all-equal-weight layout is never the answer;
 `design-review` scores it as Composition. This file is the **execution
-vocabulary** for that decision — what is achievable in a Boxel card with pure CSS, and what each
-technique costs.
+vocabulary** for that decision — what is achievable in a Boxel card with CSS, or with
+[`card-motion`](../../card-motion/SKILL.md) for motion, and what each technique costs.
 
 ## Read this first
 
@@ -25,15 +25,15 @@ with the same treatment, at least one of them was not designed.
 
 ## The techniques, and what each costs in a card
 
-| Treatment | Pure CSS | Cost / constraint |
+| Treatment | Built with | Cost / constraint |
 |---|---|---|
-| **Drifting gradient field** — two or three blurred radial gradients, `@keyframes` on `transform`, `filter: blur()` | yes | The default look; needs a reason. `filter: blur()` on a large surface is expensive and composites on every frame |
-| **Flowing text** — `background-clip: text` with an animated `background-position` | yes | Needs `color: transparent` — check the contrast fallback when the animation is off, and that selection/high-contrast mode still reads |
-| **Staggered reveal** (the baseline version ships automatically: see `boxel-design/references/motion-baseline.md`) — per-child `animation-delay` and `translateY` | yes | The base CSS must be the FINAL state, and the keyframe moves without fading: `from { transform: … }` + `both`, never `opacity`. A fade makes a capture during the stagger read as blank, which breaks screenshot review. See the invisibility trap in upstream's [`template-patterns.md`](../../boxel-ui-guidelines/references/template-patterns.md) |
-| **Layered glass** — `backdrop-filter: blur()` over a moving ground, plus an inline SVG `feTurbulence` data URI for grain | yes | `backdrop-filter` is the other half of the default look. The grain data URI inflates the template; keep it small |
-| **Hover parallax tilt** — `:hover { transform: perspective() rotateX() }` | yes, no JS | Hover only — gives nothing on touch, and nothing to keyboard users unless paired with `:focus-visible` |
-| **Scroll-driven** — `animation-timeline: scroll()` / `view()` | Chromium only | **The card scrolls inside itself**, not the document, so the timeline must resolve to the card's scroll container. Fall back to `IntersectionObserver` with `root` set to that container — never the viewport default |
-| **Scroll-scrubbed subject** — one object (a bottle, a device, a chart, a mark) rotates, scales or shifts continuously as the reader scrolls | yes, for a single element | The strongest signature a card can carry, and the most expensive to get wrong. See below |
+| **Drifting gradient field** — two or three blurred radial gradients, `@keyframes` on `transform`, `filter: blur()` | CSS | The default look; needs a reason. `filter: blur()` on a large surface is expensive and composites on every frame |
+| **Flowing text** — `background-clip: text` with an animated `background-position` | CSS | Needs `color: transparent` — check the contrast fallback when the animation is off, and that selection/high-contrast mode still reads |
+| **Staggered reveal** — children arrive one after another | `card-motion` (`{{motion}}` with `stagger`) | The resting state must be the FINAL state: a capture taken during the stagger must not read as blank, which breaks screenshot review. See the invisibility trap in upstream's [`template-patterns.md`](../../boxel-ui-guidelines/references/template-patterns.md) |
+| **Layered glass** — `backdrop-filter: blur()` over a moving ground, plus an inline SVG `feTurbulence` data URI for grain | CSS | `backdrop-filter` is the other half of the default look. The grain data URI inflates the template; keep it small |
+| **Hover parallax tilt** — `:hover { transform: perspective() rotateX() }` | CSS, no JS | Hover only — gives nothing on touch, and nothing to keyboard users unless paired with `:focus-visible` |
+| **Scroll-driven** — a block reveals or moves as the reader scrolls | `card-motion` (`InView`, `whileInView`, `scrollProgress`) | **The card scrolls inside itself**, not the document, so name the card's scroller explicitly ([`card-motion` → scroll](../../card-motion/references/scroll.md)) — never the window |
+| **Scroll-scrubbed subject** — one object (a bottle, a device, a chart, a mark) rotates, scales or shifts continuously as the reader scrolls | `card-motion` (`scrollProgress`), for a single element | The strongest signature a card can carry, and the most expensive to get wrong. See below |
 
 ### The scroll-scrubbed subject
 
@@ -48,9 +48,8 @@ so decide these in Phase 3 rather than at build time:
 - **One element, `transform` and `opacity` only.** `rotate`, `scale`, `translate` and opacity are
   compositor properties — they animate without layout or paint. Scrubbing `width`, `top`, `filter`
   or a box-shadow instead is the same effect at many times the cost, and it is what makes a
-  scroll page feel heavy. The scrub modifier writing `--progress` drives the transform in every
-  browser (`animation-timeline: view()` only as an `@supports` enhancement); **no library is needed
-  for a single subject.**
+  scroll page feel heavy. Drive the transform with `card-motion`'s `scrollProgress`
+  ([`scroll.md`](../../card-motion/references/scroll.md)); a single subject needs nothing more.
 - **A frame sequence is a different, much larger thing.** The Apple-style effect where the object is
   really a few hundred pre-rendered stills swapped by scroll position is a canvas plus a preload
   budget, not a transform — it becomes a JS way (a canvas drawn in a modifier), and a real weight decision.
@@ -104,8 +103,8 @@ These come from the card runtime, not from taste:
    `cqi` / `cqmin` value or a container-query breakpoint.
    ([`boxel-ui-guidelines/references/use-container-queries-not-viewport-units.md`](../../boxel-ui-guidelines/references/use-container-queries-not-viewport-units.md))
 3. **`prefers-reduced-motion` is not optional.** Every entrance, drift and tilt needs a resting
-   state that is the finished state. `design-review` caps the aesthetic score at 8 when motion is
-   absent or purely functional — and a motion that cannot be turned off is worse than none.
+   state that is the finished state. `card-motion` respects reduced motion by default; never
+   override it, and a CSS animation needs its own `prefers-reduced-motion` rule.
 4. **The outermost element belongs to the host.** No `border-radius`, `border`, `box-shadow` or
    `overflow: hidden` on a format's root; brand-wide corners go on the Theme card. The signature
    goes *inside* the box. ([`boxel-ui-guidelines/references/delegated-render-control.md`](../../boxel-ui-guidelines/references/delegated-render-control.md))

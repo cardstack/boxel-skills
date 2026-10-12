@@ -250,7 +250,7 @@ and where the record and a section differ, the section is what the build follows
 The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
 written from `references/brief-template.md`. The card URL is the deliverable. The card has one
 MarkdownField per stage — `spec` (this skill), `designDirection` (the `Look:` and `Real details:`
-lines `boxel-design`'s Look check writes at build time), `motion` (`motion-authoring`) — so no stage ever touches another stage's text.
+lines `boxel-design`'s Look check writes at build time) and `motion` (the build stage's) — so no stage ever touches another stage's text.
 
 **Where it goes.** In the realm the user named. If they named none, the current realm — the
 `realmUrl` in your context — when its `realmPermissions.canWrite` is true; otherwise ask which
@@ -265,7 +265,7 @@ instance adopts from that alias and nothing is written to the realm but the inst
 | `cardInfo.summary` | the Overview paragraph |
 | `spec` | the spec markdown, from Overview to the Interview record |
 | `designDirection` | empty — `boxel-design`'s Look check writes it when the build starts |
-| `motion` | empty — `motion-authoring` writes it, and only when the user or the direction asked for heavy motion |
+| `motion` | empty — the build stage writes it, and only when the user asked for heavy motion |
 
 **Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
 into a JSON string and never patched into a card that is not indexed yet:
@@ -359,8 +359,8 @@ It carries the sections below, trimmed to the depth the answers set (see Size th
 - **Overview** — one paragraph: what it does, who for, the single deliverable.
 - **Domain primer** — enough for an engineer with no domain knowledge to make sensible calls:
   why the domain exists, a glossary, and the practitioner's workflow as steps, not screens.
-- **Schema** — CardDefs, FieldDefs, relationships. Mark the at most four CardDefs the first build
-  makes ([`critical-rules.md`](../boxel-design/references/critical-rules.md) → *First build: Home
+- **Schema** — CardDefs, FieldDefs, relationships. Mark the at most four card types (besides Home) the
+  first build defines ([`critical-rules.md`](../boxel-design/references/critical-rules.md) → *First build: Home
   and four card types at most*); the rest wait for the next build. Say which fields are computed, which are
   sensitive, which are **links rather than contained copies** — that call is load-bearing, because
   the build declares the real link from the first screen rather than standing it in. **Any field

@@ -9,7 +9,8 @@ boxel:
 
 A first build's main in-app action (*Main action always on screen* in
 `boxel-design/references/critical-rules.md`) is the most common reason to declare an operation:
-one create-and-link, kept to the single happy path, not a speculative set of CRUD operations.
+one create-or-update (usually create-and-link), kept to the single happy path, not a speculative
+set of CRUD operations. It still refuses cleanly when a required field is empty.
 
 An operation is a named action on a card — "escalate this event", "record
 vitals", "request a consult" — declared by the author as **plain data** rather

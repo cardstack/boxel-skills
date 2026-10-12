@@ -11,7 +11,7 @@ _Score what was built, from what it looks like._
 
 | Contract | |
 |---|---|
-| **Reads** | Captures of the built thing, and the unit's brief card — its `spec`, the acceptance lines and anti-patterns in a `designDirection` field when an earlier brief carries one, the numbers in its `motion` field where that is filled |
+| **Reads** | Captures of the built thing, and the unit's brief card — its `spec`, the acceptance lines and anti-patterns in a `designDirection` field when an earlier brief carries one, what its `motion` field asks for, where that is filled |
 | **Writes** | Nothing. The report is the deliverable: the brief card records decisions, not scores, so a review never edits it |
 | **Stops when** | The verdict is reported and the next step — fix, review another surface, revisit a decision, or stop — is offered as a choice |
 
@@ -150,20 +150,13 @@ Score and name the specific thing behind each number:
   this row (*Honest gaps*, above).
 - **Detail** — the editorial micro-objects that signal care: an eyebrow with a rule, a stat slab
   bounded by lines rather than boxed, a fold cue. Two or three, not all of them.
-- **Motion** — first check the **baseline** from [`boxel-design/references/motion-baseline.md`](../boxel-design/references/motion-baseline.md): arrival or scroll reveal on the `isolated` view, hover and focus feedback on controls, timing matching the declared motion character with one ease and one duration set, nothing missing with motion off. A unit missing the baseline caps at 8, unless the user asked for
-  no animation (motion-baseline → *Off, on, or more*): then score only the hover, press and focus
-  feedback, and apply neither cap. Then entrance, feedback, state change. Fade-only or instant swaps read as unfinished;
-  spatial motion with character reads as designed. If motion is absent or purely functional, cap
-  the score at 8 however good the static work is, except on a still page the user asked for. When `## Design direction` records a **Narrative arc**,
-  score against it: do the beats arrive in the recorded order, does the still frame stand alone
-  with motion off, does the arc reveal the signature rather than compete with it, and is any way
-  marked *JS* actually running rather than approximated. Capture at least three points along
-  the arc — a single screenshot cannot show a sequence. When a `## Motion` section from `motion-authoring` sits
-  beside it, the three points are its **Net journey** lines (start / mid / end), captured as
-  [`references/capture.md`](references/capture.md) → *Scroll motion* says, the numbers to
-  check are its Effect rows, and the `## Assumed` list names the numbers nobody chose — read those
-  first. A unit with no `## Motion` section and no arc is scored on its Interaction rows alone; do not ask
-  for one.
+- **Motion** — score it only when the build animates; a still page is not marked down for being
+  still. Motion follows [`card-motion`](../card-motion/SKILL.md): the smallest pattern for the job,
+  names scoped by card id, nothing missing with motion off. Spatial motion with character reads as
+  designed; a fade on everything reads as unfinished. When the user asked for motion and the brief's
+  `## Motion` records it, check the build does what it says. When it moves with scroll, capture the
+  start, middle and end as [`references/capture.md`](references/capture.md) → *Scroll motion* says:
+  a single screenshot cannot show a sequence.
 - **Emptiness and error** — do they invite and instruct, or apologise?
 
 Below 8.5, name the two or three things standing between here and the bar, then stop and let the
@@ -329,13 +322,13 @@ FAILED
 
 Aesthetic: 7.5/10 — gate is 8.5
 - Typography: one sans at 500–600 throughout; no weight rhythm
-- Motion: instant swaps only — capped at 8 for this alone
+- Composition: hero and member grid at equal weight; nothing dominates
 
 Constraints: contrast 3.1:1 on the muted meta line (needs 4.5:1)
 
 Verdict: ITERATE
 The two things between here and the bar: a display face with real weight contrast,
-and one entrance treatment for the tile grid.
+and one tile that dominates the grid.
 ```
 
 ## Pair with
@@ -350,7 +343,7 @@ Read these live on each run. Links are relative to this skill's folder.
 | What each format's root may and may not style | `boxel-ui-guidelines/references/delegated-render-control.md` → *Per format — what's safe and what isn't on the outermost element* |
 | Fitted sizes and the verification checklist | `boxel/references/fitted-formats.md` |
 | The per-format content matrix a card is scored against | `boxel/references/design-playbook.md` — the Stage 0f `## <CardName> · content matrix` block |
-| The motion numbers an arc is captured against | the brief card's `## Motion` section, written by `motion-authoring` |
+| How a build animates, when it does | `card-motion` |
 | Whether an isolated view needed the full viewport | `boxel/references/prefers-wide-format.md` |
 | The capture service behind the captures | `integrate-capture-card-format` |
 
