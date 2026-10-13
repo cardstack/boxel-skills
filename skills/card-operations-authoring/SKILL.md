@@ -407,7 +407,8 @@ are properties of the operation, never of how the caller was authorized.
 ### `label` — what a person sees
 
 Any declaration, on any base, may carry a `label`: a short, plain-text phrase
-shown wherever the operation is presented to a person.
+for people. It is stored on the operation's definition as data, for anything
+that presents the operation to a person to read.
 
 ```ts
 @operation static listOpenPRs = {
@@ -419,19 +420,29 @@ shown wherever the operation is presented to a person.
 
 Write it as what the person is agreeing to, or about to do: "List your open
 pull requests", "Archive this inbox", "Add a line to the audit log". Keep it
-short and plain, and make it true of the request. **A label is shown beside the
-request, never instead of it**: it is the author's description, so whatever
-presents an operation shows what it does as well, and a label that makes a
-write sound like a read only teaches the person to distrust it.
+short and plain, and make it true of the request. A label changes nothing
+about what an operation does.
 
-A label changes nothing about what an operation does, and a fingerprint of
-what an operation sends or does leaves it out, so rewording one changes
-nothing anyone agreed to.
+**When your card shows an operation to someone, show its label beside the
+request, never instead of it.** The label is the author's description, so show
+what the operation does as well; a label that makes a write sound like a read
+only teaches the person to distrust it.
 
-Without a label, the operation is shown under its name split into words, with
+An operation without a label reads as its name split into words, with
 acronyms kept together: `listOpenPRs` is "List open PRs", `getURL` is
-"Get URL". Code that shows an operation to someone reads the same answer from
-`operationDisplayLabel(name, operation)` in `@cardstack/runtime-common`.
+"Get URL". `operationDisplayLabel` from `@cardstack/runtime-common` gives
+either answer. Read the operation through `getOperations`, which merges what
+every ancestor declared; a plain static read sees only the nearest class:
+
+```ts
+import { operationDisplayLabel } from '@cardstack/runtime-common';
+import { getOperations } from '@cardstack/base/operations';
+
+let shown = operationDisplayLabel(
+  'listOpenPRs',
+  getOperations(PullRequestInbox).listOpenPRs,
+);
+```
 
 A label is refused, by the decorator when the class is defined and as
 `invalid-label` when the module is indexed (§4), when it is:
