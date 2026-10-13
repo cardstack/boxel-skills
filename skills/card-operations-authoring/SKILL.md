@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links` and `html`), invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links`, `html` and `label`), invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, an operation `label`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
 boxel:
   kind: skill
 ---
@@ -403,6 +403,59 @@ realm's policy reach warnings are what notice (see
 **A declaration applies uniformly.** The same request answers a realm writer
 and a caller a policy grant admitted with the same document: `links` and `html`
 are properties of the operation, never of how the caller was authorized.
+
+### `label` — what a person sees
+
+Any declaration, on any base, may carry a `label`: a short, plain-text phrase
+for people. It is stored on the operation's definition as data, for anything
+that presents the operation to a person to read.
+
+```ts
+@operation static listOpenPRs = {
+  base: 'query',
+  label: 'List your open pull requests',
+  query: { filter: { on: () => PullRequest, eq: { state: 'open' } } },
+} satisfies OperationDeclaration;
+```
+
+Write it as what the person is agreeing to, or about to do: "List your open
+pull requests", "Archive this inbox", "Add a line to the audit log". Keep it
+short and plain, and make it true of the request. A label changes nothing
+about what an operation does.
+
+**When your card shows an operation to someone, show its label beside the
+request, never instead of it.** The label is the author's description, so show
+what the operation does as well; a label that makes a write sound like a read
+only teaches the person to distrust it.
+
+An operation without a label reads as its name split into words, with
+acronyms kept together: `listOpenPRs` is "List open PRs", `getURL` is
+"Get URL". `operationDisplayLabel` from `@cardstack/runtime-common` gives
+either answer. Read the operation through `getOperations`, which merges what
+every ancestor declared; a plain static read sees only the nearest class:
+
+```ts
+import { operationDisplayLabel } from '@cardstack/runtime-common';
+import { getOperations } from '@cardstack/base/operations';
+
+let shown = operationDisplayLabel(
+  'listOpenPRs',
+  getOperations(PullRequestInbox).listOpenPRs,
+);
+```
+
+A label is refused, by the decorator when the class is defined and as
+`invalid-label` when the module is indexed (§4), when it is:
+
+- not a string, or nothing visible: empty, or only whitespace and invisible
+  formatting characters;
+- longer than 80 characters, counted as a person sees them, so a flag or an
+  emoji sequence counts once;
+- carrying markup (`<` or `>`);
+- more than one line, or carrying any other control character;
+- carrying a bidirectional control, which reorders how the text around it
+  displays;
+- not well-formed text: half of a surrogate pair with no other half.
 
 ### `optimistic`
 
@@ -969,11 +1022,12 @@ findings has no runnable form, and invoking it is refused with
 | `invalid-link-strategy`   | A `links` value its base can't apply — including `none` on a `read` (§2) |
 | `html-without-rendering`  | `html` on a base other than `read` or `query`, which serves no prerendered HTML |
 | `invalid-html-declaration`| `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable` |
+| `invalid-label`           | A `label` that isn't a single short line of plain text (§2)         |
 | `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
 
 The decorator refuses several of these where the class is defined — a
 reserved name, a base the def type does not carry,
-a `links` or `html` it can't apply — so a module that declares one throws as
+a `links`, `html` or `label` it can't apply — so a module that declares one throws as
 it evaluates, and author code rarely records them. Lowering checks
 them again because a stored definition outlives the code that built it. A
 `read` whose declaration carries findings serves every format data-only.
