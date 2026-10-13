@@ -3,11 +3,6 @@ name: boxel-ui-component-discovery
 description: MANDATORY before writing any UI in a `.gts` template, including a quick fix to an existing card (turning a styled span or div into a button, wiring a dead control, a design-review fix) and the reuse search design-review runs for each gap. Search the catalog for a component Spec and reuse it — Pret UI first, boxel-ui only where Pret UI has no equivalent yet. Fall back to raw HTML only when no matching spec exists, and surface the gap when you do.
 boxel:
   kind: skill
-  tools:
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/search-entries'
-        name: default
-      requiresApproval: false
 ---
 
 # Boxel UI Component Discovery
@@ -84,13 +79,40 @@ of truth for what's available and what each component is called.
      --query '<filter-json>' --json` returns the full inventory (well
      over 100 specs across both libraries) in one call. Match each item in your enumeration to a result
      by reading `attributes.cardTitle` and `attributes.cardDescription`.
-   - **In an assistant room, use `search-entries`** with `scope: 'cards'`.
-     It pages (`limit` default 5, max 10), so one broad query will not
-     hand you the whole inventory — run one query per enumerated item
-     instead, adding `{ "matches": "<the item's plain-language name>" }`
-     alongside the `specType` constraint, and read the `total` each
-     result carries to see how much you have not seen. `search-entries`
-     becomes callable once you have read this skill file.
+   - **In an assistant room, search in one `run-realm-code` script**
+     with `realm.entries.search(query, { scope: 'cards', limit })`. It
+     searches every realm the user can read, the catalog included.
+     Run one query per enumerated item in a loop, adding
+     `{ "matches": "<the item's plain-language name>" }` alongside the
+     `specType` constraint, and return only what you will use. Each
+     entry carries `cardTitle`, `cardDescription`, `ref` and the full
+     `readMe` at the top level (not under `attributes`):
+
+     ```js
+     const items = ['button', 'text input', 'dropdown', 'modal'];
+     const found = {};
+     for (const item of items) {
+       const { entries, total } = await realm.entries.search(
+         {
+           filter: {
+             on: { module: '@cardstack/base/spec', name: 'Spec' },
+             every: [{ eq: { specType: 'component' } }, { matches: item }],
+           },
+         },
+         { scope: 'cards', limit: 5 },
+       );
+       found[item] = {
+         total,
+         specs: entries.map((e) => ({ url: e.url, title: e.cardTitle, ref: e.ref })),
+       };
+     }
+     return found;
+     ```
+
+     A search returns at most 50 entries and does not page: when
+     `truncated` is `true`, narrow the query. Return a chosen spec's
+     `readMe` from a second search, or read its write-up with
+     `realm.fs.readText` in a run in the catalog realm.
 
    Narrow with `contains` on the title or `matches` (full-text over the
    readMe) if a query is noisy. See `boxel/references/query-systems.md`

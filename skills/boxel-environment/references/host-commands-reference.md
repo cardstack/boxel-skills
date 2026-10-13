@@ -113,6 +113,7 @@ What you can and cannot see:
 
 - `SearchCardsByQueryCommand_847d` — Advanced search with filters (preferred).
 - `SearchCardsByTypeAndTitleCommand_a959` — Simple title search.
+- What exists across realms and the catalog (Specs, listings, files) — `await realm.entries.search(query, { realms, scope, limit })` in a `run-realm-code` script (see `source-code-editing`).
 
 ## Skill / LLM management
 
