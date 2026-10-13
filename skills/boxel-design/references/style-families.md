@@ -86,6 +86,11 @@ Google Fonts, which is what a Theme card can load.
 Restrained editorial and Luxury both use light display weights. That is deliberate and belongs to
 those two families only.
 
+**When more than one family fits,** choose by what the brief must promise first, not by its
+audience. If care, calm or comfort lead, choose Soft and organic; if delight and energy lead,
+choose Playful pop. Declare one lead family. If the brief needs a second one, name it as a parent
+of a mixed direction (below) instead of splitting the difference.
+
 ## What each family's check is
 
 Check type and colour against the declared family. A family is not a free pass: each one has a
@@ -94,7 +99,7 @@ check as specific as the Restrained editorial rules.
 | Family | Typography check | Colour check |
 |---|---|---|
 | Restrained editorial | large at light or regular weight, small at bold, tracked uppercase labels; not everything at 500–600 | one accent, in at most two places |
-| Playful pop | display at 700+ and visibly round; no thin weights anywhere; body stays readable at 16px+ | every colour has a named role; no two colours the same value and saturation competing for the same job |
+| Playful pop | display at 700+ and visibly round; no thin weights anywhere; labels stay heavy (600+) and friendly, rounded or chunky where the face allows, with tracking tight to modest (small, widely spaced caps mean the build has drifted into Restrained editorial); body stays readable at 16px+ | every colour has a named role; no two colours the same value and saturation competing for the same job |
 | Vibrant and saturated | display at 700+ with tight tracking; one size step far above everything else | at most three high-chroma colours; text on them passes contrast |
 | Vintage and nostalgic | display face has real character (slab, fat serif, script); body a warm serif at ≥16px | muted, warm palette; no pure `#000` or `#fff` unless the family wants paper and ink |
 | Brutalist | heavy or mono display; **hard edges**, no soft weights | black, white and one flat loud colour; no gradients |
