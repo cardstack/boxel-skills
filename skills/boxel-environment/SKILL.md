@@ -46,7 +46,7 @@ So read it as your first action, before you plan the work or tell the user what 
 → Use `run-realm-code` tool. For NEW files, call `realm.fs.writeText` with the complete contents.
 → Put every file the task needs in ONE `run-realm-code` call.
 → For code-change intent, ALWAYS use the `run-realm-code` tool. Data/document commands are secondary.
-→ Before you report the change done: look at the result — `realm.capture` on an instance in the same script, or `view-visually_907b` next — compare it with what was asked, and fix what you see.
+→ Before you report the change done: look at the result — `realm.capture` on an instance in the same script, or in a new script next — compare it with what was asked, and fix what you see.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
   ├─ Code mode    → `realm.ui.previewFormat` in the `run-realm-code` script that wrote it (or preview-format_cb94 on its own)
@@ -64,12 +64,12 @@ The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-co
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
 ├─ Bulk / malformed JSON?              → `run-realm-code`
-└─ After change                        → return `{ show: path }` from the same `run-realm-code` script; when the change affects how the card looks (images, layout-driving or styled content), `view-visually_907b` to see it
+└─ After change                        → return `{ show: path }` from the same `run-realm-code` script; when the change affects how the card looks (images, layout-driving or styled content), `realm.capture` it in a `run-realm-code` script
 ```
 
 ### Seeing what you work with
 
-Look at visual context and at everything you make with `view-visually_907b`; the rules — including what you cannot see and what to tell the user then — are in the Seeing section of `references/host-commands-reference.md`.
+Look at visual context and at everything you make with `realm.capture` in a `run-realm-code` script; the rules — including what you cannot see and what to tell the user then — are in the Seeing section of `references/host-commands-reference.md`.
 
 Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
 

@@ -49,8 +49,9 @@ always: in testing, a remembered Unsplash URL showed a house, not the car it was
 made-up ID returned 404. So a known URL is used only once you have seen it show the slot's subject:
 
 - **From a terminal:** run the load check (*Openverse*, below), download the image and look at it.
-- **In the app:** write it into the instance, then `view-visually` the card. Replace a broken image or
-  a wrong subject with a placeholder, in the same pass.
+- **In the app:** write it into the instance, then `realm.capture` the card in the same
+  `run-realm-code` script. Replace a broken image or a wrong subject with a placeholder, in the same
+  pass.
 
 A wrong subject is one a viewer would not take for the item: farfalle for a spaghetti recipe, a
 pineapple pizza for a margherita. A close variant (another plain cake for an olive-oil cake) is fine.
@@ -187,7 +188,7 @@ under any image extension, before it spends credit.
 ## The user's own image
 
 It has to last, so download it (*URLs and downloads*), then look at it before linking it:
-`view-visually` on the file in the app, or open it from a terminal. It must show what the slot names,
+`realm.capture` on the file in a `run-realm-code` script in the app, or open it from a terminal. It must show what the slot names,
 at roughly the slot's shape. If it does not, ask the user before linking it. If they decline it, say
 the file is in `Images/` and can be deleted.
 
