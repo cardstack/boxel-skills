@@ -109,7 +109,7 @@ its own paragraph: a blank line between the two lines, and a blank line before t
 already there, otherwise they render as one run-on paragraph. Never hand-escape the markdown into
 JSON; use the path for where you run:
 
-- **Boxel AI assistant:** read the card with `read-card-for-ai-assistant`, then `patch-fields` the
+- **Boxel AI assistant:** read the card with `await realm.cards.get(path)` in a `run-realm-code` script, then `patch-fields` the
   `designDirection` field with the existing text, a blank line, and the new lines (or just the new
   lines when it is empty or `null`).
 - **Terminal agents** (Claude Code, Codex: no `run-realm-code`, no `patch-fields`): follow
