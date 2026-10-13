@@ -1,5 +1,7 @@
 # Sample Images at Build Time
 
+**The rule, in one line.** Every media slot of every sample instance gets an image in the first build, taken from the first source in *Pick the source* that fits. A placeholder (`placehold.co` or any other) is the last source, not a default: use one only for a slot the earlier sources that apply to it cannot fill (real people, the user's own products and real branded subjects skip the stock and search sources and take a labelled placeholder until the user supplies an image), and say which sources you tried or ruled out. Read *Pick the source* before filling any slot, even if you stop reading after it; the number of slots is not a reason to skip a source.
+
 Which image a build puts in each media slot of its sample instances, and how it gets into the
 instance without breaking the realm. For a card that makes images at runtime (a button the user
 clicks), use the `integrate-openrouter-image-generation` and `integrate-thumbnail-card-ai` patterns;
