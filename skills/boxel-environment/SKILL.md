@@ -53,7 +53,7 @@ So read it as your first action, before you plan the work or tell the user what 
   └─ Interact mode → show-card_566f
 ```
 
-The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md). Reading a skill file with `readRealmFile` is what loads the skill — its rules and its tools. Do not activate skills with `update-room-skills_3875`: find the skill in `index.md` and read its file.
+The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md). Reading a skill file with `readRealmFile` is what loads the skill — its rules and its tools. Do not turn skills on with `room.enableSkills` to use them yourself: find the skill in `index.md` and read its file.
 
 ### Step 4 — Data task
 
