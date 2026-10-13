@@ -2,19 +2,21 @@
 
 ## Where is the scroll? `scrollProgress()`
 
-`scrollProgress()` returns motion values — `scrollX`, `scrollY`, `scrollXProgress`, `scrollYProgress` — plus three modifiers that say what to track. Bind the values through an object passed to `style=`.
+`scrollProgress()` returns motion values — `scrollX`, `scrollY`, `scrollXProgress`, `scrollYProgress` — plus three modifiers that say what to track. Bind the values with `style=(styles …)`.
 
 ```gts
 import { CardDef, Component } from '@cardstack/base/card-api';
-import { motion, scrollProgress } from 'glimmer-motion';
+import { motion, scrollProgress, styles } from 'glimmer-motion';
 
 export class Story extends CardDef {
   static isolated = class Isolated extends Component<typeof this> {
     scroll = scrollProgress({ offset: ['start end', 'end start'] });
-    bar = { scaleX: this.scroll.scrollYProgress };
     <template>
       <div class='reader' {{this.scroll.container}}>
-        <div class='bar' {{motion style=this.bar}}></div>
+        <div
+          class='bar'
+          {{motion style=(styles scaleX=this.scroll.scrollYProgress)}}
+        ></div>
         <section {{this.scroll.target}}>…</section>
       </div>
       <style scoped>
