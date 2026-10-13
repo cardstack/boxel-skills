@@ -33,7 +33,7 @@ Take the first that fits:
 | 3. A stock photo you know | A known Unsplash, Pexels or Pixabay URL, load-checked and looked at (*Known stock photos*) | A known URL, then look at the rendered card (*Known stock photos*) |
 | 4. A photo found by search | An Openverse photo (*Openverse*); its URL goes in the field | No tool to search: skip |
 | 5. A labelled placeholder | When nothing above fits, or a check fails | When nothing above fits, or a check fails |
-| 6. AI images | Not available: `generate-thumbnail` fails from the CLI | Offered once (*AI images*) |
+| 6. AI images | Not available: `realm.images.generate` runs only in the app | Offered once (*AI images*) |
 
 **Real subjects never take a stock photo.** A real person, the user's own products ("our cakes",
 "our team"), and a real copyrighted or branded subject (an actual film poster, a real listing) get a
@@ -122,15 +122,16 @@ curl -s -A "boxel-skills" "https://api.openverse.org/v1/images/?q=swimming+pool&
 In the Boxel app only. When the user asked for them, or the design is brand-heavy, generate them
 during the mockup pass (design-playbook → *Brand-guided imagery during mockup*). Otherwise offer them
 once after the build, as one single-select question ("Generate 6 images for the dishes? This uses
-OpenRouter credit."), leaving out slots that always take a placeholder. Make every call in one reply,
-so the user approves them together.
+OpenRouter credit."), leaving out slots that always take a placeholder.
 
-`generate-thumbnail` is declared in
-[`host-commands-reference.md`](../../boxel-environment/references/host-commands-reference.md). For a
-sample image: `targetPath: Images`, `cardName` the instance's title, and no `targetCardId` unless the
-image is `cardInfo.cardThumbnail`. Compose the prompt from the instance's own data, the design's
-palette and imagery, the slot's composition, and what to leave out (no text, logos or watermarks),
-never from the field name alone.
+Generate them with `realm.images.generate({ prompt, path })` in one `run-realm-code` script
+([`source-code-editing`](../../source-code-editing/SKILL.md)), so the user approves one run. `path` is
+`Images/<instance-slug>-<field>.png`; the saved file can take another extension if the model returns
+another image type, so use the `path` the call returns. In the same script, link each returned path in
+its instance (*Writing it into the instance*). A run makes at most 4 images; for more, run the next
+script after the user approves the first. Compose the prompt from the instance's own data, the
+design's palette and imagery, the slot's composition, and what to leave out (no text, logos or
+watermarks), never from the field name alone.
 
 ## The user's own image
 
