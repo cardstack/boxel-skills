@@ -113,10 +113,12 @@ What you can and cannot see:
 
 ## Indexing (requires write access)
 
-- `invalidate-realm-identifiers_xxxx` — Trigger indexing for specific file/resource identifiers in a realm.
-- `reindex-realm_xxxx` — Reindex a realm using default mode.
-- `full-reindex-realm_xxxx` — Force a full reindex of a realm.
-- `cancel-indexing-job_xxxx` — Cancel currently running indexing job.
+- **`run-realm-code`** — Control the index of the run's realm with `realm.index` in the script (see `source-code-editing`):
+  - `await realm.index.invalidate(paths)` — index specific files again (a path or an array of 1 to 100 paths).
+  - `await realm.index.reindex()` — reindex the realm in the default mode.
+  - `await realm.index.fullReindex()` — rebuild the whole index from scratch. Waits for the user's click.
+  - `await realm.index.cancelJob()` — cancel the running indexing job. Waits for the user's click.
+  Each call starts the work and returns; it does not wait for indexing to finish.
 
 ## Approval requirements
 
@@ -124,3 +126,4 @@ The following require user approval before execution:
 - `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`
 - A `run-realm-code` script that names `realm.images.generate`
 - A `run-realm-code` script that names `realm.fs.download`
+- A `run-realm-code` script that names `realm.index.fullReindex` or `realm.index.cancelJob`

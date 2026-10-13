@@ -3,28 +3,13 @@ name: indexing-operations
 description: Realm reindexing and indexing-job control commands.
 boxel:
   kind: skill
-  tools:
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/invalidate-realm-identifiers'
-        name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/reindex-realm'
-        name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/full-reindex-realm'
-        name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/cancel-indexing-job'
-        name: default
-      requiresApproval: false
 ---
 
 # Indexing Operations
 
 Indexing reads realm content and updates the search/query index used by Boxel.
+
+In the app, each operation below is a `realm.index` call in a `run-realm-code` script that runs in the target realm ([`source-code-editing`](../../source-code-editing/SKILL.md)). Each call starts the work on the realm server and returns at once; it does not wait for indexing to finish. A full reindex and a cancel run only after the user clicks to approve the run.
 
 ## Invalidate Specific Resource Identifiers
 
@@ -32,30 +17,18 @@ Use this when a user wants specific files re-indexed for a realm. The user may a
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmIdentifier` is known.
-- `resourceIdentifiers` contains the specific file or card identifiers that should be re-indexed.
+- The script runs in the target realm.
+- The paths name the specific files to index again: a path or an array of 1 to 100 paths, relative to the realm root.
 
 ### Behavior
 - Triggers incremental indexing for the specified resource identifiers.
 - Use this to target specific files instead of canceling or starting broader indexing work.
-- The command accepts multiple resource identifiers in one request.
+- One call accepts up to 100 paths.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "invalidate-realm-identifiers_xxxx",
-  "payload": {
-    "description": "Trigger indexing for specific files in this realm",
-    "attributes": {
-      "realmIdentifier": "<realmIdentifier>",
-      "resourceIdentifiers": [
-        "<resourceIdentifier1>",
-        "<resourceIdentifier2>"
-      ]
-    }
-  }
-}
+```js
+return await realm.index.invalidate(['Pet/mango.json', 'pet.gts']);
 ```
 
 ## Reindex Realm
@@ -64,25 +37,17 @@ Use this when a user wants to reindex a realm using the normal, lighter/default 
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmUrl` is known.
+- The script runs in the target realm.
 
 ### Behavior
 - Republishes a from-scratch indexing job in the lighter/default mode.
 - Use this when the user wants to pick up normal recent changes or refresh a realm.
 - This is broader than invalidating specific URLs and lighter than a full reindex.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "reindex-realm_xxxx",
-  "payload": {
-    "description": "Reindex this realm using the default mode",
-    "attributes": {
-      "realmUrl": "<realmUrl>"
-    }
-  }
-}
+```js
+return await realm.index.reindex();
 ```
 
 ## Full Reindex Realm
@@ -91,25 +56,17 @@ Use this when a user wants a full rebuild of a realm index.
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmUrl` is known.
+- The script runs in the target realm.
 
 ### Behavior
 - Forces a full realm reindex so every file is revisited.
 - Use this when the user suspects indexing drift, stale results, or wants a deep/full refresh.
 - This is heavier than the normal reindex command.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "full-reindex-realm_xxxx",
-  "payload": {
-    "description": "Force a full reindex of this realm",
-    "attributes": {
-      "realmUrl": "<realmUrl>"
-    }
-  }
-}
+```js
+return await realm.index.fullReindex();
 ```
 
 ## Cancel Running Indexing Job
@@ -118,7 +75,7 @@ Use this when a user asks to stop indexing for a specific realm.
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmUrl` is known.
+- The script runs in the target realm.
 
 ### Behavior
 - Cancels currently running jobs in concurrency group `indexing:<realmUrl>`.
@@ -126,18 +83,10 @@ Use this when a user asks to stop indexing for a specific realm.
 - Does not cancel pending indexing jobs.
 - Endpoint response is `204 No Content`, including no-op cases.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "cancel-indexing-job_xxxx",
-  "payload": {
-    "description": "Cancel the currently running indexing job for this realm",
-    "attributes": {
-      "realmUrl": "<realmUrl>"
-    }
-  }
-}
+```js
+return await realm.index.cancelJob();
 ```
 
 ## Post-push verification gate
