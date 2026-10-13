@@ -323,10 +323,14 @@ A card's isolated template is re-mounted every time the user flips formats (`iso
   /* `both` = backwards (hold `from` during delay) + forwards (hold `to` after) */
 }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(20px); }
+  to   { transform: translateY(0); }
 }
 ```
+
+Leave opacity out of an entrance's keyframe as well. A fade holds the element invisible through its
+delay, so a screenshot taken during the entrance (which is what a design review works from) shows an
+empty section. A rise alone is visible from the first frame.
 
 The principle: **the resting CSS state must be the FINAL state** (visible, in-place), not the initial state. If the animation cancels, fails to fire, or is disabled by `prefers-reduced-motion`, the element falls back to its natural visible state. The `from` block + `animation-fill-mode: both` handles the "hide during delay → animate → stay visible" lifecycle without needing the base CSS to be invisible.
 

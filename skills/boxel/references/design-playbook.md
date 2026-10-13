@@ -213,6 +213,14 @@ Push to the realm after each stage so you can compare visually.
 
 > Do a design exploration and generate only the above-the-fold view in isolated, framed as such. Write sample content for this use case and fit the elements in there as a design challenge executed by a brand-focused art director of Pentagram, judged by the preeminent taste maker in that field. (Specify who in your thinking, not your final summary.)
 
+Decide the sections from what the visitor is there to decide before any layout. For an app, that
+is the Home card's sections, one per CardDef from Stage 0, never one card holding the whole app;
+a record card's sections come from its content matrix (Stage 0f). The first screen
+answers the visitor's first question with the answer itself at full size (a list, a photo, a
+number, a form, something to try), and the headline captions it. Then, where a section has a layout problem, use the move from [`boxel-design/references/layout-vocabulary.md`](../../boxel-design/references/layout-vocabulary.md) that is **for** that problem and say why; zero moves is a valid answer, and "make it look premium" is not a reason.
+
+Place the app's main action ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Main action always on screen*) as the one primary-styled button on Home: in the header on wide screens, within reach without scrolling on a phone, and repeated on the cards where it applies. One primary style per screen.
+
 Hold the taste-maker in your head as you work. Bierut, Sagmeister, Paula Scher, Khoi Vinh, Massimo Vignelli, Mark Boulton — whoever fits the brief. The internal critic raises the bar; do NOT name them in your code or commit messages.
 
 ### Brand-guided imagery during mockup (not as a late asset fill)
@@ -230,6 +238,8 @@ brand DNA (palette, voice, reference vocabulary)
 ```
 
 For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-tone background, oak browns, no high contrast), composition constraint (lower-third negative space for headline overlay), and visual reference (Made Thought monograph aesthetic). Generic prompts ("Inset Shaker kitchen") produced generic photos.
+
+To source and link the images, follow [`boxel-file-def/references/sample-images.md`](../../boxel-file-def/references/sample-images.md): every media slot of every sample instance gets an image in the first build (from a terminal, real photos from Openverse; otherwise labelled placeholders). A gradient, initials or a box drawn in CSS where a photo belongs is not an image. It covers when to generate, when a stock photo or a placeholder is the better call, and how each one reaches the instance.
 
 **What "designed" looks like in stage 1 — non-negotiables:**
 
@@ -356,6 +366,12 @@ A single line, maybe with a chip. Use atom format when the card appears inline i
 **Edit** — usually leave to host default unless your design truly demands a custom form layout.
 
 Push each format.
+
+---
+
+## After stage 4 — automatic design review (not optional)
+
+When the build is done, capture it yourself and fix every line of the pass/fail [build check](../../design-review/references/build-check.md): names, fill, media, phone, colour roles, type, controls, main action, one signature, job first, same facts. Then run [`design-review`](../../design-review/SKILL.md) without being asked: `set` mode across the app and `card` mode on every CardDef the build produced, scored against the brief's acceptance lines and an award-site benchmark. Fix the top gaps once, re-capture and re-score, and report whether it cleared 8.5, offering another round as a choice. Skip only for a utility card with no user-facing surface.
 
 ---
 

@@ -239,9 +239,30 @@ naming why the hit itself could not be linked, installed, or copied.
 - **Referencing beats installing; installing beats re-typing.** Hand-writing
   code that already exists costs a large multiple of any reuse and drifts from
   the original. Visual or naming differences are never a reason to skip reuse —
-  reference and restyle. When the user wants their own bundle, install rather
+  reference and restyle (*Reuse the model, own the look*, below). When the user wants their own bundle, install rather
   than re-type, and remix when they will change its schema. `catalog-listing`
   has the mechanics.
+- **Reuse the model, own the look.** Adopting a catalog card commits the build to
+  its fields, computeds and operations, never to its templates. Every catalog card
+  the app shows must look designed for this app. Take the first route that fits:
+  1. **The theme**, only when the stock template already has the right structure
+     and visibly picks up the app's theme in a capture. A theme fixes colour and
+     type, never a layout from another domain (a CRM row on a bakery's Home).
+  2. **Its fields in your own markup**, for one placement inside one parent:
+     keep the link, read `@model.<field>` in the parent's template instead of
+     `<@fields.x @format='embedded' />`.
+  3. **Extend it and override `isolated`, `embedded` and `fitted`**, the default
+     when it is one of the app's own kinds of thing or shows in more than one
+     place. Override markup only: render its computeds rather than recomputing
+     them, carry over any button its templates wire to an action, and leave
+     `edit` alone.
+  4. **Refuse and build new** only for a model or behaviour mismatch (you would
+     hide most of its fields or change what they mean), and name it.
+
+  Record the route in the disposition (`theme`, `own markup`, `extended`). In test
+  builds, a reused CRM Account row and a Schedule card shown through their stock
+  templates were called foreign by the design review; reuses extended with
+  app-owned formats were not.
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.

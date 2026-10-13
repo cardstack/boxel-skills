@@ -198,6 +198,8 @@ To read a task's result reactively in a template without awaiting it, use the ta
 
 **When to Use External Libraries:** Sometimes you need specialized functionality like 3D graphics (Three.js), data visualization (D3), or charts. Boxel plays well with external libraries when you follow the right patterns.
 
+**Not for motion.** Never load a third-party animation library from a CDN (gsap, ScrollTrigger, Lenis and kin). Animate with [`card-motion`](../../card-motion/SKILL.md): glimmer-motion and Choreo come from the host, with nothing to install.
+
 **Key Rules:**
 1. **Always use Modifiers for DOM access** - Never manipulate DOM directly
 2. **Use ember-concurrency tasks** for async operations like loading libraries
