@@ -99,8 +99,9 @@ observed, and `read` never becomes a visual claim.
 - Conventions the references share set the baseline the card must meet. Where they differ, the
   brief picks.
 - Unless the user named the reference, take at most two moves from any one reference, and combine
-  moves from at least two. A reference the user named is the decision for the family, layout
-  structure and mood, so the two-move cap does not apply to it. The swap test above still does:
+  moves from at least two. A reference the user named decides the family, the mood and which
+  sections the page shows, so the two-move cap does not apply to it; the order of those sections
+  still comes from the visitor's first question (first bullet). The swap test above still applies:
   build its approach with your own composition, artwork, copy and logo, so the result is not that
   product with the name changed.
 - The user's intent outranks the category's conventions: references set the baseline a card

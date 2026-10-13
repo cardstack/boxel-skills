@@ -24,7 +24,7 @@ Read it in full before any user-facing card design. This skill (`boxel-design`) 
 
 When design guidance conflicts, resolve it in this order:
 
-1. Security, accessibility and the never-invent-proof rules ([`critical-rules.md`](references/critical-rules.md), [`untrusted-content.md`](references/untrusted-content.md)): never overridden.
+1. Security, accessibility, the never-invent-proof rules and the swap test ([`critical-rules.md`](references/critical-rules.md), [`untrusted-content.md`](references/untrusted-content.md)): never overridden, not even by a user who asks for a copy.
 2. The user's explicit instruction.
 3. The declared style family ([`style-families.md`](references/style-families.md)), which owns the weight pattern, colour count, type roles and shape.
 4. The playbook's and the layout guides' defaults and examples.
