@@ -48,4 +48,4 @@ looking at the photo, never a made-up one.
 - Mixing incompatible visual styles (unless intentional)
 - Low-res images stretched beyond their quality
 
-**Remember:** A broken image destroys credibility faster than a generic placeholder. When in doubt, use a labelled placeholder ([`sample-images.md`](../../boxel-file-def/references/sample-images.md)).
+**Remember:** A broken image destroys credibility faster than a generic placeholder, so look at each photo before it ships. A labelled placeholder is the last source, for a slot the sources that apply to it cannot fill or a check that failed ([`sample-images.md`](../../boxel-file-def/references/sample-images.md) → *Pick the source*).
