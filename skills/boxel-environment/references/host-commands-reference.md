@@ -17,10 +17,6 @@ boxel:
         name: default
       requiresApproval: true
     - codeRef:
-        module: '@cardstack/boxel-host/tools/read-card-for-ai-assistant'
-        name: default
-      requiresApproval: false
-    - codeRef:
         module: '@cardstack/boxel-host/tools/open-workspace'
         name: default
       requiresApproval: false
@@ -87,8 +83,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 ## Reading
 
-- **`run-realm-code`** — Read a file in the workspace with `await realm.fs.readText(path)` and list a folder with `await realm.fs.list(path)` in the script. Return what you read from the script to see it in the tool result.
-- `read-card-for-ai-assistant` — Read a card instance.
+- **`run-realm-code`** — Read a file in the workspace with `await realm.fs.readText(path)` list a folder with `await realm.fs.list(path)`, and read a card instance as data with `await realm.cards.get(path)` in the script. Return what you read from the script to see it in the tool result.
 
 ## Seeing
 

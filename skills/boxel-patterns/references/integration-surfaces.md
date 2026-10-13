@@ -91,7 +91,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 | `write-text-file` | Avoid — create and edit files with the `run-realm-code` tool instead. |
 | `copy-card`, `copy-source`, `copy-file-to-realm` | Duplicate a card, source file, or FileDef-backed asset (requires approval where applicable). |
 | `transform-cards` | Bulk command-applied transform (requires approval). |
-| `read-file-for-ai-assistant`, `read-card-for-ai-assistant` | Load file or card content into context. |
+| `read-file-for-ai-assistant` | Load file content into context. |
 | `search-cards` | `SearchCardsByQueryCommand` (advanced) and `SearchCardsByTypeAndTitleCommand` (simple). |
 | `search-google-images` | Google Custom Search image lookup through `send-request-via-proxy`; returns image/result metadata, not a stored realm file. |
 | `search-and-choose` | Search cards, ask the LLM to choose numbered options, and return selected ids/cards. Used by listing flows. |
