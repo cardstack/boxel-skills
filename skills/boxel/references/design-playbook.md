@@ -211,6 +211,8 @@ Push to the realm after each stage so you can compare visually.
 
 **Read the Look check first.** When the build starts from a brief, read the `Look:` and `Real details:` lines in its `designDirection` field (written by `boxel-design`'s *Look check*, which asks them if they are missing). `Look:` steers the mockup; `Real details:` sets what the sample content may claim about the user's business (`leave sections out` omits those sections, `concept (demo mode)` allows invented proof tagged "Sample"). A resumed session reads them from the brief, not from memory of the earlier conversation.
 
+**After the first mockup, run the check** in [`SKILL.md`](../../boxel-design/SKILL.md) (*Check after the first mockup*); no family or direction is declared before it. The bullets below say what to decide, and the brief overrides their defaults.
+
 **Use this verbatim framing for the design itself:**
 
 > Do a design exploration and generate only the above-the-fold view in isolated, framed as such. Write sample content for this use case and fit the elements in there as a design challenge executed by a brand-focused art director of Pentagram, judged by the preeminent taste maker in that field. (Specify who in your thinking, not your final summary.)
@@ -239,8 +241,8 @@ For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-
 - **Real, evocative sample content.** Records are invented freely and realistically, but never copy that claims something about the user's real business ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*). Write in the voice of the publication you're emulating (Bon Appétit, The New York Times, Apartamento, Pitchfork). The instance JSON is part of the design.
 - **Hardcoded values everywhere.** `#fdfbf7`, `'Lyon Display', 'Garamond Premier Pro', serif`, `2.125rem`, `letter-spacing: 0.22em`. Real choices, no `var(--*)`, no theme tokens, no calc against tokens.
 - **Typography pairing.** Two families with clear roles. Serif body + sans micro-labels is one option. Mono numerals + serif body is another. Two-sans-weights is a third. Pick deliberately.
-- **Weight rhythm.** Large at LIGHT weight (300-400). Tiny at BOLD weight (700-800). Avoid uniform 500-600 weights — that's UI, not editorial.
-- **ONE accent color in ≤2 places.** Pick a single accent that carries meaning (a brand color, a category tag, an action). Use it twice at most. Everything else neutral.
+- **Weight rhythm.** Let the brief set the weight pattern, with visible contrast between the display role and the labels. Uniform 500-600 reads as UI in every family except Soft and organic, which sets its display at 500-600 on purpose.
+- **Accent discipline.** Let the brief set the colour strategy, and give every accent a named role. Under Restrained editorial that is one accent in at most two places (a brand color, a category tag, an action), with everything else neutral.
 - **Letter-spacing on micro-labels.** `0.05em` to `0.22em` on uppercase eyebrows. Untracked uppercase reads cheap.
 - **Editorial micro-objects.** Eyebrow + rules. Author avatar with initial. Star rating with fill states. Drop cap. Fold cue. Stats slab framed by `border-top` / `border-bottom` rather than enclosed in a box. Pick 2-3 of these moves; don't apply all of them.
 - **Media is featured.** If the card has imagery (hero, cover, headshot), it appears at scale. Don't hide it in a corner.
@@ -248,9 +250,9 @@ For NBJ specifically, prompts for kitchen heroes included palette tokens (paper-
 **Self-critique before declaring done.** Imagine your taste-maker looking at the rendered card:
 
 1. Does the typography pair on purpose, or default to one sans?
-2. Is there weight rhythm, or are all weights between 500-600?
+2. Does the weight pattern fit the brief, with contrast between display and labels?
 3. Do the micro-labels have letter-spacing?
-4. Is there ONE accent, or are 3-5 theme tokens used as accents?
+4. Does the colour use fit the brief, with every accent in a named role?
 5. Is the schema rich enough that there's something to compose with?
 6. Is the sample content evocative, or "Lorem ipsum / Untitled Project"?
 7. Does the hero media (if any) get real real estate?
@@ -341,7 +343,7 @@ If the card has a hero image, illustration, brand mark, or generated graphic, th
 
 Layout latitude in fitted:
 - Keep the typography pairing from isolated (same `var(--font-*)` references)
-- Keep the accent discipline (one color, ≤2 places)
+- Keep the colour strategy (under Restrained editorial: one color, ≤2 places)
 - Keep one editorial micro-object if it scales (eyebrow with tracking does; drop cap doesn't)
 - Drop the schema-rich content; show only the 3-4 fields that survive at 200×200
 

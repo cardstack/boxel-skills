@@ -1,0 +1,123 @@
+# Style families — a coverage map so every build does not look alike
+
+Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
+
+**Why this exists.** Left alone, a model drifts to one look: a large light-weight serif or thin
+display face, a small bold sans for labels, one accent colour, a lot of restraint. That is a good
+look for an editorial page and the wrong one for a pet shop, a game, a festival or a bank's
+students' app. The weights and one-accent budget in `critical-rules.md` and the design playbook are
+the Restrained editorial look's; this file shows how far apart credible looks sit.
+
+**This is optional vocabulary, not a menu.** Nothing here is chosen or declared in advance, and no step
+in the skill requires reading it. It exists to describe how far apart credible looks sit, so that a
+build that landed on the default editorial look can see it was a choice. A look may match one family,
+blend several (name what you took from each), or sit outside the map.
+
+## Setting the look, in this order
+
+1. **The user's words and attachments.** A named style, a reference site, a brand guide, a font URL
+   decides it. Stop here.
+2. **The brief.** The domain, the audience and the reader's moment: who they are, how they
+   feel, what the thing sells or does.
+3. **Research, only if it is warranted** ([`untrusted-content.md`](untrusted-content.md) →
+   *When to research*). Look at what the best examples use, from a capture you saw: type weight and
+   colour roles are visual claims, and a fetched page's text cannot support them. Record the
+   *principle* (display face is a heavy grotesque at 800; five colours each tied to a product), not
+   the brand's values.
+4. **The check line.** When you run the check in [`SKILL.md`](../SKILL.md) → *Check after the first
+   mockup* (it runs once), write one line: *display face + weight · body face · colour strategy*. If
+   it reads "light serif or thin display + small sans + one accent", quote the sentence of the brief
+   that asked for that. If none did, the default look is showing, not a decision: go back to the
+   brief and re-derive it; the families below show how different it can be. When one task builds
+   several units for different briefs, the same line on all of them is a defect.
+
+## Page colour: from a reason, not a habit
+
+There is no default page colour and no banned one. The page colour comes from, in this order: what
+the user said (named colours, a mood word, the feel answer), their brand or reference, then a
+reason from the brief. Warm cream is right when the brief earns it — cedar, linen, limestone, a
+bakery's paper bags — and wrong when it is only what the model reaches for.
+
+**Structure first, hue second.** Decide whether the page is dark, light or colour-forward before
+choosing any hue. A row below sets the structure only when its reason holds for this brief; the
+examples are hints, not triggers, and a counter-signal cancels the row.
+
+| If the site… | Structure | Counter-signals | Examples |
+|---|---|---|---|
+| sells media or performances, or is used mostly at night | dark ground; imagery carries the colour; one luminous accent | daytime use, children, an archive or editorial reading site | cinema, live music, club, theatre, gaming, late-night bar |
+| is read in long sessions of dense data | light neutral ground; colour reserved for meaning (status, categories) | used in dark rooms or at night shifts; developer tools | dashboards, analytics, admin tools |
+| has children as its main reader | colour-forward, with neutral surfaces where text is read | clinical setting, sensory-calm audience | kids' apps, toy shops, children's classes |
+
+No row holds → no prior: choose from the brief and say why. Add a row only after a test shows the
+model's choice clearly wrong for that kind of site.
+
+**One line of reason, naming something concrete.** Before building, write: *"Page: <structure,
+colour> because <a concrete thing from the brief or the feel answer>."* "Cream because spa" is not
+a reason; "warm limestone because the brief's treatment rooms are stone and cedar" is. Then the
+**swap test**: if this palette could sit on any other business of the same kind unnoticed, choose
+again from what is particular to this one.
+
+**When the question was skipped** (no question tool, or the prompt answered it), say the
+assumption in one line the user can correct: "Going dark — the posters carry the colour. Say
+'light' to switch."
+
+**Dark pages need their own craft.** Build in layers (page, raised surface, card), not one flat
+black; keep secondary text at 4.5:1 contrast or better; let photography and artwork bring the
+colour; give the accent one job. Check the contrast numbers, do not eyeball them.
+
+## The families
+
+Type roles are the point: **display** carries the headline, **body** carries reading, and a third
+**label** role (small caps, mono, a rounded sans) is optional. The table names no fonts on purpose:
+an example pair gets copied into every build. Choose faces that fit the role description, from
+Google Fonts, which is what a Theme card can load.
+
+| Family | Fits | Type roles and weight pattern | Colour strategy | Shape and imagery |
+|---|---|---|---|---|
+| **Restrained editorial** | publications, portfolios, essays, legal, clinical | display serif or humanist sans, **light to regular** at large size; body in the same family or a quiet sans; small tracked **bold** labels | one neutral ground, **one accent** in at most two places | square to slightly rounded; full-width photography, captions |
+| **Playful pop** | pets, kids, snacks, games, creative tools, community | display is **heavy and round** (700–900); body a friendly rounded sans at 400–500; no light weights | **3–5 saturated colours, each with a named role**; a white or light neutral ground under text so they read, with saturated bands allowed for hero areas | very round, thick outlines, stickers, cut-outs; illustration over stock |
+| **Vibrant and saturated** | music, events, fashion drops, consumer apps, sports | display grotesque or wide face at **700–800**, tight tracking; body a clean sans | **high-chroma duotone or triad on dark or white**; gradients allowed when they carry a role | oversized type as image, bold crops, duotone photos |
+| **Vintage and nostalgic** | cafés, bakeries, craft goods, heritage brands, travel | display is a **slab, fat serif or script**; body a warm serif; small mono or small caps labels | **muted, low-saturation**: aged paper in any hue (cream, newsprint grey, faded green), ink, one or two faded accents | stamps, ticket stubs, borders, grain; photos warmed and framed |
+| **Brutalist** | studios, zines, galleries, anything wanting to look unpolished on purpose | display is a **condensed or mono heavy**; body a mono or a plain grotesque; **no** soft weights | black, white and one **loud** flat colour | no radius, hard shadow, visible grid and rules |
+| **Technical and mono** | developer tools, data products, infrastructure, dashboards | display and body a precise sans; **mono for data and labels**; regular to semibold | **dark or neutral ground, one signal colour** plus status colours with fixed meanings | thin rules, dense tables, charts over photos |
+| **Soft and organic** | wellness, food, family, nature, community care | display a **soft serif or rounded sans at 500–600**; body a humanist sans | **earthy or pastel, low contrast between neighbours** but readable text | large radius, blobs, hand-drawn marks, natural photography |
+| **Luxury** | jewellery, hospitality, high-end retail, private services | display a **high-contrast serif**, light to regular, wide tracking; body a light geometric sans | **deep ground with metallic or ivory accent**, or ivory with black | thin rules, generous space, few large images |
+
+Restrained editorial and Luxury both use light display weights. That is deliberate and belongs to
+those two families only.
+
+**When the brief could fit more than one family,** decide by what the brief must promise first, not by
+its audience. If care, calm or comfort lead, lean to Soft and organic; if delight and energy lead,
+lean to Playful pop. Name the nearer one as the lead. If the brief needs a second one, name it as a
+parent of a mixed direction (below) instead of splitting the difference.
+
+## What each family's check is
+
+When you name a nearest family, check type and colour against that row. A family is
+not a free pass: each one has a check as specific as the Restrained editorial rules.
+
+| Family | Typography check | Colour check |
+|---|---|---|
+| Restrained editorial | large at light or regular weight, small at bold, tracked uppercase labels; not everything at 500–600 | one accent, in at most two places |
+| Playful pop | display at 700+ and visibly round; no thin weights anywhere; labels stay heavy (600+) and friendly, rounded or chunky where the face allows, with tracking tight to modest (small, widely spaced caps mean the build has drifted into Restrained editorial); body stays readable at 16px+ | every colour has a named role; no two colours the same value and saturation competing for the same job |
+| Vibrant and saturated | display at 700+ with tight tracking; one size step far above everything else | at most three high-chroma colours; text on them passes contrast |
+| Vintage and nostalgic | display face has real character (slab, fat serif, script); body a warm serif at ≥16px | muted, warm palette; no pure `#000` or `#fff` unless the family wants paper and ink |
+| Brutalist | heavy or mono display; **hard edges**, no soft weights | black, white and one flat loud colour; no gradients |
+| Technical and mono | mono used for data and labels only, not for paragraphs | signal colour has one meaning; status colours consistent |
+| Soft and organic | rounded or soft forms throughout; weights not below 400 | neighbouring colours differ in hue, not only lightness; text still ≥4.5:1 |
+| Luxury | high-contrast serif with generous tracking; plenty of space | restrained: one metallic or ivory accent |
+
+A mixed direction names its parents ("playful pop display with a technical-mono label role") and
+is checked against both.
+
+## Limits
+
+- Font availability is not verified here. Before a pair is final, check that both faces exist on
+  Google Fonts and that the Theme's derived `cssImports` loads them
+  ([`font-loading-theme-card-owns-imports.md`](../../boxel-ui-guidelines/references/font-loading-theme-card-owns-imports.md)).
+  If a face is missing, pick another that fits the same role.
+- Contrast is computed, not eyeballed: compute the WCAG ratio for the page or Theme. Mid-tone accents used as button fills or link text are where it fails.
+- A very heavy display face at small `fitted` sizes becomes unreadable; the type line must say what
+  the display role does at `fitted` and `atom`.
+- The weights and colour rules above are starting positions drawn from common practice. Where a
+  brief or a researched example contradicts them, the brief wins.
