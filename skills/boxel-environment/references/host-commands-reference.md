@@ -21,6 +21,10 @@ boxel:
         name: default
       requiresApproval: false
     - codeRef:
+        module: '@cardstack/boxel-host/tools/set-active-llm'
+        name: default
+      requiresApproval: false
+    - codeRef:
         module: '@cardstack/boxel-host/tools/open-workspace'
         name: default
       requiresApproval: false
@@ -52,6 +56,10 @@ boxel:
         module: '@cardstack/boxel-host/tools/download-file-to-realm'
         name: default
       requiresApproval: true
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/update-room-skills'
+        name: default
+      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/search-cards'
         name: SearchCardsByQueryCommand
@@ -105,7 +113,7 @@ What you can and cannot see:
 - **An image or PDF the user attached to the chat:** you see it in the turn they send it. To look at it again later, ask them to attach it again, or to upload it into the workspace so you can capture it whenever you need.
 - **Any other file the user attached from their computer** (an HTML page, a document): you receive only its source, never how it renders. Say so plainly — tell the user you cannot see it rendered — and ask them either to attach a screenshot or to upload the file into the workspace, so you can capture it yourself. Never describe how it looks from its source as if you had seen it.
 - **An image you were told was not sent to you:** the note gives the reason.
-  - *The active model does not accept images:* stop viewing. Tell the user once that the current model cannot see images, and offer to switch to one that can (`room.setModel` in a `run-realm-code` script).
+  - *The active model does not accept images:* stop viewing. Tell the user once that the current model cannot see images, and offer to switch to one that can (`set-active-llm`).
   - *Newer images filled the turn, or it was too large:* view it again on its own, or a smaller viewport of it, in your next step.
   - In every case, do not guess at what it shows.
 
@@ -125,7 +133,9 @@ What you can and cannot see:
 
 ## Skill / LLM management
 
-- **`run-realm-code`** — Turn skills on or off in the current room with `room.enableSkills` and `room.disableSkills`, and switch the model with `room.setModel`, in the script (see `source-code-editing`). Change the room's skills only when the user asks for it. To use a skill yourself, read its `SKILL.md` with `readRealmFile` — `index.md` lists the skills. Reading the file loads the skill's instructions and tools; turning it on in the room is not necessary.
+- `update-room-skills_3875` — Activate/deactivate skills in the current room. Use it only when the user asks you to change the room's skills. To use a skill yourself, read its `SKILL.md` with `readRealmFile` — `index.md` lists the skills. Reading the file loads the skill's instructions and tools; activating it in the room is not necessary.
+- `set-active-llm_1887` — Switch AI model.
+- Inside a `run-realm-code` script that already runs, `room.enableSkills`, `room.disableSkills` and `room.setModel` make the same changes without a separate call (see `source-code-editing`). Use the two tools above when no script runs: they need no approval, and they work while the open workspace is one the user can only read.
 
 ## Indexing (requires write access)
 
