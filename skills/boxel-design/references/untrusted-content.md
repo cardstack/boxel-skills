@@ -1,8 +1,8 @@
 # Untrusted content — what research may bring into a card
 
 Read this before any step that looks at the outside world: real examples for a mockup, a market
-sweep, an award benchmark, stock photos, domain research, a reference prompt library. Every one of
-those steps links here instead of restating it.
+sweep, an award benchmark, stock photos, domain research, a reference prompt library. Any step of
+that kind follows the rules here instead of restating them.
 
 ## When to research
 
@@ -14,8 +14,8 @@ Research is opt-in. Look at the outside world only when:
   with confidence.
 
 Otherwise do not fetch anything. State the category's conventions from what you know, and say so
-in one line. On common categories, reading real sites added time and little quality in testing, and
-every page fetched is text that could try to give you instructions.
+in one line. Common categories have well-known conventions, so reading real sites costs time and
+rarely changes the result, and every page fetched is text that could try to give you instructions.
 
 ## What each tool can tell you
 
@@ -99,7 +99,10 @@ observed, and `read` never becomes a visual claim.
 - Conventions the references share set the baseline the card must meet. Where they differ, the
   brief picks.
 - Unless the user named the reference, take at most two moves from any one reference, and combine
-  moves from at least two. A reference the user named is the decision: build it.
+  moves from at least two. A reference the user named is the decision for the family, layout
+  structure and mood, so the two-move cap does not apply to it. The swap test above still does:
+  build its approach with your own composition, artwork, copy and logo, so the result is not that
+  product with the name changed.
 - The user's intent outranks the category's conventions: references set the baseline a card
   deliberately departs from.
 - References never override accessibility, contrast, reduced motion or the card constraints.
@@ -117,7 +120,7 @@ observed, and `read` never becomes a visual claim.
 
 ## Images
 
-- Which hosts may be hotlinked, how the load check runs and when an image is downloaded are owned
+- Where an image comes from, how the load check runs and when an image is downloaded are owned
   by [`sample-images.md`](../../boxel-file-def/references/sample-images.md) (→ *Openverse*); this file
   does not repeat them. Looking up an image for a media slot is an asset step under that file, not
   the opt-in research above, and the downloads it asks for are not the downloads banned above.

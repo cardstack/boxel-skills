@@ -5,8 +5,10 @@ Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 **Why this exists.** Left alone, a model drifts to one look: a large light-weight serif or thin
 display face, a small bold sans for labels, one accent colour, a lot of restraint. That is a good
 look for an editorial page and the wrong one for a pet shop, a game, a festival or a bank's
-students' app. The earlier rules in this skill described only that look, so everything converged
-on it. This file adds the rest of the range.
+students' app. The weights and one-accent budget in `critical-rules.md` and the design playbook are
+the Restrained editorial family's; this file covers the whole range, and it is the one place that
+owns the weight pattern, colour count, type roles and shape for every family. Other files point
+here instead of setting their own values.
 
 **This is a coverage map, not a menu.** It does not tell you which family to pick. It exists so
 that the pick is made on purpose, from the brief, and so that a choice of "restrained editorial"
@@ -26,8 +28,8 @@ mix across families when the brief calls for it, and name what you took from eac
    the brand's values.
 4. **The guard.** Before finalising, write one line: *family · display face + weight · body face ·
    colour strategy*. If it reads "light serif or thin display + small sans + one accent", say which
-   sentence of the brief asked for that. If none did, pick another family. When one task builds several units for different briefs, a
-   review treats the same line on all of them as a finding.
+   sentence of the brief asked for that. If none did, pick another family. When one task builds
+   several units for different briefs, the same line on all of them is a defect.
 
 ## Page colour: from a reason, not a habit
 
@@ -86,8 +88,8 @@ those two families only.
 
 ## What each family's check is
 
-A review reads the declared family before it scores type and colour. A family is not a free
-pass: each one has a check as specific as the editorial rules were.
+Check type and colour against the declared family. A family is not a free pass: each one has a
+check as specific as the Restrained editorial rules.
 
 | Family | Typography check | Colour check |
 |---|---|---|

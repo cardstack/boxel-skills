@@ -858,6 +858,8 @@ If your output does not visually rhyme with editorial-grade reference cards on f
 
 A card looks art-directed when these six moves are all present. Missing any one and it slumps into plumbing.
 
+The weights, the one-accent budget and the serif-plus-sans pairing below are the Restrained editorial family. When the declared style family is another one, take the weight pattern, colour count and type roles from [`style-families.md`](../../boxel-design/references/style-families.md); the moves still apply (contrast between display and labels, tracked labels, a named role for every colour).
+
 #### 1. Font pairing — serif body + sans micro-labels
 
 One serif (the body voice: headline, dek, lede, stat values) and one sans-serif (the micro-labels: eyebrows, stat labels, byline meta, review counts). Never mix three families. Never set the eyebrow in the serif. Never set a stat value in the sans.
@@ -955,11 +957,11 @@ The schema is a stage; the JSON instance is the performance. Voice cues that pas
 Apply this list to your output. If any answer is "no" or "maybe", revise.
 
 - [ ] Is there exactly one serif family and one sans family — no third?
-- [ ] Does the headline sit at weight 400 (or lighter), not 600+?
+- [ ] Does the weight pattern match the declared family (Restrained editorial: headline at weight 400 or lighter, not 600+)?
 - [ ] Is at least one micro-label set in sans, uppercase, weight 700, letter-spacing ≥0.15em?
 - [ ] Does the eyebrow appear *above* the headline (not below, not beside)?
 - [ ] Is there a dek (italic subtitle) under the headline?
-- [ ] Is `--primary` (or `--accent`) used in ≤2 places, with amber-only for stars?
+- [ ] Does colour use match the declared family (Restrained editorial: `--primary` or `--accent` in ≤2 places, with amber-only for stars)?
 - [ ] Are stat values in the serif voice (not sans)?
 - [ ] Are stat labels in the sans voice with `text-transform: uppercase` + tracked letter-spacing?
 - [ ] Is the stats slab bracketed by `border-top` + `border-bottom` (rule above + rule below), not boxed?
@@ -979,12 +981,12 @@ These are the failure modes the Design Pass exists to prevent. If you find any i
 
 - **Default-token reliance.** Pulling `--card-foreground` for every text color, never differentiating headline / dek / body / meta. The theme gives you `--foreground`, `--muted-foreground`, `--primary`, `--border` — use the full palette.
 - **Weight uniformity.** Everything at weight 600. No weight contrast = no rhythm = no design.
-- **Missing weight rhythm.** Headline at weight 700 + labels at weight 700 = shouting match. The headline must sit *under* the labels in weight (large + light vs tiny + bold).
+- **Missing weight rhythm.** Under Restrained editorial, headline at weight 700 + labels at weight 700 = shouting match: the headline must sit *under* the labels in weight (large + light vs tiny + bold). Families with a heavy display role (Playful pop, Vibrant, Brutalist) get their contrast from size, face and colour instead.
 - **Untracked micro-labels.** Eyebrows set in mixed case with no letter-spacing. Reads like a button label, not a publication.
 - **Schema thinness.** Two visible fields (title + servings) trying to carry the design. The fix is more fields, not bigger typography.
 - **Weak content fit.** Sample copy that reads "Lorem ipsum" or "Tasty recipe!". Editorial design demands editorial voice.
 - **Generic photography directives.** No image, or a stock-photo-of-X placeholder. Use a real, verified URL; a labelled placeholder only where none exists ([`sample-images.md`](../../boxel-file-def/references/sample-images.md)).
-- **Two accents.** Cuisine in primary + author in accent + price in destructive. Three colors = no accent.
+- **Two accents.** Cuisine in primary + author in accent + price in destructive. Three colors = no accent. (A family that earns several colours gives each a named role; colours with no role are this anti-pattern.)
 - **Boxed-up stats.** A bordered card-within-the-card for the stats slab instead of two rules. Boxes read as form fields; rules read as editorial.
 - **No fold framing.** Composition runs to the bottom of the viewport without a "Continue below" signal. The brief specifically says "framed as such" — frame it.
 

@@ -2,14 +2,14 @@
 
 Every unit needs something that arrests: a dominant object with a treatment nobody would arrive at
 by default. The first screen shows the answer to the reader's first question at full size
-([`index.md`](../../../index.md) step 3), and an all-equal-weight layout is never the answer;
-a review scores it as Composition. This file is the **execution
-vocabulary** for that decision — what is achievable in a Boxel card with CSS, or with
+([`layout-vocabulary.md`](layout-vocabulary.md)), and an all-equal-weight layout is never the
+answer. This file is the **execution vocabulary** for that decision — what is achievable in a Boxel card with CSS, or with
 [`card-motion`](../../card-motion/SKILL.md) for motion, and what each technique costs.
 
 ## Read this first
 
-**The aurora-gradient / glassmorphism / floating-particles family is the current default look.**
+**The aurora-gradient / glassmorphism / floating-particles family is what a model produces when no
+treatment was decided.**
 [`critical-rules.md`](../../boxel-design/references/critical-rules.md) names *Gradient Overuse* explicitly — "gradients are the 2024
 over-used signature; flat color with intentional contrast often wins" — and the same list names
 the *Average Quality Trap*. A blurred radial mesh behind a frosted card is what a generation of
@@ -59,14 +59,14 @@ so decide these in the planning stage, not at build time:
 - **The still frame carries the composition.** The subject must be well placed and well cropped at
   its resting pose, because that is what a reduced-motion reader, a screenshot and every capture in
   review will see. A subject whose composition only works mid-scrub has no composition.
-- **It is the unit's one L3.** A scrubbed subject is by definition the arresting thing; nothing else
+- **It is the unit's one arresting thing.** A scrubbed subject is by definition the arresting thing; nothing else
   in the unit may compete with it, and the same object compresses to a static crop in `embedded`
   and to a single mark in `fitted`. Never scrub in a non-`isolated` format.
 
-## Spatial model — the control that was never defined
+## Spatial model — choose it on purpose
 
-`spatial model` is the style control for depth, and left undefined it gets filled in as "flat"
-by default. Four options:
+`spatial model` is the style control for depth. An unset one defaults to "flat", so say which one
+you chose. Four options:
 
 | Spatial model | What it means | Fits |
 |---|---|---|

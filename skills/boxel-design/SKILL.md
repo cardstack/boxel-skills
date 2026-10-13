@@ -13,12 +13,23 @@ Visual decisions for Boxel cards.
 
 [`skills/boxel/references/design-playbook.md`](../boxel/references/design-playbook.md) is the canonical four-stage design workflow:
 
-1. **Stage 1 — Mockup pass** with no variables. Verbatim Pentagram-art-director / internal-taste-maker brief. Hardcoded `#hex`, real fonts, real px sizes. Write the design first; theme tokens come later.
+1. **Stage 1 — Mockup pass** with no variables. Declare the style family first ([`references/style-families.md`](references/style-families.md)), then the verbatim Pentagram-art-director / internal-taste-maker brief. Hardcoded `#hex`, real fonts, real px sizes. Write the design first; theme tokens come later.
 2. **Stage 2 — Extract theme** from the mockup (rule of two — tokenize if a value appears twice+). A `StructuredTheme` (or richer) whose `rootVariables` ARE the design's palette.
 3. **Stage 3 — Tokenize isolated** with `var(--*)` references. Pixel-identical to stage 1.
 4. **Stage 4 — Derive embedded + fitted** from the established visual identity. Fitted MUST feature the card's media if any.
 
 Read it in full before any user-facing card design. This skill (`boxel-design`) used to host a menu-driven discovery process; that was removed because curated style menus cap intrinsic LLM design taste at the menu authors' ceiling. Stage 1's "internal taste-maker held in mind" is the antidote — trust the model's taste, push past defaults.
+
+## Precedence
+
+When design guidance conflicts, resolve it in this order:
+
+1. Security, accessibility and the never-invent-proof rules ([`critical-rules.md`](references/critical-rules.md), [`untrusted-content.md`](references/untrusted-content.md)): never overridden.
+2. The user's explicit instruction.
+3. The declared style family ([`style-families.md`](references/style-families.md)), which owns the weight pattern, colour count, type roles and shape.
+4. The playbook's and the layout guides' defaults and examples.
+
+A file that mentions a weight or an accent count points to the family and does not set its own value.
 
 ## Look check — before the first design decision
 
