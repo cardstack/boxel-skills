@@ -37,10 +37,6 @@ boxel:
         name: default
       requiresApproval: true
     - codeRef:
-        module: '@cardstack/boxel-host/tools/download-file-to-realm'
-        name: default
-      requiresApproval: true
-    - codeRef:
         module: '@cardstack/boxel-host/tools/search-cards'
         name: SearchCardsByQueryCommand
       requiresApproval: false
@@ -71,7 +67,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 ## Media
 
 - **`run-realm-code`** — Generate an image into the realm with `await realm.images.generate({ prompt, path })` in the script (see `source-code-editing`). It returns the saved path, so the same script can link the image in the card JSON. It spends credit, and a script that names the call waits for the user's click before it runs. Recipe: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
-- `download-file-to-realm_47d4` — Save a file from a URL into a realm (requires approval). Required: `sourceUrl`, `path` (with the right extension: the realm infers the type from it); optional: `realm`, `useNonConflictingFilename`. Returns `fileIdentifier`. Runs in the browser, so the source must allow CORS. Recipe: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
+- **`run-realm-code`** — Save a file from a URL into the realm with `await realm.fs.download(sourceUrl, path)` in the script (see `source-code-editing`). `path` needs the right extension: the realm infers the type from it. It returns the saved path, so the same script can link the file in the card JSON. It fetches from the browser, so the source must allow CORS. A script that names the call waits for the user's click before it runs. Recipe: [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
 
 ## Reading
 
@@ -125,5 +121,6 @@ What you can and cannot see:
 ## Approval requirements
 
 The following require user approval before execution:
-- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `download-file-to-realm`
+- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`
 - A `run-realm-code` script that names `realm.images.generate`
+- A `run-realm-code` script that names `realm.fs.download`
