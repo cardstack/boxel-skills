@@ -447,10 +447,15 @@ let shown = operationDisplayLabel(
 A label is refused, by the decorator when the class is defined and as
 `invalid-label` when the module is indexed (§4), when it is:
 
-- not a string, or empty or only whitespace;
-- longer than 80 characters;
+- not a string, or nothing visible: empty, or only whitespace and invisible
+  formatting characters;
+- longer than 80 characters, counted as a person sees them, so a flag or an
+  emoji sequence counts once;
 - carrying markup (`<` or `>`);
-- more than one line, or carrying any other control character.
+- more than one line, or carrying any other control character;
+- carrying a bidirectional control, which reorders how the text around it
+  displays;
+- not well-formed text: half of a surrogate pair with no other half.
 
 ### `optimistic`
 
