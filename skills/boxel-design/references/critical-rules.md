@@ -5,8 +5,8 @@ These are anti-pattern rules that hold regardless of process. The four-stage des
 ### Avoid Default LLM Design Clichés
 
 - **Rounded Rectangle Syndrome** — Not everything needs `border-radius`. Sharp corners are a design choice; round corners are not the default.
-- **Rainbow Overload** — Restraint > using every color available. ONE accent in ≤2 places is a stronger move than four-color schemes, unless the declared style family earns more colours with a named role each ([`style-families.md`](style-families.md)).
-- **Flat Hierarchy** — Create dramatic scale differences, not uniform sizes. Large light + tiny bold beats four sizes all bolded; heavy display families (playful pop, brutalist) set their own weights in [`style-families.md`](style-families.md).
+- **Rainbow Overload** — Restraint > using every color available. ONE accent in ≤2 places is a stronger move than four-color schemes, unless the brief earns more colours with a named role each ([`style-families.md`](style-families.md)).
+- **Flat Hierarchy** — Create dramatic scale differences, not uniform sizes. Large light + tiny bold beats four sizes all bolded; a direction with a heavy display role (playful pop, brutalist) sets its own weights; see the examples in [`style-families.md`](style-families.md).
 - **Single Font Monotony** — Mix typefaces purposefully (serif heads + sans body, or one display + one mono). One typeface for everything is a tell.
 - **Accent Border Laziness** — No thick left/top borders as "design." A 4px accent stripe is the LLM default and it always looks like one.
 - **Center-All Disease** — Asymmetry creates visual interest. Centering every element flattens hierarchy.

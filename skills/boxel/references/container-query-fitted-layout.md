@@ -858,11 +858,11 @@ If your output does not visually rhyme with editorial-grade reference cards on f
 
 A card looks art-directed when these six moves are all present. Missing any one and it slumps into plumbing.
 
-The weights, the one-accent budget and the serif-plus-sans pairing below are the Restrained editorial family. When the declared style family is another one, take the weight pattern, colour count and type roles from [`style-families.md`](../../boxel-design/references/style-families.md); the moves still apply (contrast between display and labels, tracked labels, a named role for every colour).
+The weights, the one-accent budget and the serif-plus-sans pairing below are the Restrained editorial look. When the brief calls for a different look, take the weight pattern, colour strategy and type roles from the brief ([`style-families.md`](../../boxel-design/references/style-families.md) shows examples); the moves still apply (contrast between display and labels, tracked labels, a named role for every colour).
 
 #### 1. Font pairing — serif body + sans micro-labels
 
-One serif (the body voice: headline, dek, lede, stat values) and one sans-serif (the micro-labels: eyebrows, stat labels, byline meta, review counts). Never mix three families. Never set the eyebrow in the serif. Never set a stat value in the sans.
+One serif (the body voice: headline, dek, lede, stat values) and one sans-serif (the micro-labels: eyebrows, stat labels, byline meta, review counts). Never mix three families. Never set the eyebrow in the serif. Never set a stat value in the sans. (These "never" rules belong to the Restrained editorial pairing; a brief that calls for another type-role set, such as display, mono and body, replaces them.)
 
 ```css
 /* Only the serif needs declaring while the theme's body family is sans:
@@ -957,11 +957,11 @@ The schema is a stage; the JSON instance is the performance. Voice cues that pas
 Apply this list to your output. If any answer is "no" or "maybe", revise.
 
 - [ ] Is there exactly one serif family and one sans family — no third?
-- [ ] Does the weight pattern match the declared family (Restrained editorial: headline at weight 400 or lighter, not 600+)?
+- [ ] Does the weight pattern fit the brief (Restrained editorial: headline at weight 400 or lighter, not 600+)?
 - [ ] Is at least one micro-label set in sans, uppercase, weight 700, letter-spacing ≥0.15em?
 - [ ] Does the eyebrow appear *above* the headline (not below, not beside)?
 - [ ] Is there a dek (italic subtitle) under the headline?
-- [ ] Does colour use match the declared family (Restrained editorial: `--primary` or `--accent` in ≤2 places, with amber-only for stars)?
+- [ ] Does colour use fit the brief (Restrained editorial: `--primary` or `--accent` in ≤2 places, with amber-only for stars)?
 - [ ] Are stat values in the serif voice (not sans)?
 - [ ] Are stat labels in the sans voice with `text-transform: uppercase` + tracked letter-spacing?
 - [ ] Is the stats slab bracketed by `border-top` + `border-bottom` (rule above + rule below), not boxed?

@@ -13,12 +13,30 @@ Visual decisions for Boxel cards.
 
 [`skills/boxel/references/design-playbook.md`](../boxel/references/design-playbook.md) is the canonical four-stage design workflow:
 
-1. **Stage 1 — Mockup pass** with no variables. Declare the style family first ([`references/style-families.md`](references/style-families.md)), then the verbatim Pentagram-art-director / internal-taste-maker brief. Hardcoded `#hex`, real fonts, real px sizes. Write the design first; theme tokens come later.
+1. **Stage 1 — Mockup pass** with no variables. Use the verbatim Pentagram-art-director / internal-taste-maker brief, then run the *Check after the first mockup* below. Hardcoded `#hex`, real fonts, real px sizes. Write the design first; theme tokens come later.
 2. **Stage 2 — Extract theme** from the mockup (rule of two — tokenize if a value appears twice+). A `StructuredTheme` (or richer) whose `rootVariables` ARE the design's palette.
 3. **Stage 3 — Tokenize isolated** with `var(--*)` references. Pixel-identical to stage 1.
 4. **Stage 4 — Derive embedded + fitted** from the established visual identity. Fitted MUST feature the card's media if any.
 
 Read it in full before any user-facing card design. This skill (`boxel-design`) used to host a menu-driven discovery process; that was removed because curated style menus cap intrinsic LLM design taste at the menu authors' ceiling. Stage 1's "internal taste-maker held in mind" is the antidote — trust the model's taste, push past defaults.
+
+## Check after the first mockup
+
+Build the first mockup from the brief with the taste-maker framing; no family is chosen or declared
+beforehand. Then check it once against the default look, which is what a model produces when nothing
+was decided: a large light serif headline, small bold sans labels, one accent colour and a pale or
+cream ground.
+
+- If the mockup matches it, keep it only if you can quote words from the brief that ask for that look
+  (an editorial, journal or restrained feel). "Calm", "gentle" or "trustworthy" alone do not ask for a
+  light serif and one accent.
+- If you cannot quote such words, go back to the brief and re-derive the weight pattern, colour
+  strategy, type roles and shape from what it must make the visitor feel, then redo the mockup one
+  time. Do not swap in another look from a list, and do not loop.
+- If the mockup does not match the default look, keep it.
+
+[`references/style-families.md`](references/style-families.md) is optional vocabulary for describing a
+look. It is never required at any stage and is not a menu; blends and looks outside it are valid.
 
 ## Precedence
 
@@ -26,10 +44,9 @@ When design guidance conflicts, resolve it in this order:
 
 1. Security, accessibility, the never-invent-proof rules and the swap test ([`critical-rules.md`](references/critical-rules.md), [`untrusted-content.md`](references/untrusted-content.md)): never overridden, not even by a user who asks for a copy.
 2. The user's explicit instruction.
-3. The declared style family ([`style-families.md`](references/style-families.md)), which owns the weight pattern, colour count, type roles and shape.
-4. The playbook's and the layout guides' defaults and examples.
+3. The playbook's and the layout guides' defaults and examples. The brief overrides their weight and accent values; [`style-families.md`](references/style-families.md) is vocabulary and has no precedence.
 
-A file that mentions a weight or an accent count points to the family and does not set its own value.
+A file that mentions a weight or an accent count gives a default that the brief overrides.
 
 ## Look check — before the first design decision
 
@@ -149,7 +166,7 @@ Choose the governing style source before stage 1:
 - [`references/asset-selection-guidelines.md`](references/asset-selection-guidelines.md) — concrete image-handling guidance: priority order for asset integration, format choices, fit semantics. Useful regardless of process. Images for a build's sample instances: [`sample-images.md`](../boxel-file-def/references/sample-images.md).
 - [`references/layout-vocabulary.md`](references/layout-vocabulary.md) — eight named layout moves, what each is for and not for, and how each is built in a card. Decide the sections first; zero moves is a valid answer.
 - [`references/layout-gravity.md`](references/layout-gravity.md) — defaults a layout drifts into when nobody decided it, mostly on app screens. Check a finished layout against it.
-- [`references/style-families.md`](references/style-families.md) — eight look families with type roles, colour strategy and a check each; how to pick one, and the page-colour table.
+- [`references/style-families.md`](references/style-families.md) — optional vocabulary, never required: eight look families with type roles, colour strategy and a check each, how to set the look, and the page-colour table.
 - [`references/untrusted-content.md`](references/untrusted-content.md) — the rules for any research step: when to research, what each tool can ground, reference labels, page text as data.
 - [`references/signature-treatments.md`](references/signature-treatments.md) — the one arresting treatment on the dominant object: the techniques, what each costs in a card, and when to use card-motion.
 

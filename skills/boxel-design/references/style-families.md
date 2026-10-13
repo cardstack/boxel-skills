@@ -6,16 +6,14 @@ Part of [`boxel-design`](../SKILL.md). Links are relative to this file.
 display face, a small bold sans for labels, one accent colour, a lot of restraint. That is a good
 look for an editorial page and the wrong one for a pet shop, a game, a festival or a bank's
 students' app. The weights and one-accent budget in `critical-rules.md` and the design playbook are
-the Restrained editorial family's; this file covers the whole range, and it is the one place that
-owns the weight pattern, colour count, type roles and shape for every family. Other files point
-here instead of setting their own values.
+the Restrained editorial look's; this file shows how far apart credible looks sit.
 
-**This is a coverage map, not a menu.** It does not tell you which family to pick. It exists so
-that the pick is made on purpose, from the brief, and so that a choice of "restrained editorial"
-has to be justified like any other. A list of eight things still caps the result at what is on it:
-mix across families when the brief calls for it, and name what you took from each.
+**This is optional vocabulary, not a menu.** Nothing here is chosen or declared in advance, and no step
+in the skill requires reading it. It exists to describe how far apart credible looks sit, so that a
+build that landed on the default editorial look can see it was a choice. A look may match one family,
+blend several (name what you took from each), or sit outside the map.
 
-## Choose the family, in this order
+## Setting the look, in this order
 
 1. **The user's words and attachments.** A named style, a reference site, a brand guide, a font URL
    decides it. Stop here.
@@ -26,9 +24,11 @@ mix across families when the brief calls for it, and name what you took from eac
    colour roles are visual claims, and a fetched page's text cannot support them. Record the
    *principle* (display face is a heavy grotesque at 800; five colours each tied to a product), not
    the brand's values.
-4. **The guard.** Before finalising, write one line: *family · display face + weight · body face ·
-   colour strategy*. If it reads "light serif or thin display + small sans + one accent", say which
-   sentence of the brief asked for that. If none did, pick another family. When one task builds
+4. **The check line.** When you run the check in [`SKILL.md`](../SKILL.md) → *Check after the first
+   mockup* (it runs once), write one line: *display face + weight · body face · colour strategy*. If
+   it reads "light serif or thin display + small sans + one accent", quote the sentence of the brief
+   that asked for that. If none did, the default look is showing, not a decision: go back to the
+   brief and re-derive it; the families below show how different it can be. When one task builds
    several units for different briefs, the same line on all of them is a defect.
 
 ## Page colour: from a reason, not a habit
@@ -75,7 +75,7 @@ Google Fonts, which is what a Theme card can load.
 | Family | Fits | Type roles and weight pattern | Colour strategy | Shape and imagery |
 |---|---|---|---|---|
 | **Restrained editorial** | publications, portfolios, essays, legal, clinical | display serif or humanist sans, **light to regular** at large size; body in the same family or a quiet sans; small tracked **bold** labels | one neutral ground, **one accent** in at most two places | square to slightly rounded; full-width photography, captions |
-| **Playful pop** | pets, kids, snacks, games, creative tools, community | display is **heavy and round** (700–900); body a friendly rounded sans at 400–500; no light weights | **3–5 saturated colours, each with a named role**; a white or light neutral ground so they read | very round, thick outlines, stickers, cut-outs; illustration over stock |
+| **Playful pop** | pets, kids, snacks, games, creative tools, community | display is **heavy and round** (700–900); body a friendly rounded sans at 400–500; no light weights | **3–5 saturated colours, each with a named role**; a white or light neutral ground under text so they read, with saturated bands allowed for hero areas | very round, thick outlines, stickers, cut-outs; illustration over stock |
 | **Vibrant and saturated** | music, events, fashion drops, consumer apps, sports | display grotesque or wide face at **700–800**, tight tracking; body a clean sans | **high-chroma duotone or triad on dark or white**; gradients allowed when they carry a role | oversized type as image, bold crops, duotone photos |
 | **Vintage and nostalgic** | cafés, bakeries, craft goods, heritage brands, travel | display is a **slab, fat serif or script**; body a warm serif; small mono or small caps labels | **muted, low-saturation**: aged paper in any hue (cream, newsprint grey, faded green), ink, one or two faded accents | stamps, ticket stubs, borders, grain; photos warmed and framed |
 | **Brutalist** | studios, zines, galleries, anything wanting to look unpolished on purpose | display is a **condensed or mono heavy**; body a mono or a plain grotesque; **no** soft weights | black, white and one **loud** flat colour | no radius, hard shadow, visible grid and rules |
@@ -86,15 +86,15 @@ Google Fonts, which is what a Theme card can load.
 Restrained editorial and Luxury both use light display weights. That is deliberate and belongs to
 those two families only.
 
-**When more than one family fits,** choose by what the brief must promise first, not by its
-audience. If care, calm or comfort lead, choose Soft and organic; if delight and energy lead,
-choose Playful pop. Declare one lead family. If the brief needs a second one, name it as a parent
-of a mixed direction (below) instead of splitting the difference.
+**When the brief could fit more than one family,** decide by what the brief must promise first, not by
+its audience. If care, calm or comfort lead, lean to Soft and organic; if delight and energy lead,
+lean to Playful pop. Name the nearer one as the lead. If the brief needs a second one, name it as a
+parent of a mixed direction (below) instead of splitting the difference.
 
 ## What each family's check is
 
-Check type and colour against the declared family. A family is not a free pass: each one has a
-check as specific as the Restrained editorial rules.
+When you name a nearest family, check type and colour against that row. A family is
+not a free pass: each one has a check as specific as the Restrained editorial rules.
 
 | Family | Typography check | Colour check |
 |---|---|---|
