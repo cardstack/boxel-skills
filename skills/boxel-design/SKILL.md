@@ -168,6 +168,7 @@ Choose the governing style source before stage 1:
 - [`references/layout-gravity.md`](references/layout-gravity.md) — defaults a layout drifts into when nobody decided it, mostly on app screens. Check a finished layout against it.
 - [`references/style-families.md`](references/style-families.md) — optional vocabulary, never required: eight look families with type roles, colour strategy and a check each, how to set the look, and the page-colour table.
 - [`references/untrusted-content.md`](references/untrusted-content.md) — the rules for any research step: when to research, what each tool can ground, reference labels, page text as data.
+- [`scripts/check-palette.mjs`](scripts/check-palette.mjs) — computes WCAG contrast for a page's or a Theme's colour tokens (text, secondary text, button label, a control against the page) and reports the page colour in OKLCH. Run it with Node from a terminal before finishing a build: it exits 1 when a pair fails and 2 when it could not find both colours of any pair (pass them as flags, `--canvas=#hex`).
 - [`references/signature-treatments.md`](references/signature-treatments.md) — the one arresting treatment on the dominant object: the techniques, what each costs in a card, and when to use card-motion.
 
 The previous five files (`style-reference.md`, `design-controls.md`, `design-discovery-process.md`, `the-design-challenge-standard.md`, `base-theme-variables.md`) were removed — superseded by the design-playbook's stages 1–2.

@@ -63,7 +63,8 @@ assumption in one line the user can correct: "Going dark — the posters carry t
 
 **Dark pages need their own craft.** Build in layers (page, raised surface, card), not one flat
 black; keep secondary text at 4.5:1 contrast or better; let photography and artwork bring the
-colour; give the accent one job. Check the contrast numbers, do not eyeball them.
+colour; give the accent one job. Check the contrast numbers with
+[`../scripts/check-palette.mjs`](../scripts/check-palette.mjs), do not eyeball them.
 
 ## The families
 
@@ -116,7 +117,8 @@ is checked against both.
   Google Fonts and that the Theme's derived `cssImports` loads them
   ([`font-loading-theme-card-owns-imports.md`](../../boxel-ui-guidelines/references/font-loading-theme-card-owns-imports.md)).
   If a face is missing, pick another that fits the same role.
-- Contrast is computed, not eyeballed: compute the WCAG ratio for the page or Theme. Mid-tone accents used as button fills or link text are where it fails.
+- Contrast is computed, not eyeballed: compute the WCAG ratio for the page or Theme with
+  [`../scripts/check-palette.mjs`](../scripts/check-palette.mjs). Mid-tone accents used as button fills or link text are where it fails.
 - A very heavy display face at small `fitted` sizes becomes unreadable; the type line must say what
   the display role does at `fitted` and `atom`.
 - The weights and colour rules above are starting positions drawn from common practice. Where a
