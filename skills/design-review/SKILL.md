@@ -109,11 +109,16 @@ fixed yet.
    apply: this is finished work.
 5. **Report** the round 0 scorecard (*Output*). Edit nothing.
 6. **Ask whether to fix**, in the choice UI:
-   - "Fix the top gaps: <G1>, <G2>, <G3>" (recommended when it does not clear the gate)
-   - "Fix only <G1>"
+   - "Fix the top gaps: <G1> → <its reuse>, <G2> → <its reuse>, <G3> → <its reuse>" (recommended when
+     it does not clear the gate), for example "G1 → Pret UI MoneyInput, G2 → Pret UI Button, G3 → theme
+     chart tokens"
+   - "Fix only <G1> → <its reuse>"
    - "Also review the linked cards" (when only one surface was reviewed)
    - "Stop here, change nothing" (recommended when it clears the gate)
    - and room for the user to name something else.
+
+   Each fix option names what it swaps in, so the user sees which components or tokens change
+   before choosing.
 
    When the user cannot write to the realm the unit lives in (a catalog card, someone else's
    workspace), offer only "Also review the linked cards" and "Stop here, change nothing", and say why.
