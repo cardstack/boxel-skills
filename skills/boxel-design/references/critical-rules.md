@@ -73,7 +73,8 @@ them.
 ### Main action always on screen
 
 Most apps have one main action: the thing their primary user comes to do. Before writing the Home
-card, state it in one line in your plan, from the answer about who it is for.
+card (or the card itself, when the build is a single card), state it in one line in your plan, from
+the answer about who it is for.
 
 - Public apps (visitors): book a seat, buy, enrol, sign up.
 - Internal apps (operators): add a swimmer, take attendance, new booking. Prefer the operator's most
@@ -85,8 +86,9 @@ card, state it in one line in your plan, from the answer about who it is for.
   the other audience's action is usually an outside link.
 
 The main action is a real control: a button for an in-app operation, a link for an outside
-destination. It is visible on the Home card without scrolling, at desktop and phone widths, and
-shown again on the card for the record it acts on (a session card shows "Take attendance").
+destination. It is visible on the Home card (or a single card's isolated view) without scrolling,
+at desktop and phone widths, and shown again on the card for the record it acts on (a session card
+shows "Take attendance").
 
 How it behaves depends on where its target lives:
 
@@ -94,14 +96,18 @@ How it behaves depends on where its target lives:
   none, draw the control in its final style, disabled, with a marked slot beside it: "Booking link
   not set: paste your ticketing URL". Never hide it because the link is missing, never open a
   dialog for it, and never build a booking system in its place unless the user said the app *is*
-  the booking system.
+  the booking system. The marked slot appears once, beside the Home control, and counts toward the
+  two-slot cap in *Never invent proof*; the repeated controls on record cards are disabled with no
+  slot of their own.
 - **Inside the app** (creating or changing cards in this realm): it works in the first build, as an
   `@operation` invoked through `operations()`
   ([`card-operations-authoring`](../../card-operations-authoring/SKILL.md)). A button that only
   says "coming soon" is not a marked slot; it is a broken app. The card it creates must look like
   the rest of the app: link the app's theme on it (`cardInfo.theme`), or have its CardDef take
   `cardTheme` from a card it always links to. A new record with no theme opens on a white page in
-  system fonts.
+  system fonts. Gate the control with `@context.canInvoke`
+  ([`card-operations-authoring`](../../card-operations-authoring/SKILL.md) → *Asking first*), so a
+  caller who cannot run the operation never sees it.
 
 Disabled is the last resort, not a shortcut: only after the operation is written and still fails
 when run once against a real card (it errors, or the created card does not appear linked). Then
@@ -117,7 +123,7 @@ cue, a tab, a checkbox. After the main action:
 |---|---|---|
 | **Free**, use as needed | A linked card | render it with `<@fields.x />`; the host makes it open on click |
 | | A real link the user gave (`tel:`, `mailto:`, a URL) | `<a href>`; never invent a number, address or URL to have one |
-| | A button a reused catalog card already wires and that works | keep it ([`catalog-reuse`](../../catalog-reuse/SKILL.md)); show operator buttons (confirm, check in) only where operators look, never on a page visitors see |
+| | A button a reused catalog card already wires and that works | keep it ([`catalog-reuse`](../../catalog-reuse/SKILL.md)); gate an operator button (confirm, check in) with `@context.canInvoke` so a visitor who cannot run it never sees it |
 | **Up to three kinds** | Open a record beside this one (the side panel) | `this.args.viewCard?.(card, 'isolated', { openCardInRightMostStack: true })` |
 | | Edit a record (the host's edit view is the short form) | `this.args.viewCard?.(card, 'edit', { openCardInRightMostStack: true })` |
 | | Tabs, filters, "Show all" | a `@tracked` value over rows already loaded on the screen |
@@ -127,11 +133,23 @@ A kind counts once however many instances it has: one filter row is one, and eve
 its record is one.
 
 Render an open-or-edit row as a control only when `@viewCard` is there; in some previews it is
-missing, and then the row is plain text, with no chevron and no hover cue:
+missing, and then the row is plain text, with no chevron and no hover cue. The control itself is
+the component the component search returns (here Pret UI's `Button`), and the handler is an
+arrow-function property, never a class method:
+
+```gts
+import { fn } from '@ember/helper';
+import { on } from '@ember/modifier';
+import { Button } from '@cardstack/pretui/components/button';
+
+// in the format's component class
+open = (record: CardDef) =>
+  this.args.viewCard?.(record, 'isolated', { openCardInRightMostStack: true });
+```
 
 ```hbs
 {{#if @viewCard}}
-  <button class='row row--link' {{on 'click' (fn this.open record)}}>{{record.title}}</button>
+  <Button @variant='ghost' class='row' {{on 'click' (fn this.open record)}}>{{record.title}}</Button>
 {{else}}
   <div class='row'>{{record.title}}</div>
 {{/if}}
