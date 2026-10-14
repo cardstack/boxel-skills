@@ -14,6 +14,7 @@ Every catalog card the app renders as its own UI must look designed for this app
    - Create the app's instances from the subclass. An instance that still adopts the catalog class keeps the stock templates, even when a field is typed as the catalog class.
    - A field typed as the catalog class renders the subclass instance's formats, so the parent never names the subclass.
    - Judge each format it shows in on its own. A format whose stock layout already fits can stay under the theme; override the others.
+   - A linked card the app shows as a chip, row or tile also opens to its own page when clicked, so `isolated` is always one of the formats it shows in: capture it too.
 4. **Build new**, only for a model or behaviour mismatch (it would change what most of its fields mean), and name why. Remix only when the user asked to own a copy; a Spec hit has no Listing to remix.
 
 Record it in the disposition. A catalog card the app renders as its own UI names its route when adopted (`adopted, route: theme`, `own markup` or `extended`); a new build is a refusal that names the mismatch (`refused: <mismatch>, built new`), and a remix the user asked for is recorded the same way (`remixed`). Every other adopted hit is plain `adopted`, with no route: a component or helper, even one you render inside your own markup (a money formatter), a data-only card, or a part referenced from a Listing (not `import`).
