@@ -219,7 +219,7 @@ Push to the realm after each stage so you can compare visually.
 
 Hold the taste-maker in your head as you work. Bierut, Sagmeister, Paula Scher, Khoi Vinh, Massimo Vignelli, Mark Boulton — whoever fits the brief. The internal critic raises the bar; do NOT name them in your code or commit messages.
 
-Place the app's main action ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Main action always on screen*) as the one primary-styled button on Home (or on a single card's isolated view): in the header on wide screens, within reach without scrolling on a phone. When Stage 4 derives the embedded and fitted formats, repeat it on the cards where it applies. Every other control the mockup draws works in the first build or is not drawn (*Every visible control works*).
+Every control the mockup draws works in the first build the cheapest way the host offers, or is not drawn ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *First-shot designs are clickable*).
 
 ### Brand-guided imagery during mockup (not as a late asset fill)
 
