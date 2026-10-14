@@ -16,3 +16,5 @@ What a capture of the `Button` showed:
 - The other tones (`success`, `danger`, `info`) keep the library's colours unless the theme sets their tokens, so a playful theme that only sets `--primary` leaves a stock-green `success` button.
 - A default `Button` is about 28px tall, under 44px; raise `--pretui-button-h` when the hit area matters. The focus ring stayed visible on a restyled button.
 - A theme can pair colours that fail contrast (white on `#ff4d6d` is 3.2:1, below 4.5:1); the component does not fix that. Check contrast in the capture.
+
+Other Pret UI components follow the same channel. In a capture, one set of tokens (`--radius`, `--border`, `--ring`, `--background`, `--primary`) restyled `Accordion`, `FilterChips` and `FilterSet` as well, and a class on each (border, shadow, dashed outline, rotation) overrode it. The selected `FilterChips` chip stayed a white pill under a pink `--primary`, so check what each component takes from `--primary` before relying on it for the accent.
