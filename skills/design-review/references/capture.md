@@ -8,17 +8,16 @@ You cannot judge a design from CSS. Capture before scoring, and stop if you cann
 
 | View | Tool | Notes |
 |---|---|---|
-| any card or file, **in the Boxel app** | `view-visually` ([`host-commands-reference.md`](../../boxel-environment/references/host-commands-reference.md) → *Seeing*) | the default in the app; capture as often as you need, one card or format per call |
+| isolated, embedded, **in the Boxel app** | `view-visually` ([`host-commands-reference.md`](../../boxel-environment/references/host-commands-reference.md) → *Seeing*), or `realm.capture(path)` inside a `run-realm-code` script | the default in the app; capture as often as you need. It cannot capture `fitted`: capture the parent that renders the fitted cards (Home, an isolated or embedded view). `atom` and `edit` cannot be captured in the app; list them as uncaptured |
 | isolated, embedded, fitted, **from a terminal** (Claude Code or any session without the host tools) | boxel CLI: `npx boxel screenshot <card-url> --format isolated --full-page --out <scratch>`; `--format embedded`; `--format fitted --envelope 400x300` (fitted needs an envelope) | one card and format per call, or a `--spec` batch file; it retries while the server is busy. Use the card instance URL, never the `.json` file. `--full-page` grows the frame only when the page scrolls; an isolated card that scrolls inside its own root stays at the viewport height, so give it a taller `--viewport` (`800x2000`) to see all of it. A `fitted` capture on its own can come back without the card's theme (light ground, default fonts) even when the card links one; capture it inside its parent (the Home) before reporting it as unthemed |
-| isolated, embedded, fitted | capture service (`POST /_capture`, host `CaptureTool`) | one batch per module — `captures: [{name}]`, ≤ 12 entries, inside the 25 s budget. Capture-only: bytes return as base64, nothing persists server-side |
-| app isolated with tabs, atom, edit | MCP browser (chrome-devtools) | the service cannot click a tab, or capture atom and edit on demand. One shot each; click tabs in turn |
+| isolated with tabs, atom, edit, **from a terminal** | a browser driven by the session (chrome-devtools), where one is available | the CLI cannot click a tab or capture atom and edit. One shot each; click tabs in turn |
 
 **Missing host tools is never a reason to skip the review.** From a terminal, the boxel CLI is the
 capture tool: run it for every view the review needs, then read the image files it writes. In the
-Boxel app, use `view-visually` (or the capture service for a batch) first, and the browser only for the rest. If the browser is unavailable
-— profile locked, or two navigation timeouts — do not block: review the service captures and list
-the uncaptured views by name. Write captures to the session scratch folder and delete them after
-scoring; none belong in the realm, the repo or the media cache.
+Boxel app, `view-visually` is the capture tool. Where a view cannot be captured (fitted on its own,
+atom and edit in the app; a browser that is unavailable from a terminal), do not block: review what
+was captured and list the uncaptured views by name. From a terminal, write captures to the session
+scratch folder and delete them after scoring; none belong in the realm or the repo.
 
 If capture fails entirely, say so and stop. A code-only review reads as a real review and is not one.
 
@@ -45,28 +44,23 @@ for the motion to settle, and capture each at viewport size, not full page. Read
 
 ## The motion-off pass
 
-A normal capture is taken after the animations have run, so it cannot show what a reduced-motion
-user sees. That matters because the failure is total rather than cosmetic: an element whose
-**resting** CSS is `opacity: 0` or `transform: scaleX(0)`, animated into view, is invisible forever
-for anyone whose animations never play — and every ordinary capture, every lint pass and the card's
-own markup all look correct.
+The rules for motion live where it is written: CSS entrances keep their resting state visible
+([`template-patterns.md`](../../boxel-ui-guidelines/references/template-patterns.md) → *Entrance
+animations — never put `opacity: 0` in base CSS*), and motion built with
+[`card-motion`](../../card-motion/SKILL.md) (glimmer-motion, Choreo) honours reduced motion by
+default through `<MotionConfig @reducedMotion>`. This pass only checks that the build kept them, from
+what renders, because a normal capture is taken after the animations ran and cannot show what a user
+whose animations never play sees: an element whose resting state is hidden stays invisible for them,
+while every ordinary capture, lint pass and the markup look correct.
 
-`chrome-devtools`'s `emulate` tool cannot set `prefers-reduced-motion` — it covers colour scheme,
-viewport, network, CPU, geolocation and headers only. So reproduce the condition instead of the
-media query: with the card open in the MCP browser, inject
+- **CSS animations**, from a terminal with a browser: open the card, inject
+  `<style>*,*::before,*::after{animation:none !important;transition:none !important}</style>` into
+  the document head, and re-capture without reloading. Anything that disappears has its resting
+  state wrong. (Browser emulation cannot set `prefers-reduced-motion`, so this reproduces the
+  condition instead.)
+- **`card-motion` and Choreo motion** runs in JS, which the injected rule does not stop: check that
+  the capture taken after the motion settles shows every element, and that the card does not set
+  `@reducedMotion` to something other than the default.
 
-```js
-document.head.insertAdjacentHTML('beforeend',
-  '<style>*,*::before,*::after{animation:none !important;transition:none !important}</style>');
-```
-
-then reload-free re-capture. Anything that disappears has its resting state wrong. This tests the
-condition that matters — animations never play — which is what a reduced-motion user experiences
-whether or not the card implements the media query.
-
-The injected rule stops CSS animations only. Motion built with `card-motion` runs in JS and respects
-reduced motion by default; for it, check that the capture taken after the motion settles shows every
-element, and that the card does not override `<MotionConfig @reducedMotion>`.
-
-Run it once per unit, on any screen that animates. If the MCP browser is unavailable, say the pass
-did not run rather than passing the check silently.
+Run it once per unit, on any screen that animates. Where no browser is available (the Boxel app, or
+a terminal without one), say the pass did not run rather than passing the check silently.

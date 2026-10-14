@@ -20,8 +20,9 @@ Everywhere below, `## Design direction` means the brief card's `designDirection`
 `designDirection`: score the colour against the first and check that no proof was invented beyond the
 second. A brief from earlier work, or one written by hand, may carry a full direction. Every rule below
 that reads `## Design direction` acceptance lines, its Views table or its Width line applies only when that
-field holds them. Without them, score each format against the design-playbook's Stage 0f content matrix,
-and `prefersWideFormat` against what the isolated capture needs. With no brief at all, what was decided is
+field holds them. Without them, score each format against the design-playbook's Stage 0f content matrix where one
+was written (otherwise against what the isolated view shows), and `prefersWideFormat` against what
+the isolated capture needs. With no brief at all, what was decided is
 the build's own hand-off line, or, for existing work, what the screens show.
 
 You review a built thing against two standards: what was decided for it, and an
@@ -35,8 +36,9 @@ controls, focus, hover and behaviour. Source code is never evidence that somethi
 exists, because coherence across screens is the thing no single-screen review can see.
 `card <CardDef>` reviews one card's formats as a family, and is the mode nobody remembers to run: in an
 app, the cards behind the links are the surfaces that get built in passing and scored by nothing.
-Asked for by hand on one screen, it reviews that screen. `refine` builds, scores and fixes in a loop
-until the unit clears the gate (see [`references/benchmark-and-refine.md`](references/benchmark-and-refine.md)).
+Asked for by hand on one screen, it reviews that screen. `refine` is the same loop asked for by name,
+to bring a unit to the bar: one fix round, then the user decides (see
+[`references/benchmark-and-refine.md`](references/benchmark-and-refine.md)).
 
 ## Automatic review after every build
 
@@ -106,7 +108,7 @@ fixed yet.
    - and room for the user to name something else.
 
    When the user cannot write to the realm the unit lives in (a catalog card, someone else's
-   workspace), offer only "Review another surface" and "Stop here", and say why. A reused catalog
+   workspace), offer only "Also review the linked cards" and "Stop here, change nothing", and say why. A reused catalog
    card is restyled the way [`catalog-reuse`](../catalog-reuse/SKILL.md) → *Reuse the model, own the
    look* says.
 
@@ -169,8 +171,8 @@ card cannot do. Without a benchmark, say the scores are unanchored.
 
 Score and name the specific thing behind each number:
 
-- **Typography** — does the pairing look chosen? When the build names a look from [`boxel-design/references/style-families.md`](../boxel-design/references/style-families.md), score against *its* check: editorial wants large-light against small-bold, playful and vibrant want a heavy display against a plain body, brutalist wants hard and heavy. In every look, everything between 500 and 600 with a small step is a fail. Is there tracking on uppercase micro-labels where the look uses them? With no named look, judge on role clarity.
-- **Honest gaps are not unfinished.** A section left out, a role in place of a name, or a marked slot where the business's real review, price or rating will go is correct ([`boxel-design/references/critical-rules.md`](../boxel-design/references/critical-rules.md) → *Never invent proof*). Never score it down as incomplete. An invented rating, name, year or testimonial is a finding.
+- **Typography** — does the pairing look chosen? When the build names a look from [`boxel-design/references/style-families.md`](../boxel-design/references/style-families.md), score against *its* check: editorial wants large-light against small-bold, playful and vibrant want a heavy display against a plain body, brutalist wants hard and heavy. Each look's row says which weights it wants; a Restrained editorial build set entirely between 500 and 600 with a small step fails. Is there tracking on uppercase micro-labels where the look uses them? With no named look, judge on role clarity.
+- **Honest gaps are not unfinished.** A section left out, a role in place of a name, or a marked slot where the business's real review, price or rating will go is correct ([`boxel-design/references/critical-rules.md`](../boxel-design/references/critical-rules.md) → *Never invent proof*). Never score it down as incomplete. An invented rating, name, year or testimonial is a finding, unless the brief's `Real details:` line is `concept (demo mode)` and each one carries a visible "Sample" label.
   A **labelled placeholder image** is the same kind of gap: the build puts one where no photo may be
   used (a real person, the user's own product, a real film poster) or none could be found
   ([`sample-images.md`](../boxel-file-def/references/sample-images.md) → *Pick the source* and
@@ -225,6 +227,8 @@ After the aesthetic gate, check what would make the design wrong rather than pla
   ([`restyle-component.md`](../boxel-ui-component-discovery/references/restyle-component.md)). So is a
   reused catalog card whose stock look still reads as another app; a stock layout kept under the
   theme because it fits is correct ([`restyle-reused-card.md`](../catalog-reuse/references/restyle-reused-card.md)).
+  A component the build named as a gap no restyle step reaches is reported as that gap, not scored
+  down again.
 - **Accessibility** — contrast on every text-bearing surface, focus states, hit targets, and the
   motion-off pass for anything animated. The reduced-motion check is not "is there a fallback" but
   two questions the pass answers: does every element survive with animations off (the resting CSS
@@ -277,20 +281,22 @@ instead of fixed.
 
 ## Card mode
 
-`design-review card <CardDef>` scores one CardDef's `isolated`, `embedded`, `fitted` (every size
-that will actually be used), `atom` and `edit` as one family. `edit` is the one that goes missing:
-nothing else scores it. Run it for **every CardDef the app links to**, not only the ones that have
+`design-review card <CardDef>` scores one CardDef's `isolated`, `embedded` and `fitted` (every size
+that will actually be used) as one family, plus `atom` and `edit` where the build wrote them. Atom is
+optional and `edit` usually stays the host's default (design-playbook, Stage 4); a missing custom
+one is not a gap. Run it for **every CardDef the app links to**, not only the ones that have
 their own screen: a card reached through `linksToMany` is a surface the user sees, and it is the
 surface that gets written in passing.
 
-1. **Capture all five**, per `references/capture.md` (`atom` and `edit` need the app or a browser).
-   Fitted needs the sizes the app actually renders, not all sixteen.
+1. **Capture each format**, per `references/capture.md`: fitted inside the parent that renders it,
+   at the sizes the app actually renders, not all sixteen. `atom` and `edit` need a browser from a
+   terminal; in the app, list them as uncaptured.
 2. **Tick the content matrix**, the design-playbook's Stage 0f block written at planning. It says
    which fields appear at each format, in what wording register, and what is omitted. Check the
    capture against it field by field. A format carrying fields the matrix omits is as much a failure
    as one missing them.
-3. **Score the family, not each format.** The question is whether the four read as the same card at
-   four fidelities: same signature gesture, same accent role, same type family, wording compressing
+3. **Score the family, not each format.** The question is whether the formats read as the same card
+   at different fidelities: same signature gesture, same accent role, same type family, wording compressing
    rather than truncating.
    - **Check the breakpoints fire.** Capture each format at a narrow width as well as a wide one.
      A `@container` rule that targets the element carrying `container-type` is dead and silent: the
@@ -298,7 +304,7 @@ surface that gets written in passing.
      the wide one, or a two-column layout overflows instead of stacking.
    - **Check `isolated` hardest.** It is often the one format that appears in no screen, so nothing
      in the build teaches it and nothing else reviews it. Two tells: `isolated` should be the
-     *largest* of the four (a full page thinner than its own thumbnail is nobody's decision), and no
+     *largest* of the formats (a full page thinner than its own thumbnail is nobody's decision), and no
      field should appear in `fitted` or `embedded` but be missing from `isolated`.
 4. **Check the two failures this mode exists to catch:**
    - **The pedestrian fitted**: title in big type, description truncated, date in muted small
@@ -360,7 +366,7 @@ the first review; for an automatic review, *Build output* above it is the build 
 the builder fixed it, so the first build's own state is on record.
 
 ```
-Build output: 7/12 build-check lines passed (builder fixed: names, phone overflow, dead filter)
+Build output: 9/12 build-check lines passed (builder fixed: names, phone overflow, dead filter)
 
 Scorecard
 | Round | Basics | Direction | Aesthetic | Constraints | Reviewer |

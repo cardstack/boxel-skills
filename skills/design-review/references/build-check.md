@@ -22,11 +22,11 @@ Capture with `view-visually` in the app or `npx boxel screenshot` from a termina
 - Home and each card's `isolated` view at desktop (`--viewport 1280x…`) and phone (`--viewport 390x…`),
   at full height (a tall viewport, `390x2400`), not only the first screen: lower sections break too.
 - Each linked CardDef in every format a screen shows it in: `embedded` at the width it is shown,
-  `fitted` at the sizes it is shown plus the standard set in
-  [`fitted-formats.md`](../../boxel/references/fitted-formats.md).
+  `fitted` at the sizes the app actually renders ([`fitted-formats.md`](../../boxel/references/fitted-formats.md)
+  lists them).
 
-Check fitted views inside the parent that shows them first: a standalone fitted capture can lose
-the theme ([`capture.md`](capture.md)).
+Capture fitted views inside the parent that shows them: in the app that is the only way, and from a
+terminal a standalone fitted capture can lose the theme ([`capture.md`](capture.md)).
 
 ## The check
 
@@ -49,8 +49,10 @@ Each line passes or fails on every capture.
 5. **Colour roles.** The accent appears only on the main action, the current selection and the
    roles the theme gives it, never on prices, counts or labels. A state colour (present, overdue,
    selected) never reuses a category colour.
-6. **Type.** No text under 12px, uppercase labels and numerals included. Section headings sit
-   visibly between body and display size.
+6. **Type.** In `isolated` and `embedded`, no text under 12px, uppercase labels and numerals
+   included. A `fitted` view follows its own per-role minimums
+   ([`container-query-fitted-layout.md`](../../boxel/references/container-query-fitted-layout.md)).
+   Section headings sit visibly between body and display size.
 7. **Controls.** No hit area is under 24×24 CSS px unless a 24px circle centred on it overlaps no
    other target (WCAG 2.2 SC 2.5.8); a default Pret UI `Button` (about 28px) passes. The main action
    and controls used on a phone aim for 44×44. A choice of five or fewer options is a row of buttons
@@ -74,8 +76,9 @@ Each line passes or fails on every capture.
     appears on, and a count matches the rows it counts. Sample data that contradicts itself between
     Home and a card reads as a broken app.
 12. **Components take the app's look.** No Pret UI or boxel-ui component shows at its library
-    default (colour, radius, type) beside controls that carry the app's theme
-    ([`restyle-component.md`](../../boxel-ui-component-discovery/references/restyle-component.md)).
+    default (colour, radius, type) beside controls that carry the app's theme, unless the build
+    named it as a gap no restyle step reaches
+    ([`restyle-component.md`](../../boxel-ui-component-discovery/references/restyle-component.md), step 5).
 
 Fix every failure, re-capture those views, and check them again. Then start the review. The
 reviewer gets the captures and the brief as usual, not this list's results.

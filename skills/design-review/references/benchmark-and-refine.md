@@ -61,11 +61,10 @@ Gap on the bar: type scale and image treatment
 
 ## Refine mode — `design-review refine`
 
-Use it when the user says "build it" and wants the best first result, or asks for the unit to be
-brought to the bar. The review half of it is not optional: it runs after every build as the
-automatic loop in `SKILL.md`, over the whole unit (`set` plus `card` for each linked CardDef). This section
-is that loop's detail, and `refine` is the name for it when the user also wants the first build
-repeated.
+Use it when the user asks for the unit to be brought to the bar. The review half of it is not
+optional: it runs after every build as the automatic loop in `SKILL.md` (`set` across the app, and
+each linked CardDef in the formats the screens show it in). This section is that loop's detail, and
+`refine` is its name when the user asks for it.
 
 ### Roles
 
@@ -85,25 +84,28 @@ Where the harness cannot spawn a subagent, say so, and treat the round's scores 
 ### The loop
 
 ```
-build → check → capture → review (independent) → gate met? ── yes → report, stop
+build → check → capture → review (independent) → skip gate met? ── yes → report, stop
                                    │
                                    no → fix the named gaps once → check → capture → review → report
                                         (another round only when the user picks it)
 ```
 
-1. **Build** the first screen the brief card names, in full, then run the builder's pass/fail
-   check ([`build-check.md`](build-check.md)) and fix what fails.
+1. **Build** what the build path produces (for an app, Home and its linked cards), then run the
+   builder's pass/fail check ([`build-check.md`](build-check.md)) and fix what fails.
 2. **Capture**, then **review** with the benchmark. The reviewer returns the acceptance tally,
    the six scores, the gap list and a verdict.
-3. **Pass** means every acceptance line ticked, the aesthetic score at or above 8.5, and no
-   constraint failure (contrast, focus, motion-off). That clears the gate.
+3. **Clearing the gate** means every acceptance line ticked, the aesthetic score at or above 8.5,
+   and no constraint failure (contrast, focus, motion-off). The automatic fix round is skipped only
+   by the stricter gate in `SKILL.md` → *Automatic review after every build*, step 5 (nothing fails
+   and an independent reviewer scored 9 or more).
 4. **Fix** only what the gap list names, in the order it gives, at most the top three gaps per
    round. A gap is a cause: one template cutting off names in six tiles is one gap. Run the build
    check again on every view a fix touched, at desktop and phone width, before the next capture.
    A round that rewrites things nobody flagged makes the next score meaningless; report
    what changed and what was left alone.
 5. **One fix round, then the user decides.** The automatic loop fixes once and re-scores, then
-   reports the best round, not the last, with "Keep improving: one more round" as a choice. The
+   reports every round, saying plainly when the last one made things worse, with "Keep improving:
+   one more round" as a choice. The
    fix round is skipped only by the gate in `SKILL.md` → *Automatic review after every build*,
    step 5. Why one round: in terminal test builds the first fix round raised the score by about
    0.5, and second and third rounds moved it by no more than noise (8.2 → 7.8, 7.5 → 7.8; three
