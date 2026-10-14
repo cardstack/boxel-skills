@@ -112,6 +112,10 @@ of truth for what's available and what each component is called.
    `@as`, `@size='extra-small'`) onto a Pret UI component. Required args must be
    present; defaults are listed for every optional arg.
 
+## A component that does not fit the app's look
+
+The component supplies behaviour and accessibility; the app's theme and Look supply the style. Restyle through its theme tokens, documented attributes and CSS variables, then a CSS rule of your own, judged from a capture. The steps: [`restyle-component.md`](references/restyle-component.md).
+
 ## Self-audit before finishing
 
 Re-read your finished template. For each interactive or form-shaped

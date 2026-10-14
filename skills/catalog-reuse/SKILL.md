@@ -248,7 +248,7 @@ naming why the hit itself could not be linked, installed, or copied.
   from a capture (theme, own markup, extend and override its formats, then remix
   or build new on a model mismatch). Record the route in the disposition
   (`theme`, `own markup`, `extended`, or the refusal). The steps and their traps:
-  [`restyle-consumed-ui.md`](../boxel-ui-guidelines/references/restyle-consumed-ui.md).
+  [`restyle-reused-card.md`](references/restyle-reused-card.md).
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.
