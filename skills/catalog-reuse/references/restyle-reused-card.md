@@ -2,8 +2,6 @@
 
 A reused catalog card keeps its fields, computeds and operations, not its stock look. Its templates can belong to another app (a CRM row with an avatar and a "Customer" pill on a bakery's Home). Take the lowest step that works, judged from a capture you took, not from the code.
 
-Card chrome (corners, halo, surface colour of a linked child) has its own ladder in [`delegated-render-control.md`](../../boxel-ui-guidelines/references/delegated-render-control.md), and that file wins there.
-
 ## Scope
 
 Every catalog card the app renders as its own UI must look designed for this app. A data-only card or a field needs no step: its parent styles it.
