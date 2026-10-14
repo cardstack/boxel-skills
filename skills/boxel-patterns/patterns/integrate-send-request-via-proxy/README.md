@@ -4,17 +4,19 @@ validated: source-proven
 
 # integrate-send-request-via-proxy — Make HTTP requests through the host proxy
 
-**What this gives you:** A way to call arbitrary HTTP APIs from inside a Boxel card or Command, while routing the request through the realm server so credentials, CORS, and rate-limits are handled host-side.
+**What this gives you:** A way to call an allowlisted HTTP API from inside a Boxel card or Command, routed through the realm server so the platform's own credentials for that destination, CORS, and rate-limits are handled host-side.
 
-**When to use:** Any third-party API call that requires:
-- An API key the realm holds (you don't want it in the client).
+**When to use:** A third-party call that requires:
+- A destination Boxel staff have put on the realm server's allowlist, with the platform's own key for it (OpenRouter, for instance).
 - Cross-origin requests the browser would block.
+
+**Not for a key the user or the realm holds.** That key is reached only through a `callApi` card operation: the card declares the request as data, with the key written as a slot (`{{userKey}}`, `{{apiKey}}`), and the realm server fills it in at send time. See `card-operations-authoring` §2. The proxy never fills a slot — a `{{userKey}}` in a forwarded header or body reaches the API as that literal text — and there is no way to hand it a key of your own.
 
 **When NOT to use:** a public API that needs no key and allows browser requests (its responses carry `Access-Control-Allow-Origin`), such as the MLB Stats API (`statsapi.mlb.com`). Call it with plain `fetch`, following "Calling a public API directly" below. The proxy forwards only to destinations on the realm server's allowlist, so an API like that would need a production allowlist entry it gains nothing from. A keyless API that does not allow browser requests is the exception: it needs the proxy, and so an allowlist entry. If you can't tell which kind an API is, try `fetch` first; a CORS error in the browser console means it needs the proxy.
 
 For first-party LLM calls, prefer `integrate-one-shot-llm` (which is built on top of this primitive). For image generation, prefer `integrate-openrouter-image-generation`. Use `SendRequestViaProxyCommand` directly when you need a custom API surface OneShot doesn't cover, such as OpenRouter image-generation modalities or a non-OpenRouter third-party endpoint.
 
-**The insight:** `SendRequestViaProxyCommand` is the underlying host primitive that routes ANY HTTP request through the realm server. The realm server keeps an allowlist of destinations, each with its own credentials, and adds the matching entry's key to the forwarded request. Cards never see the secrets.
+**The insight:** `SendRequestViaProxyCommand` is the underlying host primitive that routes a free-form HTTP request through the realm server. The realm server keeps an allowlist of destinations, each with the platform's own credentials, and adds the matching entry's key to the forwarded request. Cards never see the secrets, and no user's or realm's key is ever involved.
 
 **Recipe shape:**
 
@@ -40,7 +42,7 @@ const data = await result.response.json();
 
 **Gotchas:**
 - The request body goes in `requestBody` (not `body`) and must be a JSON string: the realm server parses it and rejects anything else with a 400. The result is `{ response }`, a standard `Response`; read it with `result.response.ok` and `await result.response.json()`.
-- The realm server forwards only to allowlisted destinations, matched by origin plus path prefix, and picks the credentials from the matching entry. Any other URL is rejected with a 400. Users and cards cannot add to the allowlist; Boxel staff maintain it. If an API that truly needs a key is not allowlisted, tell the user it needs to be added. Don't suggest a workaround that puts the key in card code.
+- The realm server forwards only to allowlisted destinations, matched by origin plus path prefix, and picks the credentials from the matching entry. Any other URL is rejected with a 400. Users and cards cannot add to the allowlist; Boxel staff maintain it. An API that needs the user's own key, or one the realm holds, is a `callApi` operation rather than an allowlist entry. Never suggest a workaround that puts a key in card code.
 - For a multipart/form-data upload, pass `multipart: true` and make `requestBody` the JSON string of an object whose keys become the form fields (`JSON.stringify({ … })`). A file field is `{ filename, content, contentType }` with `content` base64-encoded; the realm server builds the multipart body. Don't pass a `FormData`.
 - Each user can have at most 8 proxied calls in flight, shared with their model calls through the realm server's OpenRouter passthrough; further calls wait for a free slot. Don't fan many proxied requests out in parallel, and don't proxy an API that plain `fetch` can reach unless viewer privacy calls for it (see "Calling a public API directly").
 

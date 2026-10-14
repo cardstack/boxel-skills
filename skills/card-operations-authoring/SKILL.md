@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links`, `html` and `label`), invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, an operation `label`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links`, `html` and `label`), `callApi` — a request to an outside API declared as data, with credential slots `{{userKey}}` / `{{apiKey}}`, invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, `callApi`, `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, an operation `label`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
 boxel:
   kind: skill
 ---
@@ -53,12 +53,18 @@ declaration is invisible to those types and the payload goes unchecked.
 | A value derived from other fields on the same card       | `computeVia` — no operation                    |
 | A named action that writes the card, invocable from a template, another card, or an agent | **An operation**        |
 | Several cards changed all-or-nothing                     | **An operation** inside `atomic()`             |
-| Work that needs network access, an LLM, or host services | A command — operations run no author JavaScript |
+| A request to an outside API, above all one that needs a key | **A `callApi` operation** (§2)              |
+| Work that needs an LLM, host services, or logic around a fetch | A command — operations run no author JavaScript |
 
 The dividing line is that an operation is *data the realm executes*. That buys
 concurrency safety an author cannot write by hand — two callers titrating the
 same dose compose rather than overwrite — and costs the ability to run arbitrary
-code. Anything needing a fetch, a model call, or a host service is a command.
+code. A request to an outside service is the one kind of network access an
+operation has: the card declares it as data and the realm server sends it. A
+model call, a host service, or code around a fetch is a command.
+
+**A key the user or the realm holds is reached only through `callApi`.** The
+free-form proxy (`SendRequestViaProxyCommand`) never fills one in.
 
 ## 2. Declaring
 
@@ -82,6 +88,7 @@ delete: asking that card to delete itself archives it.
 | `appendLine`          | Appends one newline-terminated line to a text file                   | files      |
 | `explain`             | Answers what a realm's policy decides for an actor, card and operation, invoking nothing | a card that declares it (a `RealmPolicy`) |
 | `validate`            | Answers what a policy card compiles to                               | a card that declares it (a `RealmPolicy`, a `RealmConfig`) |
+| `callApi`             | Sends a declared request to an outside service and answers with its response | a card that declares it |
 
 A def carries `explain` and `validate` only where a card declares an
 operation on them, and each must be `nonGrantable` (`realm-policy-authoring`
@@ -144,6 +151,104 @@ type — the `query` base is declarable, under any other name. Neither can a nam
 that already
 resolves on the class, such as `displayName` — except an inherited operation of
 the same name, which is how a subclass overrides one.
+
+### `callApi` — a request to an outside service
+
+The request is data. The realm server builds it from the declaration and the
+invocation and sends it through its guarded outbound client. Nothing of the
+card runs at call time.
+
+```ts
+import StringField from '@cardstack/base/string';
+import {
+  bxl,
+  instance,
+  operation,
+  params,
+  type OperationDeclaration,
+} from '@cardstack/base/operations';
+
+export class Repository extends CardDef {
+  @field owner = contains(StringField);
+  @field name = contains(StringField);
+
+  @operation static openIssues = {
+    base: 'callApi',
+    label: 'List the open issues in this repository',
+    params: { label: StringField },
+    url: 'https://api.github.com/repos/{owner}/{repo}/issues',
+    path: { owner: instance('owner'), repo: instance('name') },
+    query: { state: 'open', labels: params('label') },
+    headers: {
+      accept: 'application/vnd.github+json',
+      authorization: 'Bearer {{userKey}}',
+    },
+    output: bxl`{status: .status, issues: .body}`,
+  } satisfies OperationDeclaration;
+}
+```
+
+```ts
+let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
+```
+
+| Key        | What it is                                                                 |
+| ---------- | -------------------------------------------------------------------------- |
+| `url`      | Absolute. A whole path segment written `{name}` is filled from `path`; nothing else in the URL is filled |
+| `path`     | The value for each `{name}` segment. Each fills exactly one segment, encoded, so `../x` stays one segment |
+| `query`    | Query-string parameters, appended and encoded                              |
+| `headers`  | Header values. `X-Boxel-*` headers are never sent                          |
+| `json`     | A JSON body, sent as `application/json`                                    |
+| `graphql`  | `{ document, variables }`: a fixed document string, every value passed as a variable |
+| `method`   | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. Absent: `GET`, or `POST` when there is a body |
+| `output`   | Optional. Maps the response, `{status, headers, body}`, to what the caller gets back |
+
+Values are the typed references (`params()`, `actor()`, `realmConfig()`,
+`instance()`). Invoked on an instance, `instance('field')` reads the card's
+indexed fields, computed ones included. Invoked on the type —
+`operations(Repository).openIssues(…, { realm })` — there is no card, so only
+the payload, the caller and the realm's settings are in scope, and an
+`instance()` is refused.
+
+**The answer is the vendor's response, whatever its status.** A 404 or a 500
+from the API comes back as `{status, headers, body}` for the card to read, not
+as a refusal. `body` is parsed JSON when the API sends JSON and text
+otherwise. `headers` carries only the ones that describe the body
+(`content-type`, `etag`, `cache-control`, `link`, `location`, `retry-after`,
+rate-limit headers and the like), never `set-cookie`.
+
+**Credentials are slots.** A key is written inside a string where it goes,
+never as a value:
+
+| Slot                | Filled with                                            |
+| ------------------- | ------------------------------------------------------ |
+| `{{userKey}}`       | the invoking user's own key for the service             |
+| `{{apiKey}}`        | a key the realm holds for the service                   |
+| `{{apiKey:token}}`  | a named slot, for a request that carries more than one  |
+| `{{apiKey\|basic}}` | the value base64'd as HTTP Basic authentication takes it |
+
+A slot may stand in a header value, a query value, a `path` value (a webhook
+URL whose secret is a path segment) or a string in the JSON body, once per
+request. It is filled at send time, after the destination has been checked
+against the request as declared, and it never follows a redirect to another
+host. The response comes back with every credential removed, so an API that
+echoes a key back does not hand it to the card. Logs and errors record the
+request as declared, never a filled one.
+
+A slot is filled only by a key the realm's owner has approved for that
+operation in that realm. Until then an operation carrying one is refused
+`binding-not-approved`, and nothing is sent. An operation with no slot works
+without any approval. A caller who isn't signed in is refused an operation
+with a slot.
+
+**Never during a render.** A template that invokes a `callApi` while the card
+renders is refused `not-during-render`: a render is replayed and shared, so it
+may not send requests for whoever is looking. Invoke one from an action — a
+click, a command, an agent.
+
+A `callApi` travels on a write request, so the caller needs write permission
+on the realm or a policy grant for the operation. It takes no
+`transformations`.
 
 ### `params` — the payload schema
 
@@ -1023,6 +1128,13 @@ findings has no runnable form, and invoking it is refused with
 | `html-without-rendering`  | `html` on a base other than `read` or `query`, which serves no prerendered HTML |
 | `invalid-html-declaration`| `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable` |
 | `invalid-label`           | A `label` that isn't a single short line of plain text (§2)         |
+| `invalid-request`         | A `callApi` request that can't be sent as written: a relative URL, a `path` value no `{name}` takes, an object where text is sent, two bodies |
+| `invalid-slot`            | Something that looks like a slot and isn't — `{{apiKey\|rot13}}`     |
+| `slot-placed-twice`       | One slot in two places in a request                                  |
+| `slot-name-reused`        | One name for a `userKey` slot and an `apiKey` slot                   |
+| `slot-out-of-place`       | A slot in the URL as written, a header or query name, or a GraphQL document |
+| `unencoded-path-parameter`| A value put into the URL other than as a whole `{name}` segment filled from `path` |
+| `string-built-graphql`    | A GraphQL document built from values rather than written as one fixed string |
 | `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
 
 The decorator refuses several of these where the class is defined — a
@@ -1098,7 +1210,12 @@ try {
 | `version-conflict`         | A conditional write whose base version had moved              |
 | `precondition-unverifiable`| A conditional write the realm could not decide                |
 | `payload-too-large`        | Over the realm's ceiling for a card or file                   |
-| `wrong-entry-point`        | Reached the operation core with a `query`                     |
+| `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
+| `binding-not-approved`     | A `callApi` with a credential slot no approved key fills — nothing was sent |
+| `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
+| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or too many redirects |
+| `upstream-timeout`         | The outside service did not answer in time                    |
+| `response-too-large`       | The outside service's response was larger than the realm server carries |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
 
 An author writes the `assertion-failed` text, so write it as the sentence a user
