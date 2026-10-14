@@ -593,14 +593,15 @@ The answer comes as soon as the write is stored, with `indexPending: true`.
 
 **What skipping costs.** Reads that go through the search index can miss the
 write until its index event arrives — normally moments later, longer when the
-realm is busy indexing. A read of the card itself — `operations(card).read()`,
-the store, or opening the card — still sees it: the realm holds a card read,
-for up to several seconds, until the reader's own pending indexing has landed.
+realm is busy indexing. That includes `operations(card).read()`. Opening the
+card, or loading it through the store, waits a little for the writer's own
+pending indexing (up to about ten seconds) and then reads whatever the index
+holds, so treat even those as eventually consistent when indexing is slow.
 Other users and other sessions see the write when its index event reaches them,
 as they would anyway.
 
-**When to skip.** Skip when nothing after the write searches for what it just
-wrote:
+**When to skip.** Skip when nothing after the write reads back or searches for
+what it just wrote:
 
 - the write's answer (`id`, `version`) is all the caller reads;
 - the card re-renders from the index event the write produces (the usual case
