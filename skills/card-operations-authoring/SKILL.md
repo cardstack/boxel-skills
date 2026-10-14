@@ -53,7 +53,7 @@ declaration is invisible to those types and the payload goes unchecked.
 | A value derived from other fields on the same card       | `computeVia` — no operation                    |
 | A named action that writes the card, invocable from a template, another card, or an agent | **An operation**        |
 | Several cards changed all-or-nothing                     | **An operation** inside `atomic()`             |
-| A request to an outside API, above all one that needs a key | **A `callApi` operation** (§2)              |
+| A request to an outside API that needs no key of the user's or the realm's | **A `callApi` operation** (§2) |
 | Work that needs an LLM, host services, or logic around a fetch | A command — operations run no author JavaScript |
 
 The dividing line is that an operation is *data the realm executes*. That buys
@@ -63,8 +63,11 @@ code. A request to an outside service is the one kind of network access an
 operation has: the card declares it as data and the realm server sends it. A
 model call, a host service, or code around a fetch is a command.
 
-**A key the user or the realm holds is reached only through `callApi`.** The
-free-form proxy (`SendRequestViaProxyCommand`) never fills one in.
+**No card code reaches a key the user or the realm holds.** A `callApi`
+credential slot is refused `binding-not-approved` (§2), and the free-form
+proxy (`SendRequestViaProxyCommand`) never fills one. For an API that needs
+such a key, tell the user a card can't call it with their key — don't ship a
+slotted operation, and never put a key in card code.
 
 ## 2. Declaring
 
@@ -179,10 +182,7 @@ export class Repository extends CardDef {
     url: 'https://api.github.com/repos/{owner}/{repo}/issues',
     path: { owner: instance('owner'), repo: instance('name') },
     query: { state: 'open', labels: params('label') },
-    headers: {
-      accept: 'application/vnd.github+json',
-      authorization: 'Bearer {{userKey}}',
-    },
+    headers: { accept: 'application/vnd.github+json' },
     output: bxl`{status: .status, issues: .body}`,
   } satisfies OperationDeclaration;
 }
@@ -217,29 +217,17 @@ otherwise. `headers` carries only the ones that describe the body
 (`content-type`, `etag`, `cache-control`, `link`, `location`, `retry-after`,
 rate-limit headers and the like), never `set-cookie`.
 
-**Credentials are slots.** A key is written inside a string where it goes,
-never as a value:
-
-| Slot                | Filled with                                            |
-| ------------------- | ------------------------------------------------------ |
-| `{{userKey}}`       | the invoking user's own key for the service             |
-| `{{apiKey}}`        | a key the realm holds for the service                   |
-| `{{apiKey:token}}`  | a named slot, for a request that carries more than one  |
-| `{{apiKey\|basic}}` | the value base64'd as HTTP Basic authentication takes it |
-
-A slot may stand in a header value, a query value, a `path` value (a webhook
-URL whose secret is a path segment) or a string in the JSON body, once per
-request. It is filled at send time, after the destination has been checked
-against the request as declared, and it never follows a redirect to another
-host. The response comes back with every credential removed, so an API that
-echoes a key back does not hand it to the card. Logs and errors record the
-request as declared, never a filled one.
-
-A slot is filled only by a key the realm's owner has approved for that
-operation in that realm. Until then an operation carrying one is refused
-`binding-not-approved`, and nothing is sent. An operation with no slot works
-without any approval. A caller who isn't signed in is refused an operation
-with a slot.
+**A request that needs a key has no working path.** The declaration grammar
+has credential slots — `{{userKey}}` for the invoking user's key, `{{apiKey}}`
+for one the realm holds, `{{apiKey:name}}` for a named one, `|basic` for the
+HTTP Basic form — written inside a header, query, `path` or JSON body string.
+But the realm binds no key to a slot, so **every operation carrying one is
+refused `binding-not-approved`, and nothing is sent**, whoever invokes it. Don't
+write a slotted operation: for an API that needs the user's or the realm's key,
+tell the user a card can't call it with their key. The slot rules lowering
+enforces (§4) are there so an operation carrying one is recognised and refused
+at the right place, not a recipe. An operation with no slot works without any
+approval.
 
 **Never during a render.** A template that invokes a `callApi` while the card
 renders is refused `not-during-render`: a render is replayed and shared, so it
@@ -1211,7 +1199,7 @@ try {
 | `precondition-unverifiable`| A conditional write the realm could not decide                |
 | `payload-too-large`        | Over the realm's ceiling for a card or file                   |
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
-| `binding-not-approved`     | A `callApi` with a credential slot no approved key fills — nothing was sent |
+| `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or too many redirects |
 | `upstream-timeout`         | The outside service did not answer in time                    |
