@@ -154,6 +154,7 @@ Choose the governing style source before stage 1:
 - **`boxel-theme-development`** — turns design-system source material into a Theme, Style Reference, Detailed Style Reference, or Brand Guide artifact.
 - **`boxel`** — once the design is decided and you're implementing the card. Also hosts the playbook itself.
 - **`source-code-editing`** — when applying the resulting styles to existing files.
+- **`design-review`** — the last design step: runs automatically after every build (the builder's build check, one review, one fix round, then a choice), and scores existing work on request.
 
 ## Don't use for
 

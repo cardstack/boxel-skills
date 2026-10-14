@@ -69,6 +69,8 @@ await realm.fs.writeText(
 );
 ```
 
+**A finished design build gets reviewed, and so does existing work on request.** After a build of an app, a card family or a user-facing card, run [`skills/design-review/SKILL.md`](skills/design-review/SKILL.md) without being asked: one review and one fix round, then the next step as a choice. When the user points at a card or app that already exists and asks how it looks, whether it is good enough, or wants it scored, run `design-review` on it: it captures, scores and reports, then asks before editing anything.
+
 **Reports go in Rich Markdown, not a new card.** When a task asks for a report, summary, briefing, or dashboard-style document, read [`skills/rich-markdown-reports/SKILL.md`](skills/rich-markdown-reports/SKILL.md) before deciding how to build it — the default is a Rich Markdown `.md` file that embeds existing cards (custom or off-the-shelf), not a bespoke card definition authored just to present the report.
 
 ## Skill-tree glossary
@@ -99,6 +101,7 @@ Every skill lives in `skills/`. Read only the ones the task needs, not all of th
 - **[`boxel-ui-component-discovery/`](skills/boxel-ui-component-discovery/SKILL.md)** — Mandatory catalog search for a component Spec before hand-rolling any UI primitive in a `.gts` template: Pret UI first, boxel-ui only where Pret UI has no equivalent yet.
 - **[`boxel-design/`](skills/boxel-design/SKILL.md)** — Visual design language, mood, typography, asset direction.
 - **[`domain-interview/`](skills/domain-interview/SKILL.md)** — Interview the user before a build and write a brief as a catalog `Brief` card — schema, coverage matrix, per-screen content contracts, flows, sample data in its `spec` field — with no design decisions. Use it when the user asks for a spec or a brief, or wants to plan first; it stops at the brief card.
+- **[`design-review/`](skills/design-review/SKILL.md)** — Scores a built screen, card or app from captures against its brief and an 8.5 aesthetic gate. Runs automatically after every build (the builder's pass/fail build check, one review, one fix round, then a choice) and scores existing work on request, asking before it fixes anything. Modes: `set` across an app, `card` across a CardDef's formats, `refine`. Reports a per-round scorecard and changelog.
 - **[`boxel-theme-development/`](skills/boxel-theme-development/SKILL.md)** — The theme artifact itself: creating, converting, auditing, or patching StructuredTheme / StyleReference / BrandGuide cards, DESIGN.md import/export, logo and functional-palette placement.
 - **[`card-motion/`](skills/card-motion/SKILL.md)** — Animating a card with glimmer-motion and Choreo: the smallest pattern for the job (`{{motion}}`, `<Presence>`, `layout` / `layoutId`, drag and reorder, scroll, a `<Choreo>` timeline), the imports a realm resolves (motion-dom only through glimmer-motion), the three Glimmer rules that silently stop motion, and scoping beacon names, participant ids and `layoutId`s by card id because every card shares the host's copy.
 - **[`boxel-file-def/`](skills/boxel-file-def/SKILL.md)** — File-typed fields (FileDef, ImageDef, MarkdownDef, PngDef, CsvFileDef).
