@@ -201,7 +201,7 @@ let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
 | `json`     | A JSON body, sent as `application/json`                                    |
 | `graphql`  | `{ document, variables }`: a fixed document string, every value passed as a variable |
 | `method`   | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. Absent: `GET`, or `POST` when there is a body |
-| `output`   | Optional. Maps the response, `{status, headers, body}`, to what the caller gets back |
+| `output`   | Optional. Maps the response, `{status, headers, body}`, to the object the caller gets back — an object, never a list or a bare value |
 
 Values are the typed references (`params()`, `actor()`, `realmConfig()`,
 `instance()`). Invoked on an instance, `instance('field')` reads the card's
