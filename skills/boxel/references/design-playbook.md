@@ -219,6 +219,8 @@ Push to the realm after each stage so you can compare visually.
 
 Hold the taste-maker in your head as you work. Bierut, Sagmeister, Paula Scher, Khoi Vinh, Massimo Vignelli, Mark Boulton — whoever fits the brief. The internal critic raises the bar; do NOT name them in your code or commit messages.
 
+Every control the mockup draws works in the first build the cheapest way the host offers, or is not drawn ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *First-shot designs are clickable*).
+
 ### Brand-guided imagery during mockup (not as a late asset fill)
 
 Generated images belong in the mockup pass, not after. The Brand Guide, card copy, template composition, and Stage 0 sample data are the prompt for the image model — feed all of them in so the photo matches the surrounding type, palette, and voice. Late-stage "find a stock photo that fits" produces hero images that fight the design.
