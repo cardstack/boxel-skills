@@ -544,7 +544,13 @@ members simply take any payload.
 ### What a write answers
 
 ```ts
-{ id: string, version: string, generation: number, lastModified: number }
+{
+  id: string,
+  version: string,
+  generation: number | null,
+  indexPending?: true,
+  lastModified: number,
+}
 ```
 
 plus `lid` on a create **that a batch staged** — a single
@@ -552,6 +558,65 @@ plus `lid` on a create **that a batch staged** — a single
 reports identity and version rather than reprinting the document: the caller
 supplied the state, and reconciling against the version is the common case. A
 `read` answers its document. A `delete` answers `null`.
+
+`generation` is the index generation the write landed on. It is `null`, with
+`indexPending: true`, when the realm answered before indexing the write — see
+below. The write has landed either way; `indexPending` is about reading it back
+through the index, not about whether it happened.
+
+### Waiting for indexing — or not
+
+By default a write waits for the realm to index it before answering, so that a
+search straight afterwards finds it. Indexing renders each card it visits, so
+the wait is bounded: past a few seconds the realm answers anyway, with
+`indexPending: true`, and indexing finishes afterwards.
+
+A card that does not need to read its own write back through the index can skip
+the wait. The option goes where the bucket is built, and covers every write
+that bucket makes — a single call and an `atomic()` batch alike:
+
+```ts
+await operations(this.classroom, { skipIndexWait: true }).update({
+  attributes: { teacherIds },
+});
+
+await operations(report, { skipIndexWait: true }).delete();
+
+await operations<typeof PatientRecord>(this.record, {
+  skipIndexWait: true,
+}).atomic((b) => {
+  /* … */
+});
+```
+
+The answer comes as soon as the write is stored, with `indexPending: true`.
+
+**What skipping costs.** Reads that go through the search index can miss the
+write until its index event arrives — normally moments later, longer when the
+realm is busy indexing. That includes `operations(card).read()`. Opening the
+card, or loading it through the store, waits a little for the writer's own
+pending indexing (up to about ten seconds) and then reads whatever the index
+holds, so treat even those as eventually consistent when indexing is slow.
+Other users and other sessions see the write when its index event reaches them,
+as they would anyway.
+
+**When to skip.** Skip when nothing after the write reads back or searches for
+what it just wrote:
+
+- the write's answer (`id`, `version`) is all the caller reads;
+- the card re-renders from the index event the write produces (the usual case
+  for a button on the card's own template);
+- a saved search or `searchResultsComponent` that refreshes itself as the realm
+  indexes, rather than a one-off search issued straight after the write.
+
+Keep the default when the next step is a search that has to include the write,
+such as creating a card and then listing "all cards of this type" with a
+one-shot `_search` in the same handler.
+
+The store takes the same option for a card save and a card delete:
+`store.add(card, { skipIndexWait: true })` and
+`store.delete(id, { skipIndexWait: true })`. The `invoke-card-operation` tool
+takes it as a `skipIndexWait` input and reports `indexPending` in its result.
 
 ### Batches
 
