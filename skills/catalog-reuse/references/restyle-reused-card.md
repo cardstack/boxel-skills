@@ -13,8 +13,9 @@ Every catalog card the app renders as its own UI must look designed for this app
 3. **Extend it and override the formats it shows in** (`isolated`, `embedded`, `fitted`, `atom`): start here when it is one of the app's own kinds of thing or shows in more than one place; steps 1 and 2 are for an incidental card. Override markup only: render its computeds rather than recomputing them, invoke its existing actions (carry over any button its templates wire to one) rather than reimplementing them, and leave `edit` alone, since it stays schema-driven.
    - Create the app's instances from the subclass. An instance that still adopts the catalog class keeps the stock templates, even when a field is typed as the catalog class.
    - A field typed as the catalog class renders the subclass instance's formats, so the parent never names the subclass.
+   - Judge each format it shows in on its own. A format whose stock layout already fits can stay under the theme; override the others.
 4. **Remix or build new**, only for a model or behaviour mismatch (it would change what most of its fields mean), and name why.
 
-Record it in the disposition: an adopted hit names its route (`adopted, route: theme`, `own markup` or `extended`); a remix or a new build is a refusal that names the mismatch (`refused: <mismatch>, remixed` or `built new`).
+Record it in the disposition: an adopted hit names its route (`adopted, route: theme`, `own markup` or `extended`); a remix or a new build is a refusal that names the mismatch (`refused: <mismatch>, remixed` or `built new`). A component or helper you only import and do not render as the app's own UI (a money formatter) is recorded as plain `adopted`: the route words are only for a card the app shows, so add none (not `import`).
 
 Sample instances need values that pass their field's own validation: a phone number that is not a valid number reads empty.
