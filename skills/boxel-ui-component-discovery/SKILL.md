@@ -38,7 +38,9 @@ has the full replacement table.
   its documented API (step 3 says where that lives for each library). No raw `<button>`, `<input>`,
   `<textarea>`, `<select>`, `<details>`, etc. Visual styling — even
   unconventional aesthetics — is never a reason to drop down to raw
-  HTML. Restyle via the component's documented CSS-variable surface.
+  HTML. Restyle it in the order of
+  [`restyle-component.md`](references/restyle-component.md): theme tokens, documented
+  attributes and CSS variables, then (Pret UI only) a CSS rule of your own.
 - No spec matches → write minimal idiomatic HTML and record the gap
   where your workflow keeps notes (tell the user, or note it on the
   task you are working), so the gap is visible. Don't invent a
@@ -111,6 +113,10 @@ of truth for what's available and what each component is called.
    the contract or API table. Never carry boxel-ui arg names (`@kind`,
    `@as`, `@size='extra-small'`) onto a Pret UI component. Required args must be
    present; defaults are listed for every optional arg.
+
+## A component that does not fit the app's look
+
+The component supplies behaviour and accessibility; the app's theme and Look supply the style. Restyle through its theme tokens, documented attributes and CSS variables, then, for a Pret UI component, a CSS rule of your own, judged from a capture. The steps: [`restyle-component.md`](references/restyle-component.md).
 
 ## Self-audit before finishing
 
