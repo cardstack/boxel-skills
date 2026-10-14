@@ -86,6 +86,13 @@ Each line passes or fails on every capture.
     default (colour, radius, type) beside controls that carry the app's theme, unless the build
     named it as a gap no restyle step reaches
     ([`restyle-component.md`](../../boxel-ui-component-discovery/references/restyle-component.md), step 5).
+13. **Colours come from the theme's tokens.** UI colours use the core tokens, data series use
+    `--chart-1` … `--chart-7` in order
+    ([`theme-token-contract.md`](../../boxel-ui-guidelines/references/theme-token-contract.md)); a mix
+    derived from a token counts as one. `transparent`, `currentColor` and colours that come from the
+    user's data are allowed. Any other hex, rgb or named colour fails: name each with its replacement
+    token, chosen by role (line 5: a chip that is not an action takes a muted or secondary token, not
+    the accent). Two series that look alike fail even when both are tokens.
 
 Fix every failure, re-capture those views, and check them again. Then start the review. The
 reviewer gets the captures and the brief as usual, not this list's results.

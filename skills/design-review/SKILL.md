@@ -64,7 +64,11 @@ finishes, run this loop without being asked, over **everything the build produce
    reads, and load [`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) for a
    `component` gap and [`catalog-reuse`](../catalog-reuse/SKILL.md) for a `catalog` gap, however small
    the fix looks. Fix each gap by its route (*Gap routes*, below). A gap fixed by hand-rolling what
-   the catalog or a component covers is not fixed. Then run the build check again on every view the fix touched, at desktop and phone width: a fix that
+   the catalog or a component covers is not fixed. A `component` route is in scope: swap in the
+   named component, adapting the value in the template and keeping the card's field types. "It is a
+   component change" is never a reason to skip a gap; only a named blocker is (a read-only realm, a
+   Spec that does not load, a component that cannot carry the card's data), and a skipped gap stays
+   open in the re-score. Then run the build check again on every view the fix touched, at desktop and phone width: a fix that
    widens a grid or adds a field often breaks the phone view. Report what changed and what was
    left alone.
 5. **Re-capture and re-score, once.** The automatic loop runs **one fix round**. Skip it only when
@@ -119,20 +123,34 @@ chains into a second round on its own.
 
 ## Gap routes
 
-Every gap in a report names the route its fix takes, so the fix starts from the right skill:
+**Search before you route.** For each gap, run one quick Spec search for what the gap needs ("money
+input", "formatted number", "chart", "legend"): Pret UI first, then the catalog, as
+[`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) searches. One or two terms
+per gap is enough. Then route by what it found:
 
-- **`component`**: a control is missing, dead, hand-rolled or at its library default. Fix it with the
-  component the search in `boxel-ui-component-discovery` returns, restyled through
+- **`component`**: a component does the job, even when adopting it means replacing an input, a chart
+  or a display the card renders now. Fix it with that component, restyled through
   [`restyle-component.md`](../boxel-ui-component-discovery/references/restyle-component.md).
-- **`catalog`**: a reused catalog card looks like another app, or a part the catalog may cover is
-  missing. Search first (`catalog-reuse`). Restyle an adopted card through
+- **`catalog`**: a catalog card or Spec does it, or a reused catalog card looks like another app.
+  Restyle an adopted card through
   [`restyle-reused-card.md`](../catalog-reuse/references/restyle-reused-card.md), never by editing or
   rewriting it, and record `adopted, route: …`; with no match, record the refusal before building.
-- **`local`**: spacing, copy, tokens or layout in markup the card already owns.
+- **`local`**: only when the search found nothing that fits: spacing, copy, layout or a plain bug in
+  markup the card already owns. A local fix takes its values from the theme's tokens, never
+  hand-picked colours or sizes.
 
-If a gap could be `local` or another route, it is the other route. Replacing a hand-built part with a
-catalog card is a proposal to the user, not something a fix round does inside its three gaps. In the
-report a gap reads `G2 · Save does nothing · route: component`.
+Route and reuse are separate. Every gap carries a `reuse:` field naming what the fix reuses: **one**
+component with its Spec (an alternative may follow as a footnote), token names, the restyle-component
+step, or `searched "<terms>": none fits`. If the search found something that fits, the route is not
+`local`. A candidate whose fit is unknown is written `candidate: <name>, fit unchecked: <reason>`, and
+does not change the route. Replacing a hand-built part with a catalog card is a proposal to the user,
+not something a fix round does inside its three gaps.
+
+```
+G1 · Home price shows 1104000 unformatted · route: component · reuse: Pret UI MoneyInput (pretui-money-input)
+G2 · Chart series are two similar greens · route: local · reuse: --chart-1, --chart-2, --chart-3
+     candidate: Pret UI Chart, fit unchecked: this card draws a custom cumulative line chart
+```
 
 ## Capture first: there is no review without it
 
@@ -385,13 +403,13 @@ the first review; for an automatic review, *Build output* above it is the build 
 the builder fixed it, so the first build's own state is on record.
 
 ```
-Build output: 9/12 build-check lines passed (builder fixed: names, phone overflow, dead filter)
+Build output: 10/13 build-check lines passed (builder fixed: names, phone overflow, dead filter)
 
 Scorecard
 | Round | Basics | Direction | Aesthetic | Constraints | Reviewer |
 |---|---|---|---|---|---|
-| 0 | 12/12 | 9/11 | 7.5 | 1 major | independent |
-| 1 | 12/12 | 11/11 | 8.0 | 0 | independent |
+| 0 | 13/13 | 9/11 | 7.5 | 1 major | independent |
+| 1 | 13/13 | 11/11 | 8.0 | 0 | independent |
 
 Changelog
 - R1 · G1 Names cut off in fitted tiles (one template), route: local · title wraps to two lines · landed
