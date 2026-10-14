@@ -66,9 +66,9 @@ finishes, run this loop without being asked, over **everything the build produce
 5. **Re-capture and re-score, once.** The automatic loop runs **one fix round**. Skip it only when
    no build-check line fails, no acceptance line fails (where the brief has them), no Phase 3 blocker
    or major remains, and an independent reviewer scored the unit 9 or more. A provisional score (no
-   independent reviewer) never skips the round: a builder scoring its own work scores it high. Also
-   skip it when a failure traces to the direction itself, and offer "Revisit a decision in the brief"
-   instead; do not loop on it. The re-score's reviewer gets the gap list with one line per gap on
+   independent reviewer) never skips the round: a builder scoring its own work scores it high. When
+   a failure traces to the direction itself, offer "Revisit a decision in the brief" instead of
+   fixing it, and do not loop on it. The re-score's reviewer gets the gap list with one line per gap on
    what changed, so it can say whether each fix landed; it reverses an earlier gap's advice only when
    the fix made things worse, and says so.
 6. **One report at the end**, in the *Output* shape: the scorecard and changelog per round, what is

@@ -76,8 +76,7 @@ each linked CardDef in the formats the screens show it in). This section is that
 The split exists because a model that has just built something scores it high. The reviewer is
 given only the captures, the brief card and the benchmark, and from round 2 the previous round's gap
 list with one line per gap on what changed. Without that list, each fresh reviewer re-judges from
-scratch and can reverse the last one's advice: in one test, round 2 asked for a large hero tile and
-round 4 called the same tile arbitrary. A reviewer reverses an earlier gap only when the fix made
+scratch and can reverse the last one's advice. A reviewer reverses an earlier gap only when the fix made
 things worse, and says so. It reports in the normal `Output` shape.
 Where the harness cannot spawn a subagent, say so, and treat the round's scores as provisional.
 
@@ -105,12 +104,10 @@ build → check → capture → review (independent) → skip gate met? ── y
    what changed and what was left alone.
 5. **One fix round, then the user decides.** The automatic loop fixes once and re-scores, then
    reports every round, saying plainly when the last one made things worse, with "Keep improving:
-   one more round" as a choice. The
-   fix round is skipped only by the gate in `SKILL.md` → *Automatic review after every build*,
-   step 5. Why one round: in terminal test builds the first fix round raised the score by about
-   0.5, and second and third rounds moved it by no more than noise (8.2 → 7.8, 7.5 → 7.8; three
-   fresh reviews of the same captures scored 7.4, 7.5 and 7.6) at 10 to 15 minutes each. This is
-   not yet measured in the Boxel AI assistant.
+   one more round" as a choice. The fix round is skipped only by the gate in `SKILL.md` →
+   *Automatic review after every build*, step 5. One round, because the first fix round raises the
+   score and later rounds move it by about as much as two reviews of the same captures differ. Not
+   measured in the Boxel AI assistant.
 
 ### What the user sees at the end
 

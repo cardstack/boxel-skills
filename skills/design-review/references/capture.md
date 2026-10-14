@@ -33,7 +33,7 @@ the next. Treat a single failed capture as noise, not evidence.
 ## Scroll motion: three captures on the card's own scroller
 
 A unit that moves with scroll ([`card-motion`](../../card-motion/SKILL.md)'s `scrollProgress`) cannot
-be judged from one still, and the capture service only captures at scroll 0. In the MCP browser,
+be judged from one still: a capture shows one scroll position. In a browser,
 scroll the card's own scroller (never the window) to the start, middle and end of the effect, wait
 for the motion to settle, and capture each at viewport size, not full page. Read the three for:
 
