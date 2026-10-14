@@ -38,7 +38,9 @@ has the full replacement table.
   its documented API (step 3 says where that lives for each library). No raw `<button>`, `<input>`,
   `<textarea>`, `<select>`, `<details>`, etc. Visual styling — even
   unconventional aesthetics — is never a reason to drop down to raw
-  HTML. Restyle via the component's documented CSS-variable surface.
+  HTML. Restyle it in the order of
+  [`restyle-component.md`](references/restyle-component.md): theme tokens, documented
+  attributes and CSS variables, then a CSS rule of your own.
 - No spec matches → write minimal idiomatic HTML and record the gap
   where your workflow keeps notes (tell the user, or note it on the
   task you are working), so the gap is visible. Don't invent a
