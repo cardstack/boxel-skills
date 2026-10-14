@@ -3,7 +3,8 @@
 Part of [`design-review`](../SKILL.md). Links are relative to this file.
 
 The builder runs this after the playbook's last stage, as the end of the build and before the first
-review round. Every fault it lists shows in a screenshot: names cut off in fitted tiles, half-empty
+review round. Every fault it lists shows in a screenshot, except two read from the source: line 13
+and line 4a. Names cut off in fitted tiles, half-empty
 tiles, broken phone layouts, placeholder labels too small to read, the accent colour spreading,
 controls too small to hit, a button that does nothing. A builder that never looks at a capture
 leaves them for the review, which then spends its round finding them instead of raising the design.
@@ -12,7 +13,10 @@ The check is pass or fail, never a score. A builder that scores its own work sco
 number here would stand in for the review that follows. Record the tally before fixing (the
 report's *Build output* line), then fix.
 
-For *Scoring existing work*, the reviewer runs the same lines as the report's *Basics* block.
+The source lines (4a, 13) are run by the builder, or for *Scoring existing work* by the main agent,
+which records their results in the report. An independent reviewer runs only the visual lines, from
+captures, and does not need the source lines' results. For
+*Scoring existing work*, together they are the report's *Basics* block.
 
 ## Capture
 
@@ -31,7 +35,10 @@ Capture with `view-visually` in the app or `npx boxel screenshot` from a termina
   can compare them.
 
 Capture fitted views inside the parent that shows them: in the app that is the only way, and from a
-terminal a standalone fitted capture can lose the theme ([`capture.md`](capture.md)).
+terminal a standalone fitted capture can lose the theme ([`capture.md`](capture.md)). In the app,
+`view-visually` cannot capture `fitted` on its own, so check fitted at the one size the parent
+renders, and list its other sizes as `uncaptured: fitted narrow/wide (app)`; line 4b stays open for
+them, never passed. From a terminal, `npx boxel screenshot --format fitted --envelope WxH` covers them.
 
 ## The check
 
@@ -47,10 +54,11 @@ Each line passes or fails on every capture.
    gradient where a photo belongs. A placeholder's label is readable in the panel it fills (a small
    avatar that shares its URL is exempt)
    ([`sample-images.md`](../../boxel-file-def/references/sample-images.md) → *Labelled placeholders*).
-4. **Phone and container queries.** At 390px, no horizontal scroll, no clipped text or controls. Every `@container`
-   query has a container: a fitted view's comes from the host, any other needs `container-type`
-   declared on an element inside the template. A query with no container never fires and leaves
-   the desktop layout in place. Each format's narrow and wide captures differ where its layout is
+4. **Phone and container queries.** At 390px, no horizontal scroll, no clipped text or controls.
+   **4a (source):** every `@container` query has a container: a fitted view's comes from the host,
+   any other needs `container-type` declared on an element inside the template. A query with no
+   container never fires and leaves the desktop layout in place. **4b (visual):** each format's
+   narrow and wide captures differ where its layout is
    meant to change: identical captures, or a two-column layout that overflows instead of stacking,
    mean the query is not firing and fail this line.
 5. **Colour roles.** The accent appears only on the main action, the current selection and the

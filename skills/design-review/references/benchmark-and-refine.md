@@ -4,7 +4,7 @@ Part of [`design-review`](../SKILL.md). Links are relative to this file.
 
 Two additions to a normal review. The **benchmark** gives the 8.5 gate an outside reference, so the
 number stops being the model's feeling. **Refine mode** is the loop that builds, captures, scores
-and fixes until the unit passes, without the user steering each round.
+and fixes: one round runs on its own, and each further round runs when the user picks it.
 
 ## The benchmark
 
@@ -71,7 +71,7 @@ each linked CardDef in the formats the screens show it in). This section is that
 | Role | Does | Must not |
 |---|---|---|
 | **Builder** (the main agent) | builds the first screen from the brief card; applies fixes each round | score its own work |
-| **Reviewer** (a separate subagent, fresh context each round) | captures, runs the benchmark, ticks the acceptance lines, scores, names the gaps; from round 2, says whether each earlier gap's fix landed | read the source, or see the builder's reasoning |
+| **Reviewer** (a separate subagent, fresh context each round) | captures, runs the benchmark, ticks the acceptance lines and the build check's visual lines, scores, names the gaps; gets the names of the gaps the build left open; from round 2, says whether each earlier gap's fix landed | read the source, see the builder's reasoning, or route the gaps (the main agent does) |
 
 The split exists because a model that has just built something scores it high. The reviewer is
 given only the captures, the brief card and the benchmark, and from round 2 the previous round's gap

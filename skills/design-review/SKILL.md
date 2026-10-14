@@ -3,6 +3,11 @@ name: design-review
 description: Score a built Boxel screen, card or whole app against its brief and an aesthetic bar, from captures. Runs automatically after every build of an app, card family or user-facing card (one review and one fix round, then a choice). Also use it when someone points at a card or app they already have and wants it reviewed or scored; it reports first and edits nothing until they choose a fix. And use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists.
 boxel:
   kind: skill
+  tools:
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/search-entries'
+        name: default
+      requiresApproval: false
 ---
 
 # Design Review
@@ -76,7 +81,9 @@ finishes, run this loop without being asked, over **everything the build produce
    or major remains, and an independent reviewer scored the unit 9 or more. A provisional score (no
    independent reviewer) never skips the round: a builder scoring its own work scores it high. When
    a failure traces to the direction itself, offer "Revisit a decision in the brief" instead of
-   fixing it, and do not loop on it. The re-score's reviewer gets the gap list with one line per gap on
+   fixing it, and do not loop on it. If the gap list is empty, there is no fix round: say so, say whether the
+   unit cleared the 8.5 gate, say when the scores are provisional, and go to the choice.
+   The re-score's reviewer gets the gap list with one line per gap on
    what changed, so it can say whether each fix landed; it reverses an earlier gap's advice only when
    the fix made things worse, and says so.
 6. **One report at the end**, in the *Output* shape: the scorecard and changelog per round, what is
@@ -87,7 +94,10 @@ finishes, run this loop without being asked, over **everything the build produce
 A rebuild made by this loop's own fix round does not start a new automatic review.
 
 When an independent reviewer is available (a subagent with a fresh context), it scores the captures
-each round; the builder still runs the build check and applies the fixes. Otherwise mark the round's
+each round and names the gaps from them; the main agent runs the build check's source lines, routes
+each gap (*Gap routes*) and applies the fixes. The reviewer also gets the names of the gaps the build
+left open (the *Build output* line), without the builder's reasoning, and does not score a listed
+gap down again. Otherwise mark the round's
 scores provisional. Skip the loop only for a utility card with no user-facing surface, and say so in
 one line.
 
@@ -130,8 +140,10 @@ chains into a second round on its own.
 
 **Search before you route.** For each gap, run one quick Spec search for what the gap needs ("money
 input", "formatted number", "chart", "legend"): Pret UI first, then the catalog, as
-[`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) searches. One or two terms
-per gap is enough. Then route by what it found:
+[`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) → *Procedure* searches,
+with the `search-entries` tool this skill declares. One or two terms per gap is enough. If the search
+cannot run, write `reuse: not searched: <reason>`; never fill `reuse:` from memory. Then route by what
+it found:
 
 - **`component`**: a component does the job, even when adopting it means replacing an input, a chart
   or a display the card renders now. Fix it with that component, restyled through
@@ -172,7 +184,7 @@ base CSS ([`template-patterns.md`](../boxel-ui-guidelines/references/template-pa
 *Entrance animations — never put `opacity: 0` in base CSS*), so a section left empty after loading is
 a fault. A card still loading can paint one, so re-capture a blank region once, then report it.
 
-Read `references/capture.md` for which tool captures which view, the batch and time budgets, where
+Read `references/capture.md` for which tool captures which view, the capture budget, where
 captures go, and the flakiness rules.
 
 ## Phase 1 — The direction gate (only when the brief has one)
@@ -235,8 +247,10 @@ Score and name the specific thing behind each number:
   poster, a listing photo, a dish, a profile photo) that ships as a gradient, a lone glyph or initials
   is a finding: the first build fills it, at least with a labelled placeholder, which passes this row
   (*Honest gaps*, above).
-- **Detail** — the editorial micro-objects that signal care: an eyebrow with a rule, a stat slab
-  bounded by lines rather than boxed, a fold cue. Two or three, not all of them.
+- **Detail** — the small touches that signal care, judged against the build's own look and brief:
+  does each one read as chosen for this unit, and do two or three carry the whole page rather than
+  every element being decorated? Name no treatment to add; a look that is plain by intent is not
+  short of detail, and a treatment borrowed from another look is a finding, not a gap to fill.
 - **Motion** — score it only when the build animates; a still page is not marked down for being
   still. Motion follows [`card-motion`](../card-motion/SKILL.md): the smallest pattern for the job,
   names scoped by card id, nothing missing with motion off. Spatial motion with character reads as
@@ -307,14 +321,15 @@ colour that reads *and* belongs, not by reverting to grey.
 
 `design-review set <unit>` reviews the whole app.
 
-1. Capture every screen in one pass, **plus the `embedded` view of every CardDef the screens link
-   to**: those render inside the screens, so they are set surfaces.
+1. Capture every screen in one pass, **plus every CardDef the screens link to, in each format the
+   screens show it in** (`embedded` in lists, `fitted` in Home tiles): those render inside the
+   screens, so they are set surfaces. This is the formats shown, not the full family (*Card mode*).
 2. Tick the **set acceptance lines** from `## Design direction` across all captures, where it has
    them, then each screen's own.
 3. Score coherence as its own dimension, looking across screens **and the linked cards' embedded
-   views, which are part of the set**: one display face; the accent in the same role and nowhere
-   else; one eyebrow treatment; the same way for the same kind of action; one empty-state voice;
-   consistent spacing rhythm between groups. An embedded card that does not look like it belongs to
+   and fitted views, which are part of the set**: one display face; the accent in the same role and nowhere
+   else; one treatment for section labels, whatever it is; the same way for the same kind of action; one empty-state voice;
+   consistent spacing rhythm between groups. A linked card that does not look like it belongs to
    the app it appears in is a set failure, not a card failure.
 4. Report one table for the set, then per-screen failures. Iterate the failing screens only.
 
@@ -417,9 +432,9 @@ Scorecard
 | 1 | 13/13 | 11/11 | 8.0 | 0 | independent |
 
 Changelog
-- R1 · G1 Names cut off in fitted tiles (one template), route: local · title wraps to two lines · landed
-- R1 · G2 Accent on prices · prices in ink colour · landed
-- R1 · G3 Hero and grid at equal weight · ambassador tile double width · partial: the phone view stacks it back
+- R1 · G1 Names cut off in fitted tiles (one template) · route: local · reuse: searched "tile title": none fits · title wraps to two lines · landed
+- R1 · G2 Accent on prices · route: local · reuse: --foreground · prices in ink colour · landed
+- R1 · G3 Hero and grid at equal weight · route: local · reuse: searched "bento grid": none fits · ambassador tile double width · partial: the phone view stacks it back
 Left alone: everything else.
 
 Design direction: 11/11 acceptance lines

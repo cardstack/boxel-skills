@@ -30,6 +30,16 @@ cause is an entrance whose resting state is hidden, the fix is the resting state
 The same flakiness applies to targeted captures: the same selector can match on one run and miss on
 the next. Treat a single failed capture as noise, not evidence.
 
+## Budget
+
+In the app, `view-visually` captures one view per call. Inside a `run-realm-code` script,
+`realm.capture` allows at most three captures per run, within the run's 55 seconds
+([`source-code-editing`](../../source-code-editing/SKILL.md)); spread the rest over further calls or
+runs rather than dropping any. Capture in this order: Home at desktop and phone, each card's
+isolated view, then the embedded and fitted views. Any view not captured is listed under
+`uncaptured:` in the report with the reason, and every check that depends on it stays open, never
+passed.
+
 ## Scroll motion: three captures on the card's own scroller
 
 A unit that moves with scroll ([`card-motion`](../../card-motion/SKILL.md)'s `scrollProgress`) cannot
