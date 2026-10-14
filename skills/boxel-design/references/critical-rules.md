@@ -74,19 +74,22 @@ them.
 
 In the first build, every control the design draws (a button, a row with a chevron or hover cue, a
 tab, a filter) works the cheapest way the host already offers, or it is not drawn. The one
-exception is an outside main action with no URL, below.
+exception is an outside main action with no URL, below. A button is Pret UI's `Button`
+(`@cardstack/pretui/components/button`; `IconButton` for an icon-only one), not a raw `<button>`.
 
 - **Linked card**: `<@fields.x />`; the host opens it.
 - **A link the user gave** (`tel:`, `mailto:`, URL): `<a href>`. Never invent one.
 - **Open or edit a record**: `this.args.viewCard?.(card, 'isolated', { openCardInRightMostStack: true })`,
-  or `'edit'` for the host's edit view as the form. Draw the row as clickable only when `@viewCard`
+  or `'edit'` to open the host's edit view in a new stack item as the form. Draw the row as clickable only when `@viewCard`
   is there; otherwise plain text, no chevron or hover cue.
 - **Tabs, filters, "Show all"**: a `@tracked` value over rows already on screen.
 
 **Main action.** When the brief or design has one:
 - If it creates or changes cards in this realm, it is an `@operation` invoked through
-  `operations()`, gated with `@context.canInvoke`
-  ([`card-operations-authoring`](../../card-operations-authoring/SKILL.md)). It is the only
+  `operations()`. Hide its control only when the realm says no:
+  `this.args.context?.canInvoke?.('<operation>', this.args.model) === false`; `undefined` means no
+  answer yet, so the control stays
+  ([`card-operations-authoring`](../../card-operations-authoring/SKILL.md) → *Asking first*). It is the only
   `@operation` in the first build; other writes wait.
 - If its target is outside the app, link the URL the user gave. With none, draw it disabled in its
   final style with a marked slot beside it, per *Never invent proof*. Never hide it, open a dialog
