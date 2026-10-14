@@ -15,6 +15,6 @@ Every catalog card the app renders as its own UI must look designed for this app
    - A field typed as the catalog class renders the subclass instance's formats, so the parent never names the subclass.
 4. **Remix or build new**, only for a model or behaviour mismatch (it would change what most of its fields mean), and name why.
 
-Record the route in the disposition: `theme`, `own markup`, `extended`, `remixed` or `built new` (with the reason), or the refusal.
+Record it in the disposition: an adopted hit names its route (`adopted, route: theme`, `own markup` or `extended`); a remix or a new build is a refusal that names the mismatch (`refused: <mismatch>, remixed` or `built new`).
 
 Sample instances need values that pass their field's own validation: a phone number that is not a valid number reads empty.

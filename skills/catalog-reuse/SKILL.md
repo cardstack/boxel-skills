@@ -246,8 +246,9 @@ naming why the hit itself could not be linked, installed, or copied.
   computeds and operations, not necessarily its stock look. A card the app renders as its own
   UI must look designed for this app: take the lowest step that works, judged
   from a capture (theme, own markup, extend and override its formats, then remix
-  or build new on a model mismatch). Record the route in the disposition
-  (`theme`, `own markup`, `extended`, `remixed` or `built new` with the reason, or the refusal). The steps and their traps:
+  or build new on a model mismatch). Record it in the disposition as
+  `adopted, route: theme`, `own markup` or `extended`; a remix or a new build is a
+  refusal naming the mismatch. The steps and their traps:
   [`restyle-reused-card.md`](references/restyle-reused-card.md).
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
