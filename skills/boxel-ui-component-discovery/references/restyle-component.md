@@ -11,5 +11,3 @@ A component brings behaviour and accessibility. The app's look comes from the th
 5. **Hand-roll it** only when nothing above fits, and name the gap.
 
 Restyling never removes the focus ring, a 44px hit area or readable contrast; check those in the capture.
-
-Reusing a catalog card is a different job with its own steps: [`catalog-reuse`](../../catalog-reuse/references/restyle-reused-card.md).

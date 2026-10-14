@@ -18,5 +18,3 @@ Every catalog card the app renders as its own UI must look designed for this app
 4. **Remix or build new**, only for a model or behaviour mismatch (it would change what most of its fields mean), and name why.
 
 Record the route in the disposition: `theme`, `own markup`, `extended`, or the refusal.
-
-Restyling a Pret UI or boxel-ui component is a different job with its own steps: [`boxel-ui-component-discovery`](../../boxel-ui-component-discovery/references/restyle-component.md).
