@@ -69,7 +69,7 @@ await realm.fs.writeText(
 );
 ```
 
-**A finished design build gets reviewed, and so does existing work on request.** After a build of an app, a card family or a user-facing card, run [`skills/design-review/SKILL.md`](skills/design-review/SKILL.md) without being asked: one review and one fix round, then the next step as a choice. When the user points at a card or app that already exists and asks how it looks, whether it is good enough, or wants it scored, run `design-review` on it: it captures, scores and reports, then asks before editing anything.
+**A finished design build gets reviewed, and so does existing work on request.** After a build of an app, a card family or a user-facing card, run [`skills/design-review/SKILL.md`](skills/design-review/SKILL.md) without being asked: one review and one fix round, then the next step as a choice. When the user points at a card or app that already exists and asks how it looks, whether it is good enough, or wants it scored, run `design-review` on it: it captures, scores and reports, then asks before editing anything. A fix after a review is a write like any other: it takes the reads above before it writes, however small it looks.
 
 **Reports go in Rich Markdown, not a new card.** When a task asks for a report, summary, briefing, or dashboard-style document, read [`skills/rich-markdown-reports/SKILL.md`](skills/rich-markdown-reports/SKILL.md) before deciding how to build it — the default is a Rich Markdown `.md` file that embeds existing cards (custom or off-the-shelf), not a bespoke card definition authored just to present the report.
 

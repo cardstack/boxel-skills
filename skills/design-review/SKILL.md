@@ -59,8 +59,12 @@ finishes, run this loop without being asked, over **everything the build produce
    exists for this unit; the automatic round never fetches a new one, and without one it says the
    scores are unanchored.
 4. **Fix the top gaps only**, at most three per round, on the failing screens or cards alone. A gap
-   is a cause, not an instance: names cut off in six fitted tiles by one template is one gap. Then
-   run the build check again on every view the fix touched, at desktop and phone width: a fix that
+   is a cause, not an instance: names cut off in six fitted tiles by one template is one gap.
+   Scoring is read-only; **a fix is a build.** Before the first write, take the `index.md` pre-flight
+   reads, and load [`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) for a
+   `component` gap and [`catalog-reuse`](../catalog-reuse/SKILL.md) for a `catalog` gap, however small
+   the fix looks. Fix each gap by its route (*Gap routes*, below). A gap fixed by hand-rolling what
+   the catalog or a component covers is not fixed. Then run the build check again on every view the fix touched, at desktop and phone width: a fix that
    widens a grid or adds a field often breaks the phone view. Report what changed and what was
    left alone.
 5. **Re-capture and re-score, once.** The automatic loop runs **one fix round**. Skip it only when
@@ -108,12 +112,27 @@ fixed yet.
    - and room for the user to name something else.
 
    When the user cannot write to the realm the unit lives in (a catalog card, someone else's
-   workspace), offer only "Also review the linked cards" and "Stop here, change nothing", and say why. A reused catalog
-   card is restyled the way [`catalog-reuse`](../catalog-reuse/SKILL.md) → *Reuse the model, own the
-   look* says.
+   workspace), offer only "Also review the linked cards" and "Stop here, change nothing", and say why.
 
-A fix runs one round exactly as the automatic loop's steps 4 to 6 do. It never chains into a second
-round on its own.
+A fix runs one round exactly as the automatic loop's steps 4 to 6 do, each gap by its route. It never
+chains into a second round on its own.
+
+## Gap routes
+
+Every gap in a report names the route its fix takes, so the fix starts from the right skill:
+
+- **`component`**: a control is missing, dead, hand-rolled or at its library default. Fix it with the
+  component the search in `boxel-ui-component-discovery` returns, restyled through
+  [`restyle-component.md`](../boxel-ui-component-discovery/references/restyle-component.md).
+- **`catalog`**: a reused catalog card looks like another app, or a part the catalog may cover is
+  missing. Search first (`catalog-reuse`). Restyle an adopted card through
+  [`restyle-reused-card.md`](../catalog-reuse/references/restyle-reused-card.md), never by editing or
+  rewriting it, and record `adopted, route: …`; with no match, record the refusal before building.
+- **`local`**: spacing, copy, tokens or layout in markup the card already owns.
+
+If a gap could be `local` or another route, it is the other route. Replacing a hand-built part with a
+catalog card is a proposal to the user, not something a fix round does inside its three gaps. In the
+report a gap reads `G2 · Save does nothing · route: component`.
 
 ## Capture first: there is no review without it
 
@@ -375,7 +394,7 @@ Scorecard
 | 1 | 12/12 | 11/11 | 8.0 | 0 | independent |
 
 Changelog
-- R1 · G1 Names cut off in fitted tiles (one template) · title wraps to two lines · landed
+- R1 · G1 Names cut off in fitted tiles (one template), route: local · title wraps to two lines · landed
 - R1 · G2 Accent on prices · prices in ink colour · landed
 - R1 · G3 Hero and grid at equal weight · ambassador tile double width · partial: the phone view stacks it back
 Left alone: everything else.
@@ -391,8 +410,8 @@ The one thing between here and the bar: one tile that dominates at phone width t
 
 *Basics* is the build check's tally at the time of the review (after the builder's check, what it
 could not fix; for existing work, the first look). *Reviewer* says `independent` or `provisional`. Gap ids (G1, G2,
-…) stay the same across rounds, so a gap that comes back is visible. A changelog line is round · gap ·
-what changed · landed, partial or made worse.
+…) stay the same across rounds, so a gap that comes back is visible, and each names its route (*Gap
+routes*). A changelog line is round · gap · what changed · landed, partial or made worse.
 
 ## Pair with
 
@@ -409,6 +428,8 @@ Read these live on each run. Links are relative to this skill's folder.
 | How a build animates, when it does | `card-motion` |
 | Whether an isolated view needed the full viewport | `boxel/references/prefers-wide-format.md` |
 | Restyling a reused card or a component | `catalog-reuse/references/restyle-reused-card.md`, `boxel-ui-component-discovery/references/restyle-component.md` |
+| Required before fixing a `catalog` gap | `catalog-reuse` |
+| Required before fixing a `component` gap | `boxel-ui-component-discovery` |
 
 ## Don't use for
 

@@ -90,6 +90,7 @@ Each line passes or fails on every capture.
 Fix every failure, re-capture those views, and check them again. Then start the review. The
 reviewer gets the captures and the brief as usual, not this list's results.
 
-Run it again after each review round's fixes, on every view a fix touched, at both widths: a fix
+Run it again after each review round's fixes, on every view a fix touched, at both widths, with
+*Clickable* and *Components take the app's look* checked on every changed part: a fix
 that sets a three-column grid with a wide minimum can push the phone view off the screen, and the
 next round then scores lower for it.
