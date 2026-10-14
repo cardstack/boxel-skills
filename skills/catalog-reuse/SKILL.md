@@ -242,32 +242,13 @@ naming why the hit itself could not be linked, installed, or copied.
   reference and restyle. When the user wants their own bundle, install rather
   than re-type, and remix when they will change its schema. `catalog-listing`
   has the mechanics.
-- **Reuse the model, own the look.** Adopting a catalog card commits the build to
-  its fields, computeds and operations, not to its presentation. Every catalog
-  card the app renders as its own UI must look designed for this app; a data-only
-  card or a field needs no route, since its parent styles it. Theme and own markup
-  apply only under their stated conditions; otherwise extend. Routes:
-  1. **The theme**, only when the stock template already has the right structure
-     and visibly picks up the app's theme in a capture you took. A theme fixes
-     colour and type, never a layout from another domain (a CRM row on a bakery's
-     Home).
-  2. **Its fields in your own markup**, for one placement inside one parent:
-     keep the link, read `@model.<field>` and its computeds in the parent's
-     template, never recompute them. For a linked, compound or formatted field,
-     render it through its field component instead.
-  3. **Extend it and override the formats it shows in** (`isolated`, `embedded`,
-     `fitted`, `atom`): the default when it is one of the app's own kinds of
-     thing or shows in more than one place. Create the app's instances from the
-     subclass; an instance that still adopts the catalog class keeps its stock
-     templates. Override markup only: render its computeds, invoke its existing
-     actions (carry over any button its templates wire to one) rather than
-     reimplementing them, and leave `edit` alone, since it stays schema-driven.
-  4. **Remix or build new** only for a model or behaviour mismatch (it would
-     change what most of its fields mean), and name why.
-
-  Record the route in the disposition (`theme`, `own markup`, `extended`, or the
-  refusal). In a test build, a reused CRM Account row
-  shown through its stock template made a bakery's Home look like two apps.
+- **Reuse the model, own the look.** A reused catalog card keeps its fields,
+  computeds and operations, not its stock look. A card the app renders as its own
+  UI must look designed for this app: take the lowest step that works, judged
+  from a capture (theme, own markup, extend and override its formats, then remix
+  or build new on a model mismatch). Record the route in the disposition
+  (`theme`, `own markup`, `extended`, or the refusal). The steps and their traps:
+  [`restyle-consumed-ui.md`](../boxel-ui-guidelines/references/restyle-consumed-ui.md).
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.
