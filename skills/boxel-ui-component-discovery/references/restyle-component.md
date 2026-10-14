@@ -10,4 +10,9 @@ A component brings behaviour and accessibility. The app's look comes from the th
 4. **Wrap or compose it**, keeping its behaviour and accessibility.
 5. **Hand-roll it** only when nothing above fits, and name the gap.
 
-A default `Button` is under 44px tall; raise `--pretui-button-h` when the hit area matters. Check the focus ring, the hit area and contrast in the capture.
+What a capture of the `Button` showed:
+
+- `--primary` and `--primary-foreground` set the default (`accent`) button; `--pretui-button-bg` and `--pretui-button-fg` on one button override just that button.
+- The other tones (`success`, `danger`, `info`) keep the library's colours unless the theme sets their tokens, so a playful theme that only sets `--primary` leaves a stock-green `success` button.
+- A default `Button` is about 28px tall, under 44px; raise `--pretui-button-h` when the hit area matters. The focus ring stayed visible on a restyled button.
+- A theme can pair colours that fail contrast (white on `#ff4d6d` is 3.2:1, below 4.5:1); the component does not fix that. Check contrast in the capture.
