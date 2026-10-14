@@ -242,17 +242,17 @@ naming why the hit itself could not be linked, installed, or copied.
   reference and restyle. When the user wants their own bundle, install rather
   than re-type, and remix when they will change its schema. `catalog-listing`
   has the mechanics.
-- **Reuse the model, own the look.** A reused catalog card keeps its fields,
-  computeds and operations, not necessarily its stock look. A card the app renders as its own
-  UI must look designed for this app: take the lowest step that works, judged
-  from a capture (theme, own markup, extend and override its formats, then remix
-  or build new on a model mismatch). Record it in the disposition as
-  `adopted, route: theme`, `own markup` or `extended`; a remix or a new build is a
-  refusal naming the mismatch. The steps and their traps:
-  [`restyle-reused-card.md`](references/restyle-reused-card.md).
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.
+- **Reuse the model, own the look.** A reused catalog card keeps its fields,
+  computeds and operations, not necessarily its stock look. A card the app renders as its own
+  UI must look designed for this app: take the lowest step that works, judged
+  from a capture (theme, own markup, extend and override its formats, then build
+  new on a model mismatch, remixing only a copy the user asked to own). Record it
+  in the disposition as `adopted, route: theme`, `own markup` or `extended`; a new
+  build is a refusal naming the mismatch. The steps and their traps:
+  [`restyle-reused-card.md`](references/restyle-reused-card.md).
 - **Base-realm imports are the baseline, not the target.** Importing from the
   base realm and `@cardstack/boxel-ui` is what every card already does. This
   skill is about what you add on top.
