@@ -339,7 +339,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **Realm-server** — `get-all-realm-metas`, `get-available-realm-urls`, `get-default-writable-realm`, `get-catalog-realm-urls`, `get-realm-of-url`, `can-read-realm`, `validate-realm`, `sanitize-module-list`. Indexing in the app is `realm.index` in a `run-realm-code` script (below); `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job` and `invalidate-realm-identifiers` remain only for card code and `npx boxel run-command`.
 - **Indexing** — `realm.index.invalidate(paths)`, `realm.index.reindex()`, `realm.index.fullReindex()`, `realm.index.cancelJob()` in a `run-realm-code` script; the last two wait for the user's click. → `boxel-environment/references/indexing-operations.md`, `source-code-editing`
 - **UI / navigation** — `switch-submode`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`, `delete-workspace`.
-- **Seeing** — `view-visually` (capture a card or workspace file as an image attached to the tool result, so the assistant sees it; `realm.capture(path)` is the same from inside a `run-realm-code` script). → `boxel-environment/references/host-commands-reference.md` § Seeing
+- **Seeing** — `view-visually` (capture a card or workspace file as an image attached to the tool result, so the assistant sees it; the assistant uses `realm.capture(target)` inside a `run-realm-code` script). → `boxel-environment/references/host-commands-reference.md` § Seeing
 - **Store** — `store-add`.
 - **Media** — `realm.images.generate` in a `run-realm-code` script (make an AI image and save it in the realm; → `source-code-editing`, `boxel-file-def/references/sample-images.md`), `download-file-to-realm`. → `boxel-environment/references/host-commands-reference.md`
 - **Catalog** — `listing-create`, `listing-install`, `listing-remix`, `listing-use`, `listing-generate-example`, `listing-update-specs`, `create-and-open-submission-workflow-card`, `retry-submission-workflow`, `execute-atomic-operations`.
@@ -456,7 +456,7 @@ In rough priority order:
 - **Delegated render** — `<@fields.X />` injects host CardContainer chrome; override via `:deep()`, theme cascade, or `@displayContainer={{false}}`. → `boxel-ui-guidelines/references/delegated-render-control.md`
 - **Read before writing.** Fetch a file’s current contents before calling `realm.fs.replace`.
 - **the `run-realm-code` tool for file creation and edits** — every source file, `.gts`, `.json`, `.md` and `README` alike.
-- **Look at what you make.** `view-visually` (or `realm.capture` in the script) after any visual change, and before describing visual context.
+- **Look at what you make.** `realm.capture` in the `run-realm-code` script after any visual change, and before describing visual context.
 - **One CardDef per file.** FieldDefs and helpers can co-locate.
 - **Three formats minimum.** Every CardDef ships `isolated`, `embedded`, AND `fitted`.
 

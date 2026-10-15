@@ -54,7 +54,7 @@ finishes, run this loop without being asked, over **everything the build produce
    The builder captures its own work, records how many lines pass as the round's *Build output*,
    then fixes every failing line. This is part of finishing the build, not a review round, and it
    gives no score.
-2. **Capture the whole unit** (`view-visually` in the app, from host-commands-reference → *Seeing*;
+2. **Capture the whole unit** (`realm.capture` in a `run-realm-code` script in the app, from host-commands-reference → *Seeing*;
    `npx boxel screenshot` from a terminal; see [`references/capture.md`](references/capture.md)):
    `set` mode across every screen, and each CardDef the build produced or the screens link to, in
    the formats the screens show it in. The full five-format family is `card` mode, on request. A
@@ -111,7 +111,7 @@ fixed yet.
    and open the report with one line: "Reviewed without a brief: judged against what the screens
    show, <primary user> doing <main action>." Read both from the UI; if you cannot name them, that is
    a finding. Do not create a brief.
-3. **Capture** (`view-visually` in the app, `npx boxel screenshot` from a terminal;
+3. **Capture** (`realm.capture` in a `run-realm-code` script in the app, `npx boxel screenshot` from a terminal;
    [`references/capture.md`](references/capture.md)).
 4. **Score.** Run Phases 2 and 3, and the lines of [`references/build-check.md`](references/build-check.md)
    as a pass/fail *Basics* block, since no builder ran them. *Reviewing work in progress* does not

@@ -8,13 +8,13 @@ You cannot judge a design from CSS. Capture before scoring, and stop if you cann
 
 | View | Tool | Notes |
 |---|---|---|
-| isolated, embedded, **in the Boxel app** | `view-visually` ([`host-commands-reference.md`](../../boxel-environment/references/host-commands-reference.md) → *Seeing*), or `realm.capture(path)` inside a `run-realm-code` script | the default in the app; capture as often as you need. It cannot capture `fitted`: capture the parent that renders the fitted cards (Home, an isolated or embedded view). `atom` and `edit` cannot be captured in the app; list them as uncaptured |
+| isolated, embedded, **in the Boxel app** | `realm.capture(target)` inside a `run-realm-code` script ([`host-commands-reference.md`](../../boxel-environment/references/host-commands-reference.md) → *Seeing*) | the default in the app; capture as often as you need. It cannot capture `fitted`: capture the parent that renders the fitted cards (Home, an isolated or embedded view). `atom` and `edit` cannot be captured in the app; list them as uncaptured |
 | isolated, embedded, fitted, **from a terminal** (Claude Code or any session without the host tools) | boxel CLI: `npx boxel screenshot <card-url> --format isolated --full-page --out <scratch>`; `--format embedded`; `--format fitted --envelope 400x300` (fitted needs an envelope) | one card and format per call, or a `--spec` batch file; it retries while the server is busy. Use the card instance URL, never the `.json` file. `--full-page` grows the frame only when the page scrolls; an isolated card that scrolls inside its own root stays at the viewport height, so give it a taller `--viewport` (`800x2000`) to see all of it. A `fitted` capture on its own can come back without the card's theme (light ground, default fonts) even when the card links one; capture it inside its parent (the Home) before reporting it as unthemed |
 | isolated with tabs, atom, edit, **from a terminal** | a browser driven by the session (chrome-devtools), where one is available | the CLI cannot click a tab or capture atom and edit. One shot each; click tabs in turn |
 
 **Missing host tools is never a reason to skip the review.** From a terminal, the boxel CLI is the
 capture tool: run it for every view the review needs, then read the image files it writes. In the
-Boxel app, `view-visually` is the capture tool. Where a view cannot be captured (fitted on its own,
+Boxel app, `realm.capture` in a `run-realm-code` script is the capture tool. Where a view cannot be captured (fitted on its own,
 atom and edit in the app; a browser that is unavailable from a terminal), do not block: review what
 was captured and list the uncaptured views by name. From a terminal, write captures to the session
 scratch folder and delete them after scoring; none belong in the realm or the repo.
@@ -32,8 +32,7 @@ the next. Treat a single failed capture as noise, not evidence.
 
 ## Budget
 
-In the app, `view-visually` captures one view per call. Inside a `run-realm-code` script,
-`realm.capture` allows at most three captures per run, within the run's 55 seconds
+In the app, `realm.capture` in a `run-realm-code` script allows at most three captures per run, within the run's 55 seconds
 ([`source-code-editing`](../../source-code-editing/SKILL.md)); spread the rest over further calls or
 runs rather than dropping any. Capture in this order: Home at desktop and phone, each card's
 isolated view, then the embedded and fitted views. Any view not captured is listed under
