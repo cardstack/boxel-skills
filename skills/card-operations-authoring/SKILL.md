@@ -218,9 +218,10 @@ up to the last `/` before the first `{name}` segment (or the path's last `/`
 when it has none), written the way the URL parser writes it — host
 lower-cased, default port dropped, `..` resolved. `url:
 'https://api.github.com/repos/{owner}/{repo}/issues'` goes to
-`https://api.github.com/repos/`, and that is the destination an approval
-screen shows. Put the fixed part of the path before the first `{name}` so the
-destination says as much as it can about where the request goes.
+`https://api.github.com/repos/`. Every request the operation builds must stay
+under its destination, so put the fixed part of the path before the first
+`{name}`: the destination then says as much as it can about where the request
+goes.
 
 **The answer is the vendor's response, whatever its status.** A 404 or a 500
 from the API comes back as `{status, headers, body}` for the card to read, not
@@ -1278,7 +1279,7 @@ try {
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
 | `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
-| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, too many redirects, or a request outside its declared destination — nothing was sent |
+| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or a request outside its declared destination (nothing was sent); or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
 | `response-too-large`       | The outside service's response was larger than the realm server carries |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
