@@ -427,7 +427,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`ember-best-practices`** — Ember.js performance + accessibility rules, 59 `rules/*.md` files across 10 prefix-keyed categories, indexed in its SKILL.md.
 - **`domain-interview`** — Interviews the user and writes a brief (primer, schema, coverage matrix, per-screen content contracts, flows, sample data) into the `spec` field of a catalog `Brief` card (`@cardstack/catalog/cards/projects/brief`, at `Brief/<slug>.json`), with no design decisions. Sizes the interview from the answers (Quick / Standard / Deep), and keeps every question and answer in the brief's Interview record.
 - **`catalog-listing`** — Catalog operations + submission via `SubmissionWorkflowCard`.
-- **`source-code-editing`** — Canonical realm runner edit transport.
+- **`source-code-editing`** — Canonical realm runner edit transport. The `run-realm-code` tool and its `realm.fs` API: `readText`, `list`, `exists`, `replace` (existing file), `writeText` / `writeBytes` (new file), `delete` (only a file that the same run created), plus `realm.cards.get` and `realm.capture`.
 
 ## 23. Cardinal rules / conventions
 
