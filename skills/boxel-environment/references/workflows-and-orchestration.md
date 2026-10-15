@@ -26,7 +26,7 @@
 ```json
 `run-realm-code` that returns `(await realm.cards.search(query)).cards`, with a query that includes a filter
 → Prompt "detect relationship patterns"
-→ `run-realm-code` that loops over `realm.cards.search(query)` and calls `realm.cards.update(card.path, attributes)` for each card
+→ One `run-realm-code` script that searches again and edits each card's `.json` links with `realm.fs.replace` (at most 20 files per run; split above that). `realm.cards.update` changes attributes only, not links.
 ```
 
 ### 5. Context-Aware Migration
@@ -59,7 +59,7 @@ One `run-realm-code` script that finds the cards with `realm.cards.search(query)
 ```json
 → Emit a code patch `run-realm-code` tool call
 ```
-2. In a second `run-realm-code` script, find the instances with `realm.cards.search` and move the data with `realm.cards.update` (see `source-code-editing`). The script computes each card's new attributes from `card.attributes`.
+2. In a second `run-realm-code` script, find the instances with `realm.cards.search` and move the data with `realm.cards.update` (see `source-code-editing`). The script computes each card's new attributes from `card.attributes`. A renamed or removed field needs `realm.fs.replace` on the `.json`, because `realm.cards.update` cannot remove a key.
 
 ### Multi-Realm Operations
 ```json
