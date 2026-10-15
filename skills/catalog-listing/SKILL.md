@@ -67,6 +67,20 @@ For "use", "install" and "remix", use the following inputs to run the command:
 - Realm URL: [user input]
 - Listing: [user input]
 
+Run the listing commands from a `run-realm-code` script with `realm.commands.run` (see `source-code-editing`), not as separate tool calls. The `tools` list of this skill is the list of commands that a script can run. For example, to install a listing:
+
+```js
+return await realm.commands.run(
+  { module: '@cardstack/catalog/commands/listing-install', name: 'default' },
+  {
+    attributes: { realm: '<realm URL>' },
+    relationships: { listing: { links: { self: '<listing URL>' } } },
+  },
+);
+```
+
+`listing-use` and `listing-remix` take the same input. `listing-create` takes `{ attributes: { codeRef: { module, name }, targetRealm: '<realm URL>' } }`. Remix also opens code mode and a new AI assistant room, the same as when it runs as a tool. Run one listing command in each script, because install and remix can copy many files and the run stops after 55 seconds.
+
 If actionType is remix:
 - After running remix, also run remix code to generate two example prompts.
 - Respond with:
