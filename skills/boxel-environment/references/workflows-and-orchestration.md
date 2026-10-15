@@ -25,16 +25,14 @@
 ```json
 `run-realm-code` that returns `(await realm.cards.search(query)).cards`, with a query that includes a filter
 → Prompt "detect relationship patterns"
-→ Emit a code patch `run-realm-code` tool call to create a transformation command
-→ `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk update
+→ One `run-realm-code` script that searches again and edits each card's `.json` links with `realm.fs.replace` (at most 20 files per run; split above that)
 ```
 
 ### 5. Context-Aware Migration
 ```json
 `run-realm-code` that returns `await realm.fs.readText('schema.gts')`
 → `run-realm-code` that returns `(await realm.cards.search(query)).cards.map((card) => card.path)`, with a query that has a filter
-→ Emit a code patch `run-realm-code` tool call creating a migration command
-→ `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform bulk migration
+→ One `run-realm-code` script that writes the schema change and loops over the search results with `realm.cards.update` (see Schema Migration below)
 ```
 
 ### 6. Dependency Surfing
@@ -53,30 +51,20 @@ Opening the file in code mode is optional navigation for the user's benefit — 
 One `run-realm-code` call that writes every file with `realm.fs.writeText` — the definition and every instance together — and, if the user should see a card, ends with `return { show: path }` for one instance, such as `return { show: 'Pet/mango' };`. That call creates the files and opens the card; no mode switch and no placeholder call comes first. If the user should see a file in code mode instead, the same script calls `realm.ui.openFile(path)`.
 
 ### Search & Modify
-One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and edits each one's file with `realm.fs.replace(card.path, …)`, returning the paths it edited. A run edits at most 20 files; for more, collect the paths first and split the edits across calls.
+One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and changes each one with `realm.cards.update(card.path, attributes)`, returning the paths it changed. A run updates at most 200 cards; for more, split the work across calls by `page.number`. For a change to links or to the shape of the JSON, edit each file with `realm.fs.replace(card.path, …)` instead; a run edits at most 20 files.
 
 ### Schema Migration
-1. Update schema with breaking changes:
-```json
-→ Emit a code patch `run-realm-code` tool call
-```
-2. Add migration command to same file:
-```typescript
-export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard> {
-  async getInputType() { return JsonCard; }
-  protected async run(input: JsonCard): Promise<JsonCard> {
-    // Transform logic here
-  }
-}
-```
-3. Run transform using `transform-cards_33d7`
-4. Remove migration command after success
+1. Change the schema with `realm.fs.replace` on the `.gts` in a `run-realm-code` script.
+2. In the same script or the next one, find the affected instances with `realm.cards.search` and fix each one:
+   - New values for fields that stay (a default, a value derived from other fields): `realm.cards.update(card.path, attributes)` in a loop. The script computes each value with plain JavaScript; no migration command is needed.
+   - A renamed or removed field: `realm.cards.update` merges and cannot remove a key, so edit each `.json` with `realm.fs.readText` and `realm.fs.replace`.
+3. Return the paths the script changed, and say how many are left when the work was split.
 
 ### Multi-Realm Operations
+A `run-realm-code` script reads and writes only the realm it runs in. To move a definition or a card to another realm:
 ```json
-`copy-source_5d09` with `attributes.originSourceUrl` and `attributes.destinationSourceUrl` set
-→ `copy-card_eefc` with `attributes.sourceCard` and `attributes.realm` set
-→ `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk modification
+`run-realm-code` in the source realm that returns `await realm.fs.readText(path)` for each file
+→ `run-realm-code` in the target realm that writes each file with `realm.fs.writeText`, with relative imports and `adoptsFrom` changed to absolute URLs where they point back to the source realm, and with any changed field values already in the JSON it writes
 ```
 
 ### Optimistic Command Pipeline
@@ -97,7 +85,7 @@ Rules:
 - Keep the run card compact and queryable. Prefer one run card with `containsMany` steps/logs over many transient cards.
 - Do not hide side effects in bxl, Guides, or computed fields. Commands and command-backed component actions own writes, external calls, and user asks.
 - For AI/image work, store the model id, prompt snapshot, source card URL, finish reason, latency, output URL, and error state on the run card.
-- Prefer host commands for IO. Direct `fetch` needs a documented runtime gap and a source comment.
+- In card code, prefer host commands for IO. Direct `fetch` needs a documented runtime gap and a source comment.
 - Source pattern: see ready pattern `command-optimistic-pipeline` (`optimistic-save.gts`, `demo-pipeline.gts`, `image-gen.gts`, `bench.gts` are the historical inspiration; ask the user for current realm URLs if you need to read them).
 
 ### Parallel agents in one realm — tracking convention

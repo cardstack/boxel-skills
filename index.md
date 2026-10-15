@@ -116,7 +116,7 @@ Every skill lives in `skills/`. Read only the ones the task needs, not all of th
 
 - **[`boxel-environment/`](skills/boxel-environment/SKILL.md)** — Driving the live Boxel app: run-realm-code, host commands, searching for cards, indexing.
 - **[`catalog-listing/`](skills/catalog-listing/SKILL.md)** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
-- **[`boxel-create-edit-cards/`](skills/boxel-create-edit-cards/SKILL.md)** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (host-command combos for card create/edit).
+- **[`boxel-create-edit-cards/`](skills/boxel-create-edit-cards/SKILL.md)** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (the `realm.*` calls for card create/edit).
 
 ### Patterns
 
