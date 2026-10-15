@@ -79,7 +79,7 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 
 ```
 ├─ Cards in a realm      → `run-realm-code` with `realm.cards.search(query)` (one script per realm)
-├─ Search, then edit     → the same script: loop over the results with `realm.fs.replace`
+├─ Search, then edit     → the same script: loop over the results with `realm.cards.update`
 ├─ Across realms/catalog → search-entries
 └─ View results          → show-card_566f with a result's `id`
 ```

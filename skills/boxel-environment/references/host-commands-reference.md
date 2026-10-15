@@ -13,10 +13,6 @@ boxel:
         name: default
       requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/tools/transform-cards'
-        name: default
-      requiresApproval: true
-    - codeRef:
         module: '@cardstack/boxel-host/tools/read-card-for-ai-assistant'
         name: default
       requiresApproval: false
@@ -86,7 +82,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 - `ApplyMarkdownEditCommand_c112` — Edit long markdown fields (>500 chars) surgically without truncation (requires approval).
 - `copy-card_eefc` — Duplicate a card (requires approval).
 - `copy-source_5d09` — Duplicate a file (requires approval).
-- `transform-cards_33d7` — Bulk update with a command (requires approval).
+- Bulk edit of card instances — one `run-realm-code` script that finds the cards with `realm.cards.search` and changes each one with `realm.cards.update` (see `source-code-editing`).
 
 ## Media
 
@@ -147,4 +143,4 @@ What you can and cannot see:
 ## Approval requirements
 
 The following require user approval before execution:
-- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `generate-thumbnail`, `download-file-to-realm`, `create-workspace_cf0f`, `delete-workspace_a465`
+- `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`, `generate-thumbnail`, `download-file-to-realm`, `create-workspace_cf0f`, `delete-workspace_a465`

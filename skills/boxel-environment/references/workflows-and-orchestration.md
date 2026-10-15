@@ -26,16 +26,14 @@
 ```json
 `run-realm-code` that returns `(await realm.cards.search(query)).cards`, with a query that includes a filter
 → Prompt "detect relationship patterns"
-→ Emit a code patch `run-realm-code` tool call to create a transformation command
-→ `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk update
+→ `run-realm-code` that loops over `realm.cards.search(query)` and calls `realm.cards.update(card.path, attributes)` for each card
 ```
 
 ### 5. Context-Aware Migration
 ```json
 `run-realm-code` that returns `await realm.fs.readText('schema.gts')`
 → `run-realm-code` that returns `(await realm.cards.search(query)).cards.map((card) => card.path)`, with a query that has a filter
-→ Emit a code patch `run-realm-code` tool call creating a migration command
-→ `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform bulk migration
+→ `run-realm-code` that changes the schema and, in the same script, loops over the instances with `realm.cards.update(card.path, attributes)`
 ```
 
 ### 6. Dependency Surfing
@@ -54,30 +52,20 @@ Switching to code mode is optional navigation for the user's benefit — at most
 One `run-realm-code` call that writes every file with `realm.fs.writeText` — the definition and every instance together — plus, if wanted, a `show-card_566f` call with `attributes.cardId` set to an instance's URL (the `.json` path without the extension). That call creates the files; no mode switch and no placeholder call comes first. If you switch to code mode so the user can watch, do it once, before the `run-realm-code` call.
 
 ### Search & Modify
-One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and edits each one's file with `realm.fs.replace(card.path, …)`, returning the paths it edited. A run edits at most 20 files; for more, collect the paths first and split the edits across calls.
+One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and changes each one with `realm.cards.update(card.path, attributes)`, returning the paths it changed. A run updates at most 200 cards; for more, split the work across calls by `page.number`.
 
 ### Schema Migration
 1. Update schema with breaking changes:
 ```json
 → Emit a code patch `run-realm-code` tool call
 ```
-2. Add migration command to same file:
-```typescript
-export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard> {
-  async getInputType() { return JsonCard; }
-  protected async run(input: JsonCard): Promise<JsonCard> {
-    // Transform logic here
-  }
-}
-```
-3. Run transform using `transform-cards_33d7`
-4. Remove migration command after success
+2. In a second `run-realm-code` script, find the instances with `realm.cards.search` and move the data with `realm.cards.update` (see `source-code-editing`). The script computes each card's new attributes from `card.attributes`.
 
 ### Multi-Realm Operations
 ```json
 `copy-source_5d09` with `attributes.originSourceUrl` and `attributes.destinationSourceUrl` set
 → `copy-card_eefc` with `attributes.sourceCard` and `attributes.realm` set
-→ `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk modification
+→ `run-realm-code` in the destination realm that loops over `realm.cards.search(query)` with `realm.cards.update`
 ```
 
 ### Optimistic Command Pipeline
