@@ -77,8 +77,8 @@ export class MigrateNameFields extends Command<typeof JsonCard, typeof JsonCard>
 
 ### Multi-Realm Operations
 ```json
-`copy-source_5d09` with `attributes.originSourceUrl` and `attributes.destinationSourceUrl` set
-→ `copy-card_eefc` with `attributes.sourceCard` and `attributes.realm` set
+`run-realm-code` in the source realm, returning `await realm.fs.readText(path)` for each file to copy
+→ `run-realm-code` in the target realm with `realm.fs.writeText`, each relative module and link path changed to an absolute URL in the source realm
 → `transform-cards_33d7` with `attributes.query` and `attributes.commandRef` set to perform a bulk modification
 ```
 
