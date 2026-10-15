@@ -179,10 +179,10 @@ return { done, failed };
 ```
 
 If a run fails partway anyway, the error names the images it saved. An image that was saved but not
-linked is still in `Images/`: link it in the next run, and do not make it again. Before you make an
-image again, list `Images/` with `realm.fs.list('Images/')` and look for its name with any extension:
-`realm.images.generate` refuses a path that exists, and a saved `pad-thai-heroImage.jpg` does not
-show in an `exists` check for `pad-thai-heroImage.png`.
+linked is still in `Images/`: link it in the next run, and do not make it again. To see which images
+exist, list `Images/` with `realm.fs.list('Images/')`; a saved image can have another extension than
+the `path` you asked for. `realm.images.generate` refuses a path where an image with that name exists
+under any image extension, before it spends credit.
 
 ## The user's own image
 
