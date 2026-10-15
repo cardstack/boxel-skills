@@ -5,25 +5,9 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/switch-submode'
-        name: default
-      requiresApproval: false
-    - codeRef:
         module: '@cardstack/boxel-host/tools/transform-cards'
         name: default
       requiresApproval: true
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/open-workspace'
-        name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/preview-format'
-        name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/update-code-path-with-selection'
-        name: default
-      requiresApproval: false
     - codeRef:
         module: '@cardstack/boxel-host/tools/copy-card'
         name: default
@@ -56,9 +40,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 ## Editing
 
 - **`run-realm-code`** — The way to create or edit source files. It runs a script that saves each file as it writes it, and triggers correctness checks after indexing. Use `realm.fs.writeText` for a new file and `realm.fs.replace` for an existing one. `realm.fs.delete` deletes a file that the same run created, such as a file written by mistake; it cannot delete any other file.
-- `patch-fields_3e67` — Field updates on an indexed card the user is looking at, with their approval. Not for repairing a file you just wrote or one that failed a check: that card may not be indexed yet, so the tool applies to nothing — edit the `.json` with `run-realm-code` instead.
-- `patchCardInstance` — Update card data only.
-- `ApplyMarkdownEditCommand_c112` — Edit long markdown fields (>500 chars) surgically without truncation (requires approval).
+- `patch-fields_3e67` — Field updates on an indexed card the user is looking at (requires approval). Not for repairing a file you just wrote or one that failed a check: that card may not be indexed yet, so the tool applies to nothing — edit the `.json` with `run-realm-code` instead.
 - `copy-card_eefc` — Duplicate a card (requires approval).
 - `copy-source_5d09` — Duplicate a file (requires approval).
 - `transform-cards_33d7` — Bulk update with a command (requires approval).
@@ -70,7 +52,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 ## Reading
 
-- **`run-realm-code`** — Read a file in the workspace with `await realm.fs.readText(path)` list a folder with `await realm.fs.list(path)`, and read a card instance as data with `await realm.cards.get(path)` in the script. Return what you read from the script to see it in the tool result.
+- **`run-realm-code`** — Read a file in the workspace with `await realm.fs.readText(path)`, list a folder with `await realm.fs.list(path)`, and read a card instance as data with `await realm.cards.get(path)` in the script. Return what you read from the script to see it in the tool result.
 
 ## Seeing
 
@@ -93,11 +75,8 @@ What you can and cannot see:
 
 ## Navigation
 
-- `switch-submode_dd88` — Toggle interact/code modes. Navigation only: it never writes, and it is not a step of creating or editing a file (`run-realm-code` does that). Call it at most once per task, and never when the tab is already in code mode on that file — the last tool result's `context.submode` and `context.codeMode.currentFile` tell you where you are. A bare `submode: "code"` opens code mode in whatever realm the UI last showed — when the task targets a specific realm, pass `codePath` with a plain file URL in that realm (never pass `createFile: true` before writing a new file: it creates an empty file, and `realm.fs.writeText` then refuses it because the file exists).
-- To show a card instance in the current mode, return `{ show: path }` from a `run-realm-code` script, for example `return { show: 'Pet/mango' };`. `path` is the instance's path in the realm, with or without `.json`; a full instance URL in the realm also works. The card opens when the run ends — in the same call that wrote it, or in a call that only returns `{ show }` for a card that already exists. A `.gts` path is a definition, not a card. To open a file in the editor, use `switch-submode_dd88` with `codePath`.
-- `preview-format_cb94` — Open module + preview card (code mode). After a build, use `realm.ui.previewFormat` in the same `run-realm-code` script instead (see `source-code-editing`).
-- `update-code-path-with-selection_f749` — Open file in code editor.
-- `open-workspace_1696` — Navigate to a workspace by URL. Lands in **interact mode** — it exits code mode. To work on a specific realm in code mode, use `switch-submode` with a `codePath` in that realm instead.
+- **`run-realm-code`** — Change what the user sees with `realm.ui` in the script (see `source-code-editing`): `realm.ui.switchSubmode('code')` or `('interact')`, `realm.ui.openFile(path)` to open a file in code mode, `realm.ui.previewFormat(cardPath, format)` to open a card's definition with a preview of that card, and `realm.ui.openWorkspace()` to open the run's workspace. The host does the actions after the script finishes. Each tool result's `context.submode` and `context.codeMode.currentFile` tell you where the user is; do not ask for an action that changes nothing. To open a file or a workspace in another realm, run the script in that realm.
+- To show a card instance in the current mode, return `{ show: path }` from a `run-realm-code` script, for example `return { show: 'Pet/mango' };`. `path` is the instance's path in the realm, with or without `.json`; a full instance URL in the realm also works. The card opens when the run ends — in the same call that wrote it, or in a call that only returns `{ show }` for a card that already exists. A `.gts` path is a definition, not a card. To open a file in the editor, use `realm.ui.openFile`.
 - Create or delete a workspace with `run-realm-code`: `realm.workspaces.create` and `realm.workspaces.delete` (see `source-code-editing`).
 
 ## Search
@@ -118,11 +97,3 @@ What you can and cannot see:
   - `await realm.index.fullReindex()` — rebuild the whole index from scratch. Waits for the user's click.
   - `await realm.index.cancelJob()` — cancel the running indexing jobs; queued jobs stay queued. Waits for the user's click.
   Each call starts the work and returns; it does not wait for indexing to finish. It returns a small object when the realm server accepted the request and throws when it did not.
-
-## Approval requirements
-
-The following require user approval before execution:
-- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`
-- A `run-realm-code` script that names `realm.images.generate`
-- A `run-realm-code` script that names `realm.fs.download`
-- A `run-realm-code` script that names `realm.index.fullReindex` or `realm.index.cancelJob`

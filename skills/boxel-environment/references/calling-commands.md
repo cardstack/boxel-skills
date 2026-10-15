@@ -51,7 +51,7 @@
 
 **⚠️ CRITICAL CLARIFICATION:** 
 - Level 3 is NOT called "parameters" — it's just the key-value pairs INSIDE `attributes`
-- The keys at level 3 vary per command (e.g., `cardId` for patch-fields, `submode` + `codePath` for switch-submode)
+- The keys at level 3 vary per command (e.g., `cardId` for patch-fields, `originSourceUrl` + `destinationSourceUrl` for copy-source)
 - `attributes` is ALWAYS a JSON object `{ }`, NEVER a string
 
 ### 🔴 THE ONE TRUE FORMAT (Copy This Exactly)
@@ -93,20 +93,19 @@ Before generating ANY command call, verify:
 
 ## 📋 Working Examples
 
-### Example 1: switch-submode (multiple attributes)
+### Example 1: copy-source (multiple attributes)
 ```json
 {
-  "name": "switch-submode_dd88",
+  "name": "copy-source_5d09",
   "payload": {
-    "description": "Open code mode on a file in the target realm",
+    "description": "Duplicate a card definition next to the original",
     "attributes": {
-      "submode": "code",
-      "codePath": "https://realm-url/product-catalog.gts"
+      "originSourceUrl": "https://realm-url/product-catalog.gts",
+      "destinationSourceUrl": "https://realm-url/product-catalog-v2.gts"
     }
   }
 }
 ```
-**Note:** `codePath` pins code mode to the target realm — a bare `submode` switch stays in whatever realm the UI last showed. It is a plain file URL. Do not pass `createFile: true` before writing a new file with `run-realm-code`: it creates an empty file, and `realm.fs.writeText` then refuses it.
 
 ### Example 2: Empty attributes (when no params needed)
 ```json
