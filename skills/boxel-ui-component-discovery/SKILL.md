@@ -90,8 +90,10 @@ of truth for what's available and what each component is called.
      workspace the user can read, and a component Spec that a user
      wrote in a workspace is not a catalog component. The catalog realm
      is `@cardstack/catalog/`, or the catalog URL from your context.
-     Run one query per enumerated item, all at the same time with
-     `Promise.all`, so the run stays inside its 55 seconds. Add
+     Run one query per enumerated item, all in the same script. The
+     realm calls of a run go one at a time, also in `Promise.all`, and
+     a run has 55 seconds. If a run with many items stops at that
+     limit, split the items across two runs. Add
      `{ "matches": "<the item's plain-language name>" }` beside the
      `specType` constraint, and return only what you will use. Each
      entry is `{ url, kind, ref, specType, cardTitle, cardDescription,
@@ -102,9 +104,10 @@ of truth for what's available and what each component is called.
 
      ```js
      const items = ['button', 'text input', 'dropdown', 'modal'];
-     const results = await Promise.all(
-       items.map((item) =>
-         realm.entries.search(
+     const found = {};
+     for (const item of items) {
+       const { entries, total, truncated, incomplete } =
+         await realm.entries.search(
            {
              filter: {
                on: { module: '@cardstack/base/spec', name: 'Spec' },
@@ -112,12 +115,7 @@ of truth for what's available and what each component is called.
              },
            },
            { realms: ['@cardstack/catalog/'], scope: 'cards', limit: 10 },
-         ),
-       ),
-     );
-     const found = {};
-     items.forEach((item, i) => {
-       const { entries, total, truncated, incomplete } = results[i];
+         );
        found[item] = {
          total,
          truncated,
@@ -129,7 +127,7 @@ of truth for what's available and what each component is called.
            readMe: e.readMe,
          })),
        };
-     });
+     }
      return found;
      ```
 
@@ -164,11 +162,11 @@ of truth for what's available and what each component is called.
      not read the write-up:
 
      ```js
-     return await Promise.all(
-       ['components/button.md', 'components/select.md'].map((p) =>
-         realm.fs.readText(p),
-       ),
-     );
+     const writeups = {};
+     for (const p of ['components/button.md', 'components/select.md']) {
+       writeups[p] = await realm.fs.readText(p);
+     }
+     return writeups;
      ```
    - **boxel-ui:** the `readMe` has the Import line, the API
      table (arg / type / required / default / options / description),

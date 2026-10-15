@@ -154,8 +154,9 @@ identical either way.
   read, the catalog included, so you need no realm URL. Pass
   `realms: ['@cardstack/catalog/']` to search only the catalog, and pass your
   own realm's URL for the self-check below. Put all the searches of a step in
-  one script and run them at the same time with `Promise.all`, so the run stays
-  inside its 55 seconds. It answers `{ entries, total, truncated, incomplete }`.
+  one script. The realm calls of a run go one at a time, also in `Promise.all`,
+  and a run has 55 seconds; if a run with many searches stops at that limit,
+  split the searches across two runs. It answers `{ entries, total, truncated, incomplete }`.
   Each entry is `{ url, kind, ref, specType, cardTitle, cardDescription, name,
   readMe }`, with the fields at the top level, not under `attributes`. An entry
   does not carry the card's other fields or its links.
