@@ -121,17 +121,68 @@ curl -s -A "boxel-skills" "https://api.openverse.org/v1/images/?q=swimming+pool&
 
 In the Boxel app only. When the user asked for them, or the design is brand-heavy, generate them
 during the mockup pass (design-playbook → *Brand-guided imagery during mockup*). Otherwise offer them
-once after the build, as one single-select question ("Generate 6 images for the dishes? This uses
-OpenRouter credit."), leaving out slots that always take a placeholder.
+once after the build, as one single-select question, leaving out slots that always take a
+placeholder. A run makes at most 4 images, and the user approves each run. So when you offer more
+than 4, say so in the question: "Generate 6 images for the dishes? This uses OpenRouter credit, and
+you approve them in 2 batches."
 
-Generate them with `realm.images.generate({ prompt, path })` in one `run-realm-code` script
-([`source-code-editing`](../../source-code-editing/SKILL.md)), so the user approves one run. `path` is
-`Images/<instance-slug>-<field>.png`; the saved file can take another extension if the model returns
-another image type, so use the `path` the call returns. In the same script, link each returned path in
-its instance (*Writing it into the instance*). A run makes at most 4 images; for more, run the next
-script after the user approves the first. Compose the prompt from the instance's own data, the
-design's palette and imagery, the slot's composition, and what to leave out (no text, logos or
-watermarks), never from the field name alone.
+Generate them with `realm.images.generate({ prompt, path })` in a `run-realm-code` script
+([`source-code-editing`](../../source-code-editing/SKILL.md)), at most 4 images in each run. For more
+images, write the next run after the user approves the first one. `path` is
+`Images/<instance-slug>-<field>.png`. The saved file can take another extension if the model returns
+another image type, so use the `path` the call returns. Compose the prompt from the instance's own
+data, the design's palette and imagery, the slot's composition, and what to leave out (no text, logos
+or watermarks), never from the field name alone.
+
+The realm calls of a run go one at a time, also in `Promise.all`, so the images are made one after
+another. A run has 120 seconds for all its images, and each image can take at most 60 seconds. When
+that time is used, the next `realm.images.generate` is refused before it asks the model, so it spends
+no credit. Put the most important images first.
+
+Link each image in its instance right after its call returns, in the same script, not at the end. The
+returned `path` is relative to the realm root (`Images/pad-thai-heroImage.png`), but a link in an
+instance is relative to the instance file, so add one `../` for each folder of the instance's path:
+`Dish/pad-thai.json` links `../Images/pad-thai-heroImage.png`. In the same edit, clear the
+placeholder (*Writing it into the instance*): set `sourceMode` to `file` and `url` to `null` for an
+`ImageSourceField`, or clear the URL half of a URL/ImageDef pair, since the template prefers the
+URL. For the card's own thumbnail, the link key is the dotted path `cardInfo.cardThumbnail`:
+`"relationships": { "cardInfo.cardThumbnail": { "links": { "self": "../Images/pad-thai-thumbnail.png" } } }`.
+
+Catch each image's error, so one failed image does not stop the run, and return the failures:
+
+```js
+const jobs = [
+  { card: 'Dish/pad-thai.json', slug: 'pad-thai', prompt: 'Overhead photo of pad thai …' },
+];
+const done = [];
+const failed = [];
+for (const job of jobs) {
+  try {
+    const { path } = await realm.images.generate({
+      prompt: job.prompt,
+      path: `Images/${job.slug}-heroImage.png`,
+    });
+    const text = await realm.fs.readText(job.card);
+    const doc = JSON.parse(text);
+    doc.data.attributes.heroImage = { sourceMode: 'file', url: null };
+    doc.data.relationships = {
+      ...doc.data.relationships,
+      'heroImage.file': { links: { self: `../${path}` } },
+    };
+    await realm.fs.replace(job.card, text, JSON.stringify(doc, null, 2) + '\n');
+    done.push(path);
+  } catch (e) {
+    failed.push({ card: job.card, error: String(e) });
+  }
+}
+return { done, failed };
+```
+
+If a run fails partway anyway, the error names the images it saved. An image that was saved but not
+linked is still in `Images/`: link it in the next run, and do not make it again. Before you make an
+image again, list `Images/` with `realm.fs.list('Images/')` and look for its name with any extension:
+`realm.images.generate` refuses a path that exists, and a saved `pad-thai-heroImage.jpg` does not
+show in an `exists` check for `pad-thai-heroImage.png`.
 
 ## The user's own image
 
