@@ -191,10 +191,15 @@ never apply. The host's and the component libraries' own CSS uses `:global`;
 card code cannot copy it. Use instead:
 
 - **A class on the element or component.** A class on a component that passes
-  `...attributes` through (every Pret UI and boxel-ui component, and every
-  field invocation such as `<@fields.link class='…' />`) is reachable with a
-  plain scoped selector. Pret UI's own styles are in cascade layers, so that
-  rule wins without extra specificity.
+  `...attributes` through (Pret UI and boxel-ui controls, and a linked or
+  compound field invocation such as `<@fields.link class='…' />`) lands on its
+  root and is reachable with a plain scoped selector. Pret UI's own styles are
+  in cascade layers, so that rule wins without extra specificity; the
+  exception is `Select`, whose trigger and option rules are unlayered and
+  whose class lands on a wrapper. A boxel-ui component is restyled through
+  its knobs, not a rule on its classes. A primitive leaf field
+  (`<@fields.title class='…' />` on a `StringField`) renders bare text, so the
+  class lands nowhere; wrap it in an element of your own.
 - **`:deep()`** for DOM you neither render nor can put a class on (the
   internals of a component or a host shell). It compiles to a scoped ancestor
   and an unscoped descendant, which the browser accepts.

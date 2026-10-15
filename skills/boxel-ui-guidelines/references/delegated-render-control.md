@@ -28,10 +28,10 @@ When you write `<@fields.featured @format='<F>' />`, the rendered DOM is:
 
 ## Default CSS the host applies (every parent inherits this)
 
-This is the host's own CSS, shown so you know what you are shaping. The host writes these rules unscoped, so `.boxel-card-container` is a plain class you can pass from the field invocation (see "Style a linked card's chrome with a class"). Card code cannot write unscoped rules: **`:global()` does not work in a card's `<style scoped>`.** Card code compiles with `:global` turned off, the browser rejects the rule, and every other selector in the same comma-separated list is dropped with it, with no error from lint or the correctness check. Use a class, or `:deep()` for DOM you can't put a class on.
+This is the host's own CSS, shown so you know what you are shaping; boxel-ui's `CardContainer` writes it as `:global(...)` inside its own `<style scoped>`, rewritten here as plain selectors. You don't need those selectors to style the wrapper: a `class` you pass on the field invocation is forwarded onto this element through `...attributes`, so a plain scoped rule on your own class reaches it (see "Style a linked card's chrome with a class"). Card code cannot copy the host's form: **`:global()` does not work in a card's `<style scoped>`.** Card code compiles with `:global` turned off, the browser rejects the rule, and every other selector in the same comma-separated list is dropped with it, with no error from lint or the correctness check. Use a class, or `:deep()` for DOM you can't put a class on.
 
 ```css
-/* From card-container/index.gts — host CSS, unscoped; not something card code can write */
+/* From boxel-ui card-container/index.gts, where these are :global(...) rules; card code cannot write that form */
 .boxel-card-container {
   position: relative;
   background-color: var(--background, var(--boxel-light));
