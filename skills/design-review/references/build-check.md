@@ -106,7 +106,9 @@ Each line passes or fails on every capture.
     For each of its four rows, cite the `file:line` that implements it, or write `n/a` with the reason
     (no list, nothing rearranges). Any applicable row with no citation fails: an entrance with no hover
     and press on the CTAs fails. So does an entrance on a `fitted` or `embedded` root, and content that
-    stays hidden or offset when motion never runs. When the user asked for no motion (in the
+    stays hidden or offset when motion never runs, including in the prerender: an `initial` start
+    state that is not skipped when `isLiveRender()` is false fails, and so does a CSS keyframe
+    entrance whose resting state is not the final one. When the user asked for no motion (in the
     conversation or in the brief's `spec`), the line passes as `n/a`. In that case, any motion in the
     source fails it.
 
