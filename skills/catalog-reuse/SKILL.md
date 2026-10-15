@@ -271,6 +271,28 @@ naming why the hit itself could not be linked, installed, or copied.
   in the disposition as `adopted, route: theme`, `own markup` or `extended`; a new
   build is a refusal naming the mismatch. The steps and their traps:
   [`restyle-reused-card.md`](references/restyle-reused-card.md).
+- **A change request goes through the same workflow, and is built in that
+  reply.** When a later message changes what you built — a scale of values the
+  catalog's field does not carry, an extra field, a new rule — list the changed
+  parts, then search, evaluate and settle each one. The user's message is the
+  go-ahead: state any assumption in one line and build, rather than describing
+  the change and asking whether to make it. A part a catalog definition almost
+  covers is a specialization, and you write it now:
+  1. In your realm, write a definition that `extends` the catalog one (or calls
+     the factory its Spec ships) and overrides only what changed.
+  2. Code in the catalog definition that reads the field you changed — an SLA
+     table keyed on priority, a badge colour, a sort — is part of that
+     override, not a reason to stop. Override the members that read it, or
+     build the field and name which catalog behaviour still uses the old
+     values.
+  3. Point the instances you made at the new definition (`meta.adoptsFrom`)
+     and show one, so the user sees the change.
+
+  When part of the request is beyond the platform (a timer that has to fire
+  with nobody watching, say), build the parts within reach — the field, the
+  rule as a computed or a command someone runs — and name the limit. Naming a
+  limit never replaces building the rest: a change-request reply that writes
+  nothing is unfinished.
 - **Base-realm imports are the baseline, not the target.** Importing from the
   base realm and `@cardstack/boxel-ui` is what every card already does. This
   skill is about what you add on top.
@@ -284,6 +306,8 @@ Re-read what you built. For everything you authored from scratch:
   trace back to something the user asked to own.
 - If I authored instance JSON, did I check whether the catalog already ships one?
 - Does every refusal name its mismatch, and is every real gap recorded?
+- If this reply answers a change request, did it write the change? Explaining
+  why the catalog part doesn't fit is the start of the work, not the end.
 
 If the honest answer to any of these is "I didn't look", that thing needs
 replacing with its catalog equivalent. Only then is it done.
