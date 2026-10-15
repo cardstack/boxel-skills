@@ -12,7 +12,7 @@ boxel:
 
 # Markdown Field Editing
 
-**SCOPE:** MarkdownField edits in card instances only. Use `patch-fields` for other fields, the `run-realm-code` tool for code.
+**SCOPE:** MarkdownField edits in card instances only. Use `realm.cards.update` in a `run-realm-code` script for other fields, and `run-realm-code` for code.
 
 ## When to Use
 - Large markdown where full replacement risks truncation

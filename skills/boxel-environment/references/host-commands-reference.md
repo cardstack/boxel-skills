@@ -17,10 +17,6 @@ boxel:
         name: default
       requiresApproval: true
     - codeRef:
-        module: '@cardstack/boxel-host/tools/patch-fields'
-        name: default
-      requiresApproval: true
-    - codeRef:
         module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
 ---
@@ -32,7 +28,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 ## Editing
 
 - **`run-realm-code`** — The way to create or edit source files. It runs a script that saves each file as it writes it, and triggers correctness checks after indexing. Use `realm.fs.writeText` for a new file and `realm.fs.replace` for an existing one. `realm.fs.delete` deletes a file that the same run created, such as a file written by mistake; it cannot delete any other file.
-- `patch-fields_3e67` — Field updates on an indexed card the user is looking at (requires approval). Not for repairing a file you just wrote or one that failed a check: that card may not be indexed yet, so the tool applies to nothing — edit the `.json` with `run-realm-code` instead.
+- **`run-realm-code`** — Change field values of a card instance with `await realm.cards.update(path, attributes)` in the script (see `source-code-editing`): a markdown field of any length, one card or many in a loop. It reads the card's file, so it also works on a card you just wrote.
 - `copy-card_eefc` — Duplicate a card (requires approval).
 - `copy-source_5d09` — Duplicate a file (requires approval).
 - `transform-cards_33d7` — Bulk update with a command (requires approval).
