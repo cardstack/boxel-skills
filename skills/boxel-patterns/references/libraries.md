@@ -116,6 +116,8 @@ import CancelIndexingJobCommand         from '@cardstack/boxel-host/tools/cancel
 import InvalidateRealmIdentifiersCommand from '@cardstack/boxel-host/tools/invalidate-realm-identifiers';
 ```
 
+The four indexing commands above are for card code. The AI assistant does not have them as tools; it controls indexing with `realm.index.*` in a `run-realm-code` script (see `source-code-editing`).
+
 ### Glimmer / Ember primitives
 
 ```ts

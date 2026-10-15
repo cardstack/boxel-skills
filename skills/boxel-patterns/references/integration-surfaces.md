@@ -112,7 +112,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 | `create-and-open-submission-workflow-card`, `create-submission-workflow` | Catalog submission flow. |
 | `generate-example-cards`, `populate-with-sample-data`, `generate-readme-spec`, `generate-theme-example` | Code-mode/sample-data helpers used by app workflows. Treat as app affordances, not portable card patterns. |
 | `get-user-system-card`, `set-user-system-card`, `summarize-session` | User/system-card and session helper commands. |
-| `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job`, `invalidate-realm-identifiers` | Indexing control (requires write access). |
+| `reindex-realm`, `full-reindex-realm`, `cancel-indexing-job`, `invalidate-realm-identifiers` | Indexing control (requires write access), for card code and `npx boxel run-command`. The AI assistant does not have them as tools; it uses `realm.index.*` in a `run-realm-code` script. |
 | `sanitize-module-list` | Validate a module list. |
 
 ### Realm-server underscored endpoints (called directly when scripting)

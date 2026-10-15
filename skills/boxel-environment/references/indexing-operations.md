@@ -5,26 +5,15 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/invalidate-realm-identifiers'
+        module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/reindex-realm'
-        name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/full-reindex-realm'
-        name: default
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/cancel-indexing-job'
-        name: default
-      requiresApproval: false
 ---
 
 # Indexing Operations
 
 Indexing reads realm content and updates the search/query index used by Boxel.
+
+In the app, each operation below is a `realm.index` call in a `run-realm-code` script that runs in the target realm ([`source-code-editing`](../../source-code-editing/SKILL.md)). Each call starts the work on the realm server and returns at once; it does not wait for indexing to finish. A full reindex and a cancel run only after the user clicks to approve the run. This skill declares the `run-realm-code` tool; the sandbox rules for the script are in `source-code-editing`. Each call returns a small object when the realm server accepted the request, and throws with the server's error when it did not. Return that object from the script to see it.
 
 ## Invalidate Specific Resource Identifiers
 
@@ -32,30 +21,19 @@ Use this when a user wants specific files re-indexed for a realm. The user may a
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmIdentifier` is known.
-- `resourceIdentifiers` contains the specific file or card identifiers that should be re-indexed.
+- The script runs in the target realm.
+- The paths name the specific files to index again: a path or an array of 1 to 100 paths, relative to the realm root.
 
 ### Behavior
-- Triggers incremental indexing for the specified resource identifiers.
+- Queues incremental indexing for the given files.
+- Returns `{ invalidated: [paths] }`, the paths relative to the realm root.
 - Use this to target specific files instead of canceling or starting broader indexing work.
-- The command accepts multiple resource identifiers in one request.
+- One call accepts up to 100 paths.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "invalidate-realm-identifiers_xxxx",
-  "payload": {
-    "description": "Trigger indexing for specific files in this realm",
-    "attributes": {
-      "realmIdentifier": "<realmIdentifier>",
-      "resourceIdentifiers": [
-        "<resourceIdentifier1>",
-        "<resourceIdentifier2>"
-      ]
-    }
-  }
-}
+```js
+return await realm.index.invalidate(['Pet/mango.json', 'pet.gts']);
 ```
 
 ## Reindex Realm
@@ -64,25 +42,18 @@ Use this when a user wants to reindex a realm using the normal, lighter/default 
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmUrl` is known.
+- The script runs in the target realm.
 
 ### Behavior
 - Republishes a from-scratch indexing job in the lighter/default mode.
 - Use this when the user wants to pick up normal recent changes or refresh a realm.
-- This is broader than invalidating specific URLs and lighter than a full reindex.
+- This is broader than `realm.index.invalidate` and lighter than a full reindex.
+- Returns `{ reindex: 'started' }`.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "reindex-realm_xxxx",
-  "payload": {
-    "description": "Reindex this realm using the default mode",
-    "attributes": {
-      "realmUrl": "<realmUrl>"
-    }
-  }
-}
+```js
+return await realm.index.reindex();
 ```
 
 ## Full Reindex Realm
@@ -91,25 +62,18 @@ Use this when a user wants a full rebuild of a realm index.
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmUrl` is known.
+- The script runs in the target realm.
 
 ### Behavior
 - Forces a full realm reindex so every file is revisited.
 - Use this when the user suspects indexing drift, stale results, or wants a deep/full refresh.
-- This is heavier than the normal reindex command.
+- This is heavier than `realm.index.reindex()`.
+- Returns `{ fullReindex: 'started' }`.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "full-reindex-realm_xxxx",
-  "payload": {
-    "description": "Force a full reindex of this realm",
-    "attributes": {
-      "realmUrl": "<realmUrl>"
-    }
-  }
-}
+```js
+return await realm.index.fullReindex();
 ```
 
 ## Cancel Running Indexing Job
@@ -118,26 +82,18 @@ Use this when a user asks to stop indexing for a specific realm.
 
 ### Preconditions
 - User has `write` access to the target realm.
-- `realmUrl` is known.
+- The script runs in the target realm.
 
 ### Behavior
 - Cancels currently running jobs in concurrency group `indexing:<realmUrl>`.
 - Includes both from-scratch and incremental indexing jobs.
-- Does not cancel pending indexing jobs.
-- Endpoint response is `204 No Content`, including no-op cases.
+- Does not cancel pending indexing jobs: they stay queued and run after it.
+- Returns `{ cancelled: true }`, also when no job was running.
 
-### Command Call Template
+### Call
 
-```json
-{
-  "name": "cancel-indexing-job_xxxx",
-  "payload": {
-    "description": "Cancel the currently running indexing job for this realm",
-    "attributes": {
-      "realmUrl": "<realmUrl>"
-    }
-  }
-}
+```js
+return await realm.index.cancelJob();
 ```
 
 ## Post-push verification gate
@@ -175,15 +131,15 @@ Pushing 30+ files via `npx boxel realm push <dir>` uses the `/_atomic` HTTP endp
 
 ## Don't reach for `cancel-indexing`
 
-`cancel-indexing` interrupts work the realm is actively doing. `--cancel-pending` is sharper — it discards the realm's queued TODO list. Both leave the index in a worse state when used to "recover from slow."
+`npx boxel realm cancel-indexing` (from a terminal) and `realm.index.cancelJob()` (in the app) interrupt work the realm is actively doing. `--cancel-pending`, which only the CLI has, is sharper — it discards the realm's queued TODO list. Both leave the index in a worse state when used to "recover from slow."
 
-**Default behavior:** don't call `cancel-indexing` (with or without flags). Slow is not stuck. Sample the indexed count for 5+ minutes; rising = leave it alone.
+**Default behavior:** don't cancel (with or without flags). Slow is not stuck. Sample the indexed count for 5+ minutes; rising = leave it alone.
 
 If the count is genuinely flat for 10+ minutes with no progress at all:
 
-1. First try `npx boxel file touch <one card>` to nudge a single card through. If that one indexes, the queue is alive.
-2. Only after that fails should you consider `cancel-indexing` — base form only, never `--cancel-pending`.
-3. `full-reindex-realm` is the right way to rebuild from scratch — it doesn't need `cancel-indexing` first.
+1. First nudge a single card through: `npx boxel file touch <one card>` from a terminal, or `realm.index.invalidate('<one card>.json')` in the app. If that one indexes, the queue is alive.
+2. Only after that fails should you consider a cancel — `cancel-indexing` in its base form only, never `--cancel-pending`, or `realm.index.cancelJob()` in the app.
+3. A full reindex is the right way to rebuild from scratch — it doesn't need a cancel first. In the app, that is `realm.index.fullReindex()`; from a terminal, the `full-reindex-realm` row below.
 
 ## Inspecting indexer errors
 
@@ -194,7 +150,7 @@ The realm stores per-card indexer error state in postgres `boxel_index.error_doc
 | Compile errors per .gts | `npx boxel file lint <path> --realm <url> --file <local-path>` |
 | Try to load a card TYPE | `npx boxel run-command @cardstack/boxel-host/tools/instantiate-card/default --realm <url> --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'` |
 | Force reindex of one card | `npx boxel file touch <path> --realm <url>` |
-| Force reindex of whole realm | `npx boxel run-command @cardstack/boxel-host/tools/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'` |
+| Force reindex of whole realm | In the app: `realm.index.fullReindex()` in a `run-realm-code` script. From a terminal only: `npx boxel run-command @cardstack/boxel-host/tools/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'` |
 | Authoritative error_doc list (admin) | `GET <realm>/_publishability` — requires `authedRealmFetch`; no CLI subcommand yet |
 
 ### Postgres `\u0000` symptom
@@ -317,4 +273,4 @@ Some host commands require a browser context with a Matrix client to persist the
 - **Image generation** — the AI assistant makes an image with `realm.images.generate` in a `run-realm-code` script (see `source-code-editing`). It runs only in the Boxel app, not from `npx boxel run-command`.
 - Any command whose docstring mentions "saves the card" or "uploads to realm" with a browser-only auth dependency.
 
-CLI-friendly commands (no browser dependency): `get-card-type-schema`, `full-reindex-realm`, `invalidate-realm-identifiers`, `search-cards`, `instantiate-card` for read-only schema introspection.
+CLI-friendly commands (no browser dependency): `get-card-type-schema`, `full-reindex-realm`, `invalidate-realm-identifiers`, `search-cards`, `instantiate-card` for read-only schema introspection. `full-reindex-realm` and `invalidate-realm-identifiers` are for `npx boxel run-command` only; in the app they are not tools, and the same work is `realm.index.fullReindex()` and `realm.index.invalidate(paths)` in a `run-realm-code` script.
