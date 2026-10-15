@@ -198,12 +198,15 @@ that a URL can move or disappear without the index noticing, and every viewer's 
 photo's host. That is fine for sample data the user will replace. Download only an image that has to
 last: the user's own, or any image in an app being published, listed or going live.
 
-Download with `download-file-to-realm` (in a terminal, through `npx boxel run-command
-@cardstack/boxel-host/tools/download-file-to-realm/default --realm <realm-url> --input '<json>'`):
-`path` is `Images/<instance-slug>-<field>.<ext>`, with the extension of the content type the load
-check printed (in the app, from the URL; download again with the other extension if the file fails to
-index), and `useNonConflictingFilename: true`. It runs in the browser, so a host without CORS fails;
-then keep the URL and list it in the hand-off as still hosted elsewhere.
+In the app, download with `realm.fs.download(sourceUrl, path)` in a `run-realm-code` script
+([`source-code-editing`](../../source-code-editing/SKILL.md)), and link the returned path in the same
+script. In a terminal, use `npx boxel run-command
+@cardstack/boxel-host/tools/download-file-to-realm/default --realm <realm-url> --input '<json>'`, with
+`useNonConflictingFilename: true`. `path` is `Images/<instance-slug>-<field>.<ext>`, with the extension
+of the content type the load check printed (in the app, from the URL; download again with the other
+extension if the file fails to index). `realm.fs.download` refuses a path where a file already exists,
+so pick a free name. Both fetch from the browser, so a host without CORS fails; then keep the URL and
+list it in the hand-off as still hosted elsewhere.
 
 ## Writing it into the instance
 
