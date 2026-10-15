@@ -106,8 +106,9 @@ Each line passes or fails on every capture.
     For each of its four rows, cite the `file:line` that implements it, or write `n/a` with the reason
     (no list, nothing rearranges). Any applicable row with no citation fails: an entrance with no hover
     and press on the CTAs fails. So does an entrance on a `fitted` or `embedded` root, and content that
-    stays hidden or offset when motion never runs. Passes as `n/a` when the user or the brief asked for no
-    motion, and then any motion in the source fails.
+    stays hidden or offset when motion never runs. When the user asked for no motion (in the
+    conversation or in the brief's `spec`), the line passes as `n/a`. In that case, any motion in the
+    source fails it.
 
 Fix every failure, re-capture those views, and check them again. Then start the review. The
 reviewer gets the captures and the brief as usual, not this list's results.
