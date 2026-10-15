@@ -340,7 +340,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 - **UI / navigation** — `switch-submode`, `show-file`, `preview-format`, `update-code-path-with-selection`, `open-workspace`, `create-workspace`, `delete-workspace`.
 - **Seeing** — `view-visually` (capture a card or workspace file as an image attached to the tool result, so the assistant sees it; `realm.capture(path)` is the same from inside a `run-realm-code` script). → `boxel-environment/references/host-commands-reference.md` § Seeing
 - **Store** — `store-add`.
-- **Media** — `generate-thumbnail`, `download-file-to-realm`. → `boxel-environment/references/host-commands-reference.md`
+- **Media** — `realm.images.generate` in a `run-realm-code` script (make an AI image and save it in the realm; → `source-code-editing`, `boxel-file-def/references/sample-images.md`), `download-file-to-realm`. → `boxel-environment/references/host-commands-reference.md`
 - **Catalog** — `listing-create`, `listing-install`, `listing-remix`, `listing-use`, `listing-generate-example`, `listing-update-specs`, `create-and-open-submission-workflow-card`, `retry-submission-workflow`, `execute-atomic-operations`.
 - **Code-introspection** — `get-card-type-schema`.
 
