@@ -21,7 +21,7 @@ rarely changes the result, and every page fetched is text that could try to give
 
 | You can | With | It grounds |
 |---|---|---|
-| **See** a page | a screenshot or capture you looked at (a headless browser, `npx boxel screenshot`, or `view-visually` in the app) | how it looks *and* what it contains |
+| **See** a page | a screenshot or capture you looked at (a headless browser, `npx boxel screenshot`, or `realm.capture` in the app) | how it looks *and* what it contains |
 | **Read** a page | web search, or a fetch that returns the page's text or a summary of it | what it contains: sections, order, wording, terminology. Not how it looks |
 | **Neither** | — | category conventions from what you know; the look from [`style-families.md`](style-families.md) |
 

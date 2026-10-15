@@ -20,7 +20,7 @@ captures, and does not need the source lines' results. For
 
 ## Capture
 
-Capture with `view-visually` in the app or `npx boxel screenshot` from a terminal
+Capture with `realm.capture` in a `run-realm-code` script in the app or `npx boxel screenshot` from a terminal
 ([`capture.md`](capture.md)), and look at every image. Reading the template is not the check.
 
 - Home and each card's `isolated` view at desktop (`--viewport 1280x…`) and phone (`--viewport 390x…`),
@@ -36,7 +36,7 @@ Capture with `view-visually` in the app or `npx boxel screenshot` from a termina
 
 Capture fitted views inside the parent that shows them: in the app that is the only way, and from a
 terminal a standalone fitted capture can lose the theme ([`capture.md`](capture.md)). In the app,
-`view-visually` cannot capture `fitted` on its own, so check fitted at the one size the parent
+`realm.capture` cannot capture `fitted` on its own, so check fitted at the one size the parent
 renders, and list its other sizes as `uncaptured: fitted narrow/wide (app)`; line 4b stays open for
 them, never passed. From a terminal, `npx boxel screenshot --format fitted --envelope WxH` covers them.
 
