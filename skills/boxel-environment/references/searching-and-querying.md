@@ -14,6 +14,8 @@ boxel:
       requiresApproval: false
 ---
 
+These commands fetch live card instances. To find what exists across realms and the catalog (Specs, listings, files, with each Spec's full readMe), use `realm.entries.search(query, { realms, scope, limit })` in a `run-realm-code` script instead (see `source-code-editing`). It takes the query object itself, `{ filter, sort }`, without the `"query"` wrapper and without `page`.
+
 ## Query Structure
 
 **Always wrap filter in query object:**

@@ -6,9 +6,8 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/search-entries'
+        module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
-      requiresApproval: false
 ---
 
 # Catalog Reuse
@@ -132,6 +131,11 @@ field. What it forbids is hand-building a part when a bigger unit contains it.
 
 `linkedExamples` on a Spec hit is the direct route from a definition to the
 instances the catalog ships for it. Check it before authoring instances by hand.
+A search entry does not carry it. Read the Spec with `realm.cards.get(url)`,
+where `url` is the entry's `url`, in a `run-realm-code` run whose `realm` is the
+Spec's realm (the catalog realm, `@cardstack/catalog/`); a run can read a realm
+that the user can only read. The answer's `relationships` lists each example as
+`linkedExamples.0`, `linkedExamples.1`, and so on.
 
 **Declaring a relationship and filling it are different steps.** You declare
 `@field author = linksTo(Author)` from a Spec hit's `ref` (parts); you fill it by
@@ -143,9 +147,18 @@ searching instances (content). Same keyword, different step.
 **Transport.** Use whichever search you actually have — the queries below are
 identical either way.
 
-- **The `search-entries` tool**, which this skill makes available wherever tools
-  are. It spans every realm you can read, catalog included, so you need no realm
-  URL and should not go looking for one.
+- **`realm.entries.search(query, { realms, scope, limit })` in a
+  `run-realm-code` script**, in an assistant room. This skill declares the
+  `run-realm-code` tool; the sandbox rules for the script are in
+  `source-code-editing`. Without `realms`, it searches every realm the user can
+  read, the catalog included, so you need no realm URL. Pass
+  `realms: ['@cardstack/catalog/']` to search only the catalog, and pass your
+  own realm's URL for the self-check below. Put all the searches of a step in
+  one script and run them at the same time with `Promise.all`, so the run stays
+  inside its 55 seconds. It answers `{ entries, total, truncated, incomplete }`.
+  Each entry is `{ url, kind, ref, specType, cardTitle, cardDescription, name,
+  readMe }`, with the fields at the top level, not under `attributes`. An entry
+  does not carry the card's other fields or its links.
 - **`npx boxel search --realm <realm-url> --query '<filter-json>' --json`**,
   where you have a shell instead. Here `--realm` is required and repeatable, so
   the catalog realm has to be passed explicitly; your environment guidance names
@@ -206,15 +219,17 @@ Deeper query semantics: `boxel/references/query-systems.md`,
 
 Read each hit's `specType`, `cardTitle`, `cardDescription`, and `readMe`. A text
 match is a candidate, not a decision. The `readMe` is the source of truth — it
-carries the API contract, and `search-entries` returns it in full on the hit, so
-judging needs no follow-up read. `cardDescription` is often empty, so `readMe`
+carries the API contract, and `realm.entries.search` returns it in full on each
+entry, so judging needs no follow-up read. `cardDescription` is often empty, so `readMe`
 and `ref` are usually what settle it. Judging on the title alone is how a Spec
 that answered the need gets discarded.
 
 **If a need returns nothing, broaden once** before concluding a gap: re-query
 with two or three alternates joined by `OR`, and drop the `specType` constraint.
-Each result carries a `total`, showing how much of the match set the page did not
-show. The catalog is a corpus of app-specific parts, not a standard library, so
+Each answer carries a `total`, the number of matches. When `truncated` is
+`true`, more entries match than the answer holds; the search does not page, so
+raise `limit` (at most 50) or narrow the query. When `incomplete` is `true`, a
+realm did not answer, and an empty answer is not yet a gap. The catalog is a corpus of app-specific parts, not a standard library, so
 "nothing fits" is often correct — but it is a verdict you record, never one you
 take silently.
 
