@@ -365,6 +365,36 @@ Push each format.
 
 ---
 
+## After stage 4 — baseline motion
+
+This section is the one place the baseline is defined; other files point here. Whenever a route goes on to a user-facing build (straight from the request, from a `domain-interview` brief, or from a brief or design the user already has), the build ships this baseline in its first version, unasked. Leave it out only when the user asked for no motion (in the conversation, or recorded in the brief's `spec`), or for a utility card with no user-facing surface. A user who asked for calm or minimal motion (about the motion itself; a calm look or feel is not such an ask) gets the baseline at its quietest: the entrance and hover and press, no stagger. Read [`card-motion`](../../card-motion/SKILL.md) before writing it, plus only the references for the rows you use: it says which pattern does each job, what a realm can import, and the Glimmer rules that silently stop motion.
+
+| Where | Baseline | card-motion pattern |
+|---|---|---|
+| The Home and each `isolated` view | The main content enters once on first load | `{{motion}}`: [element.md](../../card-motion/references/element.md) |
+| A list or grid in the Home / `isolated` | Its items arrive one after another on first load; only the first ten or so are staggered and the rest arrive with the tenth. The parent that owns the list staggers it | variants with `staggerChildren`, or `stagger`: [element.md](../../card-motion/references/element.md) |
+| Every interactive element: buttons, links styled as buttons or CTAs, clickable tiles, cards and rows, icon buttons | A visible response to hover and to press, and `:focus-visible` gets the same affordance as hover; rows respond without moving (a tint) | `whileHover` / `whileTap`, or CSS `:hover` / `:active` with `transition: transform`, gated by `@media (hover: hover)`; either is fine |
+| Anything the user filters, sorts, adds or removes | Items move instead of jumping, keyed so each item keeps its identity; a removed item leaves | `layout='position'` when the item's size doesn't change: [layout.md](../../card-motion/references/layout.md); `<Presence>` + `exit`: [presence.md](../../card-motion/references/presence.md) |
+
+The rows fix the jobs, not the look. Distance, duration, easing, overshoot and the hover treatment follow the build's look and its signature treatment ([`signature-treatments.md`](../../boxel-design/references/signature-treatments.md)): a playful build can overshoot and bounce, a brutalist one can cut hard with no easing, an editorial one can drift slowly. Only a build whose look says nothing about motion takes the fallback: the entrance fades in from 12px below over about 0.35s with no overshoot, items stagger about 0.04s apart, hover lifts 2px, press scales to about 0.97. The same gentle fade-up on every build is the kind of default [`critical-rules.md`](../../boxel-design/references/critical-rules.md) rejects.
+
+Apply each row only where its surface exists: no list, no stagger; nothing rearranges, no layout row. Every row that applies is required, not a menu: a build with an entrance but no hover and press on its CTAs is not done.
+
+- **Transform and opacity only.** Never tween width, height, top or left; geometry changes go through layout motion.
+- **Visible without motion.** If the motion never runs, the content is still there in its final place and opacity. Captures wait for motion to settle. Reduced motion stays on card-motion's default, and a CSS hover or press transition needs its own `@media (prefers-reduced-motion: reduce)` rule.
+- **The prerender ships the final state.** Host mode paints the prerendered `isolated` HTML before the card hydrates, and the prerender does not wait for motion, so an entrance's start state (`initial=(to opacity=0 …)`) is serialized as inline `opacity: 0` and every published Home opens blank. Skip the start state in a prerender: give `initial` from a getter that returns `false` when `isLiveRender()` (from `@cardstack/base/render-context`) is false. It is read per render, never at module scope. The other way out is a CSS keyframe entrance whose resting state is the final one. The same applies to every staggered item.
+- **Once, not on every render.** The entrance and stagger play on first load only, not when field data changes, a search refreshes or a filter runs (that is the layout row's job), and never in `edit`.
+- **`fitted` and `embedded` get no entrance of their own,** because they render many instances. At most a hover or press, on an inner element or the parent's wrapper, never on the fitted root (a transform there clips host overlays).
+- **Heavier motion is opt-in:** scroll scrub, parallax, drag, a `<Choreo>` scene. Build it only when the user asks for it (the build then records it in the brief's `motion` field), or when it is the build's signature ([`signature-treatments.md`](../../boxel-design/references/signature-treatments.md)).
+
+When you report the build, give the motion in this shape, with every row filled:
+
+```
+Motion: entrance ✓ (hero) · stagger ✓ (menu grid) · hover/press ✓ (CTAs, tiles) · layout/presence n/a (nothing rearranges)
+```
+
+---
+
 ## After stage 4 — automatic design review
 
 When the build is done, run [`design-review`](../../design-review/SKILL.md) without being asked: the builder's pass/fail [build check](../../design-review/references/build-check.md) first, then one review across the app (`set`) and the cards it links to, one fix round on the top gaps, a re-score, and a report with the next step as a choice. Skip only for a utility card with no user-facing surface.

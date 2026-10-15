@@ -168,6 +168,7 @@ Sibling skills:
 - Give every FieldDef a `static displayName`; its default atom is built from it (`Untitled Field` when it's missing).
 - The base `cardTitle` already reads `cardInfo.name`, with an `Untitled <displayName>` fallback. Override it to fall back to a primary field, reading `cardInfo.name` first (recommended, not required). Render `<@fields.cardTitle />` unconditionally, and show `cardDescription` / `cardThumbnailURL` where the card has a summary or image. See `references/core-patterns.md`.
 - Provide empty states for arrays.
+- In a user-facing card or app, read the *After stage 4 — baseline motion* section of `references/design-playbook.md` in full before writing its `isolated` templates, and ship every row of it that applies. An entrance's `initial` comes from a getter that returns `false` when `isLiveRender()` is false, so the prerender is not blank, and every clickable tile gets hover, press and `:focus-visible`.
 - Use theme variables only; link a Theme on an instance only when it should use a specific one (`theme.css` supplies the defaults).
 - Store media as linked FileDef/ImageDef/PngDef; only small durable `http(s)` URLs belong in string fields.
 

@@ -423,13 +423,13 @@ the first review; for an automatic review, *Build output* above it is the build 
 the builder fixed it, so the first build's own state is on record.
 
 ```
-Build output: 10/13 build-check lines passed (builder fixed: names, phone overflow, dead filter)
+Build output: 11/14 build-check lines passed (builder fixed: names, phone overflow, dead filter)
 
 Scorecard
 | Round | Basics | Direction | Aesthetic | Constraints | Reviewer |
 |---|---|---|---|---|---|
-| 0 | 13/13 | 9/11 | 7.5 | 1 major | independent |
-| 1 | 13/13 | 11/11 | 8.0 | 0 | independent |
+| 0 | 14/14 | 9/11 | 7.5 | 1 major | independent |
+| 1 | 14/14 | 11/11 | 8.0 | 0 | independent |
 
 Changelog
 - R1 · G1 Names cut off in fitted tiles (one template) · route: local · reuse: searched "tile title": none fits · title wraps to two lines · landed
