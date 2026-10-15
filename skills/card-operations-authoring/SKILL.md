@@ -194,7 +194,7 @@ let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
 
 | Key        | What it is                                                                 |
 | ---------- | -------------------------------------------------------------------------- |
-| `url`      | Absolute. A whole path segment written `{name}` is filled from `path`; nothing else in the URL is filled |
+| `url`      | Absolute `https:`, one host written out in full (no `*`). A whole path segment written `{name}` is filled from `path`; nothing else in the URL is filled |
 | `path`     | The value for each `{name}` segment. Each fills exactly one segment, encoded, so `../x` stays one segment |
 | `query`    | Query-string parameters, appended and encoded                              |
 | `headers`  | Header values. `X-Boxel-*` headers are never sent                          |
@@ -209,6 +209,18 @@ indexed fields, computed ones included. Invoked on the type —
 `operations(Repository).openIssues(…, { realm })` — there is no card, so only
 the payload, the caller and the realm's settings are in scope, and an
 `instance()` is refused.
+
+**A request goes to `https:`.** The realm server refuses to send one over
+plain `http:` — `guard-refused` — except to a local host in development.
+
+**Where the request goes is its destination**: the URL's origin and its path
+up to the last `/` before the first `{name}` segment (or the path's last `/`
+when it has none), written the way the URL parser writes it — host
+lower-cased, default port dropped, `..` resolved. `url:
+'https://api.github.com/repos/{owner}/{repo}/issues'` goes to
+`https://api.github.com/repos/`, and that is the destination an approval
+screen shows. Put the fixed part of the path before the first `{name}` so the
+destination says as much as it can about where the request goes.
 
 **The answer is the vendor's response, whatever its status.** A 404 or a 500
 from the API comes back as `{status, headers, body}` for the card to read, not
@@ -1181,7 +1193,7 @@ findings has no runnable form, and invoking it is refused with
 | `html-without-rendering`  | `html` on a base other than `read` or `query`, which serves no prerendered HTML |
 | `invalid-html-declaration`| `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable` |
 | `invalid-label`           | A `label` that isn't a single short line of plain text (§2)         |
-| `invalid-request`         | A `callApi` request that can't be sent as written: a relative URL, a `path` value no `{name}` takes, an object where text is sent, two bodies |
+| `invalid-request`         | A `callApi` request that can't be sent as written: a relative URL, a `*` in the host, a `path` value no `{name}` takes, an object where text is sent, two bodies |
 | `invalid-slot`            | Something that looks like a slot and isn't — `{{apiKey\|rot13}}`     |
 | `slot-placed-twice`       | One slot in two places in a request                                  |
 | `slot-name-reused`        | One name for a `userKey` slot and an `apiKey` slot                   |
@@ -1266,7 +1278,7 @@ try {
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
 | `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
-| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or too many redirects |
+| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, too many redirects, or a request outside its declared destination — nothing was sent |
 | `upstream-timeout`         | The outside service did not answer in time                    |
 | `response-too-large`       | The outside service's response was larger than the realm server carries |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
