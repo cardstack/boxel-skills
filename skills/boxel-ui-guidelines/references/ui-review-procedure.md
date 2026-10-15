@@ -15,6 +15,7 @@ a class in <style> that no element in <template> carries
 var(--[a-z]+-[a-z-]+, var(--   (a private name read with a theme variable as its fallback)
 color: var(--*-ink)  /  color: var(--*-foreground)   (on a descendant, not the surface root)
 :deep(.boxel-card-container)   :deep(.field-component-card)   :deep(
+:global(                       (never works in card code: one invalid selector drops its whole selector list; use a class or :deep())
 font:                          [0-9.]+px (outside borders, outlines, underline offsets and CQ breakpoints; a var() fallback counts)
 var(--[a-z-]+, #               #[0-9a-f]{3,8}                 rgba?(
 <button                        <input                         <select

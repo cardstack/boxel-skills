@@ -92,6 +92,43 @@ Compute a state once with `{{#let}}` and feed it to the variant, a `cn` modifier
 
 **Component args are not portable between components.** Pret UI's `Button` takes `@href` to render an `<a>` and has no `@as`; boxel-ui's `@kind`, `@as` and `@rectangular` mean nothing to it. Never carry one component's arg names to another; check the signature.
 
+### A tappable tile is still a `Button`
+
+A lesson in a timetable cell, a slot in a calendar, a product in a picker: a multi-line block of data you click. It is a `Button`, not a raw `<button>`, and it does not need to reach inside the component. `Button` is an `inline-flex` row with `white-space: nowrap`, made for a one-line label, so the tile changes the layout and leaves the paint to the treatment:
+
+```hbs
+<Button
+  class='lesson'
+  @tone='primary'
+  @appearance='filled'
+  {{on 'click' (fn this.selectLesson lesson)}}
+>
+  <span class='lesson__subject'>{{lesson.subject}}</span>
+  <span class='lesson__meta'>{{lesson.teacher}} · {{lesson.room}}</span>
+</Button>
+```
+
+```css
+.lesson {
+  /* layout only; colour, border, hover and focus stay with @tone × @appearance */
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  width: 100%;
+  height: 100%;
+  white-space: normal;
+  text-align: start;
+  --pretui-button-px: var(--boxel-sp-xs);
+}
+.lesson__subject { font-weight: 600; }
+.lesson__meta { color: inherit; opacity: 0.8; }
+```
+
+- `class='lesson'` lands on the `<button>` itself (the component passes `...attributes` through), and Pret UI's own rules sit in `@layer PretComponent`, so the plain scoped `.lesson` rule wins. No `:deep()`, no qualifying parent selector, and never `:global()`, which card code compiles out (it then drops every selector in its list).
+- The inner elements are `<span>`s: a `<button>` may only hold phrasing content, so no `<div>` or heading inside it. Style them with plain scoped classes; they are in your template, so your scope reaches them.
+- Pick the treatment that paints the tile: `@appearance='filled'` or `'outlined'` for a coloured block, `'plain'` for one whose surface comes from the cell around it. Don't paint over a treatment with `background-color` on the class.
+- Check the result in a capture: the label wraps, the tile fills its cell, and the focus ring still shows.
+
 ### Drag/drop quality bar
 
 For kanban/status/deal/task boards:
