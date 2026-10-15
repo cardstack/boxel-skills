@@ -1,6 +1,6 @@
 ---
 name: boxel-ui-component-discovery
-description: MANDATORY before writing any UI in a `.gts` template. Search the catalog for a component Spec and reuse it — Pret UI first, boxel-ui only where Pret UI has no equivalent yet. Fall back to raw HTML only when no matching spec exists, and surface the gap when you do.
+description: MANDATORY before writing any UI in a `.gts` template, including a quick fix to an existing card (turning a styled span or div into a button, wiring a dead control, a design-review fix) and the reuse search design-review runs for each gap. Search the catalog for a component Spec and reuse it — Pret UI first, boxel-ui only where Pret UI has no equivalent yet. Fall back to raw HTML only when no matching spec exists, and surface the gap when you do.
 boxel:
   kind: skill
   tools:

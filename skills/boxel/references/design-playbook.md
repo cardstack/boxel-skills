@@ -365,6 +365,12 @@ Push each format.
 
 ---
 
+## After stage 4 — automatic design review
+
+When the build is done, run [`design-review`](../../design-review/SKILL.md) without being asked: the builder's pass/fail [build check](../../design-review/references/build-check.md) first, then one review across the app (`set`) and the cards it links to, one fix round on the top gaps, a re-score, and a report with the next step as a choice. Skip only for a utility card with no user-facing surface.
+
+---
+
 ## What NOT to do
 
 - ❌ Use the container-query fitted guide as visual ideation. Design the fitted composition from the stage-1 mockup first; then implement every `fitted` template with the mandatory CQ mechanics in `container-query-fitted-layout.md`.
