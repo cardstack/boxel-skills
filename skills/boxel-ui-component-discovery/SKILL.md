@@ -5,9 +5,8 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/search-entries'
+        module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
-      requiresApproval: false
 ---
 
 # Boxel UI Component Discovery
@@ -20,21 +19,20 @@ accordion, …) — **you must first search the catalog for an existing
 component Spec and reuse it.** The catalog holds two component
 libraries:
 
-- **Pret UI** — `attributes.ref.module` under
-  `@cardstack/pretui/components/` (`attributes.ownership` is
-  `'pretui'`). This is the default for every control and display
-  primitive.
-- **boxel-ui** — `attributes.ref.module` is
+- **Pret UI** — the spec's `ref.module` starts with
+  `@cardstack/pretui/components/`. This is the default for every
+  control and display primitive.
+- **boxel-ui** — the spec's `ref.module` is
   `@cardstack/boxel-ui/components`. Use one only when no Pret UI spec
   covers the primitive (layout shells such as `CardContainer` and
   `FittedCard`, `KanbanPlane`, `FilterList`, …).
 
-When both libraries match, use the Pret UI one. A Pret UI spec's
-`attributes.refs` names the components it supersedes (`boxel-ui Menu`),
-and `skills/boxel-ui-guidelines/references/use-boxel-ui-components.md`
-has the full replacement table.
+Tell the two libraries apart by `ref.module`. When both libraries
+match, use the Pret UI one. To see which boxel-ui components a Pret UI
+component replaces, use the replacement table in
+`skills/boxel-ui-guidelines/references/use-boxel-ui-components.md`.
 
-- A matching spec exists → import it via `attributes.ref` and follow
+- A matching spec exists → import it via its `ref` and follow
   its documented API (step 3 says where that lives for each library). No raw `<button>`, `<input>`,
   `<textarea>`, `<select>`, `<details>`, etc. Visual styling — even
   unconventional aesthetics — is never a reason to drop down to raw
@@ -84,30 +82,98 @@ of truth for what's available and what each component is called.
      --query '<filter-json>' --json` returns the full inventory (well
      over 100 specs across both libraries) in one call. Match each item in your enumeration to a result
      by reading `attributes.cardTitle` and `attributes.cardDescription`.
-   - **In an assistant room, use `search-entries`** with `scope: 'cards'`.
-     It pages (`limit` default 5, max 10), so one broad query will not
-     hand you the whole inventory — run one query per enumerated item
-     instead, adding `{ "matches": "<the item's plain-language name>" }`
-     alongside the `specType` constraint, and read the `total` each
-     result carries to see how much you have not seen. `search-entries`
-     becomes callable once you have read this skill file.
+   - **In an assistant room, search in one `run-realm-code` script**
+     with `realm.entries.search(query, { realms, scope: 'cards', limit })`.
+     This skill declares the `run-realm-code` tool. The sandbox rules
+     for the script are in `source-code-editing`. Pass `realms` with only
+     the catalog realm: without it, the search also reads every
+     workspace the user can read, and a component Spec that a user
+     wrote in a workspace is not a catalog component. The catalog realm
+     is `@cardstack/catalog/`, or the catalog URL from your context.
+     Run one query per enumerated item, all in the same script. The
+     realm calls of a run go one at a time, also in `Promise.all`, and
+     a run has 55 seconds. If a run with many items stops at that
+     limit, split the items across two runs. Add
+     `{ "matches": "<the item's plain-language name>" }` beside the
+     `specType` constraint, and return only what you will use. Each
+     entry is `{ url, kind, ref, specType, cardTitle, cardDescription,
+     name, readMe }`. The fields are at the top level, not under
+     `attributes`, and `readMe` is the full readMe. An entry does not
+     carry the spec's other fields or its links (for example the
+     `writeup` link of a Pret UI spec):
+
+     ```js
+     const items = ['button', 'text input', 'dropdown', 'modal'];
+     const found = {};
+     for (const item of items) {
+       const { entries, total, truncated, incomplete } =
+         await realm.entries.search(
+           {
+             filter: {
+               on: { module: '@cardstack/base/spec', name: 'Spec' },
+               every: [{ eq: { specType: 'component' } }, { matches: item }],
+             },
+           },
+           { realms: ['@cardstack/catalog/'], scope: 'cards', limit: 10 },
+         );
+       found[item] = {
+         total,
+         truncated,
+         incomplete,
+         specs: entries.map((e) => ({
+           title: e.cardTitle,
+           description: e.cardDescription,
+           ref: e.ref,
+           readMe: e.readMe,
+         })),
+       };
+     }
+     return found;
+     ```
+
+     Check `total`, `truncated` and `incomplete` for each item before
+     you choose. `total` is how many specs match. `truncated` is `true`
+     when more specs match than the answer holds; a search returns at
+     most 50 entries and does not page. Then the Pret UI spec can be
+     one of the specs you did not see, so raise `limit` (at most 50) or
+     narrow the query, and search again before you choose a boxel-ui
+     spec or declare a gap. `incomplete` is `true` when a realm did not answer;
+     search again before you declare a gap. The script above returns
+     each spec's `readMe`, so step 3 needs no second search for a
+     boxel-ui spec.
 
    Narrow with `contains` on the title or `matches` (full-text over the
    readMe) if a query is noisy. See `boxel/references/query-systems.md`
    for full query syntax.
 
 3. **Read each chosen spec's API.**
-   - **Pret UI:** `attributes.readMe` holds only the import line. The
+   - **Pret UI:** the `readMe` holds only the import line. The
      contract (args, accessibility, theming knobs) is the component's
-     write-up, linked from the spec as `writeup` (the `<name>.md` beside
-     the module); read it before using the component. Worked examples
-     are in `<name>.usage.gts`.
-   - **boxel-ui:** `attributes.readMe` has the Import line, the API
-     table (arg / type / required / default / options / description),
-     an example snippet, and CSS variables. It rides on the search
-     response; no follow-up fetch needed.
+     write-up, the `<name>.md` file beside the module. Worked examples
+     are in `<name>.usage.gts`. Read the write-up before you use the
+     component. The search entry does not carry its path, so make the
+     path from `ref.module`: for `@cardstack/pretui/components/button`
+     the write-up is `components/button.md` in the Pret UI realm,
+     `@cardstack/pretui/`. Read it in a second `run-realm-code` run
+     with `realm` set to `@cardstack/pretui/`. A run can read a realm
+     that the user can only read. Read all the write-ups you need in
+     that one run. If the run is refused, choose from the spec's
+     `readMe` and `cardDescription`, and tell the user that you could
+     not read the write-up:
 
-4. **Use the components.** Translate each `attributes.ref` to an
+     ```js
+     const writeups = {};
+     for (const p of ['components/button.md', 'components/select.md']) {
+       writeups[p] = await realm.fs.readText(p);
+     }
+     return writeups;
+     ```
+   - **boxel-ui:** the `readMe` has the Import line, the API
+     table (arg / type / required / default / options / description),
+     an example snippet, and CSS variables. It comes in the search
+     entry; no second read is needed.
+
+4. **Use the components.** Translate each `ref` to an
    import line directly (the readMe gives you the exact statement).
    Copy an example as a template and substitute your own args following
    the contract or API table. Never carry boxel-ui arg names (`@kind`,

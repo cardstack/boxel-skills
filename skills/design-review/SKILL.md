@@ -5,9 +5,8 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/search-entries'
+        module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
-      requiresApproval: false
 ---
 
 # Design Review
@@ -141,7 +140,7 @@ chains into a second round on its own.
 **Search before you route.** For each gap, run one quick Spec search for what the gap needs ("money
 input", "formatted number", "chart", "legend"): Pret UI first, then the catalog, as
 [`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) → *Procedure* searches,
-with the `search-entries` tool this skill declares. One or two terms per gap is enough. If the search
+with `realm.entries.search` in a `run-realm-code` run (this skill declares the tool). One or two terms per gap is enough. If the search
 cannot run, write `reuse: not searched: <reason>`; never fill `reuse:` from memory. Then route by what
 it found:
 
