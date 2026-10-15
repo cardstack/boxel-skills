@@ -8,6 +8,8 @@ validated: source-proven
 
 **When to use:** Whenever you build a card *family* — 2+ related CardDefs (Meet + Swimmer + Club, Project + Task + Person, Show + Listing + Venue, etc.). Building a single utility card? Skip this pattern. Building anything where the user will accumulate instances over time? Build the home.
 
+**Motion:** the Home and the linked cards' isolated views ship baseline motion ([`design-playbook.md`](../../../boxel/references/design-playbook.md) → *After stage 4 — baseline motion*). What is specific to this pattern: the Home owns each section's stagger, so the fitted items it renders get no entrance of their own.
+
 **Why it matters:**
 - **Discoverability.** A workspace with 5 CardDefs and no home falls back to its default index card, which lists everything the workspace holds under one Library view. That is a competent inventory, not a pitch: it can't say which of the five types a visitor should open first, or why. A home puts the brand voice up front and arranges the suite the way the designer intended.
 - **Editorial framing.** The home is where you set the typography pairing, the eyebrow voice, the color story. Children inherit through the theme cascade.

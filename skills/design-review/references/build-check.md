@@ -3,8 +3,8 @@
 Part of [`design-review`](../SKILL.md). Links are relative to this file.
 
 The builder runs this after the playbook's last stage, as the end of the build and before the first
-review round. Every fault it lists shows in a screenshot, except two read from the source: line 13
-and line 4a. Names cut off in fitted tiles, half-empty
+review round. Every fault it lists shows in a screenshot, except three read from the source: lines 13
+and 14, and line 4a. Names cut off in fitted tiles, half-empty
 tiles, broken phone layouts, placeholder labels too small to read, the accent colour spreading,
 controls too small to hit, a button that does nothing. A builder that never looks at a capture
 leaves them for the review, which then spends its round finding them instead of raising the design.
@@ -13,7 +13,7 @@ The check is pass or fail, never a score. A builder that scores its own work sco
 number here would stand in for the review that follows. Record the tally before fixing (the
 report's *Build output* line), then fix.
 
-The source lines (4a, 13) are run by the builder, or for *Scoring existing work* by the main agent,
+The source lines (4a, 13, 14) are run by the builder, or for *Scoring existing work* by the main agent,
 which records their results in the report. An independent reviewer runs only the visual lines, from
 captures, and does not need the source lines' results. For
 *Scoring existing work*, together they are the report's *Basics* block.
@@ -101,6 +101,13 @@ Each line passes or fails on every capture.
     user's data are allowed. Any other hex, rgb or named colour fails: name each with its replacement
     token, chosen by role (line 5: a chip that is not an action takes a muted or secondary token, not
     the accent). Two series that look alike fail even when both are tokens.
+14. **Baseline motion.** Read from the source, against
+    [`design-playbook.md`](../../boxel/references/design-playbook.md) → *After stage 4 — baseline motion*.
+    For each of its four rows, cite the `file:line` that implements it, or write `n/a` with the reason
+    (no list, nothing rearranges). Any applicable row with no citation fails: an entrance with no hover
+    and press on the CTAs fails. So does an entrance on a `fitted` or `embedded` root, and content that
+    stays hidden or offset when motion never runs. Passes as `n/a` when the user or the brief asked for no
+    motion, and then any motion in the source fails.
 
 Fix every failure, re-capture those views, and check them again. Then start the review. The
 reviewer gets the captures and the brief as usual, not this list's results.
