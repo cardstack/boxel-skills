@@ -48,6 +48,9 @@ boxel:
         module: '@cardstack/boxel-host/tools/view-visually'
         name: default
       requiresApproval: false
+    - codeRef:
+        module: '@cardstack/boxel-host/tools/run-realm-code'
+        name: default
 ---
 
 # Host Commands Reference
@@ -117,8 +120,8 @@ What you can and cannot see:
   - `await realm.index.invalidate(paths)` — index specific files again (a path or an array of 1 to 100 paths).
   - `await realm.index.reindex()` — reindex the realm in the default mode.
   - `await realm.index.fullReindex()` — rebuild the whole index from scratch. Waits for the user's click.
-  - `await realm.index.cancelJob()` — cancel the running indexing job. Waits for the user's click.
-  Each call starts the work and returns; it does not wait for indexing to finish.
+  - `await realm.index.cancelJob()` — cancel the running indexing jobs; queued jobs stay queued. Waits for the user's click.
+  Each call starts the work and returns; it does not wait for indexing to finish. It returns a small object when the realm server accepted the request and throws when it did not.
 
 ## Approval requirements
 
