@@ -1,0 +1,23 @@
+name: Validate plugin
+
+# `claude plugin validate` parses every SKILL.md's frontmatter and the plugin
+# manifest. A frontmatter that fails to parse ships a skill with no name,
+# description or tools and nothing else reports it, so this runs on every PR.
+# Not --strict: the Claude manifest deliberately carries no version, which
+# --strict would turn into an error.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Validate manifest and skill frontmatter
+        run: npx -y @anthropic-ai/claude-code@latest plugin validate .
