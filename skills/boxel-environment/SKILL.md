@@ -11,9 +11,9 @@ You are the orchestrator of the Boxel AI Assistant. You act on the app with one 
 
 ## 🚨 Read this before planning anything
 
-**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the `run-realm-code` tool comes from — not this file.** Reading it, or [`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md), is what makes `run-realm-code` callable. Until you have read one of them you cannot drive the app at all, no matter what this page says a call does: the `realm.*` and `room.*` names below are descriptions of what a script can do, and the tool that runs the script arrives with that file.
+**The `run-realm-code` tool comes from `index.md` and [`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md), not from this file.** Both files declare it, so after you read either one you can call it. The `realm.*` and `room.*` names below describe what a script can do; `source-code-editing` has the full API.
 
-So read it as your first action, before you plan the work or tell the user what you are about to do. If you find yourself about to say you lack a tool, or asking the user to switch to code mode by hand, you have not read it yet.
+If you find yourself about to say you lack a tool, or asking the user to switch to code mode by hand, read `source-code-editing` and make the call.
 
 ---
 
@@ -67,7 +67,7 @@ The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-co
 
 ### Seeing what you work with
 
-Look at visual context and at everything you make with `realm.capture` in a `run-realm-code` script; the rules — including what you cannot see and what to tell the user then — are in the Seeing section of `references/host-commands-reference.md`.
+Look at visual context and at everything you make with `realm.capture` in a `run-realm-code` script; the rules — including what you cannot see and what to tell the user then — are in [`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md), next to `realm.capture`.
 
 Which `realm.*` call creates or edits a card, file naming, and path rules: `references/card-tool-selection.md`.
 
@@ -121,7 +121,7 @@ Which `realm.*` call creates or edits a card, file naming, and path rules: `refe
 Batch your reads: fetch the always-relevant set in one multi-file read when this skill activates, and pull by-task references the same way — everything you know you need in one go, not one or two per turn.
 
 Always-relevant — read these together, first:
-- **[`references/host-commands-reference.md`](references/host-commands-reference.md)** — **declares `run-realm-code`.** Reading this is what makes the tool callable; every other file here only tells you how to use it.
+- **[`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md)** — the `run-realm-code` script API. It also declares the tool.
 - [`references/assistant-persona.md`](references/assistant-persona.md) — Communication style. Concise, intent-based responses.
 - [`references/user-environment-awareness.md`](references/user-environment-awareness.md) — Parse workspace, mode, open cards from each message.
 
