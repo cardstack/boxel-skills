@@ -5,10 +5,6 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/transform-cards'
-        name: default
-      requiresApproval: true
-    - codeRef:
         module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
 ---
@@ -21,7 +17,6 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 - **`run-realm-code`** — The way to create or edit source files. It runs a script that saves each file as it writes it, and triggers correctness checks after indexing. Use `realm.fs.writeText` for a new file, `realm.fs.replace` for an existing one, and `realm.fs.copy` to duplicate a file in the same realm. `realm.fs.delete` deletes a file, such as a file written by mistake; a run that contains it waits for the user to approve it.
 - **`run-realm-code`** — Change field values of a card instance with `await realm.cards.update(path, attributes)` in the script (see `source-code-editing`): a markdown field of any length, one card or many in a loop. It reads the card's file, so it also works on a card you just wrote.
-- `transform-cards_33d7` — Bulk update with a command (requires approval).
 
 ## Media
 
