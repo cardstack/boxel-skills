@@ -47,7 +47,7 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/switch-submode'
+        module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
     - codeRef:
         module: ../../my-tools/plan-trip

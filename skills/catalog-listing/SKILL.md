@@ -20,10 +20,6 @@ boxel:
         module: '@cardstack/catalog/commands/listing-remix'
         name: default
       requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/preview-format'
-        name: default
-      requiresApproval: false
 ---
 
 # catalog-listing
@@ -88,7 +84,7 @@ If actionType is generate .gts card definition via listing requirement:
 - Measure the requirements, split into several steps of response if found to be large
 - Code generation must not exceed 1000 lines per response
 - Continue in subsequent responses if needed.
-- Once complete, create some example and show the module and example via preview-format command. Make sure the module is full path which includes the realm url
+- Once complete, create some example and show the module and example with `realm.ui.previewFormat(cardPath, format)` in the `run-realm-code` script that wrote them (see `source-code-editing`).
 
 If actionType is submit, make PR, or catalog submission:
 - Load `references/submission-workflow.md`.

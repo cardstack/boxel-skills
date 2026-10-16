@@ -47,10 +47,10 @@
 ### Code Generation
 Two replies at most. First reply: a `run-realm-code` call that returns `await realm.fs.readText(path)` for the file, so the `realm.fs.replace` search text matches its current content (skip this when you already have the content). Second reply, right after the result: one line of prose, then the `run-realm-code` call; if the user should see the result, the script ends with `return { show: path }` for the instance.
 
-Switching to code mode is optional navigation for the user's benefit — at most once per task, with `switch-submode_dd88` (`attributes.submode` "code", `attributes.codePath` the file URL), and only when the tab is not already in code mode on that file. It is never a step of writing, and it never needs a reply of its own.
+Opening the file in code mode is optional navigation for the user's benefit — at most once per task, with `realm.ui.openFile(path)` in the same `run-realm-code` script, and only when the tab is not already in code mode on that file. It is never a step of writing, and it never needs a call of its own.
 
 ### Card Creation
-One `run-realm-code` call that writes every file with `realm.fs.writeText` — the definition and every instance together — and, if the user should see a card, ends with `return { show: path }` for one instance, such as `return { show: 'Pet/mango' };`. That call creates the files and opens the card; no mode switch and no placeholder call comes first. If you switch to code mode so the user can watch, do it once, before the `run-realm-code` call.
+One `run-realm-code` call that writes every file with `realm.fs.writeText` — the definition and every instance together — and, if the user should see a card, ends with `return { show: path }` for one instance, such as `return { show: 'Pet/mango' };`. That call creates the files and opens the card; no mode switch and no placeholder call comes first. If the user should see a file in code mode instead, the same script calls `realm.ui.openFile(path)`.
 
 ### Search & Modify
 ```json
