@@ -51,7 +51,7 @@ Opening the file in code mode is optional navigation for the user's benefit — 
 One `run-realm-code` call that writes every file with `realm.fs.writeText` — the definition and every instance together — and, if the user should see a card, ends with `return { show: path }` for one instance, such as `return { show: 'Pet/mango' };`. That call creates the files and opens the card; no mode switch and no placeholder call comes first. If the user should see a file in code mode instead, the same script calls `realm.ui.openFile(path)`.
 
 ### Search & Modify
-One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and changes each one with `realm.cards.update(card.path, attributes)`, returning the paths it changed. A run updates at most 200 cards; for more, split the work across calls by `page.number`. For a change to links or to the shape of the JSON, edit each file with `realm.fs.replace(card.path, …)` instead; a run edits at most 20 files.
+One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and changes each one with `realm.cards.update(card.path, attributes)`, returning the paths it changed. The script pages through the search until `truncated` is `false` or it has updated 200 cards, the most a run can update. For more, run the script again, as `source-code-editing` describes. For a change to links or to the shape of the JSON, edit each file with `realm.fs.replace(card.path, …)` instead; a run edits at most 20 files.
 
 ### Schema Migration
 1. Change the schema with `realm.fs.replace` on the `.gts` in a `run-realm-code` script.
