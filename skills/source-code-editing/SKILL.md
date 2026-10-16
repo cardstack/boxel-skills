@@ -22,17 +22,24 @@ To find cards in the realm, call `await realm.cards.search(query)`. `query` is a
 To change field values of a card instance, call `await realm.cards.update(path, attributes)`. `path` is the instance with or without `.json` (`Recipe/pasta`), or `card.path` from a search. `attributes` holds only the fields you change, as plain JSON: a nested object merges into the field's current value, and an array or any other value replaces it. It changes attributes only, not links; to change a link, edit the `.json` with `realm.fs.replace`. Use it instead of `realm.fs.replace` for every change to an instance's field values, because it needs no JSON escaping and no exact search text. It returns `{ path, fields, saves }`. Nothing is saved while the script runs: when the script finishes, the host saves every update in one request, all or none. If the script fails, or a card changed while the script ran, no update is saved. In the same run, `realm.fs` cannot read or change a card that has an update waiting, and `realm.cards.get` returns the card without the update. A run updates at most 200 cards, and they do not count toward the 20-file limit; more calls on one card count once. To change many cards, search, update and report in one script:
 
 ```js
-const { cards, truncated } = await realm.cards.search({
-  filter: { on: { module: realm.current.url + 'recipe', name: 'Recipe' }, eq: { cuisine: 'unknown' } },
-  page: { size: 100, number: 0 },
-});
-for (const card of cards) {
-  await realm.cards.update(card.path, { cuisine: 'Italian' });
+const updated = [];
+let more = true;
+for (let number = 0; more && updated.length < 200; number++) {
+  const { cards, truncated } = await realm.cards.search({
+    filter: { on: { module: realm.current.url + 'recipe', name: 'Recipe' }, eq: { cuisine: 'unknown' } },
+    page: { size: 100, number },
+  });
+  const room = 200 - updated.length;
+  for (const card of cards.slice(0, room)) {
+    await realm.cards.update(card.path, { cuisine: 'Italian' });
+    updated.push(card.path);
+  }
+  more = truncated || cards.length > room;
 }
-return { updated: cards.map((card) => card.path), truncated };
+return { updated, more };
 ```
 
-Do all of a bulk edit in this one call. Split it across calls only when more than 200 cards match: then run the same script again with the next `page.number` until `truncated` is `false`.
+Page inside this one script, as above, until `truncated` is `false` or the run reaches 200 updates. The index does not change while the script runs, because nothing is saved until it ends, so each page continues where the last one stopped. Run the script again only when it returns `more: true`. A later run starts again at `page.number: 0` when the filter selects on a field the script changes, as `cuisine` above: the cards the first run saved no longer match, so the next `page.number` would skip cards that still need the change. When the filter does not select on a changed field, the later run starts at the next `page.number` instead (2 after a run of 200 cards). A card the realm has not reindexed yet can match again; updating it again changes nothing.
 
 Return only what you need from a search, such as the paths or a few attributes; the whole result goes into the tool result.
 

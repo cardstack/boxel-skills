@@ -52,7 +52,7 @@ Switching to code mode is optional navigation for the user's benefit — at most
 One `run-realm-code` call that writes every file with `realm.fs.writeText` — the definition and every instance together — plus, if wanted, a `show-card_566f` call with `attributes.cardId` set to an instance's URL (the `.json` path without the extension). That call creates the files; no mode switch and no placeholder call comes first. If you switch to code mode so the user can watch, do it once, before the `run-realm-code` call.
 
 ### Search & Modify
-One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and changes each one with `realm.cards.update(card.path, attributes)`, returning the paths it changed. A run updates at most 200 cards; for more, split the work across calls by `page.number`.
+One `run-realm-code` script that finds the cards with `realm.cards.search(query)` and changes each one with `realm.cards.update(card.path, attributes)`, returning the paths it changed. The script pages through the search until `truncated` is `false` or it has updated 200 cards, the most a run can update. For more, run the script again, as `source-code-editing` describes.
 
 ### Schema Migration
 1. Update schema with breaking changes:
