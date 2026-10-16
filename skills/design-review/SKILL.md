@@ -54,7 +54,7 @@ finishes, run this loop without being asked, over **everything the build produce
    The builder captures its own work, records how many lines pass as the round's *Build output*,
    then fixes every failing line. This is part of finishing the build, not a review round, and it
    gives no score.
-2. **Capture the whole unit** (`realm.capture` in a `run-realm-code` script in the app, from host-commands-reference → *Seeing*;
+2. **Capture the whole unit** (`realm.capture` in a `run-realm-code` script in the app, from `source-code-editing` → `realm.capture`;
    `npx boxel screenshot` from a terminal; see [`references/capture.md`](references/capture.md)):
    `set` mode across every screen, and each CardDef the build produced or the screens link to, in
    the formats the screens show it in. The full five-format family is `card` mode, on request. A
