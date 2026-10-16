@@ -82,11 +82,10 @@ the instance JSON.
 
 ## 5. Every query needs a realm scope, and don't start it before the realm is known
 
-A card-owned query with a missing or empty `realm` argument silently falls back to
-searching **every realm the server can see**, not just the current one. Always scope
-queries to the current card's own realm, and don't kick off the query before that
-realm URL is actually resolved. Cap general-purpose result sets (~100) rather than
-pulling unbounded result sets.
+A card search with no `realms` targets the card's own realm; before that realm is
+known it searches nothing, so don't treat the empty first result as an answer. A card
+search is capped at 100 rows and 2 realms, and asking for more returns *nothing*, not
+a trimmed page — `boxel/references/query-systems.md` "Limits and ceilings".
 
 ## 6. Query-filter shape: `type` selects instances, `on` only scopes predicates
 

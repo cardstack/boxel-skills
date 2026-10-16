@@ -107,7 +107,7 @@ Format suggestion: a single `TRACKING.md` at the realm root with sections for *C
 Don't treat the transient as proof your query syntax is wrong. Recovery sequence:
 
 1. Read the relevant files back with `npx boxel file read` to confirm they're really in the realm.
-2. `npx boxel realm wait-for-ready --realm <url>` until the realm reports ready.
+2. `npx boxel realm wait-for-ready --realm <url>` until the realm's index queue drains (a queue check, not a health check).
 3. Validate through a host-rendered result-list card when possible (`@context.searchResultsComponent`) — that path exercises the indexer differently than the federated-search CLI route.
 4. Retry `npx boxel search` after the realm has indexed.
 
