@@ -58,14 +58,14 @@ There is no path segment that names "this link itself" — paths name the *next*
 ## Firm rules
 
 - **Links capture the declared type only.** `linksTo(X)` / `linksToMany(X)` pulls in exactly `X`'s declared fields. A polymorphic subtype's extra contained fields are *not* captured — they are unqueryable anyway (a filter path resolves against the declared type), so the search-doc shape is fully determined by the static field definitions.
-- **Querying a non-searchable path errors.** A filter whose path resolves in the schema but crosses a `linksTo` / `linksToMany` hop that was never made `searchable` throws a distinct query-time error (separate from "nonexistent field") that names the field and the annotation to add. It surfaces a forgotten annotation at the point of use instead of returning silently-empty results.
+- **Querying a non-searchable path fails — quietly, from a card.** A filter path that continues past a `linksTo` / `linksToMany` never made `searchable` (anything beyond a bare `link.id`) fails that realm's search with an error naming the field and the annotation to add. A card never sees that message: `getCards`, `searchResultsComponent` and `boxel search` drop the failed realm, so the result is zero rows with `meta.incomplete: true`, and the text lands only in the server log. When a cross-link filter returns nothing, check `meta.incomplete`, then the annotation.
 
   ```gts
   // Filtering on author.name requires the author link to be searchable:
   @field author = linksTo(Author, { searchable: true });   // now `eq: { 'author.name': … }` resolves
   ```
 
-- **Query-backed relationships are never captured.** A `linksTo` / `linksToMany` with a `query` can't be invalidated when matching cards change, so it would go stale. `searchable` is accepted but **inert** on a query-backed relationship (a valid no-op), and a path cannot route deeper through it — routing a *filter* through a query-backed hop errors like any other non-searchable hop.
+- **Query-backed relationships are never captured.** A `linksTo` / `linksToMany` with a `query` can't be invalidated when matching cards change, so it would go stale. `searchable` is accepted but **inert** on a query-backed relationship (a valid no-op), and a path cannot route deeper through it — routing a *filter* through a query-backed hop fails the same way as any other non-searchable hop, whatever its annotation.
 - **No wildcard.** There is deliberately no "make everything searchable" form; a cyclic or high-fan-out link graph could otherwise pull an unbounded slice of the realm into one doc.
 - **Cycles clip to `{ id }`; broken or not-loaded links degrade to `{ id }`.**
 
@@ -89,7 +89,7 @@ class Team extends CardDef {
 
 ## Authoring-time validation
 
-An annotation path that doesn't resolve — a typo, a removed field, or a segment that isn't a relationship/contained field — is **logged and recorded in the module's build diagnostics, never thrown**. Definition build is decoupled from the edit that introduced the bad path, so a throw would surface at a confusing, unrelated moment. The bad path is simply not followed; if anything actually queries that intended path, the query-time error above is the loud backstop.
+An annotation path that doesn't resolve — a typo, a removed field, or a segment that isn't a relationship/contained field — is **logged and recorded in the module's build diagnostics, never thrown**. Definition build is decoupled from the edit that introduced the bad path, so a throw would surface at a confusing, unrelated moment. The bad path is simply not followed; if anything actually queries that intended path, the search fails as above — zero rows and `meta.incomplete: true`.
 
 ## Key principles
 
@@ -98,5 +98,5 @@ An annotation path that doesn't resolve — a typo, a removed field, or a segmen
 - `searchable: true` makes the immediate link searchable; a dotted path makes a deeper (n+1) link searchable; an array combines routes.
 - Links capture the declared type only.
 - Query-backed relationships are never captured — `searchable` is an inert no-op on them.
-- Querying a resolvable-but-non-searchable path throws a distinct error naming the annotation to add.
+- Querying a resolvable-but-non-searchable path (past a bare `link.id`) fails that realm's search; a card sees zero rows and `meta.incomplete: true`, the message only in the server log.
 - There is no wildcard; cycles and broken/not-loaded links clip to `{ id }`.

@@ -176,8 +176,8 @@ The mismatch will surface in the result's `error` / `stackTrace` if it's present
 
 | Field | Import | Notes |
 |---|---|---|
-| `MarkdownField` | `'@cardstack/base/markdown'` | Plain CommonMark string. Renders to HTML in non-edit; textarea editor. |
-| `RichMarkdownField` | `'@cardstack/base/rich-markdown'` | BFM-aware authoring surface with toolbar + slash menu. Use for cards where the body is the primary content (blog posts, docs). |
+| `MarkdownField` | `'@cardstack/base/markdown'` | Plain markdown string. Renders to HTML in non-edit; textarea editor. A `:card[]` / `::card[]` directive renders as a placeholder, never the card. |
+| `RichMarkdownField` | `'@cardstack/base/rich-markdown'` | BFM with resolved `:card[]` / `::card[]` embeds, toolbar and slash menu. Required whenever the content embeds cards; a plain string value still deserializes into it. → `skills/boxel-flavored-markdown/references/card-directives-the-boxel-extension.md` |
 
 ## File-backed (linksTo only)
 
@@ -235,7 +235,7 @@ Need text?
 │   (UrlField = external URLs only; a realm resource URL is a linksTo, see below)
 ├── Multi-line plain → TextAreaField
 └── Markdown
-    ├── Stored on the card → MarkdownField (or RichMarkdownField for editor chrome)
+    ├── Stored on the card → MarkdownField; embeds cards (`:card[]`) → RichMarkdownField
     └── Stored as a file in the realm → linksTo(MarkdownDef)
 
 Need a number?

@@ -198,9 +198,25 @@ working as declared, not a shortfall.
 interpolates the owner's realm. Absent an explicit `realm` / `realms`, the query
 targets the realm holding the instance.
 
-A path that walks through a `linksTo` is not validated when the field is
-declared, because interpolation resolves against serialized attributes — so it
-may simply not resolve at runtime.
+A path that walks through a link — `'$this.classroom.id'` — resolves on a
+loaded card but not in the index, which interpolates from the owner's own
+attributes plus `id` and never its relationships (as of 2026-10). There the
+value is `undefined`, the query is dropped, and the field indexes empty
+(`links.self: null`) with no error, while the same card in the app looks right.
+Copy the value into a computed attribute and interpolate that:
+
+```ts
+@field classroomId = contains(StringField, {
+  computeVia: function (this: Activity) {
+    return this.classroom?.id;
+  },
+});
+// query: { filter: { eq: { 'classroom.id': '$this.classroomId' } } }
+```
+
+This works only when `classroom` is a stored link: a computed that reads a
+query-backed field is left out of the indexed document, so it is missing at
+index time too. Check the index with `boxel search`, not the app.
 
 ## Things that will bite you
 

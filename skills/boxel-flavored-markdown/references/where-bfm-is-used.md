@@ -3,7 +3,7 @@
 BFM is the same dialect everywhere Boxel parses or emits markdown:
 
 - `.md` files stored in a realm (rendered by the base realm's MarkdownTemplate)
-- `MarkdownField` values (inline markdown stored in a card's JSON)
+- `RichMarkdownField` values (inline markdown stored in a card's JSON) — a plain `MarkdownField` parses the same text but renders `:card[]` / `::card[]` as placeholders, never the card (see *Card directives*)
 - AI assistant messages in Boxel
 - The `markdown` format output of any card (served via `Accept: text/markdown` or produced by "Copy as Markdown")
 - The "Rendered" view of the code-mode markdown preview panel
