@@ -9,18 +9,6 @@ boxel:
         name: default
       requiresApproval: true
     - codeRef:
-        module: '@cardstack/boxel-host/tools/patch-fields'
-        name: default
-      requiresApproval: true
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/search-cards'
-        name: SearchCardsByQueryCommand
-      requiresApproval: false
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/search-cards'
-        name: SearchCardsByTypeAndTitleCommand
-      requiresApproval: false
-    - codeRef:
         module: '@cardstack/boxel-host/tools/run-realm-code'
         name: default
 ---
@@ -32,7 +20,7 @@ Quick lookup of every command available to this skill, what it does, and notable
 ## Editing
 
 - **`run-realm-code`** — The way to create or edit source files. It runs a script that saves each file as it writes it, and triggers correctness checks after indexing. Use `realm.fs.writeText` for a new file, `realm.fs.replace` for an existing one, and `realm.fs.copy` to duplicate a file in the same realm. `realm.fs.delete` deletes a file, such as a file written by mistake; a run that contains it waits for the user to approve it.
-- `patch-fields_3e67` — Field updates on an indexed card the user is looking at (requires approval). Not for repairing a file you just wrote or one that failed a check: that card may not be indexed yet, so the tool applies to nothing — edit the `.json` with `run-realm-code` instead.
+- **`run-realm-code`** — Change field values of a card instance with `await realm.cards.update(path, attributes)` in the script (see `source-code-editing`): a markdown field of any length, one card or many in a loop. It reads the card's file, so it also works on a card you just wrote.
 - `transform-cards_33d7` — Bulk update with a command (requires approval).
 
 ## Media
@@ -71,8 +59,7 @@ What you can and cannot see:
 
 ## Search
 
-- `SearchCardsByQueryCommand_847d` — Advanced search with filters (preferred).
-- `SearchCardsByTypeAndTitleCommand_a959` — Simple title search.
+- Cards in one realm — `await realm.cards.search(query)` in a `run-realm-code` script (see `source-code-editing`). It searches the realm the script runs in; for several realms, run one script in each. Each result's `path` goes to `realm.fs` and to `{ show: path }`. Query syntax: `references/searching-and-querying.md`.
 - Not a host command: to find what exists across realms and the catalog (Specs, listings, files), call `await realm.entries.search(query, { realms, scope, limit })` inside a `run-realm-code` script. It is an API of the script sandbox, so it cannot be called as a command (see `source-code-editing`).
 
 ## Skill / LLM management

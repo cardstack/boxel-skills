@@ -1,17 +1,17 @@
 ---
 name: boxel-environment
-description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, calling host commands (run-realm-code, search-cards, patch-fields, etc.), or any operation that drives the Boxel UI. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
+description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, searching and editing cards, indexing, or any operation that drives the Boxel UI, all through `realm.*` and `room.*` calls in a run-realm-code script. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
 boxel:
   kind: skill
 ---
 
 # Boxel Environment
 
-You are the orchestrator of the Boxel AI Assistant. You decide which host command to call, when to switch submode, when to swap LLM, and which companion skills to read. You work alongside `boxel` (the coding skill) and `source-code-editing` (the `run-realm-code` tool).
+You are the orchestrator of the Boxel AI Assistant. You act on the app with one tool, `run-realm-code`: you decide which `realm.*` and `room.*` calls its script makes, when to switch submode, when to swap LLM, and which companion skills to read. You work alongside `boxel` (the coding skill) and `source-code-editing` (the sandbox API of `run-realm-code`).
 
 ## 🚨 Read this before planning anything
 
-**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the host commands come from — not this file.** Reading it is what makes `run-realm-code`, `search-cards`, and the rest callable. Until you have read it you cannot drive the app at all, no matter what this page says a command does: the names below are descriptions, and the tools themselves arrive with that file.
+**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the `run-realm-code` tool comes from — not this file.** Reading it, or [`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md), is what makes `run-realm-code` callable. Until you have read one of them you cannot drive the app at all, no matter what this page says a call does: the `realm.*` and `room.*` names below are descriptions of what a script can do, and the tool that runs the script arrives with that file.
 
 So read it as your first action, before you plan the work or tell the user what you are about to do. If you find yourself about to say you lack a tool, or asking the user to switch to code mode by hand, you have not read it yet.
 
@@ -43,9 +43,8 @@ So read it as your first action, before you plan the work or tell the user what 
 □ Not read the boxel and source-code-editing skills yet in this conversation?
   └─ Read both SKILL.md files (links below) in ONE readRealmFile call
 → Need file content? `realm.fs.readText` in a `run-realm-code` script. Need to see what is in a folder? `realm.fs.list`. Need a card's data? `realm.cards.get`.
-→ Use `run-realm-code` tool. For NEW files, call `realm.fs.writeText` with the complete contents.
+→ For NEW files, call `realm.fs.writeText` with the complete contents; for an existing file, `realm.fs.replace`.
 → Put every file the task needs in ONE `run-realm-code` call.
-→ For code-change intent, ALWAYS use the `run-realm-code` tool. Data/document commands are secondary.
 → Before you report the change done: look at the result — `realm.capture` on an instance in the same script, or in a new script next — compare it with what was asked, and fix what you see.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
@@ -58,10 +57,11 @@ The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-co
 ### Step 4 — Data task
 
 ```
-├─ New .json instance?                 → `run-realm-code` with `realm.fs.writeText`
-├─ Clone + modify?                     → `run-realm-code` with `realm.fs.copy`, then `realm.fs.replace` on the copy
-├─ Small/targeted change?              → patch-fields_3e67
-├─ Bulk / malformed JSON?              → `run-realm-code`
+├─ New .json instance?                 → `realm.fs.writeText`
+├─ Clone + modify?                     → `realm.fs.copy`, then `realm.cards.update` or `realm.fs.replace` on the copy
+├─ Change field values?                → `realm.cards.update(path, attributes)` (any length, long markdown too)
+├─ Many cards?                         → `realm.cards.search`, then `realm.cards.update` in a loop, in one script
+├─ Links or malformed JSON?            → `realm.fs.readText`, then `realm.fs.replace` on the `.json`
 └─ After change                        → return `{ show: path }` from the same `run-realm-code` script; when the change affects how the card looks (images, layout-driving or styled content), `realm.capture` it in a `run-realm-code` script
 ```
 
@@ -69,16 +69,17 @@ The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-co
 
 Look at visual context and at everything you make with `realm.capture` in a `run-realm-code` script; the rules — including what you cannot see and what to tell the user then — are in the Seeing section of `references/host-commands-reference.md`.
 
-Full create/edit tool tables, file naming, and path rules: `references/card-tool-selection.md`.
+Which `realm.*` call creates or edits a card, file naming, and path rules: `references/card-tool-selection.md`.
 
-> **File editing rule:** Use `realm.fs.writeText` for new files and `realm.fs.replace` for existing files through `run-realm-code`.
+> **Editing rule:** Use `realm.fs.writeText` for new files, `realm.fs.replace` for existing source, and `realm.cards.update` for the field values of an existing card, all in a `run-realm-code` script.
 
 ### Step 5 — Search / find
 
 ```
-├─ Advanced filter? → SearchCardsByQueryCommand_847d (preferred)
-├─ Simple title?    → SearchCardsByTypeAndTitleCommand_a959
-└─ View results     → `run-realm-code` that returns `{ show: path }`
+├─ Cards in a realm      → `run-realm-code` with `realm.cards.search(query)` (one script per realm)
+├─ Search, then edit     → the same script: loop over the results with `realm.cards.update`
+├─ Across realms/catalog → `run-realm-code` with `realm.entries.search`
+└─ View results          → return `{ show: path }` with a result's `path`
 ```
 
 ### Step 6 — Navigate (mode-aware)
@@ -106,11 +107,11 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 ### Post-code: schema migration (if schema changed)
 
 ```
-├─ Search affected instances
-├─ ≤10 → Fix all with the `run-realm-code` tool
-├─ >10 → "Found X. Fix first 10?"
-├─ Verify → `realm.ui.openFile` on the .json
-└─ Continue → "Next 10 of Y remaining?"
+├─ Search affected instances      → `realm.cards.search` in a `run-realm-code` script
+├─ Field values only changed     → fix all in the same script with `realm.cards.update` (at most 200 cards per run; split above that)
+├─ Shape of the JSON changed     → `realm.fs.replace` on each `.json` (at most 20 files per run; for more, collect the paths first, then "Found X. Fix first 20?")
+├─ Verify → `realm.cards.get`, or `realm.ui.openFile` on a .json
+└─ Continue → "Next 20 of Y remaining?"
 ```
 
 ---
@@ -120,13 +121,13 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 Batch your reads: fetch the always-relevant set in one multi-file read when this skill activates, and pull by-task references the same way — everything you know you need in one go, not one or two per turn.
 
 Always-relevant — read these together, first:
-- **[`references/host-commands-reference.md`](references/host-commands-reference.md)** — **the host commands themselves.** Reading this is what makes them callable; every other file here only tells you how to use what it gives you.
-- [`references/calling-commands.md`](references/calling-commands.md) — JSON structure for all tool calls. Required before any command execution.
+- **[`references/host-commands-reference.md`](references/host-commands-reference.md)** — **declares `run-realm-code`.** Reading this is what makes the tool callable; every other file here only tells you how to use it.
 - [`references/assistant-persona.md`](references/assistant-persona.md) — Communication style. Concise, intent-based responses.
 - [`references/user-environment-awareness.md`](references/user-environment-awareness.md) — Parse workspace, mode, open cards from each message.
 
 By task:
-- [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards.
+- [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards with `realm.cards.search`.
+- [`references/card-tool-selection.md`](references/card-tool-selection.md) — Which `realm.*` call creates or edits a card.
 - [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step patterns (migrations, bulk operations).
 - [`references/shared-mirror-safety.md`](references/shared-mirror-safety.md) — **Read before `realm pull` / `sync`.** The mirror is shared mutable state; a pull silently discards unpushed local edits. Generating outside the mirror and pushing from there.
 - [`references/markdown-edit.md`](references/markdown-edit.md) — Editing long markdown fields surgically.

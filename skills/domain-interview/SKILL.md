@@ -267,24 +267,21 @@ instance adopts from that alias and nothing is written to the realm but the inst
 | `designDirection` | empty — `boxel-design`'s Look check writes it when the build starts |
 | `motion` | empty — the build stage writes it, and only when the user asked for heavy motion |
 
-**Writing it in the Boxel AI assistant.** Three steps, so the spec markdown is never hand-escaped
-into a JSON string and never patched into a card that is not indexed yet:
+**Writing it in the Boxel AI assistant.** Two steps in one `run-realm-code` script, so the spec
+markdown is never hand-escaped into a JSON string:
 
-1. **Create the instance** with one `run-realm-code` call (read `source-code-editing` first if you
-   have not read it this session): `await realm.fs.writeText('Brief/<slug>.json', JSON.stringify(card, null, 2))`,
+1. **Create the instance** (read `source-code-editing` first if you have not read it this session): `await realm.fs.writeText('Brief/<slug>.json', JSON.stringify(card, null, 2))`,
    where `card` is an object with `adoptsFrom` `{ "module": "@cardstack/catalog/cards/projects/brief", "name": "Brief" }`,
    `cardInfo.name`, `cardInfo.summary`, and `spec`, `designDirection` and `motion` all `null`. Building
-   the object and stringifying it means nothing is hand-escaped; the long markdown comes later, through
-   `patch-fields`. `writeText` refuses a file that already exists, so an existing brief is read, never recreated.
-2. **Wait until it is a card.** `patch-fields` applies only to an indexed card. Read the instance
-   back with `await realm.cards.get('Brief/<slug>')` in a `run-realm-code` script; if it does not resolve yet, read again rather than
-   patching a card that is not there.
-3. **Fill `spec`** with `patch-fields` on that card, passing the whole spec markdown as the value.
-   The tool serializes it; do not escape newlines or quotes yourself. `spec` is this skill's own
-   field, so replacing it whole touches nothing another stage wrote.
+   the object and stringifying it means nothing is hand-escaped; the long markdown comes in the next
+   step. `writeText` refuses a file that already exists, so an existing brief is read, never recreated.
+2. **Fill `spec`** with `await realm.cards.update('Brief/<slug>', { spec })` in the same script, passing
+   the whole spec markdown as the value. It reads the card's file, so the card does not have to be
+   indexed yet, and it serializes the value; do not escape newlines or quotes in the JSON yourself.
+   `spec` is this skill's own field, so replacing it whole touches nothing another stage wrote.
 
 **Writing it from a terminal agent** (Claude Code, Codex — anything without the assistant's tools).
-`run-realm-code`, `patch-fields` and `apply-markdown-edit` do not
+`run-realm-code` and `apply-markdown-edit` do not
 exist there. Use `boxel-cli`, and the same rule that nothing is hand-escaped:
 
 1. **Look for an earlier brief first.** A project may already have one under another path: a
@@ -325,7 +322,7 @@ in place; prefer the assistant when it is available.
 
 **Refining a brief that already exists.** A change to one section of an existing `spec` — a
 screen's content contract, a schema row — is an `apply-markdown-edit` on the `spec` field with that
-section as `currentContent`, not a second full `patch-fields`: the field is long, and re-sending all
+section as `currentContent`, not a second full `realm.cards.update`: the field is long, and re-sending all
 of it to change one paragraph is how a paragraph elsewhere gets dropped. Other stages' fields are
 never yours to edit.
 
