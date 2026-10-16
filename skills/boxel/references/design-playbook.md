@@ -24,7 +24,7 @@ For any card family with **2+ related CardDefs**, produce these planning artifac
 | 0b. Brief | What makes this UNIQUE and IMPORTANT for users. Why a person would adopt this over their current spreadsheet/Notion/Airtable. The one-line value prop + the three concrete user moments. | Prose in the same card |
 | 0c. Data model | CardDef list + FieldDef list + relationships, as an ASCII data-flow diagram. Show which fields are sensitive vs shared. Show which fields have computed values. | ASCII diagram, fenced. See "ASCII data-model template" below. |
 | 0d. Sample data | 3-5 instances of each CardDef, written as plain-prose dossiers. The names, the numbers, the dates, the photo captions. Real-feeling content, not lorem ipsum. Records are invented freely; copy about the user's real business needs a source ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *Never invent proof*). | Markdown bullets or a `Sample Data` card. |
-| 0e. ASCII layout | A box layout for the `isolated` template of each CardDef. What's at the top-of-the-fold, what's eyebrow vs headline vs meta, where the image goes, what the divider strategy is. | ASCII art with labels. See "ASCII layout template" below. |
+| 0e. ASCII layout | A box layout for the `isolated` template of each CardDef. What's at the top-of-the-fold, what's eyebrow vs headline vs meta, where the image goes, what the divider strategy is. Name the frame and navigation component (a Pret UI app shell or sidebar Spec, or `none: hand-rolled because <reason>`), so stage 1 is not built on a shell that gets rewritten. | ASCII art with labels. See "ASCII layout template" below. |
 | 0f. Micro mockups | Sketch each format (isolated, embedded, fitted, edit) at desktop AND mobile. Hi-fi mockups — exact placement, real fonts named, the divider strategy decided, what gets cut when the card shrinks to fitted. | A `MicroMockups` CardDef whose `static isolated` IS the mockup board. See `app.boxel.ai/.../actual-duck-82/micro-mockups.gts` for the shape. |
 
 These stage-0 artifacts can ship in the realm as actual cards (the `actual-duck-82` approach — `ArchitecturePlan`, `DataModelPlan`, `MicroMockups` are all CardDefs whose isolated view IS the plan document). That lets the user review and revise the plan visually in the same app where the eventual cards will live. Push them to the realm BEFORE writing the production CardDefs.
@@ -209,7 +209,9 @@ Push to the realm after each stage so you can compare visually.
 
 ## Stage 1 — Mockup pass (the design challenge)
 
-**Read the Look check first.** When the build starts from a brief, read the `Look:` and `Real details:` lines in its `designDirection` field (written by `boxel-design`'s *Look check*, which asks them if they are missing). `Look:` steers the mockup; `Real details:` sets what the sample content may claim about the user's business (`leave sections out` omits those sections, `concept (demo mode)` allows invented proof tagged "Sample"). A resumed session reads them from the brief, not from memory of the earlier conversation.
+**Read the surface first.** For a tool, desk, admin, dashboard, back office, CRM or similar, read [`surface-types.md`](../../boxel-design/references/surface-types.md) and take the shell from it (an admin, dashboard or back-office surface opens on a fixed sidebar and a scrolling content area, not a masthead over a list) before drawing the mockup.
+
+**Read the Look check first.** When the build starts from a brief, read the `Look:`, `Surface:` and `Real details:` lines in its `designDirection` field (written by `boxel-design`'s *Look check*, which asks them if they are missing). `Look:` steers the mockup; `Surface:` sets the shell; `Real details:` sets what the sample content may claim about the user's business (`leave sections out` omits those sections, `concept (demo mode)` allows invented proof tagged "Sample"). A resumed session reads them from the brief, not from memory of the earlier conversation.
 
 **After the first mockup, run the check** in [`SKILL.md`](../../boxel-design/SKILL.md) (*Check after the first mockup*); no family or direction is declared before it. The bullets below say what to decide, and the brief overrides their defaults.
 
@@ -395,9 +397,9 @@ Motion: entrance ✓ (hero) · stagger ✓ (menu grid) · hover/press ✓ (CTAs,
 
 ---
 
-## After stage 4 — automatic design review
+## After stage 4 — build check
 
-When the build is done, run [`design-review`](../../design-review/SKILL.md) without being asked: the builder's pass/fail [build check](../../design-review/references/build-check.md) first, then one review across the app (`set`) and the cards it links to, one fix round on the top gaps, a re-score, and a report with the next step as a choice. Skip only for a utility card with no user-facing surface.
+When the build is done, run the builder's pass/fail [build check](../../design-review/references/build-check.md) without being asked, fix every failing line, and report what was fixed and what is open, with no score. A scored [`design-review`](../../design-review/SKILL.md) runs only when the user asks for it. Skip the check only for a utility card with no user-facing surface.
 
 ---
 

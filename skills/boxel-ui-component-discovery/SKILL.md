@@ -55,9 +55,26 @@ of truth for what's available and what each component is called.
 1. **Enumerate first.** Before any search, read the brief and your
    planned template and list every UI primitive it implies — in plain
    language ("button", "dropdown", "tag-style indicator", "expandable
-   section"). The partial-compliance failure mode is "agent finds one
-   match, uses it, hand-rolls everything else" — enumerating up front
-   prevents it.
+   section") — **and every structure**: app frame, navigation, panel
+   layout, KPI or stat, chart, table, empty and loading state. The
+   partial-compliance failure mode is "agent finds one match, uses it,
+   hand-rolls everything else" — enumerating up front prevents it.
+   Dashboards and tools hand-roll their frame when only primitives are
+   searched.
+
+   | App type | Search terms (not component names; the catalog decides) |
+   |---|---|
+   | Dashboard, admin | app shell, sidebar, dashboard grid, stat, chart, data table |
+   | Data tool, back-office | data grid, filter set, form layout, split panes |
+   | Mobile app | bottom nav, sheet, tabs |
+   | Landing page | hero split, cta band |
+
+   Give every structure hit a disposition in the reply: adopted, or
+   refused with a reason (for example, on a consumer app: "four
+   destinations, so top tabs per `layout-gravity.md`"). On an admin,
+   dashboard or back-office surface the sidebar is not optional: it is
+   the shell `surface-types.md` sets, so adopt the app shell or name the
+   catalog Spec that replaces it.
 
 2. **Query the catalog once, broadly.** Use the catalog realm for the
    environment you are working against — take it from your context if

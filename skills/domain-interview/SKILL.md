@@ -194,7 +194,9 @@ three:
 - every other question ends with **"Skip, you decide"** (description: "I'll pick for you and keep
   going").
 
-With lettered options in chat (no choice tool), the same two become the last letters.
+With lettered options in chat (no choice tool), the same two come next to last, and the list ends
+with a **"Something else: type your own answer"** letter, always the very last one. The choice UI adds its own
+"Other" box; a chat list has none, so without that letter the user can only pick what you offered.
 This is not the "Not sure, suggest for me" option: that one asks to be *taught* (the next question
 explains the concept), a skip asks you to *decide* and move on, with no teaching round.
 
@@ -250,7 +252,7 @@ and where the record and a section differ, the section is what the build follows
 
 The spec is a **brief card**: a catalog `Brief` instance at `Brief/<slug>.json`, its `spec` field
 written from `references/brief-template.md`. The card URL is the deliverable. The card has one
-MarkdownField per stage — `spec` (this skill), `designDirection` (the `Look:` and `Real details:` lines `boxel-design`'s Look check writes at build time) and `motion` (the build stage's) — so no stage ever touches another stage's text.
+MarkdownField per stage — `spec` (this skill), `designDirection` (the `Look:`, `Surface:` and `Real details:` lines `boxel-design`'s Look check writes at build time) and `motion` (the build stage's) — so no stage ever touches another stage's text.
 
 **Where it goes.** In the realm the user named. If they named none, the current realm — the
 `realmUrl` in your context — when its `realmPermissions.canWrite` is true; otherwise ask which

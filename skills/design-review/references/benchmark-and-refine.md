@@ -4,11 +4,14 @@ Part of [`design-review`](../SKILL.md). Links are relative to this file.
 
 Two additions to a normal review. The **benchmark** gives the 8.5 gate an outside reference, so the
 number stops being the model's feeling. **Refine mode** is the loop that builds, captures, scores
-and fixes: one round runs on its own, and each further round runs when the user picks it.
+and fixes: it runs only when the user asks, and asking for `refine` authorises its one fix round;
+any further round runs only when the user picks it.
 
 ## The benchmark
 
-Run it once per unit, before the first score, and reuse it across rounds.
+It runs only with `--benchmark` or in `refine`; a review without either reports its scores as
+unanchored and names no references. Run it once per unit, before the first score, and reuse it across
+rounds.
 
 1. **Pick the category from the brief**, not the style: a portfolio, a SaaS landing page, a
    dashboard, an editorial article, a product page, a booking flow. A record page, a desk or a
@@ -16,7 +19,7 @@ Run it once per unit, before the first score, and reuse it across rounds.
    and the aesthetic bar alone.
 2. **Find three references.** Look them up online only when the user asks for a benchmark against
    real sites ([`untrusted-content.md`](../../boxel-design/references/untrusted-content.md) →
-   *When to research*); the automatic review after a build does not fetch. When you do look, use the
+   *When to research*); a review that is not `--benchmark` does not fetch. When you do look, use the
    places that publish recognised work:
    - **Awwwards** — Site of the Day, Honorable Mentions and the category collections
    - **The Webby Awards** — winners and Peoples' Voice in the matching category
@@ -61,10 +64,8 @@ Gap on the bar: type scale and image treatment
 
 ## Refine mode — `design-review refine`
 
-Use it when the user asks for the unit to be brought to the bar. The review half of it is not
-optional: it runs after every build as the automatic loop in `SKILL.md` (`set` across the app, and
-each linked CardDef in the formats the screens show it in). This section is that loop's detail, and
-`refine` is its name when the user asks for it.
+Use it when the user asks for the unit to be brought to the bar. It runs only when the user asks (`set` across the app, and each linked CardDef in the formats the
+screens show it in). Nothing after a build starts it; the build check does that job without a score.
 
 ### Roles
 
@@ -83,7 +84,7 @@ Where the harness cannot spawn a subagent, say so, and treat the round's scores 
 ### The loop
 
 ```
-build → check → capture → review (independent) → skip gate met? ── yes → report, stop
+build → check → capture → review (independent) → gap list empty? ── yes → report, stop
                                    │
                                    no → fix the named gaps once → check → capture → review → report
                                         (another round only when the user picks it)
@@ -94,18 +95,16 @@ build → check → capture → review (independent) → skip gate met? ── y
 2. **Capture**, then **review** with the benchmark. The reviewer returns the acceptance tally,
    the six scores, the gap list and a verdict.
 3. **Clearing the gate** means every acceptance line ticked, the aesthetic score at or above 8.5,
-   and no constraint failure (contrast, focus, motion-off). The automatic fix round is skipped only
-   by the stricter gate in `SKILL.md` → *Automatic review after every build*, step 5 (nothing fails
-   and an independent reviewer scored 9 or more).
+   and no constraint failure (contrast, focus, motion-off). A round whose gap list is empty has no fix
+   round: say so, say whether the unit cleared the gate, and go to the choice.
 4. **Fix** only what the gap list names, in the order it gives, at most the top three gaps per
    round. A gap is a cause: one template cutting off names in six tiles is one gap. Run the build
    check again on every view a fix touched, at desktop and phone width, before the next capture.
    A round that rewrites things nobody flagged makes the next score meaningless; report
    what changed and what was left alone.
-5. **One fix round, then the user decides.** The automatic loop fixes once and re-scores, then
-   reports every round, saying plainly when the last one made things worse, with "Keep improving:
-   one more round" as a choice. The fix round is skipped only by the gate in `SKILL.md` →
-   *Automatic review after every build*, step 5. One round, because the first fix round raises the
+5. **One fix round, then the user decides.** Refine fixes once and re-scores, then reports every
+   round, saying plainly when the last one made things worse, with "Keep improving: one more round" as
+   a choice. One round, because the first fix round raises the
    score and later rounds move it by about as much as two reviews of the same captures differ. Not
    measured in the Boxel AI assistant.
 

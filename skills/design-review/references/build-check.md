@@ -1,121 +1,111 @@
-# Build check — the builder looks before the reviewer does
+# Build check — finish the basics before judging taste
 
 Part of [`design-review`](../SKILL.md). Links are relative to this file.
 
-The builder runs this after the playbook's last stage, as the end of the build and before the first
-review round. Every fault it lists shows in a screenshot, except three read from the source: lines 13
-and 14, and line 4a. Names cut off in fitted tiles, half-empty
-tiles, broken phone layouts, placeholder labels too small to read, the accent colour spreading,
-controls too small to hit, a button that does nothing. A builder that never looks at a capture
-leaves them for the review, which then spends its round finding them instead of raising the design.
+Run automatically after the playbook's last stage on everything the build produced, including
+linked cards in the formats the app shows. This is pass/fail, never a design score. Fix every
+failing line within the authorized build; re-capture and check the affected views. Report
+"Fixed N items" and what remains open, without a scorecard, an 8.5 verdict or a review invitation.
+Stop when the checks pass or a named blocker prevents further progress; never call an open check passed.
+Skip only for a utility card with no user-facing surface, with a one-line reason.
 
-The check is pass or fail, never a score. A builder that scores its own work scores it high, and a
-number here would stand in for the review that follows. Record the tally before fixing (the
-report's *Build output* line), then fix.
+For existing work, run the same check silently before reviewing, **without editing**. Report one
+*Basics* block with failed lines and evidence, grouping instances by cause. Use the actual applicable
+denominator (14 numbered lines, with 4a/4b under line 4); show open and n/a separately.
+More than half of applicable lines failing means taste scores wait until basics are repaired.
 
-The source lines (4a, 13, 14) are run by the builder, or for *Scoring existing work* by the main agent,
-which records their results in the report. An independent reviewer runs only the visual lines, from
-captures, and does not need the source lines' results. For
-*Scoring existing work*, together they are the report's *Basics* block.
+The builder may inspect source for 4a, 13 and 14; the main agent owns these checks separately from
+the visual reviewer. For existing work, the main agent still runs 13 and 14 from source, but does not
+read source to infer responsive behaviour: 4a stays open (unverified) until an authorized repair, and
+4b uses captures. DOM, measured colours and exercising
+controls can verify behaviour and accessibility; source never substitutes for a capture.
 
 ## Capture
 
-Capture with `realm.capture` in a `run-realm-code` script in the app or `npx boxel screenshot` from a terminal
-([`capture.md`](capture.md)), and look at every image. Reading the template is not the check.
+Use `realm.capture` in a `run-realm-code` script in the app, or `npx boxel screenshot` from a
+terminal, and inspect every image. Read [`capture.md`](capture.md) for tool limits and retries.
 
-- Home and each card's `isolated` view at desktop (`--viewport 1280x…`) and phone (`--viewport 390x…`),
-  at full height (a tall viewport, `390x2400`), not only the first screen: lower sections break too.
-  That includes every linked card, even one with no screen of its own: its isolated view is what
-  opens when someone clicks it.
-- Each linked CardDef in every format a screen shows it in: `embedded` at the width it is shown,
-  `fitted` at the sizes the app actually renders ([`fitted-formats.md`](../../boxel/references/fitted-formats.md)
-  lists them).
-- Each format that changes layout with its container, at one narrow and one wide size (fitted: the
-  smallest and largest size the app renders; embedded: its narrowest and widest placement), so line 4
-  can compare them.
-
-Capture fitted views inside the parent that shows them: in the app that is the only way, and from a
-terminal a standalone fitted capture can lose the theme ([`capture.md`](capture.md)). In the app,
-`realm.capture` cannot capture `fitted` on its own, so check fitted at the one size the parent
-renders, and list its other sizes as `uncaptured: fitted narrow/wide (app)`; line 4b stays open for
-them, never passed. From a terminal, `npx boxel screenshot --format fitted --envelope WxH` covers them.
+- Home and every linked card's `isolated` view at desktop (1280px) and phone (390px), including
+  lower sections: use full height or a tall viewport, not just the first screen.
+- Each format the app actually renders, at narrow and wide placements, even when an existing card
+  declares no breakpoints. Fitted: smallest/largest envelopes used; embedded: narrowest/widest
+  placement. A format used at only one size makes the comparison n/a, not a responsive defect.
+- Capture fitted inside its parent. `realm.capture` cannot capture fitted alone; unreachable
+  placements are `uncaptured: <format/size> (<reason>)`, and the dependent check stays open.
+  From a terminal, `npx boxel screenshot --format fitted --envelope WxH` can cover other sizes;
+  verify apparent theme loss inside the parent before reporting it.
 
 ## The check
 
-Each line passes or fails on every capture.
+Each numbered line is pass, fail, open or n/a, with evidence for every failure.
 
-1. **Names.** Every name and title shows in full, or wraps to two lines, at every size the app
-   shows it. The sample data holds the longest realistic name for each card type (a two-word
-   surname, a long class name), so the check sees the worst case.
-2. **Fill.** No tile or row is more than about a third empty, and each format shows what its
-   content matrix promises (design-playbook, Stage 0f). Room left over goes to the photo or the
-   primary fact, not to blank space.
-3. **Media.** Every media slot shows a loaded image or a labelled placeholder, never initials or a
-   gradient where a photo belongs. A placeholder's label is readable in the panel it fills (a small
-   avatar that shares its URL is exempt)
-   ([`sample-images.md`](../../boxel-file-def/references/sample-images.md) → *Labelled placeholders*).
-4. **Phone and container queries.** At 390px, no horizontal scroll, no clipped text or controls.
-   **4a (source):** every `@container` query has a container: a fitted view's comes from the host,
-   any other needs `container-type` declared on an element inside the template. A query with no
-   container never fires and leaves the desktop layout in place. **4b (visual):** each format's
-   narrow and wide captures differ where its layout is
-   meant to change: identical captures, or a two-column layout that overflows instead of stacking,
-   mean the query is not firing and fail this line.
-5. **Colour roles.** The accent appears only on the main action, the current selection and the
-   roles the theme gives it, never on prices, counts or labels. A state colour (present, overdue,
-   selected) never reuses a category colour.
-6. **Type.** In `isolated` and `embedded`, no text under 12px, uppercase labels and numerals
-   included. A `fitted` view follows its own per-role minimums
-   ([`container-query-fitted-layout.md`](../../boxel/references/container-query-fitted-layout.md)).
-   Section headings sit visibly between body and display size.
-7. **Controls.** No hit area is under 24×24 CSS px unless a 24px circle centred on it overlaps no
-   other target (WCAG 2.2 SC 2.5.8); a default Pret UI `Button` (about 28px) passes. The main action
-   and controls used on a phone aim for 44×44. A choice of five or fewer options is a row of buttons
-   or chips, not a dropdown.
-8. **Clickable.** Every control the screens draw does something
-   ([`critical-rules.md`](../../boxel-design/references/critical-rules.md) → *First-shot designs are
-   clickable*): it opens a linked card, follows a link the user gave, calls `viewCard` into the
-   right-hand stack or the edit view, sets a `@tracked` filter, or invokes the main `@operation`
-   through `operations()`. A target that cannot exist yet is a disabled control with a marked slot
-   naming what is needed. No control that looks live does nothing, and every link has a real `href`.
-9. **One app, one signature.** The signature the Home uses (a lane rope, a ticket stub, a kraft
-   label) marks each card's main object once, so the cards read as one family. It is not stamped
-   on every row: a list of five bordered slips reads as a pattern, not a signature. A reused catalog
-   card may keep its stock layout for a format when that layout fits under the app's theme
-   ([`restyle-reused-card.md`](../../catalog-reuse/references/restyle-reused-card.md)); it fails this
-   line only when it shows without the theme, or still reads as another app.
-10. **Job first.** Each screen's largest element is what its user opens it to do: on a booking page
-    the free times, on a staff card today's list, on Home what the day needs next. A screen led by
-    the record's name, a form's first field or a placeholder photo fails.
-11. **Same facts everywhere.** A record shows the same time, person and status on every screen it
-    appears on, and a count matches the rows it counts. Sample data that contradicts itself between
-    Home and a card reads as a broken app.
-12. **Components take the app's look.** No Pret UI or boxel-ui component shows at its library
-    default (colour, radius, type) beside controls that carry the app's theme, unless the build
-    named it as a gap no restyle step reaches
-    ([`restyle-component.md`](../../boxel-ui-component-discovery/references/restyle-component.md), step 5).
-13. **Colours come from the theme's tokens.** UI colours use the core tokens, data series use
-    `--chart-1` … `--chart-7` in order
-    ([`theme-token-contract.md`](../../boxel-ui-guidelines/references/theme-token-contract.md)); a mix
-    derived from a token counts as one. `transparent`, `currentColor` and colours that come from the
-    user's data are allowed. Any other hex, rgb or named colour fails: name each with its replacement
-    token, chosen by role (line 5: a chip that is not an action takes a muted or secondary token, not
-    the accent). Two series that look alike fail even when both are tokens.
-14. **Baseline motion.** Read from the source, against
-    [`design-playbook.md`](../../boxel/references/design-playbook.md) → *After stage 4 — baseline motion*.
-    For each of its four rows, cite the `file:line` that implements it, or write `n/a` with the reason
-    (no list, nothing rearranges). Any applicable row with no citation fails: an entrance with no hover
-    and press on the CTAs fails. So does an entrance on a `fitted` or `embedded` root, and content that
-    stays hidden or offset when motion never runs, including in the prerender: an `initial` start
-    state that is not skipped when `isLiveRender()` is false fails, and so does a CSS keyframe
-    entrance whose resting state is not the final one. When the user asked for no motion (in the
-    conversation or in the brief's `spec`), the line passes as `n/a`. In that case, any motion in the
-    source fails it.
+1. **Names.** Names and titles show in full or wrap to two lines at every size used. Include the
+   longest realistic name in sample records.
+2. **Fill and key fact.** Each format carries its content matrix's key fact (price, person,
+   status, time), never just a bigger title. A demoted or missing key fact in fitted/embedded,
+   or a tile 70–80% empty, fails. More than about a third unused space in a data tile or row
+   prompts giving space to the fact/media, or choosing embedded when the child owns its height.
+   Deliberate breathing room in a composition is not an empty data tile.
+3. **Media and blanks.** Media slots load an image or labelled placeholder, not initials or a
+   gradient where a photo belongs. Labels remain readable in their panels (small avatars sharing
+   the URL are exempt). Follow [`sample-images.md`](../../boxel-file-def/references/sample-images.md).
+   Re-capture a blank region once; if blank again, fail it rather than waiting for an entrance.
+4. **Phone and responsiveness.** At 390px, no horizontal overflow or clipped text or controls.
+   **4a (builder source):** every custom container query has a valid ancestor container; fitted
+   uses the host's `fitted-card`, never a container on the element its own query styles.
+   **4b (captures):** compare narrow and wide views where the layout needs to adapt. Identical
+   desktop composition at both sizes, or columns overflowing instead of stacking, is reported as
+   **"no responsive breakpoints"**, with both captures. A fluid single-column layout that fits
+   both sizes does not fail merely for keeping its structure. For a standard fitted repair,
+   use `FittedCard` from `@cardstack/boxel-ui/components`, tuned through documented `--fc-*`
+   variables, rather than adding hand-written responsive CSS. For other formats, search for a
+   suitable responsive structure. Bespoke fitted compositions remain governed by the playbook's
+   custom-CQ exception; name that mismatch before choosing it. Unreachable sizes stay open.
+5. **Contrast.** Text on every surface and in every state reaches 4.5:1. Measure effective colours,
+   do not eyeball them. Faint 11–13px grey text near or below the floor needs measurement; below
+   the floor fails. Preserve the app's colour roles when correcting it.
+6. **Type floor.** In isolated and embedded, no text under 12px, including uppercase labels and
+   numerals. Fitted uses its [per-role minimums](../../boxel/references/container-query-fitted-layout.md).
+   Surface types do not lower these floors; the type ladder's taste belongs to the review.
+7. **Affordance legibility.** Measure hit area, not ink: under 24×24 CSS px fails unless the
+   WCAG 2.2 SC 2.5.8 spacing exception applies (a 24px circle centred on it overlaps no other
+   target). Aim for 44×44 for the main action and phone controls; below that aim is a minor note,
+   not a failure when the minimum passes. Verify a resting cue (fill, border, underline or chevron),
+   visible hover and `cursor: pointer`; capture one hover per control kind. Hover-only bare text
+   and invisible row overlays with no cue fail. Five or fewer options use buttons/chips rather
+   than a dropdown unless the task needs otherwise.
+8. **Main action and clickable controls.** Name the primary user and action from the UI and check
+   against the content contract. Reach the action through `operations()` (hide only on
+   `canInvoke === false`), a real link, or a disabled control with a marked slot explaining what
+   is needed. Other controls use linked cards, supplied URLs, `viewCard` (including edit), or
+   tracked filters. Every link has a real `href`. Exercise the main action and one control of each
+   kind; check the remainder in the DOM. An unexercised action is open, not passed. An absent or
+   unreachable main action is a blocker; dead controls or a stub main action are major defects.
+   **Pseudo-controls** (a styled span/div/li that looks interactive with no real wired control)
+   fail here, including a primary-action phrase drawn only as text. In an unfinished mockup,
+   report them as notes instead.
+9. **Keyboard and focus.** Anything pressable has a real control, keyboard access and visible
+   focus. Preserve focus rings when restyling; hover styling alone does not provide focus.
+10. **Clarity and domain fit.** A first-time user can tell what this is and what to do. Use the
+    domain's conventions rather than furniture that obscures the task. The action's visual
+    prominence and dominant object are review questions, not scored here.
+11. **Same facts everywhere.** Time, person and status agree across screens; counts match their
+    underlying records (including full match counts for query-backed collections).
+12. **Robustness.** Check long strings, missing media, zero rows, one row and many rows. No clipping,
+    broken layout or inaccessible action in these states. The voice of empty/error copy is taste.
+13. **Theme-token integrity (source).** Production UI colours use core tokens; data series use
+    `--chart-1` … `--chart-7` in order. Token-derived mixes, `transparent`, `currentColor` and
+    data-supplied colours are allowed. Name replacements by role for other literals.
+    Indistinguishable series fail. Component styling beside themed controls is judged in review.
+14. **Baseline motion and accessibility.** The builder cites `file:line` or a reasoned n/a for
+    each row of the [baseline](../../boxel/references/design-playbook.md#after-stage-4--baseline-motion).
+    Applicable missing rows fail, as do entrances on fitted/embedded roots and hidden/offset resting
+    states. No `opacity: 0` in base CSS. Prerender skips the initial state with `isLiveRender()`;
+    CSS keyframes rest at their final state. An explicit no-motion request makes baseline rows n/a
+    and any added motion a failure. Run [the motion-off pass](capture.md#the-motion-off-pass):
+    every element survives, and every state conveyed by motion remains reachable without it.
+    Unavailable browser checks stay open; an independent visual reviewer need not read source.
 
-Fix every failure, re-capture those views, and check them again. Then start the review. The
-reviewer gets the captures and the brief as usual, not this list's results.
-
-Run it again after each review round's fixes, on every view a fix touched, at both widths, with
-*Clickable* and *Components take the app's look* checked on every changed part: a fix
-that sets a three-column grid with a wide minimum can push the phone view off the screen, and the
-next round then scores lower for it.
+After any authorized fix round, repeat this check on affected views at both widths. Taste and
+coherence, including stock component styling beside themed controls, live in the requested
+review. Do not start a scored review automatically.
