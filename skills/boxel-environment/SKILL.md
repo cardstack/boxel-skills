@@ -1,6 +1,6 @@
 ---
 name: boxel-environment
-description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, calling host commands (search-cards, switch-submode, patch-fields, apply-markdown-edit, reindex, etc.), or any operation that drives the Boxel UI. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
+description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, calling host commands (run-realm-code, search-cards, patch-fields, etc.), or any operation that drives the Boxel UI. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
 boxel:
   kind: skill
 ---
@@ -11,7 +11,7 @@ You are the orchestrator of the Boxel AI Assistant. You decide which host comman
 
 ## 🚨 Read this before planning anything
 
-**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the host commands come from — not this file.** Reading it is what makes `switch-submode`, `search-cards`, and the rest callable. Until you have read it you cannot drive the app at all, no matter what this page says a command does: the names below are descriptions, and the tools themselves arrive with that file.
+**[`references/host-commands-reference.md`](references/host-commands-reference.md) is where the host commands come from — not this file.** Reading it is what makes `run-realm-code`, `search-cards`, and the rest callable. Until you have read it you cannot drive the app at all, no matter what this page says a command does: the names below are descriptions, and the tools themselves arrive with that file.
 
 So read it as your first action, before you plan the work or tell the user what you are about to do. If you find yourself about to say you lack a tool, or asking the user to switch to code mode by hand, you have not read it yet.
 
@@ -49,7 +49,7 @@ So read it as your first action, before you plan the work or tell the user what 
 → Before you report the change done: look at the result — `realm.capture` on an instance in the same script, or in a new script next — compare it with what was asked, and fix what you see.
 → After user accepts (stay in current mode):
   ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
-  ├─ Code mode    → `realm.ui.previewFormat` in the `run-realm-code` script that wrote it (or preview-format_cb94 on its own)
+  ├─ Code mode    → `realm.ui.previewFormat` in the `run-realm-code` script that wrote it
   └─ Interact mode → return `{ show: path }` from the `run-realm-code` script
 ```
 
@@ -60,9 +60,7 @@ The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-co
 ```
 ├─ New .json instance?                 → `run-realm-code` with `realm.fs.writeText`
 ├─ Clone + modify?                     → `run-realm-code` with `realm.fs.copy`, then `realm.fs.replace` on the copy
-├─ Long markdown field (>500 chars)?  → ApplyMarkdownEditCommand_c112
 ├─ Small/targeted change?              → patch-fields_3e67
-├─ Full card update?                   → patchCardInstance
 ├─ Bulk / malformed JSON?              → `run-realm-code`
 └─ After change                        → return `{ show: path }` from the same `run-realm-code` script; when the change affects how the card looks (images, layout-driving or styled content), `realm.capture` it in a `run-realm-code` script
 ```
@@ -89,20 +87,20 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 ├─ INTERACT MODE:
 │   ├─ Display card                  → `run-realm-code` that returns `{ show: path }`
 │   ├─ Create card / definition      → `run-realm-code` with `realm.fs.writeText`
-│   ├─ Switch to code                → switch-submode_dd88 (submode: "code"; pass codePath to target a specific realm — a bare switch stays in the current realm)
-│   ├─ Open workspace                → open-workspace_1696 (lands in interact mode)
+│   ├─ Switch to code                → `realm.ui.switchSubmode('code')`, or `realm.ui.openFile(path)` to open a file, in a `run-realm-code` script in that file's realm
+│   ├─ Open workspace                → `realm.ui.openWorkspace()` in a `run-realm-code` script in that workspace
 │   ├─ Create workspace              → `run-realm-code` with `realm.workspaces.create` (opens the new workspace when the run ends; report its URL)
 │   └─ Delete workspace              → `run-realm-code` with `realm.workspaces.delete` (permanent; confirm with the user first)
 ├─ CODE MODE:
-│   ├─ Create or edit a file         → `run-realm-code`. Never call switch-submode_dd88 again for a file the tab already shows — the last tool result's `context.codeMode.currentFile` tells you where you are
-│   ├─ Preview card + module         → preview-format_cb94
-│   ├─ Open file in editor           → update-code-path-with-selection_f749
-│   ├─ Switch to interact            → switch-submode_dd88 (submode: "interact")
+│   ├─ Create or edit a file         → `run-realm-code`. Never ask to open a file the tab already shows — the last tool result's `context.codeMode.currentFile` tells you where you are
+│   ├─ Preview card + module         → `realm.ui.previewFormat(cardPath, format)` in a `run-realm-code` script
+│   ├─ Open file in editor           → `realm.ui.openFile(path)` in a `run-realm-code` script
+│   ├─ Switch to interact            → `realm.ui.switchSubmode('interact')` in a `run-realm-code` script
 │   ├─ Create workspace              → `run-realm-code` with `realm.workspaces.create` (opens the new workspace when the run ends; report its URL)
 │   ├─ Delete workspace              → `run-realm-code` with `realm.workspaces.delete` (permanent; confirm with the user first)
-│   └─ Open workspace                → open-workspace_1696 (⚠️ exits code mode — to change realm and stay in code mode, switch-submode with a codePath in that realm)
+│   └─ Open workspace                → `realm.ui.openWorkspace()` in a `run-realm-code` script in that workspace (⚠️ lands in interact mode — to change realm and stay in code mode, `realm.ui.openFile` in a script in that realm)
 └─ EITHER MODE:
-    └─ Toggle mode                   → switch-submode_dd88
+    └─ Toggle mode                   → `realm.ui.switchSubmode` in a `run-realm-code` script
 ```
 
 ### Post-code: schema migration (if schema changed)
@@ -111,7 +109,7 @@ Full create/edit tool tables, file naming, and path rules: `references/card-tool
 ├─ Search affected instances
 ├─ ≤10 → Fix all with the `run-realm-code` tool
 ├─ >10 → "Found X. Fix first 10?"
-├─ Verify → switch-submode to .json
+├─ Verify → `realm.ui.openFile` on the .json
 └─ Continue → "Next 10 of Y remaining?"
 ```
 
