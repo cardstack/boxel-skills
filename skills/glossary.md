@@ -404,7 +404,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 - **`npx boxel file lint <path> --realm <url> --file <local-file>`** — Local lint.
 - **`npx boxel lint [path] --realm <url>`** — Remote lint (single file or whole realm).
 - **`npx boxel parse [path]`** — Local Glint type-check plus JSON document validation.
-- **`npx boxel test`** — Run co-located `.test.gts` QUnit card tests against the local workspace (or `--realm <url>` for cards already on a remote realm). Scoped CSS reaches only modules `loader.import`-ed inside the test. → `boxel/references/qunit-testing.md` "Import inside the test, through the loader" Test-file contract (`runTests()`, `setupCardTest`, `renderCard`, shimmed modules): → `boxel/references/qunit-testing.md`
+- **`npx boxel test`** — Run co-located `.test.gts` QUnit card tests against the local workspace (or `--realm <url>` for cards already on a remote realm). Scoped CSS reaches only modules `loader.import`-ed inside the test. Test-file contract (`runTests()`, `setupCardTest`, `renderCard`, shimmed modules) and the scoped-CSS caveat ("Import inside the test, through the loader"): → `boxel/references/qunit-testing.md`
 - **`npx boxel search --realm <realm-url> --query '<json>' [--json]`** — Federated search. `--realm` is required and repeatable; omitting `--query` lists every card in the realm(s).
 - **`npx boxel run-command <command-specifier> [--realm <url>] [--input <json>] [--json]`** — Execute a host command via the prerenderer. CLI invocation mode for Commands. → `automate-run-command-cli`
 - **`npx boxel consolidate-workspaces`** — Merge multiple watched workspaces (interactive).

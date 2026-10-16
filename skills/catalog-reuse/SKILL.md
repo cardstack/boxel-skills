@@ -1,7 +1,7 @@
 ---
 name: catalog-reuse
 description: >-
-  MANDATORY before writing any `.gts`. Boxel ships a curated catalog; search it before you author. Classify what you need, then apply the matching reuse operation: a **Spec** when you need building blocks (a CardDef to link, a FieldDef to contain, a component or command to import — catalog modules import directly, so this is the default), an **instance** when the content already exists (point a relationship at it), a **Listing** when the user wants a bundle of their own to keep and change (install or remix it). Build new only for confirmed gaps. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
+  MANDATORY before writing any `.gts`. Boxel ships a curated catalog; search it before you author. Classify what you need, then apply the matching reuse operation: a **Spec** when you need building blocks (a CardDef to link, a FieldDef to contain, a component or command to import — catalog modules import directly, so this is the default), an **instance** when the content already exists (point a relationship at it), a **Listing** when the user wants a bundle of their own to keep and change (install or remix it; apps ship as app Specs, never Listings). Build new only for confirmed gaps. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
 boxel:
   kind: skill
   tools:

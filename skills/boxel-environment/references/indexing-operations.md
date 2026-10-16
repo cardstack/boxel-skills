@@ -167,7 +167,7 @@ Push success is not index success, and lint is advisory. Climb in order; no rung
 1. **Bytes landed** — `npx boxel file read <path>` matches the local file.
 2. **Compiles** — `npx boxel lint <path> --realm <url>`; the `get-card-type-schema` probe below proves the module evaluates.
 3. **Queue drained** — `npx boxel realm wait-for-ready --realm <url> --timeout 180000`: no queued or running index-writing job from anyone, not a health check. Batch writes, wait once, never loop.
-4. **Indexing errors** — `timeout 120 npx boxel realm indexing-errors --realm <url>`: waits unbounded for a running pass but not for queued work, so run it after rung 3; a timeout is no answer; findings are each file's latest attempt.
+4. **Indexing errors** — `timeout 120 npx boxel realm indexing-errors --realm <url>`: waits unbounded for a running pass but not for queued work, so run it after rung 3; a timeout is no answer (`timeout` is GNU coreutils: on macOS use `gtimeout` from Homebrew `coreutils`, or stop it by hand after 2 minutes); findings are each file's latest attempt.
 5. **Indexed content** — typed `npx boxel search --json` (count, `attributes`, `included`). Search never waits for your write; identical bytes queue nothing, so force a re-index with `npx boxel file touch <path>`.
 6. **Renders** — open the card (`show-card`, `instantiate-card`, `boxel test`). The indexer renders each format once, headless, without interaction; only this proves a card. Still erroring after a module fix: touch the instance, reopen.
 

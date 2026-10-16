@@ -80,7 +80,7 @@ attribute. Store media as a realm file linked via `linksTo(FileDef)` (or a FileD
 subtype: `ImageDef`, `CsvFileDef`, etc.) instead — never embed the bytes directly in
 the instance JSON.
 
-## 5. Every query needs a realm scope, and don't start it before the realm is known
+## 5. Card searches are capped, and empty until the realm is known
 
 A card search with no `realms` targets the card's own realm; before that realm is
 known it searches nothing, so don't treat the empty first result as an answer. A card

@@ -7,7 +7,7 @@ tags: components, tracked, reactivity, modifiers, focus
 
 ## Never Write Tracked State During Render
 
-A render that has read a tracked property must not write it. Development builds throw `You attempted to update `x`, but it had already been used previously in the same computation`; production builds strip that assertion, so the same bug shows as a stale or looping render.
+A render that has read a tracked property must not write it. Development builds throw ``You attempted to update `x`, but it had already been used previously in the same computation``; production builds strip that assertion, so the same bug shows as a stale or looping render.
 
 Usual sources:
 

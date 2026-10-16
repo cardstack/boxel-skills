@@ -4,12 +4,16 @@ name: Validate plugin
 # manifest. A frontmatter that fails to parse ships a skill with no name,
 # description or tools and nothing else reports it, so this runs on every PR.
 # Not --strict: the Claude manifest deliberately carries no version, which
-# --strict would turn into an error.
+# --strict would turn into an error. The CLI is pinned like the actions are;
+# bump it on purpose.
 
 on:
   pull_request:
   push:
     branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   validate:
@@ -20,4 +24,4 @@ jobs:
         with:
           node-version: 22
       - name: Validate manifest and skill frontmatter
-        run: npx -y @anthropic-ai/claude-code@latest plugin validate .
+        run: npx -y @anthropic-ai/claude-code@2.1.302 plugin validate .

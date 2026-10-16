@@ -150,6 +150,8 @@ const query: Query = {
 
 **Defining query-backed fields:**
 ```ts
+@field shirtSize = contains(StringField);
+
 @field shirts = linksToMany(Shirt, {
   query: {
     filter: {
