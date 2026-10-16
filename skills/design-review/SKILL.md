@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Score a built Boxel screen, card or whole app against its brief and an aesthetic bar, from captures. Runs automatically after every build of an app, card family or user-facing card (one review and one fix round, then a choice). Also use it when someone points at a card or app they already have and wants it reviewed or scored; it reports first and edits nothing until they choose a fix. And use it whenever someone asks for a design review or critique ("how does this look", "is this good enough", "why does this feel off"), when all screens exist and need checking as a set, and for the linked CardDefs whose embedded, fitted and atom views were written in passing. Use it even when the work looks fine. It reviews what exists.
+description: Score the taste and coherence of a built Boxel screen, card or whole app against its brief and an aesthetic bar, from captures. Runs only when asked (`/design-review`, optionally as a mode, `set`, `card <CardDef>` or `refine`, scoped with `--layout`, `--typo`, `--colour` or `--coherence`, anchored with `--benchmark`, cut to the numbers with `--score`, or `--redesign` for a bigger rebuild from existing parts). Use it when someone points at a card or app they already have and wants it reviewed or scored, or asks for a critique ("how does this look", "is this good enough", "why does this feel off"), when all screens exist and need checking as a set, and for linked CardDefs whose embedded, fitted and atom views were written in passing. It reports first and edits nothing until they choose a fix. The basics (hit areas, contrast, phone overflow, wired actions) are not scored here: the build check owns them and runs automatically after every build.
 boxel:
   kind: skill
   tools:
@@ -16,13 +16,14 @@ _Score what was built, from what it looks like._
 | Contract | |
 |---|---|
 | **Reads** | Captures of the built thing, and the unit's brief card when it has one: its `spec`, the acceptance lines and anti-patterns in a `designDirection` field when an earlier brief carries them, and what its `motion` field asks for, where that is filled |
-| **Writes** | Never the brief card: it records decisions, not scores. The build itself only during a fix round: automatically for one round after a build, and for existing work only after the user picks a fix |
-| **Stops when** | The verdict is reported and the next step (another round, review another surface, revisit a decision, or stop) is offered in the choice UI |
+| **Writes** | Never the brief card: it records decisions, not scores. The build itself only after the user picks a fix or a redesign |
+| **Stops when** | The report is given and the next step (a fix round, `--redesign`, review another surface, revisit a decision, or stop) is offered in the choice UI |
 
 Everywhere below, `## Design direction` means the brief card's `designDirection` field and
-`## Motion` its `motion` field. `boxel-design`'s Look check writes only a `Look:` and a `Real details:` line into
-`designDirection`: score the colour against the first and check that no proof was invented beyond the
-second. A brief from earlier work, or one written by hand, may carry a full direction. Every rule below
+`## Motion` its `motion` field. `boxel-design`'s Look check writes only a `Look:`, a `Surface:` and a `Real details:` line into
+`designDirection`: score the colour against `Look:`, the shell and type density against `Surface:`, and
+check that no proof was invented beyond `Real details:`. With no `Surface:` line, infer the surface the way
+[`surface-types.md`](../boxel-design/references/surface-types.md) does and name it in the report. A brief from earlier work, or one written by hand, may carry a full direction. Every rule below
 that reads `## Design direction` acceptance lines, its Views table or its Width line applies only when that
 field holds them. Without them, score each format against the design-playbook's Stage 0f content matrix where one
 was written (otherwise against what the isolated view shows), and `prefersWideFormat` against what
@@ -40,109 +41,183 @@ controls, focus, hover and behaviour. Source code is never evidence that somethi
 exists, because coherence across screens is the thing no single-screen review can see.
 `card <CardDef>` reviews one card's formats as a family, and is the mode nobody remembers to run: in an
 app, the cards behind the links are the surfaces that get built in passing and scored by nothing.
-Asked for by hand on one screen, it reviews that screen. `refine` is the same loop asked for by name,
-to bring a unit to the bar: one fix round, then the user decides (see
+Asked for by hand on one screen, it reviews that screen. `refine` is review, then one fix round, then the user decides: asking for
+`refine` is what authorises that one round (see
 [`references/benchmark-and-refine.md`](references/benchmark-and-refine.md)).
 
-## Automatic review after every build
+## After every build: the build check, not a review
 
-`boxel-design` and the design-playbook decide and build; this is the last design step, and it is
-not optional or offered. When a build of an app, a card family or a single user-facing card
-finishes, run this loop without being asked, over **everything the build produced**:
+`boxel-design` and the design-playbook decide and build; the last step is the **build check**
+([`references/build-check.md`](references/build-check.md)), which is pass/fail and shows no score. It
+owns the basics: hit areas, text size and contrast, phone overflow, container-query breakpoints, a
+wired main action, pseudo-controls, blank regions, and fitted/embedded carrying the key fact. When a
+build of an app, a card family or a user-facing card finishes, the builder captures its own work, fixes
+every failing line, re-checks the views the fix touched, and reports "what I fixed / what is still
+open". No scorecard, no 8.5 verdict, no invitation to a review.
 
-1. **The builder's check finishes the build** ([`references/build-check.md`](references/build-check.md)).
-   The builder captures its own work, records how many lines pass as the round's *Build output*,
-   then fixes every failing line. This is part of finishing the build, not a review round, and it
-   gives no score.
-2. **Capture the whole unit** (`realm.capture` in a `run-realm-code` script in the app, from host-commands-reference → *Seeing*;
-   `npx boxel screenshot` from a terminal; see [`references/capture.md`](references/capture.md)):
-   `set` mode across every screen, and each CardDef the build produced or the screens link to, in
-   the formats the screens show it in. The full five-format family is `card` mode, on request. A
-   single card is reviewed in `card` mode.
-3. **Score** against the brief's acceptance lines and the aesthetic bar. Reuse a benchmark if one
-   exists for this unit; the automatic round never fetches a new one, and without one it says the
-   scores are unanchored.
-4. **Fix the top gaps only**, at most three per round, on the failing screens or cards alone. A gap
-   is a cause, not an instance: names cut off in six fitted tiles by one template is one gap.
-   Scoring is read-only; **a fix is a build.** Before the first write, take the `index.md` pre-flight
-   reads, and load [`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) for a
-   `component` gap and [`catalog-reuse`](../catalog-reuse/SKILL.md) for a `catalog` gap, however small
-   the fix looks. Fix each gap by its route (*Gap routes*, below). A gap fixed by hand-rolling what
-   the catalog or a component covers is not fixed. A `component` route is in scope: swap in the
-   named component, adapting the value in the template and keeping the card's field types. "It is a
-   component change" is never a reason to skip a gap; only a named blocker is (a read-only realm, a
-   Spec that does not load, a component that cannot carry the card's data), and a skipped gap stays
-   open in the re-score. Then run the build check again on every view the fix touched, at desktop and phone width: a fix that
-   widens a grid or adds a field often breaks the phone view. Report what changed and what was
-   left alone.
-5. **Re-capture and re-score, once.** The automatic loop runs **one fix round**. Skip it only when
-   no build-check line fails, no acceptance line fails (where the brief has them), no Phase 3 blocker
-   or major remains, and an independent reviewer scored the unit 9 or more. A provisional score (no
-   independent reviewer) never skips the round: a builder scoring its own work scores it high. When
-   a failure traces to the direction itself, offer "Revisit a decision in the brief" instead of
-   fixing it, and do not loop on it. If the gap list is empty, there is no fix round: say so, say whether the
-   unit cleared the 8.5 gate, say when the scores are provisional, and go to the choice.
-   The re-score's reviewer gets the gap list with one line per gap on
-   what changed, so it can say whether each fix landed; it reverses an earlier gap's advice only when
-   the fix made things worse, and says so.
-6. **One report at the end**, in the *Output* shape: the scorecard and changelog per round, what is
-   still short of the bar and why, and the next step in the choice UI, with **"Keep improving: one
-   more round"** first when it did not clear the gate. Say plainly if it did not clear it. Each further
-   round runs only when the user picks it, the same way, with the same gap list.
+This skill does **not** run after a build. It runs when the user asks for it: `/design-review`, a
+critique request, or a scoped flag (*Flags*). A fix after a review is a build like any other, so a
+review never chains into a second round on its own.
 
-A rebuild made by this loop's own fix round does not start a new automatic review.
+A review may note a missed basic once, as a note. It is a defect for the build check, not a score.
 
 When an independent reviewer is available (a subagent with a fresh context), it scores the captures
-each round and names the gaps from them; the main agent runs the build check's source lines, routes
-each gap (*Gap routes*) and applies the fixes. The reviewer also gets the names of the gaps the build
-left open (the *Build output* line), without the builder's reasoning, and does not score a listed
-gap down again. Otherwise mark the round's
-scores provisional. Skip the loop only for a utility card with no user-facing surface, and say so in
-one line.
+and names the gaps from them; the main agent routes each gap (*Gap routes*) and applies the fixes.
+Otherwise mark the scores provisional. Never print an internal score that a rule needed but the user
+did not ask for.
+
+## Flags
+
+`/design-review [set | card <CardDef> | refine] [unit] [--layout] [--typo] [--colour] [--coherence] [--benchmark] [--score] [--redesign]`
+
+The modes (`set`, `card`, `refine`) are words, not flags; see *Modes* above.
+
+- **No flag:** the full review: the direction gate (when the brief has acceptance lines), every
+  aesthetic dimension, and coherence. Prints the scorecard. The 8.5 gate applies to this run only.
+- **`--layout`:** composition only. Name the surface first (the `Surface:` line, or inferred from
+  [`surface-types.md`](../boxel-design/references/surface-types.md) and said in one line). On an admin,
+  dashboard or back-office surface with no fixed sidebar, "no app shell" is the first layout gap,
+  ahead of tile weights. Then: does something dominate, is the reading order legible from the
+  capture, can the main action be found, does `prefersWideFormat` fit, does the shell match the
+  brief's `Surface:` line, does the signature treatment survive into embedded and fitted. One score,
+  evidence, gaps. When nothing dominates, name the move from
+  [`layout-vocabulary.md`](../boxel-design/references/layout-vocabulary.md) that would (*Gap routes*).
+- **`--typo`:** typography only: size and ladder in real use (including phone), role clarity, tracking on
+  micro-labels, weights against the named look in
+  [`style-families.md`](../boxel-design/references/style-families.md), and **suitability for this
+  specific app** against its `Surface:` line (dense small type is right in an admin tool and wrong on a
+  landing page). If the pairing looks unsuitable, explain why in plain words for this app and let the
+  user decide in the choice UI: keep as is / adjust sizes or weights through theme tokens / switch to a
+  named pairing, with the reason. Never auto-fix. A font change edits the Theme card, so it routes
+  through [`boxel-theme-development`](../boxel-theme-development/SKILL.md), never card CSS. If the
+  review disagrees with a decided direction, say so once as a note, not a score.
+- **`--colour`:** colour roles and restraint against the look's colour strategy, and library defaults
+  beside themed controls.
+- **`--coherence`:** the same gesture, accent role, type family and voice across screens (set) or across a
+  card's formats (card).
+- Media, detail and motion are scored only in the no-flag run; motion only if the build animates.
+- Combined flags give one score per dimension and **no overall number**. A scoped run says the 8.5 gate
+  was not assessed.
+- Scoped runs are read-only and end with a choice scoped to the flag (*Fix loop* → *After a scoped run*):
+  fixes for that dimension only, each option naming the component, catalog card or token it swaps in.
+- **`--benchmark`:** anchor the scoped dimension with
+  [`references/benchmark-and-refine.md`](references/benchmark-and-refine.md); otherwise say the scores
+  are unanchored.
+- **`--score`:** show the scores and nothing else. The review still captures and scores as usual (never
+  from source), then prints only the score lines: the per-dimension scores, and for a no-flag run the
+  scorecard row and the verdict. No gap list, changelog, evidence prose or fix choice. Read-only; it
+  edits nothing and offers no fix round. Combines with any dimension flag and with `--benchmark`. Ask
+  for the same review without `--score` to see why a score is what it is.
+- **`--redesign`:** see below. User-triggered only; never part of a scoped run.
 
 ## Scoring existing work
 
-When the user points at a card or app that already exists, nothing was just built and nothing is
-fixed yet.
+When the user points at a card or app that already exists, nothing was just built and nothing is fixed.
 
-1. **Pick the unit.** One card: `card` mode. An app or several screens: `set` mode, plus each CardDef
-   the screens link to. If it is unclear which they mean, ask in the choice UI.
-2. **Find the brief.** If the unit has a brief card, score against it as usual. If not, skip Phase 1
-   and open the report with one line: "Reviewed without a brief: judged against what the screens
-   show, <primary user> doing <main action>." Read both from the UI; if you cannot name them, that is
-   a finding. Do not create a brief.
-3. **Capture** (`realm.capture` in a `run-realm-code` script in the app, `npx boxel screenshot` from a terminal;
-   [`references/capture.md`](references/capture.md)).
-4. **Score.** Run Phases 2 and 3, and the lines of [`references/build-check.md`](references/build-check.md)
-   as a pass/fail *Basics* block, since no builder ran them. *Reviewing work in progress* does not
-   apply: this is finished work.
-5. **Report** the round 0 scorecard (*Output*). Edit nothing.
-6. **Ask whether to fix**, in the choice UI:
-   - "Fix the top gaps: <G1> → <its reuse>, <G2> → <its reuse>, <G3> → <its reuse>" (recommended when
-     it does not clear the gate), for example "G1 → Pret UI MoneyInput, G2 → Pret UI Button, G3 → theme
-     chart tokens"
+1. **Pick the unit.** One card: `card <CardDef>`. An app or several screens: `set`, plus each CardDef the
+   screens link to. If it is unclear which they mean, ask in the choice UI.
+2. **Find the brief.** If the unit has a brief card, score against it. If not, skip Phase 1 and open
+   with one line: "Reviewed without a brief: judged against what the screens show, <primary user> doing
+   <main action>." Read both from the UI; if you cannot name them, that is a finding. Do not create a brief.
+   Name the surface type in the same line ("surface: admin dashboard"), inferred the way
+   [`surface-types.md`](../boxel-design/references/surface-types.md) does; read that file now. Every layout
+   judgment below is made against that surface.
+3. **Capture** (`realm.capture` in a `run-realm-code` script in the app, `npx boxel screenshot` from a
+   terminal; [`references/capture.md`](references/capture.md)).
+4. **Run the build check silently, without editing**, and report it as ONE pass/fail *Basics* block
+   ("9 of 14 basics fail"). If most basics fail, give no taste scores: they would be provisional until
+   the basics are fixed. Offer to fix the basics first, then review, and stop there.
+5. **Otherwise score** with the flags asked for (*Flags*). *Reviewing work in progress* does not apply.
+6. **Report causes, not instances.** A gap is a cause: six failures from one missing theme block are one
+   gap. Expect two or three root causes. Check the shell against the surface named in step 2: an admin, dashboard or back-office
+   surface with no fixed sidebar has the gap "no app shell", and it is always one of the top gaps. Order
+   fixes by leverage: theme tokens first (one change restyles colour, type and radius), then the shell
+   and lead element, then component swaps. Say in one line what
+   already works, so a round does not rewrite what nobody objected to.
+7. **Patch or redesign** (starting thresholds, tunable): once the basics pass, if the taste score is below
+   about 5, or most dimensions are below 6, recommend `--redesign`; otherwise a fix round.
+8. **Ask**, in the choice UI. Edit nothing before the user picks:
+   - "Fix the top gaps: <G1> → <its reuse>, <G2> → <its reuse>, <G3> → <its reuse>" (recommended unless
+     step 7 says redesign), for example "G1 → Pret UI MoneyInput, G2 → Pret UI Button, G3 → theme chart tokens"
+   - "Switch to a fixed sidebar with the content scrolling beside it → Pret UI app shell (destinations:
+     <the app's real ones>)" — **required** whenever step 6 found "no app shell"
+   - "Feature <the flagship, the newest or the key figure> as the lead tile (two columns wide, or above
+     the grid)" and, right after it, "Keep them equal" — **required** whenever nothing dominates
+   - "Fix the basics first" (when step 4 stopped the review)
+   - "Redesign from existing parts (`--redesign`)", only in addition to the two layout options above,
+     never in place of them
    - "Fix only <G1> → <its reuse>"
    - "Also review the linked cards" (when only one surface was reviewed)
+   - "Revisit the brief or the surface type" (when the direction itself looks wrong)
    - "Stop here, change nothing" (recommended when it clears the gate)
    - and room for the user to name something else.
 
-   Each fix option names what it swaps in, so the user sees which components or tokens change
-   before choosing.
+   **A layout option, when the layout calls for one.** The two required layout options above are
+   separate lines of the list, never a clause inside "Fix the top gaps", and a bare "Redesign" never
+   stands in for them (*Gap routes* → *Standout in a row of equals*).
 
-   When the user cannot write to the realm the unit lives in (a catalog card, someone else's
-   workspace), offer only "Also review the linked cards" and "Stop here, change nothing", and say why.
+   The list is a list: the choice UI, or lettered options in chat ending with "Something else". A
+   prose line such as "fix this, review another dimension, or stop" is not a choice.
 
-A fix runs one round exactly as the automatic loop's steps 4 to 6 do, each gap by its route. It never
-chains into a second round on its own.
+   Each fix option names what it swaps in. When the user cannot write to the realm the unit lives in (a
+   catalog card, someone else's workspace), offer only "Also review the linked cards" and "Stop here,
+   change nothing", and say why.
+
+**A fix round** fixes at most three gaps, on the failing screens or cards alone, each by its route. A fix is
+a build: before the first write, take the `index.md` pre-flight reads, and load
+[`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) for a `component` gap and
+[`catalog-reuse`](../catalog-reuse/SKILL.md) for a `catalog` gap, however small the fix looks. A gap fixed
+by hand-rolling what the catalog or a component covers is not fixed. Only a named blocker (a read-only
+realm, a Spec that does not load, a component that cannot carry the card's data) skips a gap, and it stays
+open. Then run the build check on every view the fix touched, at desktop and phone width, re-capture, and
+re-score what changed. Report what changed and what was left alone. It never chains into a second round.
+
+## Redesign (`--redesign`)
+
+A bigger change than a fix round, built from parts that already exist. The user triggers it; it is never
+automatic and never part of a scoped review.
+
+1. Propose one or two options. Each names: the Pret UI components or catalog Specs it reuses (searched first,
+   per `boxel-ui-component-discovery` and `catalog-reuse`), the layout move from
+   [`layout-vocabulary.md`](../boxel-design/references/layout-vocabulary.md) (all eight are on the table), the
+   signature treatment from [`signature-treatments.md`](../boxel-design/references/signature-treatments.md),
+   and the theme tokens it changes.
+2. Ask before applying. Applying is a build: take the `index.md` pre-flight reads first.
+3. `boxel-design` still owns look decisions. A redesign borrows from it and invents nothing of its own, and
+   it does not write the brief card.
 
 ## Gap routes
 
 **Search before you route.** For each gap, run one quick Spec search for what the gap needs ("money
-input", "formatted number", "chart", "legend"): Pret UI first, then the catalog, as
+input", "formatted number", "chart", "legend"): one search over the catalog realm covers both, and the Pret
+UI hits are the ones whose `ref.module` starts `@cardstack/pretui/components/` (prefer them), as
 [`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) → *Procedure* searches,
-with `realm.entries.search` in a `run-realm-code` run (this skill declares the tool). One or two terms per gap is enough. If the search
-cannot run, write `reuse: not searched: <reason>`; never fill `reuse:` from memory. Then route by what
-it found:
+with `realm.entries.search` in a `run-realm-code` run (this skill declares the tool). One or two terms per gap is enough. The
+query is an object, never a string; the realm call takes a second argument, and all the gaps go in one script:
+
+```js
+const { entries, total, incomplete } = await realm.entries.search(
+  {
+    filter: {
+      on: { module: '@cardstack/base/spec', name: 'Spec' },
+      every: [{ eq: { specType: 'component' } }, { matches: 'sidebar' }],
+    },
+  },
+  { scope: 'cards', limit: 10 },
+);
+```
+
+Leave `realms` out: the search then covers every realm the user can read, the catalog (where the Pret UI
+Specs live) included, and a hit whose `ref.module` starts `@cardstack/pretui/components/` is a Pret UI
+component. Use the app's own words for `matches` ("sidebar", "app shell", "data table"). On an admin,
+dashboard or back-office surface, also search the structure terms from
+[`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) (app shell, sidebar, dashboard
+grid, stat, chart, data table), whatever the gap's own words were. With no hit, retry once with
+`matches: 'sidebar OR app shell'` and no `specType`, as
+[`catalog-reuse`](../catalog-reuse/SKILL.md) says. A call that errors is retried once with the shape
+above before anything else. Only if it still fails, write `reuse: not searched: <reason>` and say so in
+the report; never fill `reuse:` from memory, and never route a gap `local` because the search errored.
+Then route by what it found:
 
 - **`component`**: a component does the job, even when adopting it means replacing an input, a chart
   or a display the card renders now. Fix it with that component, restyled through
@@ -153,14 +228,36 @@ it found:
   rewriting it, and record `adopted, route: …`; with no match, record the refusal before building.
 - **`local`**: only when the search found nothing that fits: spacing, copy, layout or a plain bug in
   markup the card already owns. A local fix takes its values from the theme's tokens, never
-  hand-picked colours or sizes.
+  hand-picked colours or sizes. A hand-rolled app frame (header, sidebar, grid) beside an existing
+  shell Spec is not `local`: it is `component`.
+- **A row of equals** is routed `local` with `reuse: layout-vocabulary -> Bento`. The fix is a class on the
+  lead card and `grid-column: span 2` in the parent's own grid: a class on the field, never `:deep()`
+  ([`delegated-render-control.md`](../boxel-ui-guidelines/references/delegated-render-control.md)). Quote
+  the limits from `layout-vocabulary.md` → *2 · Bento*: 4 to 7 items of genuinely different weight
+  (parallel items such as services, steps or tiers are a list or table); a 4-column grid with the lead at
+  `span 2` and row `span 2`; collapse by container query 4 → 2 → 1; DOM order equals reading order (drop
+  `dense` if it reorders visible tiles); at most 3 distinct tile sizes; each tile its own `embedded` or
+  `fitted` format, the lead carrying the card's key fact; the lead stays first on a phone.
+- **Standout in a row of equals:** a row or grid of same-size cards usually wants one card that
+  leads. Offer "Feature <the flagship, the newest or the biggest> as the lead tile (two columns wide, or
+  above the grid)" as a choice, with "Keep them equal" beside it. Parallel items qualify: the
+  list-or-table rule is about Bento's mix of kinds, not about whether one item may lead. It is an
+  option, never a rule, and nothing changes until the user picks it.
+
+**The fix ladder: no CSS hacks.** Go down a step only when the one above cannot reach: (1) theme tokens in
+the app's Theme card, including the tokens of other tones (`success`, `destructive`, `info`, `warning`); (2) the
+component's documented args and variables (`@tone`, `@appearance`, `@size`, `@shape`, `--pretui-button-h`,
+`--fc-*` on `FittedCard`); (3) a class on the component root through `...attributes`, scoped to what the
+args cannot reach; (4) `:deep()` last, with the gap named. Never `!important`, hard-coded colours or
+sizes, `:global`, or a removed focus ring. Steps in full:
+[`restyle-component.md`](../boxel-ui-component-discovery/references/restyle-component.md).
 
 Route and reuse are separate. Every gap carries a `reuse:` field naming what the fix reuses: **one**
 component with its Spec (an alternative may follow as a footnote), token names, the restyle-component
 step, or `searched "<terms>": none fits`. If the search found something that fits, the route is not
 `local`. A candidate whose fit is unknown is written `candidate: <name>, fit unchecked: <reason>`, and
-does not change the route. Replacing a hand-built part with a catalog card is a proposal to the user,
-not something a fix round does inside its three gaps.
+does not change the route. Replacing a hand-built part with a catalog card is a proposal to the user
+(or a `--redesign` option), not something a fix round does inside its three gaps.
 
 ```
 G1 · Home price shows 1104000 unformatted · route: component · reuse: Pret UI MoneyInput (pretui-money-input)
@@ -220,7 +317,8 @@ professional, polished and forgettable sits around 6–7; the gate is **8.5**.
 product page, editorial), the benchmark in
 [`references/benchmark-and-refine.md`](references/benchmark-and-refine.md) compares it with three recent
 award winners, dimension by dimension. Compare composition and type, not WebGL or page-wide motion a
-card cannot do. Without a benchmark, say the scores are unanchored.
+card cannot do. Without a benchmark (no `--benchmark` and not `refine`), say the scores are unanchored
+and name no references.
 
 Score and name the specific thing behind each number:
 
@@ -233,7 +331,8 @@ Score and name the specific thing behind each number:
   and place in the composition. Never score the placeholder itself: not its colours, not its label,
   not that it is a box instead of a photo, and not how many of them there are.
 - **Colour** — against the colour strategy the look uses. Restrained looks: one accent in at most two places. Playful, vibrant, vintage: several colours are right when each has a named role and none competes for the same job. Colours with no assigned role fail in any look.
-- **Composition** — does something dominate, or is it a row of equals? Is the reading order legible
+- **Composition** — does something dominate, or is it a row of equals? When nothing does, name the move that
+  would (Bento, unequal split, layered surface, a lead tile in a row of equals; *Gap routes*). Is the reading order legible
   in the screenshot alone? Can the main action be found without hunting for it? Name the signature
   treatment on the dominant object and say whether it belongs to this style;
   [`boxel-design/references/signature-treatments.md`](../boxel-design/references/signature-treatments.md)
@@ -262,59 +361,24 @@ Score and name the specific thing behind each number:
 Below 8.5, name the two or three things standing between here and the bar. Those are the round's
 gaps. Do not soften the number to be encouraging; the number is the useful part.
 
-## Phase 3 — Constraints
+## Phase 3 — Look-level constraints
 
-After the aesthetic gate, check what would make the design wrong rather than plain:
+The basics (main action and controls, accessibility, affordance legibility and honesty, clarity, domain
+fit, robustness) are not scored here: they are lines of
+[`references/build-check.md`](references/build-check.md). Report a missed one once, as a note.
 
-- **Main action and controls** ([`critical-rules.md`](../boxel-design/references/critical-rules.md)
-  → *First-shot designs are clickable*). Name the primary user and their main action from the UI;
-  if the UI does not let you name it, that is a finding. The main action is an `@operation` reached
-  through `operations()` (hidden only when `canInvoke` answers `false`), or a link, or a disabled
-  control with a marked slot naming what is needed. Every other drawn control is wired the cheapest
-  way: a linked card, a link the user gave, `viewCard` into the right-hand stack or the edit view, or
-  a `@tracked` filter. Exercise the main action and one control of each kind; check the rest from the
-  DOM. Severity: **blocker** when no main action can be named or reached; **major** when a drawn
-  control does nothing, or the main action is a stub. Where the action sits on the screen is
-  composition (Phase 2), not a constraint. When you cannot run the action from the session, say it
-  was not exercised rather than passing it.
+One constraint stays in review because it is taste:
+
 - **Components take the app's look.** A Pret UI or boxel-ui component left at its library default
-  (colour, radius, type) beside controls that carry the app's theme is a finding
-  ([`restyle-component.md`](../boxel-ui-component-discovery/references/restyle-component.md)). So is a
-  reused catalog card whose stock look still reads as another app; a stock layout kept under the
+  (colour, radius, type) beside controls that carry the app's theme is a finding, scored under colour or
+  coherence ([`restyle-component.md`](../boxel-ui-component-discovery/references/restyle-component.md)).
+  So is a reused catalog card whose stock look still reads as another app; a stock layout kept under the
   theme because it fits is correct ([`restyle-reused-card.md`](../catalog-reuse/references/restyle-reused-card.md)).
-  A component the build named as a gap no restyle step reaches is reported as that gap, not scored
+  A component the build named as a gap that no restyle step reaches is reported as that gap, not scored
   down again.
-- **Accessibility** — contrast on every text-bearing surface, focus states, hit targets, and the
-  motion-off pass for anything animated. The reduced-motion check is not "is there a fallback" but
-  two questions the pass answers: does every element survive with animations off (the resting CSS
-  state is the final state, per the template-patterns rule above and `card-motion`), and is every
-  state the motion conveys reachable without it. Motion that carries information, such as a selection
-  that only reads as selected while it animates, fails the second even when it passes the first. See
-  `references/capture.md` → *The motion-off pass*.
-- **Clarity** — can a first-time user tell what this is and what to do, from the screenshot?
-- **Affordance honesty** — does everything that looks pressable have a focus state and a real
-  control under it? A thing that reads as interactive and is not is a clarity failure before it is
-  an implementation one. Check the screen's **primary action** by name against the content
-  contract: if the contract says "start choosing a date" and the screen renders that phrase as a
-  styled `<span>`, the screen has not delivered its primary action, however good it looks.
-- **Affordance legibility.** A control can be a real button, keyboard-reachable and correctly wired,
-  and still fail: nothing about it says *press me*, or the thing you must hit is too small. Three
-  things to verify, from the captures plus a hover pass:
-  - **Hit area.** Measure the *hit area*, not the ink. Under 24×24 CSS px fails (WCAG 2.2 SC 2.5.8,
-    with its spacing exception); a default Pret UI `Button` at about 28px passes. A main action or a
-    control used on a phone under 44×44 is a minor finding, not a failure.
-  - **Hover and cursor.** Every control has a visible hover state (a fill, a border, a shift) and
-    `cursor: pointer`. A row-sized invisible overlay button with no hover is the worst case: the
-    whole row is clickable and nothing says so. Capture one hover state per control kind and check
-    it differs from rest.
-  - **A resting cue.** A control is legible as one *before* the pointer arrives: a border, a fill, an
-    underline, a chevron. Bare text that only reveals itself on hover is unreachable on touch and
-    invisible to anyone scanning.
-- **Domain fit** — does it use the domain's own conventions, or generic app furniture?
-- **Robustness** — long strings, missing media, zero rows, one row, very many rows.
 
-Do not resolve these by making the design plainer. A contrast failure is solved by finding a
-colour that reads *and* belongs, not by reverting to grey.
+Do not resolve a finding by making the design plainer. A contrast failure is solved by finding a colour
+that reads *and* belongs, not by reverting to grey.
 
 ## Set mode
 
@@ -332,8 +396,7 @@ colour that reads *and* belongs, not by reverting to grey.
    the app it appears in is a set failure, not a card failure.
 4. Report one table for the set, then per-screen failures. Iterate the failing screens only.
 
-Run it on the first build: once more screens stand on these, coherence problems get lived with
-instead of fixed.
+Run it early: once more screens stand on these, coherence problems get lived with instead of fixed.
 
 ## Card mode
 
@@ -383,8 +446,7 @@ real hex, named fonts, no `var(--*)`, one or two instances per CardDef. **Both a
 at that point and neither is a finding.** Judge the layout on the content that is there; "needs more
 rows to evaluate" is not a review. Do not report literal colours, a missing theme link or
 untokenized values: tokenizing early pushes the build to fix values before the design is settled.
-This applies only before theming. The automatic review runs after Stage 4, and *Scoring existing
-work* reviews finished work, so neither uses it.
+This applies only before theming. A review of finished work (*Scoring existing work*) never uses it.
 
 What *is* fair game at every stage: everything visual, plus `border-radius`, `border`, `box-shadow`
 or `overflow: hidden` on a format's outermost element, which the host owns
@@ -398,42 +460,61 @@ later, taking the layout with it; report that as a note, separately from the sco
 **Pseudo-controls.** Anything the capture reads as a control (a button, a stepper, a picker, a
 selectable cell, a tab) that is a `<div>` or an `<li>` with nothing wired under it. These pass every
 reuse rule by accident: a build with no raw `<button>` and no component trips nothing. In a mockup,
-name each one as a note. In a finished build they fail build-check line 8 and are a Phase 3 major.
+name each one as a note. In a finished build they fail build-check line 8.
 
 ## Fix loop
 
-A further round runs only when the user picks it in the choice UI. Each round reports what it changed
-and what it left alone: a round that silently rewrites things nobody objected to makes the next review
-meaningless.
+A fix round runs only when the user picks it in the choice UI, and never chains into another. Each round
+reports what it changed and what it left alone: a round that silently rewrites things nobody objected to
+makes the next review meaningless.
 
-**After reporting a verdict, ask what happens next in the choice UI**; do not just leave the report
-and wait. Options: "Keep improving: one more round" (recommended when it did not clear the gate),
-"Review the next screen / run `set` or `card` mode" (recommended once this unit passes and others
-remain), "Revisit a decision in the brief" (when a failure traces to the decision itself, not its
-execution; see Phase 1), and "Stop here" (recommended once everything in scope has passed), plus room
-for the user to name something else. Stopping is always one of the options, never a line asking the
-user to type "skip". The automatic fix round in step 5 is skipped only by its stated gate, without
-asking.
+**After reporting, ask what happens next in the choice UI**; do not just leave the report and wait.
+Options: "Fix the top gaps" (recommended when it did not clear the gate), "Redesign from existing parts"
+(when step 7 of *Scoring existing work* says so), "Review the next screen / run `set` or `card`"
+(recommended once this unit passes and others remain), "Revisit a decision in the brief" (when a failure
+traces to the decision itself, not its execution; see Phase 1), and "Stop here" (recommended once
+everything in scope has passed), plus room for the user to name something else. Stopping is always one of
+the options, never a line asking the user to type "skip".
+
+**After a scoped run** (`--layout`, `--typo`, `--colour`, `--coherence`), the choice is about the
+dimension asked for and nothing else:
+
+- **A gap was found:** offer "Fix <gap> → <its reuse>" for each gap in that dimension only, never a
+  gap from another one. The reuse comes from the *Search before you route* search, judged against the
+  brief's `Surface:` line and the app's direction, not from a generic default. For example, `--layout`
+  on a back-office app with no sidebar finds the gap "no app shell"; the search runs for "app shell" and
+  "sidebar", and the option reads "Fix: add a fixed sidebar → Pret UI app shell" (or the catalog Spec
+  that fits), with the app's real destinations as its items. A fix that is only a token or a class says
+  so. For a row of equals, the option reads "Fix: feature <the flagship or newest> as the lead tile
+  (two columns wide, or above the grid)", and "Keep them equal" is listed as its own option right after it. Add "Review another dimension" and "Stop here". Give them as a list (the choice UI, or lettered
+  options in chat), never as one prose line.
+- **Nothing was found:** say it passed in one line, suggest no fix and run no search, and ask only
+  "Review another dimension (<the ones not run>)" / "Stop here". A scoped pass says nothing about the
+  dimensions it did not look at, so name them.
+- A fix round from this choice touches only that dimension, then re-scores it, and never chains.
 
 ## Output
 
-Every report opens with the scorecard and the changelog, one row and one line per round. Round 0 is
-the first review; for an automatic review, *Build output* above it is the build check's tally before
-the builder fixed it, so the first build's own state is on record.
+`--score` prints only the score lines of what follows (the *Scorecard* table, the *Aesthetic* and *Design
+direction* tallies, the verdict) and drops the rest.
+
+A full review opens with the scorecard and the changelog, one row and one line per round. Round 0 is the
+first review. A scoped run prints one score per requested dimension and no total, and says the gate was
+not assessed.
 
 ```
-Build output: 11/14 build-check lines passed (builder fixed: names, phone overflow, dead filter)
+Basics: 14/14 build-check lines pass
 
 Scorecard
-| Round | Basics | Direction | Aesthetic | Constraints | Reviewer |
-|---|---|---|---|---|---|
-| 0 | 14/14 | 9/11 | 7.5 | 1 major | independent |
-| 1 | 14/14 | 11/11 | 8.0 | 0 | independent |
+| Round | Direction | Aesthetic | Reviewer |
+|---|---|---|---|
+| 0 | 9/11 | 7.5 | independent |
+| 1 | 11/11 | 8.0 | independent |
 
 Changelog
 - R1 · G1 Names cut off in fitted tiles (one template) · route: local · reuse: searched "tile title": none fits · title wraps to two lines · landed
 - R1 · G2 Accent on prices · route: local · reuse: --foreground · prices in ink colour · landed
-- R1 · G3 Hero and grid at equal weight · route: local · reuse: searched "bento grid": none fits · ambassador tile double width · partial: the phone view stacks it back
+- R1 · G3 Hero and grid at equal weight · route: local · reuse: layout-vocabulary -> Bento · ambassador tile double width · partial: the phone view stacks it back
 Left alone: everything else.
 
 Design direction: 11/11 acceptance lines
@@ -445,10 +526,10 @@ Verdict: ITERATE
 The one thing between here and the bar: one tile that dominates at phone width too.
 ```
 
-*Basics* is the build check's tally at the time of the review (after the builder's check, what it
-could not fix; for existing work, the first look). *Reviewer* says `independent` or `provisional`. Gap ids (G1, G2,
-…) stay the same across rounds, so a gap that comes back is visible, and each names its route (*Gap
-routes*). A changelog line is round · gap · what changed · landed, partial or made worse.
+*Basics* is the build check's tally when the review ran (for existing work, the first look). *Reviewer* says
+`independent` or `provisional`. Gap ids (G1, G2, …) stay the same across rounds, so a gap that comes back is
+visible, and each names its route (*Gap routes*). A changelog line is round · gap · what changed · landed,
+partial or made worse.
 
 ## Pair with
 
@@ -476,6 +557,6 @@ Read these live on each run. Links are relative to this skill's folder.
 
 ## Sections (load on demand)
 
-- `references/build-check.md` — the builder's pass/fail screenshot check that finishes every build, and the *Basics* block for existing work
+- `references/build-check.md` — the pass/fail check that finishes every build (the basics, unscored), and the *Basics* block for existing work
 - `references/capture.md` — which tool captures which view, budgets, where captures go, and the blank-region, scroll-motion and motion-off rules
 - `references/benchmark-and-refine.md` — the award-site benchmark, `refine` mode and the roles in the loop (the gate stays 8.5)

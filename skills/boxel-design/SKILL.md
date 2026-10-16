@@ -101,11 +101,16 @@ or typed by the user. Where a later section of `spec` (Scope, a Content contract
 value, the section is what the build follows, as `domain-interview` says, so use the corrected value;
 if it only restates an assistant suggestion, it is still not a source.
 
+**Surface is never a question.** Infer it from the prompt or the "What are you making?" answer
+([`references/surface-types.md`](references/surface-types.md)), read that file before the first
+mockup when the build is a tool, desk, admin, dashboard, back office, CRM or similar, and write a `Surface:` line next to
+`Look:` when you record the answers. An admin, dashboard or back-office surface opens on a fixed sidebar shell.
+
 **Record it on the brief**, when there is one, straight after the answer, including what the user's
-prompt already said. Write the `Look:` and `Real details:` lines it does not already have into its
+prompt already said. Write the `Look:`, `Surface:` and `Real details:` lines it does not already have into its
 `designDirection` field (this skill's field; `domain-interview` owns `spec`), changing only that
 field and never deleting text already there. `designDirection` is a MarkdownField, so each line is
-its own paragraph: a blank line between the two lines, and a blank line before the first when text is
+its own paragraph: a blank line between the lines, and a blank line before the first when text is
 already there, otherwise they render as one run-on paragraph. Never hand-escape the markdown into
 JSON; use the path for where you run:
 
@@ -154,7 +159,7 @@ Choose the governing style source before stage 1:
 - **`boxel-theme-development`** — turns design-system source material into a Theme, Style Reference, Detailed Style Reference, or Brand Guide artifact.
 - **`boxel`** — once the design is decided and you're implementing the card. Also hosts the playbook itself.
 - **`source-code-editing`** — when applying the resulting styles to existing files.
-- **`design-review`** — the last design step: runs automatically after every build (the builder's build check, one review, one fix round, then a choice), and scores existing work on request.
+- **`design-review`** — the last design step: runs only on request (a scored review of taste and coherence, scoped with `--layout`, `--typo`, `--colour`, `--coherence`, or `--redesign`); the build check that finishes every build owns the basics.
 
 ## Don't use for
 
@@ -168,6 +173,7 @@ Choose the governing style source before stage 1:
 - [`references/layout-vocabulary.md`](references/layout-vocabulary.md) — eight named layout moves, what each is for and not for, and how each is built in a card. Decide the sections first; zero moves is a valid answer.
 - [`references/layout-gravity.md`](references/layout-gravity.md) — defaults a layout drifts into when nobody decided it, mostly on app screens. Check a finished layout against it.
 - [`references/style-families.md`](references/style-families.md) — optional vocabulary, never required: eight look families with type roles, colour strategy and a check each, how to set the look, and the page-colour table.
+- [`references/surface-types.md`](references/surface-types.md) — optional vocabulary, never required: six kinds of surface (admin, back-office, landing, consumer, content, component) with density, structure, colour and catalog search terms, and the brief's `Surface:` line; floors stay the same for all
 - [`references/untrusted-content.md`](references/untrusted-content.md) — the rules for any research step: when to research, what each tool can ground, reference labels, page text as data.
 - [`references/signature-treatments.md`](references/signature-treatments.md) — the one arresting treatment on the dominant object: the techniques, what each costs in a card, and when to use card-motion.
 

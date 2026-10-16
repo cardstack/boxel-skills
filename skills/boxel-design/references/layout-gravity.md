@@ -18,7 +18,7 @@ user asked for stays: this check is for defaults nobody chose, so don't flag it 
 | Dropdown as primary control | Full-width select that changes everything | Reads as a form field, not a decision | A chip, a segmented control, or a rail with the current choice visible |
 | Table as default list | Every collection is a table | Tables suit evidence, not browsing or choosing | Shelf, rail, magazine or grouped rows, by the job (named moves: [`layout-vocabulary.md`](layout-vocabulary.md)) |
 | Settings panel for a ritual | A scheduled action as a labelled box with a button | No sense of when | Attach the action to a date on a strip or calendar |
-| Sidebar by habit | Left nav because apps have one | Costs 20% of width for four destinations | Tabs in the top bar until there are more than seven |
+| Sidebar by habit | Left nav because apps have one | Costs 20% of width for four destinations | Tabs in the top bar until there are more than seven. Not a well on an admin, dashboard or back-office surface, where the fixed sidebar is the convention ([`surface-types.md`](surface-types.md)) |
 | Centre everything | Every block and heading centred | No reading order | Left-align text; centre only the one spotlight object |
 | Disabled-button wall | Many greyed buttons with the same reason | A wall of failure | One contextual prompt; hide the action until it can work |
 | Empty state as apology | "No items yet." | Nothing to do next | Name the first action and what will appear |

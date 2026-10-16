@@ -31,7 +31,7 @@ below is a container query against `fitted-card` or the card root, never a viewp
 | # | Move | For | Not when |
 |---|---|---|---|
 | 1 | Layered surface | the one or two items that act or lead need to lift off the ground | every box gets it |
-| 2 | Bento | four to seven items of genuinely different weight and kind | the items are parallel (services, steps, tiers): those are a list or a table |
+| 2 | Bento | four to seven items of genuinely different weight and kind | the items are parallel (services, steps, tiers): those are a list or a table. A row of parallel cards may still feature one as a lead tile; that is a choice for the user, not a Bento |
 | 3 | Masonry | images of mixed native shapes that should not be cropped alike | uniform product shots, or text |
 | 4 | Unequal split | one dominant thing (a photo, a number, one sentence) with a small quiet companion | both halves are text, or the section only has two sides because heroes usually do |
 | 5 | Edge overlap | two things the reader must connect, such as the price on the photo of what it buys | the overlapping piece is a badge, a rating or an availability card added for depth |
