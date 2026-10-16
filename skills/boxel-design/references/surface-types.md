@@ -9,13 +9,14 @@ dressed.
 
 **This is optional vocabulary, not a menu**, with the same status as `style-families.md`. A brief may carry a
 `Surface:` line next to `Look:` inside `designDirection`. Infer it from the user's answer to "What are you
-making?" and list it only for override; do not add a question to the pre-flight call. Where no surface
+making?" and say it in one line so the user can correct it; do not add a question to the pre-flight call.
+Its stored form is one of this table's names, written exactly so (`Surface: Admin / dashboard`). Where no surface
 fits, say so and leave the line out.
 
 | Surface | Density and type | Structure | Colour | Search terms (catalog stays the source of truth) |
 |---|---|---|---|---|
 | **Admin / dashboard** | dense; about 13–14px body; tabular numerals; 28–32px controls | app shell, sidebar, panel grid, tables | neutral ground; colour reserved for status and data | app shell, sidebar, dashboard grid, stat, chart, data table |
-| **Back-office / data tool** | densest; forms and filters; keyboard first | master-detail, split panes, bulk actions | plain; status chips only | data grid, filter set, form layout, split panes |
+| **Back-office / data tool** | densest; forms and filters; keyboard first | app shell, sidebar, master-detail, split panes, bulk actions | plain; status chips only | app shell, sidebar, data grid, filter set, form layout, split panes |
 | **Landing / marketing** | large type, generous space, one message | sections, bleed, unequal split, a bento lead tile | a real signature moment and one call to action | hero split, cta band |
 | **Consumer / mobile app** | 44px targets | bottom nav, cards, sheets | brand colour carries more | bottom nav, sheet, tabs |
 | **Content / document** | reading measure; 16–18px | prose, table of contents | quiet | prose, table of contents |

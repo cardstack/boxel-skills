@@ -16,7 +16,7 @@ _Score what was built, from what it looks like._
 | Contract | |
 |---|---|
 | **Reads** | Captures of the built thing, and the unit's brief card when it has one: its `spec`, the acceptance lines and anti-patterns in a `designDirection` field when an earlier brief carries them, and what its `motion` field asks for, where that is filled |
-| **Writes** | Never the brief card: it records decisions, not scores. The build itself only after the user picks a fix or a redesign |
+| **Writes** | Never the brief card: it records decisions, not scores. The build itself only after the user picks a fix or a redesign, or asks for `refine` (which authorises its one fix round) |
 | **Stops when** | The report is given and the next step (a fix round, `--redesign`, review another surface, revisit a decision, or stop) is offered in the choice UI |
 
 Everywhere below, `## Design direction` means the brief card's `designDirection` field and
@@ -119,9 +119,14 @@ When the user points at a card or app that already exists, nothing was just buil
 2. **Find the brief.** If the unit has a brief card, score against it. If not, skip Phase 1 and open
    with one line: "Reviewed without a brief: judged against what the screens show, <primary user> doing
    <main action>." Read both from the UI; if you cannot name them, that is a finding. Do not create a brief.
-   Name the surface type in the same line ("surface: admin dashboard"), inferred the way
-   [`surface-types.md`](../boxel-design/references/surface-types.md) does; read that file now. Every layout
-   judgment below is made against that surface.
+   Name the surface type and the shell you see in the same line ("Surface: Admin / dashboard. Shell:
+   none"), the surface inferred the way [`surface-types.md`](../boxel-design/references/surface-types.md)
+   does (read that file now). `Shell:` is `fixed sidebar` only when the capture shows a left sidebar of
+   the app's destinations; a header over stacked sections is `none`. Never scope the shell out as "a card-only
+   review": in Boxel the app is made of cards, so a card whose isolated view is the screen its user works
+   in (`prefersWideFormat`, or a Home or dashboard card) owns its shell. Only a card that is one record shown
+   inside another screen (a deal, a contact) has none of its own: write `Shell: n/a (record card)`. Every
+   layout judgment below is made against that surface and shell.
 3. **Capture** (`realm.capture` in a `run-realm-code` script in the app, `npx boxel screenshot` from a
    terminal; [`references/capture.md`](references/capture.md)).
 4. **Run the build check silently, without editing**, and report it as ONE pass/fail *Basics* block
@@ -129,20 +134,24 @@ When the user points at a card or app that already exists, nothing was just buil
    the basics are fixed. Offer to fix the basics first, then review, and stop there.
 5. **Otherwise score** with the flags asked for (*Flags*). *Reviewing work in progress* does not apply.
 6. **Report causes, not instances.** A gap is a cause: six failures from one missing theme block are one
-   gap. Expect two or three root causes. Check the shell against the surface named in step 2: an admin, dashboard or back-office
-   surface with no fixed sidebar has the gap "no app shell", and it is always one of the top gaps. Order
+   gap. Expect two or three root causes. Check the shell against the surface named in step 2: when the surface is `Admin / dashboard`
+   or `Back-office / data tool` and `Shell:` is `none`, G1 is "no app shell → Pret UI app shell". It
+   comes first, ahead of tile weights and phone fixes, and is never folded into another gap. Order
    fixes by leverage: theme tokens first (one change restyles colour, type and radius), then the shell
    and lead element, then component swaps. Say in one line what
    already works, so a round does not rewrite what nobody objected to.
 7. **Patch or redesign** (starting thresholds, tunable): once the basics pass, if the taste score is below
    about 5, or most dimensions are below 6, recommend `--redesign`; otherwise a fix round.
 8. **Ask**, in the choice UI. Edit nothing before the user picks:
-   - "Fix the top gaps: <G1> → <its reuse>, <G2> → <its reuse>, <G3> → <its reuse>" (recommended unless
-     step 7 says redesign), for example "G1 → Pret UI MoneyInput, G2 → Pret UI Button, G3 → theme chart tokens"
    - "Switch to a fixed sidebar with the content scrolling beside it → Pret UI app shell (destinations:
-     <the app's real ones>)" — **required** whenever step 6 found "no app shell"
+     <the app's real ones>)" — **required, first in the list and recommended** whenever step 6 found
+     "no app shell"
    - "Feature <the flagship, the newest or the key figure> as the lead tile (two columns wide, or above
      the grid)" and, right after it, "Keep them equal" — **required** whenever nothing dominates
+   - "Fix the top gaps: <G1> → <its reuse>, <G2> → <its reuse>, <G3> → <its reuse>" (recommended unless
+     a layout option above or step 7 says otherwise), for example "G1 → Pret UI MoneyInput, G2 → Pret UI
+     Button, G3 → theme chart tokens". It lists only the gaps that have no line of their own: the shell gap
+     and the lead tile are left out of it, never bundled in
    - "Fix the basics first" (when step 4 stopped the review)
    - "Redesign from existing parts (`--redesign`)", only in addition to the two layout options above,
      never in place of them
@@ -209,7 +218,8 @@ const { entries, total, incomplete } = await realm.entries.search(
 
 Leave `realms` out: the search then covers every realm the user can read, the catalog (where the Pret UI
 Specs live) included, and a hit whose `ref.module` starts `@cardstack/pretui/components/` is a Pret UI
-component. Use the app's own words for `matches` ("sidebar", "app shell", "data table"). On an admin,
+component. This differs from `boxel-ui-component-discovery`, which scopes `realms` to the catalog: here
+that `ref.module` test is what keeps a Spec someone wrote in a workspace from passing as Pret UI. Use the app's own words for `matches` ("sidebar", "app shell", "data table"). On an admin,
 dashboard or back-office surface, also search the structure terms from
 [`boxel-ui-component-discovery`](../boxel-ui-component-discovery/SKILL.md) (app shell, sidebar, dashboard
 grid, stat, chart, data table), whatever the gap's own words were. With no hit, retry once with
@@ -230,19 +240,19 @@ Then route by what it found:
   markup the card already owns. A local fix takes its values from the theme's tokens, never
   hand-picked colours or sizes. A hand-rolled app frame (header, sidebar, grid) beside an existing
   shell Spec is not `local`: it is `component`.
-- **A row of equals** is routed `local` with `reuse: layout-vocabulary -> Bento`. The fix is a class on the
-  lead card and `grid-column: span 2` in the parent's own grid: a class on the field, never `:deep()`
-  ([`delegated-render-control.md`](../boxel-ui-guidelines/references/delegated-render-control.md)). Quote
-  the limits from `layout-vocabulary.md` → *2 · Bento*: 4 to 7 items of genuinely different weight
-  (parallel items such as services, steps or tiers are a list or table); a 4-column grid with the lead at
-  `span 2` and row `span 2`; collapse by container query 4 → 2 → 1; DOM order equals reading order (drop
-  `dense` if it reorders visible tiles); at most 3 distinct tile sizes; each tile its own `embedded` or
-  `fitted` format, the lead carrying the card's key fact; the lead stays first on a phone.
 - **Standout in a row of equals:** a row or grid of same-size cards usually wants one card that
   leads. Offer "Feature <the flagship, the newest or the biggest> as the lead tile (two columns wide, or
-  above the grid)" as a choice, with "Keep them equal" beside it. Parallel items qualify: the
-  list-or-table rule is about Bento's mix of kinds, not about whether one item may lead. It is an
-  option, never a rule, and nothing changes until the user picks it.
+  above the grid)" as a choice, with "Keep them equal" beside it. Parallel items qualify. It is an
+  option, never a rule, and nothing changes until the user picks it. The fix is routed `local` with
+  `reuse: lead tile`: a class on the lead card and `grid-column: span 2` in the parent's own grid (a class
+  on the field, never `:deep()`;
+  [`delegated-render-control.md`](../boxel-ui-guidelines/references/delegated-render-control.md)), DOM order
+  equal to reading order, the lead carrying the card's key fact, and the lead first on a phone.
+- **A Bento** is a different fix, for items that really differ in kind, routed `local` with
+  `reuse: layout-vocabulary -> Bento`. Quote its limits from `layout-vocabulary.md` → *2 · Bento*: 4 to 7
+  items of genuinely different weight; a 4-column grid with the lead at `span 2` and row `span 2`;
+  collapse by container query 4 → 2 → 1; drop `dense` if it reorders visible tiles; at most 3 distinct
+  tile sizes; each tile its own `embedded` or `fitted` format.
 
 **The fix ladder: no CSS hacks.** Go down a step only when the one above cannot reach: (1) theme tokens in
 the app's Theme card, including the tokens of other tones (`success`, `destructive`, `info`, `warning`); (2) the
@@ -514,7 +524,7 @@ Scorecard
 Changelog
 - R1 · G1 Names cut off in fitted tiles (one template) · route: local · reuse: searched "tile title": none fits · title wraps to two lines · landed
 - R1 · G2 Accent on prices · route: local · reuse: --foreground · prices in ink colour · landed
-- R1 · G3 Hero and grid at equal weight · route: local · reuse: layout-vocabulary -> Bento · ambassador tile double width · partial: the phone view stacks it back
+- R1 · G3 Hero and grid at equal weight · route: local · reuse: lead tile · ambassador tile double width · partial: the phone view stacks it back
 Left alone: everything else.
 
 Design direction: 11/11 acceptance lines

@@ -131,6 +131,8 @@ request).
 ```
 Look: Dark & dramatic
 
+Surface: Admin / dashboard
+
 Real details: use what's in the brief | facts: <the user's words> | leave marked slots | leave sections out | concept (demo mode)
 ```
 
@@ -139,8 +141,10 @@ records `from the <BrandGuide or Theme> (<its name>)`, naming the kind it actual
 `Real details:` the value is one of those five, written exactly so (they are the stored form of the
 options, not their labels); details the user typed always start with `facts:`, so typed text can
 never be read as one of the other four, and they add to the facts the user stated in the brief,
-never replace them. A skip records the one it took. The build reads both lines as given: the look
-steers the mockup, and the real-details line decides what the build may write about the user's
+never replace them. On `Surface:` the value is one of the names in
+[`surface-types.md`](references/surface-types.md), written exactly so; leave the line out when no surface
+fits. A skip records the one it took. The build reads all three lines as given: the look steers the
+mockup, the surface sets the shell and density, and the real-details line decides what the build may write about the user's
 business (the design-playbook's Stage 1 and critical-rules' *Never invent proof* both read it).
 
 With no brief, the answers stay in the conversation and the build uses them.
