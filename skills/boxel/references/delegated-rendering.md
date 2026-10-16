@@ -172,16 +172,16 @@ viewReturnPolicy = () => {
 <div class="order-card">
   <!-- Custom action buttons -->
   <div class="order-actions">
-    <Button @variant="primary" {{on "click" (fn this.viewOrder order)}}>
+    <Button @tone="primary" {{on "click" (fn this.viewOrder order)}}>
       View Order
     </Button>
     
-    <Button @variant="secondary" {{on "click" (fn this.editOrder order)}}>
+    <Button @tone="neutral" @appearance="outlined" {{on "click" (fn this.editOrder order)}}>
       Edit Order
     </Button>
   </div>
   
-  <Button @variant="ghost" {{on "click" (fn this.viewReturnPolicy)}}>
+  <Button @tone="neutral" @appearance="plain" {{on "click" (fn this.viewReturnPolicy)}}>
     Return Policy
   </Button>
 </div>

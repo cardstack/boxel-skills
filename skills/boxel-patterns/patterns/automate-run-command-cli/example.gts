@@ -12,16 +12,18 @@ import { Command } from '@cardstack/base/command';
 // the shell:
 //
 //   npx boxel run-command \
-//     'https://<realm>/example::ReindexCommand' \
+//     'https://<realm>/example/ReindexCommand' \
 //     --realm 'https://<realm>/' \
 //     --input '{ "targetRealm": "https://<realm>/" }' \
 //     --json
 //
-// The CLI loads the module, instantiates the Command with a synthetic
-// toolContext, builds the input card from `--input`, runs it, and
-// prints the output card as JSON. Use this for batch jobs, cron,
-// CI gates, or any time you want to fire a typed action without the
-// host UI.
+// The specifier is `<module-url>/<ExportName>` (never `::`). The realm
+// server loads the module in its headless prerender tab, instantiates
+// the Command with a synthetic toolContext, builds the input card from
+// `--input`, runs it, and the CLI prints the output card as JSON. No
+// Matrix session there, so no AI-proxy calls. Use this for batch jobs,
+// cron, CI gates, or any time you want to fire a typed action without
+// the host UI.
 
 export class ReindexInput extends CardDef {
   static displayName = 'Reindex Input';

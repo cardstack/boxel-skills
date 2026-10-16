@@ -327,11 +327,11 @@ npx boxel profile [list|add|switch|remove|migrate]              Profile / enviro
 npx boxel realm create <name> <display-name>                    Create a realm on the server
 npx boxel realm list [--all-accessible|--hidden] [--json]       List realms in current profile
 npx boxel realm remove <realm-url>                              Remove a realm (destructive)
-npx boxel realm wait-for-ready --realm <url> [--timeout <ms>]   Block until realm is reachable
+npx boxel realm wait-for-ready --realm <url> [--timeout <ms>]   Block until the realm's index queue has drained (not a health check)
 npx boxel realm cancel-indexing --realm <url> [--cancel-pending] Cancel indexing jobs
 npx boxel realm publish <source-url> <published-url>             Publish a host-mode realm
 npx boxel realm unpublish <published-url>                        Remove a host-mode publication
-npx boxel realm indexing-errors --realm <url>                    List indexing failures (when supported)
+npx boxel realm indexing-errors --realm <url>                    List files whose latest indexing attempt failed (waits for a running pass)
 
 npx boxel realm pull <realm-url> <local-dir>                    Realm → local (DESTROYS unpushed local edits)
 npx boxel realm push <local-dir> <realm-url>                    Local → realm
