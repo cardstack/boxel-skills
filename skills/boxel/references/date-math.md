@@ -15,6 +15,8 @@ At runtime (inside a `computeVia` or a Component getter), `this.publishedAt` is:
 - **`null`** if the field has never been set.
 - **`string`** (ISO) when the host is serializing for save (briefly — you usually don't see this).
 
+A `DateField` value is **local midnight** of its day: it parses `YYYY-MM-DD` in the viewer's time zone and displays in local time. Build one with `new Date(y, m - 1, d)`. `new Date('2026-10-16')` and `'…T00:00:00Z'` are UTC midnight, which displays (and saves) as the previous day west of UTC.
+
 For computation, treat it as `Date | null` and code defensively.
 
 ## Idioms that work
@@ -63,18 +65,23 @@ For "consecutive days back from today through a `linksToMany(CheckIn)`":
 
 ```ts
 // In a Component getter (NOT computeVia — needs `new Date()` at render).
+// module scope
+const pad = (n: number) => String(n).padStart(2, '0');
+const dayKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; // YYYY-MM-DD, local
+
+// in the component
 get currentStreak(): number {
   const checkIns = this.args.model.checkIns ?? [];
   const days = new Set(
     checkIns
       .map(c => c?.date)
       .filter(Boolean)
-      .map((d: Date) => d.toISOString().slice(0, 10)) // YYYY-MM-DD bucket
+      .map((d: Date) => dayKey(d)) // local-day bucket
   );
   let streak = 0;
   const cursor = new Date();
   cursor.setHours(0, 0, 0, 0);
-  while (days.has(cursor.toISOString().slice(0, 10))) {
+  while (days.has(dayKey(cursor))) {
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -82,7 +89,7 @@ get currentStreak(): number {
 }
 ```
 
-The `toISOString().slice(0, 10)` trick gives a stable `YYYY-MM-DD` bucket key that's safe to use in a `Set`.
+Key days with local parts, as `dayKey` does, not `toISOString().slice(0, 10)`. `toISOString` is UTC, so a local-midnight date lands on the previous day east of UTC, and the key stops matching a stored `YYYY-MM-DD` value.
 
 ### Max of an array of datetimes
 
@@ -117,10 +124,12 @@ Format dates inside templates instead:
 {{formatDateTime @model.date size="medium"}}
 ```
 
-If you absolutely need a formatted string in a `computeVia`, do it with plain Date methods:
+If you absolutely need a formatted string in a `computeVia`, use an `Intl.DateTimeFormat` built once at module scope. `toLocaleDateString` with options builds a new formatter on every call, which costs about 70× a `format` call:
 
 ```ts
-return this.date?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const shortDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }); // module scope
+
+return this.date ? shortDate.format(this.date) : undefined;
 ```
 
 ### ❌ Inline arithmetic in templates

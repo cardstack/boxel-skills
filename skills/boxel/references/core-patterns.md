@@ -375,22 +375,21 @@ export class Todo extends CardDef {
 ```
 
 ```gts
-// ✅ CORRECT: Define logic in JavaScript
-export class MyCard extends CardDef {
+// ✅ CORRECT: logic in a component getter; formatters built once at module scope
+const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' });
+
+function processData(data: any) {
+  // Complex processing logic here
+  return result;
+}
+
+class Isolated extends Component<typeof MyCard> {
   get currentMonthDisplay() {
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'long', 
-      year: 'numeric' 
-    }).format(new Date());
+    return monthYear.format(new Date());
   }
-  
+
   get processedData() {
-    return this.args.model?.data ? this.processData(this.args.model.data) : 'No data';
-  }
-  
-  private processData(data: any) {
-    // Complex processing logic here
-    return result;
+    return this.args.model?.data ? processData(this.args.model.data) : 'No data';
   }
 }
 ```
