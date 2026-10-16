@@ -98,7 +98,7 @@ What it can do:
 - Walk through `linksTo`/`linksToMany` chains (with optional chaining `?.`)
 
 What it **cannot** do:
-- Be `async` — runs at index time, not render time
+- Be `async` — it runs synchronously on every read, during indexing and during rendering (see "Cost" below)
 - Return a live CardDef instance (use `query`-backed linksTo for that — see #2 below)
 - Call `getCards()`, fetch, or any I/O
 - Use Glimmer template helpers like `formatDateTime`
@@ -156,6 +156,48 @@ This is **schema-level** and resolves against the index, so it reflects any card
 - **Don't stub a query-backed computed.** If you need a count of linked tasks on a loaded card, declare `@field tasks = linksToMany(Task, { query: ... })` and read `@model.tasks.length` — don't create a `computeVia` that hard-returns 0. That length counts one page of results and is current only on a loaded card; when the number has to be right in the indexed document, hold the links explicitly instead. See `query-systems.md`.
 
 **Source:** Boxel monorepo `packages/experiments-realm/query-field-playground.gts` (single-level), `packages/experiments-realm/nested-query-field-playground.gts` (inside a FieldDef).
+
+#### Cost: a computed field has no cache
+
+`computeVia` runs again on every read: every `@model.x`, every `this.x` inside another computed or getter, and every row of `@fields.x`. Rows drawn through `@fields` find their value by re-reading the parent field, so `{{#each @fields.days as |Day|}}` (or `<@fields.days />`) over a **computed** list re-runs the whole computation several times per row. Render cost grows with the square of the list: it passes every test on sample data, then slows as real data accumulates until the card's render times out and it drops out of the index.
+
+Looping `@fields` is right for stored and linked fields. For a derived list, fold once per render:
+
+- Put the derivation in a plain module function that returns plain objects; build any `Intl` formatter it uses once, at module scope.
+- Call it from a `@cached` component getter and loop the plain result. Counters read the same getter, never the computed list.
+- Keep a computed field only if the card's JSON or search needs the list, and have it call the same function.
+- A card whose isolated view is expensive also needs its own `static markdown`, or the default markdown renders that view a second time (see `boxel-markdown-format`).
+
+```gts
+import { cached } from '@glimmer/tracking';
+
+const dayLabel = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+const pad = (n: number) => String(n).padStart(2, '0');
+const dayKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; // YYYY-MM-DD, local
+
+// One plain fold: stored entries in, plain rows out
+function foldDays(entries: Entry[] = []) {
+  let days = new Map<string, { label: string; hours: number }>();
+  for (let e of entries) {
+    if (!e?.date) continue;
+    let day = days.get(dayKey(e.date)) ?? { label: dayLabel.format(e.date), hours: 0 };
+    day.hours += e.hours ?? 0;
+    days.set(dayKey(e.date), day);
+  }
+  return [...days.values()];
+}
+
+class Isolated extends Component<typeof Timesheet> {
+  // ❌ {{#each @fields.days as |Day|}} over a computed `days` re-folds per row
+  @cached get days() { return foldDays(this.args.model?.entries); } // ✅ once per render
+  <template>
+    <p>{{this.days.length}} days</p>
+    <ul>{{#each this.days as |day|}}<li>{{day.label}}: {{day.hours}} h</li>{{/each}}</ul>
+  </template>
+}
+```
+
+`Entry` is a FieldDef with `date = contains(DateField)` and `hours = contains(NumberField)`; `entries` is a stored `containsMany(Entry)` on `Timesheet`.
 
 ### Mutating model fields from a non-edit Component
 
