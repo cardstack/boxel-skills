@@ -92,6 +92,46 @@ Compute a state once with `{{#let}}` and feed it to the variant, a `cn` modifier
 
 **Component args are not portable between components.** Pret UI's `Button` takes `@href` to render an `<a>` and has no `@as`; boxel-ui's `@kind`, `@as` and `@rectangular` mean nothing to it. Never carry one component's arg names to another; check the signature.
 
+### A tappable tile is still a `Button`
+
+A lesson in a timetable cell, a slot in a calendar, a product in a picker: a multi-line block of data you click. It is a `Button`, not a raw `<button>`, and it does not need to reach inside the component. `Button` is an `inline-flex` row with `white-space: nowrap`, made for a one-line label, so the tile changes the layout and leaves the paint to the treatment. This is item 4 above (layout that belongs to the parent), not a neutralizing override: `display`, `white-space`, `text-align` and `justify-content` set how the content flows, and every colour, border, hover and focus state still comes from `@tone` × `@appearance`. Pret UI has no multi-line or tile variant of `Button` yet; that is the gap these four properties stand in for, so name it in your report.
+
+```hbs
+<Button
+  class='lesson'
+  @tone='primary'
+  @appearance='filled'
+  {{on 'click' (fn this.selectLesson lesson)}}
+>
+  <span class='lesson__subject'>{{lesson.subject}}</span>
+  <span class='lesson__meta'>{{lesson.teacher}} · {{lesson.room}}</span>
+</Button>
+```
+
+```css
+.lesson {
+  /* layout only; colour, border, hover and focus stay with @tone × @appearance */
+  display: grid;
+  align-content: start;
+  justify-content: start;
+  width: 100%;
+  height: 100%;
+  white-space: normal;
+  text-align: start;
+  --pretui-button-px: var(--boxel-sp-xs);
+}
+.lesson__subject,
+.lesson__meta { display: block; }
+.lesson__subject { font-weight: 600; }
+.lesson__meta { opacity: 0.8; }
+```
+
+- `class='lesson'` lands on the `<button>` itself (the component passes `...attributes` through), and Pret UI's own rules sit in `@layer PretComponent`, so the plain scoped `.lesson` rule wins. No `:deep()`, no qualifying parent selector, and never `:global()`: card code leaves it in the compiled CSS, where the browser rejects it and drops every selector in its list.
+- `justify-content: start` replaces the component's `center`, so a short tile's text sits at the start edge rather than in the middle.
+- The inner elements are `<span>`s: a `<button>` may only hold phrasing content, so no `<div>` or heading inside it. They are inline until you say otherwise, so give each line `display: block`; the component wraps your content in its own label element, which is the grid's only item, so the grid alone does not stack them. Style them with plain scoped classes; they are in your template, so your scope reaches them.
+- Pick the treatment that paints the tile: `@appearance='filled'` or `'outlined'` for a coloured block, `'plain'` for one whose surface comes from the cell around it. Don't paint over a treatment with `background-color` on the class.
+- Check the result in a capture: the label wraps, the tile fills its cell, and the focus ring still shows.
+
 ### Drag/drop quality bar
 
 For kanban/status/deal/task boards:

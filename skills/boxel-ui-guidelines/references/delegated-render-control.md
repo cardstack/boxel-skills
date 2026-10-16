@@ -28,9 +28,11 @@ When you write `<@fields.featured @format='<F>' />`, the rendered DOM is:
 
 ## Default CSS the host applies (every parent inherits this)
 
+This is the host's own CSS, shown so you know what you are shaping; boxel-ui's `CardContainer` writes it as `:global(...)` inside its own `<style scoped>`, rewritten here as plain selectors. You don't need those selectors to style the wrapper: a `class` you pass on the field invocation is forwarded onto this element through `...attributes`, so a plain scoped rule on your own class reaches it (see "Style a linked card's chrome with a class"). Card code cannot copy the host's form: **`:global()` does not work in a card's `<style scoped>`.** Card code compiles with `:global` turned off, the browser rejects the rule, and every other selector in the same comma-separated list is dropped with it, with no error from lint or the correctness check. Use a class, or `:deep()` for DOM you can't put a class on.
+
 ```css
-/* From card-container/index.gts — global so it can be styled anywhere */
-:global(.boxel-card-container) {
+/* From boxel-ui card-container/index.gts, where these are :global(...) rules; card code cannot write that form */
+.boxel-card-container {
   position: relative;
   background-color: var(--background, var(--boxel-light));
   border-radius: var(--boxel-radius);   /* var(--radius, var(--_boxel-radius)) — follows the theme */
@@ -41,7 +43,7 @@ When you write `<@fields.featured @format='<F>' />`, the rendered DOM is:
   z-index: 0;
   transition: max-width var(--boxel-transition), box-shadow var(--boxel-transition);
 }
-:global(.boxel-card-container--boundaries:not(.hide-boundaries)) {
+.boxel-card-container--boundaries:not(.hide-boundaries) {
   box-shadow: 0 0 0 1px var(--border, var(--boxel-border-color));
 }
 
@@ -106,7 +108,7 @@ Caveat: the cascade is not gated on the `--themed` marker class (nothing styles 
 
 ### Layer 1 — `:deep()` from the parent's `<style scoped>` (avoid for chrome)
 
-`:deep()` pierces scoping so the parent's CSS can target descendant elements, and the CardContainer is `:global(.boxel-card-container)`, so it *can* be reached this way. That does not make it the right tool for chrome. Every piece of wrapper chrome has a supported route that does not fight the host or the Theme card:
+`:deep()` pierces scoping so the parent's CSS can target descendant elements, and the CardContainer carries the plain class `.boxel-card-container`, so it *can* be reached this way. That does not make it the right tool for chrome. Every piece of wrapper chrome has a supported route that does not fight the host or the Theme card:
 
 | You want | Use | Not |
 |---|---|---|

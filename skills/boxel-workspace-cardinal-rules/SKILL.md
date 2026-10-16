@@ -172,3 +172,36 @@ Getters are safe: the template reads them off `this` (`{{this.safeTitle}}`,
 only functions the template detaches and calls. `@action` methods also bind
 correctly and are safe in call position; arrow properties are the convention
 in this repo.
+
+## 12. No `:global()` in a card's CSS
+
+Card code is compiled with `:global` turned off (to stop a card's styles from
+escaping its scope). The compiler only warns, on the server, and leaves
+`:global(...)` in the output; the browser rejects the selector as invalid, and
+**an invalid selector drops the whole rule, so every other selector in the same
+comma-separated list goes with it**:
+
+```css
+/* both selectors are dropped; .plain loses its style too */
+.wrap td :global(button.x), .plain { color: var(--primary); }
+```
+
+The card compiles, lint passes, the correctness check passes, and the styles
+never apply. The host's and the component libraries' own CSS uses `:global`;
+card code cannot copy it. Use instead:
+
+- **A class on the element or component.** A class on a component that passes
+  `...attributes` through (Pret UI and boxel-ui controls, and a linked or
+  compound field invocation such as `<@fields.link class='…' />`) lands on its
+  root and is reachable with a plain scoped selector. Pret UI's own styles are
+  in cascade layers, so that rule wins without extra specificity; the
+  exception is `Select`, whose trigger and option rules are unlayered and
+  whose class lands on a wrapper. A boxel-ui component is restyled through
+  its knobs, not a rule on its classes. A primitive leaf field
+  (`<@fields.title class='…' />` on a `StringField`) renders bare text, so the
+  class lands nowhere; wrap it in an element of your own.
+- **`:deep()`** for DOM you neither render nor can put a class on (the
+  internals of a component or a host shell). It compiles to a scoped ancestor
+  and an unscoped descendant, which the browser accepts.
+
+Grep for `:global(` before finishing any card.
