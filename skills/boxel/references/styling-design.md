@@ -13,7 +13,7 @@
 The `<style scoped>` tag MUST sit as a direct child of `<template>`. **Do not nest it inside the rendered root element** — that's a common mistake:
 
 ```gts
-{{!-- ❌ WRONG — scoped block inside the rendered root won't be scoped --}}
+{{!-- ❌ WRONG — a nested <style scoped> fails to compile --}}
 <template>
   <div class="my-card">
     ...
@@ -30,7 +30,16 @@ The `<style scoped>` tag MUST sit as a direct child of `<template>`. **Do not ne
 </template>
 ```
 
-The build's scoping pass only rewrites selectors when `<style scoped>` is at the top level of `<template>`. Nested inside an element, the styles either leak globally or get stripped entirely depending on the compiler version.
+Nested inside an element, `<style scoped>` is a compile error (`<style> tags must be at the root of the template`) and realm lint flags it (`no-nested-scoped-style`); a nested plain `<style>` compiles unscoped and applies page-wide.
+
+## What a scoped rule can reach
+
+The build stamps your scope attribute on every element and component invocation your template writes, appended to the **last compound** of each selector (`.list .row` → `.list .row[data-scopedcss-…]`, `.btn:hover` → `.btn[data-scopedcss-…]:hover`). The rightmost compound must therefore match something your template wrote:
+
+- ✅ your own elements, and the **root** of a component you invoke — `class` rides its `...attributes`, so `<Button class='save' />` + `.save { flex: 1 }` needs no `:deep()`.
+- ❌ markup **inside** that component (`.toolbar .seg-item` matches nothing; ancestor compounds are unscoped, so a parent qualifier never helps) and, in a component you write, content a caller yields into it (`.stack > * + *` matches nothing — yielded markup carries the caller's scope). Both fail silently.
+
+Prefer the component's args and custom-property knobs (custom properties inherit across the boundary); `:deep()` is the fallback for an interior with no knob and for host DOM (→ `boxel-ui-guidelines/references/delegated-render-control.md`). A component that must style each child renders the cells itself from `@items` plus a named block. To confirm a rule landed, read its shipped selector in `document.styleSheets`.
 
 ## Dynamic inline styles
 

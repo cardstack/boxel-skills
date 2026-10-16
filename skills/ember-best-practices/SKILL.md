@@ -11,7 +11,7 @@ boxel:
 
 # Ember.js Best Practices
 
-Comprehensive performance optimization and accessibility guide for Ember.js applications. Contains 59 rules across 10 categories, prioritized by impact to guide automated refactoring and code generation.
+Comprehensive performance optimization and accessibility guide for Ember.js applications. Contains 60 rules across 10 categories, prioritized by impact to guide automated refactoring and code generation.
 
 ## When to Apply
 
@@ -63,6 +63,7 @@ Reference these guidelines when:
 - `component-tracked-toolbox` - Use tracked-built-ins for complex state
 - `component-composition-patterns` - Use yield blocks and contextual components
 - `component-reactive-chains` - Build reactive chains with dependent getters
+- `component-no-writes-during-render` - Never write tracked state a render already read
 - `component-class-fields` - Use class fields for component composition
 - `component-controlled-forms` - Implement controlled form patterns
 - `component-on-modifier` - Use {{on}} modifier for event handling
