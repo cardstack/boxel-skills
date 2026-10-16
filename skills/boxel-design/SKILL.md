@@ -144,7 +144,7 @@ never be read as one of the other four, and they add to the facts the user state
 never replace them. On `Surface:` the value is one of the names in
 [`surface-types.md`](references/surface-types.md), written exactly so; leave the line out when no surface
 fits. A skip records the one it took. The build reads all three lines as given: the look steers the
-mockup, the surface sets the shell and density, and the real-details line decides what the build may write about the user's
+mockup, the surface sets the shell, and the real-details line decides what the build may write about the user's
 business (the design-playbook's Stage 1 and critical-rules' *Never invent proof* both read it).
 
 With no brief, the answers stay in the conversation and the build uses them.
@@ -177,7 +177,7 @@ Choose the governing style source before stage 1:
 - [`references/layout-vocabulary.md`](references/layout-vocabulary.md) — eight named layout moves, what each is for and not for, and how each is built in a card. Decide the sections first; zero moves is a valid answer.
 - [`references/layout-gravity.md`](references/layout-gravity.md) — defaults a layout drifts into when nobody decided it, mostly on app screens. Check a finished layout against it.
 - [`references/style-families.md`](references/style-families.md) — optional vocabulary, never required: eight look families with type roles, colour strategy and a check each, how to set the look, and the page-colour table.
-- [`references/surface-types.md`](references/surface-types.md) — optional vocabulary, never required: six kinds of surface (admin, back-office, landing, consumer, content, component) with density, structure, colour and catalog search terms, and the brief's `Surface:` line; floors stay the same for all
+- [`references/surface-types.md`](references/surface-types.md) — optional vocabulary, never required: six kinds of surface (admin, back-office, landing, consumer, content, component) with the shell structure and catalog search terms for each, and the brief's `Surface:` line; no style per surface, and floors stay the same for all
 - [`references/untrusted-content.md`](references/untrusted-content.md) — the rules for any research step: when to research, what each tool can ground, reference labels, page text as data.
 - [`references/signature-treatments.md`](references/signature-treatments.md) — the one arresting treatment on the dominant object: the techniques, what each costs in a card, and when to use card-motion.
 

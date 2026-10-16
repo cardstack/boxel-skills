@@ -21,7 +21,7 @@ _Score what was built, from what it looks like._
 
 Everywhere below, `## Design direction` means the brief card's `designDirection` field and
 `## Motion` its `motion` field. `boxel-design`'s Look check writes only a `Look:`, a `Surface:` and a `Real details:` line into
-`designDirection`: score the colour against `Look:`, the shell and type density against `Surface:`, and
+`designDirection`: score the colour against `Look:`, the shell against `Surface:`, and
 check that no proof was invented beyond `Real details:`. With no `Surface:` line, infer the surface the way
 [`surface-types.md`](../boxel-design/references/surface-types.md) does and name it in the report. A brief from earlier work, or one written by hand, may carry a full direction. Every rule below
 that reads `## Design direction` acceptance lines, its Views table or its Width line applies only when that
@@ -85,8 +85,7 @@ The modes (`set`, `card`, `refine`) are words, not flags; see *Modes* above.
 - **`--typo`:** typography only: size and ladder in real use (including phone), role clarity, tracking on
   micro-labels, weights against the named look in
   [`style-families.md`](../boxel-design/references/style-families.md), and **suitability for this
-  specific app** against its `Surface:` line (dense small type is right in an admin tool and wrong on a
-  landing page). If the pairing looks unsuitable, explain why in plain words for this app and let the
+  specific app**: what it is for and who reads it. If the pairing looks unsuitable, explain why in plain words for this app and let the
   user decide in the choice UI: keep as is / adjust sizes or weights through theme tokens / switch to a
   named pairing, with the reason. Never auto-fix. A font change edits the Theme card, so it routes
   through [`boxel-theme-development`](../boxel-theme-development/SKILL.md), never card CSS. If the
