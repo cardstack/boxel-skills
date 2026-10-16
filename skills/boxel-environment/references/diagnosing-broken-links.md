@@ -43,8 +43,8 @@ When the user asks to fix a broken link, or when you encounter a placeholder whi
 4. **Identify the root cause** — read `message`, `status`, `additionalErrors`, `stack`, and `diagnostics` on the error doc: deleted instance, broken `.gts` dependency, schema mismatch, transient network failure during indexing, etc.
 5. **Propose a remediation**:
    - **Fix the linked card** itself — typical when `error` is from a broken computed or dependency in its `.gts` def.
-   - **Re-target the link** on the parent to a different existing card. Use `patch-fields_3e67`.
-   - **Remove the link** if the relationship is no longer needed. Use `patch-fields_3e67`.
+   - **Re-target the link** on the parent to a different existing card. Edit the parent's `.json` `relationships` with `realm.fs.replace` in a `run-realm-code` script.
+   - **Remove the link** if the relationship is no longer needed. Edit the parent's `.json` `relationships` with `realm.fs.replace` in a `run-realm-code` script.
    - **Restore the deleted instance** if `not-found` and recovery is possible.
 6. **Verify post-fix**: the parent card's placeholder should disappear on the next render. If it persists, the underlying error wasn't addressed — re-diagnose; don't assume the fix worked.
 
