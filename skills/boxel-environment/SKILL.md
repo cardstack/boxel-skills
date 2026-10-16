@@ -137,7 +137,7 @@ Troubleshooting:
 - [`references/common-errors.md`](references/common-errors.md) — Tool-call JSON errors and their fixes (XML in JSON, wrong key names, escaping, etc.).
 
 Specialty:
-- [`references/indexing-operations.md`](references/indexing-operations.md) — Realm reindexing commands.
+- [`references/indexing-operations.md`](references/indexing-operations.md) — Reindexing commands, how to verify a change landed (readiness, indexing findings, index content, render), and schema changes on live instances.
 - [`references/fresh-realm-push-integrity.md`](references/fresh-realm-push-integrity.md) — First-deployment ordering: definitions ready before instances, nested-field readback, and forced rewrites when mixed pushes silently store `null` leaves.
 - [`references/diagnosing-broken-links.md`](references/diagnosing-broken-links.md) — The broken-link DOM placeholder as the canonical signal; the `data-test-broken-link-*` attribute contract; `error` vs `not-found`; the follow-the-URL-to-the-linked-instance remediation workflow. (Card-author side: `boxel/references/defensive-link-traversal.md`.)
 - [`references/source-code-editing.md`](references/source-code-editing.md) — Cross-link to the realm runner skill.

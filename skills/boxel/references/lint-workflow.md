@@ -82,7 +82,7 @@ Do not treat transport success or `ok: true` as clean by itself. The lint endpoi
 
 `npx boxel file lint` clean is necessary but not sufficient. The realm-side lint endpoint is ESLint-style; it misses several runtime-only failure modes:
 
-- **Missing strict-mode template-helper imports.** `(get @fields.X i)` in a template compiles fine through the lint pass but crashes the realm-server's strict-mode template compiler with `Attempted to resolve a helper… but that value was not in scope`. Import every helper you use: `import { get, fn, hash, array, concat } from '@ember/helper';`. See `common-imports.md`.
+- **Silent autofixes (as of 2026-10).** The realm lint fixes an in-memory copy and reports nothing about it: missing card-api and helper imports (`get`, `fn`, `concat`…) are added, unused and duplicate imports removed, URL-form base imports rewritten to `@cardstack/base/…`, Prettier applied. `npx boxel file lint` writes that copy back only with `--fix` (to `--file`, or into the realm when `--file` is absent); realm-wide `npx boxel lint` cannot fix. So `(get @fields.X i)` with no import lints clean, and the pushed source crashes the realm's strict-mode compiler with `Attempted to resolve a helper… but that value was not in scope`. Run `--fix --file <local>` before pushing. Reported line and column refer to the fixed, formatted `output` (`--json`), not your source. See `common-imports.md`.
 - **Schema/value type mismatches** — `contains(DateField)` with an ISO-datetime value, or `contains(DateTimeField)` with a date-only value. Lint passes; the file writes; the indexer accepts it; only at render time does `date-fns format()` throw `RangeError: Invalid time value`. See `base-field-catalog.md` "DateField vs DateTimeField — the schema-vs-value contract".
 - **Cross-module shape contracts** that aren't visible in a single file (a `linksTo(SomeCard)` whose target file is broken; a query referencing a `codeRef` to a module that doesn't export the named class).
 
@@ -101,7 +101,7 @@ A clean instantiate-card result (`passed: true, error: null`) is much closer to 
 For `.gts` work, the minimum validation set is:
 
 1. Import preflight from `common-imports.md`.
-2. Local `npx boxel file lint ... --file <local-file>`.
+2. Local `npx boxel file lint ... --file <local-file> --fix` (autofixes are silent; see above).
 3. Push/sync/upload.
 4. Remote `npx boxel lint <path> --realm <realm-url>`.
 5. Render validation for affected cards/formats when user-facing behavior changed.

@@ -1,7 +1,7 @@
 ---
 name: catalog-reuse
 description: >-
-  MANDATORY before writing any `.gts`. Boxel ships a curated catalog; search it before you author. Classify what you need, then apply the matching reuse operation: a **Spec** when you need building blocks (a CardDef to link, a FieldDef to contain, a component or command to import — catalog modules import directly, so this is the default), an **instance** when the content already exists (point a relationship at it), a **Listing** when the user wants a bundle of their own to keep and change (install or remix it). Build new only for confirmed gaps. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
+  MANDATORY before writing any `.gts`. Boxel ships a curated catalog; search it before you author. Classify what you need, then apply the matching reuse operation: a **Spec** when you need building blocks (a CardDef to link, a FieldDef to contain, a component or command to import — catalog modules import directly, so this is the default), an **instance** when the content already exists (point a relationship at it), a **Listing** when the user wants a bundle of their own to keep and change (install or remix it; apps ship as app Specs, never Listings). Build new only for confirmed gaps. For UI primitives inside a `.gts` template, use boxel-ui-component-discovery instead.
 boxel:
   kind: skill
   tools:
@@ -12,9 +12,10 @@ boxel:
 
 # Catalog Reuse
 
-Boxel ships a **curated catalog**: whole apps and cards packaged for
-installation, the definitions they are built from, components, commands, themes,
-and assets — real, tested parts other people finished and shipped.
+Boxel ships a **curated catalog**: apps, cards and fields as definitions you
+reference where they live, components, commands, themes, assets, and Listings
+packaged for installation — real, tested parts other people finished and
+shipped.
 
 **First classify what kind of thing you need. Then apply the reuse operation for
 that kind.** Everything below is that one idea, made operational.
@@ -106,15 +107,15 @@ Take the target from the hit's `ref` (module + name) and wire **that**.
 | `field` | a **FieldDef** | `contains` / `containsMany` · `extends` to specialize |
 | `component` | a Glimmer component | import into your template's markup |
 | `command` | a Command | import and invoke, or run through your session's command mechanism |
-| `app` | an AppCard family | ships as a **Listing** in practice → reference its Specs; use the Listing anchor only when the user wants the app as their own |
+| `app` | an **AppCard** (the app's root CardDef) | import or `extends` it through `@cardstack/catalog/…` and link its `linkedExamples` instance; the cards it composes are `card` Specs of their own |
 | `file` | an asset | an **instance** → use the instance anchor |
 
 **How you declare the wiring is `boxel`'s call, not this skill's.** Its
 Cardinal Rules own CardDef-vs-FieldDef and `contains` vs `linksTo`. Here you
 decide *which* catalog unit answers the need; go there for how to write it.
 
-`specType` crosses these rows — four values name module exports, `app` is in
-practice a Listing, `file` is an instance. It is advisory and sometimes absent,
+`specType` crosses these rows — five values name module exports, `file` is an
+instance. It is advisory and sometimes absent,
 so constrain it explicitly rather than assuming every Spec carries one.
 
 Within parts, prefer more whole over less: a card over a field, a field over
@@ -244,10 +245,11 @@ naming why the hit itself could not be linked, installed, or copied.
 
 ## Edge cases
 
-- **Whole apps** ship as Listings, not app Specs, so a Spec sweep for `app` may
-  return empty. That does not by itself mean install: a Listing is largely an
-  index of Specs, and referencing those is still open to you. Reach for the
-  Listing when the user wants the assembled app as their own.
+- **Whole apps** ship as app Specs (`specType: "app"`), not Listings. Use one
+  by reference like any other part: import its module through
+  `@cardstack/catalog/…` and link its example instance. The catalog's Listings
+  are cards, fields, themes and components, so an app has no bundle to install;
+  when the user wants an app of their own, build from the app's Specs.
 - **Themes** are instances — link one through `cardInfo.theme`, or copy and edit
   when it must diverge.
 - **Files, images, fonts, icons** are instances too — search with

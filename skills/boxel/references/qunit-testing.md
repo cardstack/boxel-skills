@@ -96,6 +96,10 @@ let { StickyNote } = await loader.import(cardModuleUrl);
 let { StickyNote } = (await loader.import(cardModuleUrl)) as Record<string, any>;
 ```
 
+### Import inside the test, through the loader
+
+Scoped CSS applies only to modules imported with `loader.import` inside the test. A component imported at the top of the file renders with its `data-scopedcss-*` attribute but none of its rules: the harness clears injected scoped styles at each test boundary, and a static import is never re-evaluated. Never assert computed style or geometry on one.
+
 ### `setupCardTest(hooks)`
 
 Call this in every module to set up the card runtime environment:

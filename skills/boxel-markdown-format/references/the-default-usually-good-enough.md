@@ -10,3 +10,4 @@ Define an explicit `static markdown` only when:
 - The field has a natural non-HTML representation (code files → fenced code blocks, dates → formatted strings, scalar values → bare text)
 - You need deterministic output for indexing or downstream consumers
 - A stakeholder explicitly wants a specific markdown shape
+- The card's `isolated` view is expensive (long derived lists, many rows). The default renders `isolated` a second time, hidden, every time the card indexes, so the card pays that cost twice. Write a `static markdown` that reads the same derived data directly (see `boxel/references/core-concept.md` → "Cost: a computed field has no cache")

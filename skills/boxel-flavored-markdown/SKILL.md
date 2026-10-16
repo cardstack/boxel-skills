@@ -21,7 +21,7 @@ BFM is the markdown dialect Boxel reads and writes. It extends CommonMark + GitH
 ## Pair with
 
 - **`boxel-markdown-format`** — when you're generating BFM as the *output* of a `static markdown` template.
-- **`boxel`** — for the surrounding CardDef when MarkdownField is a card field.
+- **`boxel`** — for the surrounding CardDef when the content is a card field: `RichMarkdownField` when it embeds cards (a plain `MarkdownField` never resolves `:card[]` directives).
 
 ## Don't use for
 

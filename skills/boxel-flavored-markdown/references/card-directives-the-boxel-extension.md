@@ -1,5 +1,7 @@
 ## Card directives (the Boxel extension)
 
+Directives resolve only in a `RichMarkdownField` or a `.md` file. In a plain `MarkdownField` every `:card[]` renders as a sized placeholder that never becomes the card, with no error. In a `RichMarkdownField` all of a field's embeds resolve through one query (500 by default), and each embed is one more card loaded with the owner — so embed the cards that matter and use plain `[title](url)` links for passing mentions.
+
 Two forms reference a card by its full URL:
 
 ### Inline: `:card[URL]`

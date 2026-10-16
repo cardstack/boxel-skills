@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type". Covers declaring `@operation` as data (the base operations, `params`, the typed references `params()` / `actor()` / `instance()` / `realmConfig()` / `card()`, the sugar clauses and the `bxl` escape hatch, `links`, `html` and `label`), `callApi` — a request to an outside API declared as data, with credential slots `{{userKey}}` / `{{apiKey}}`, invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search (the saved-search wire form, `meta.policyScopedRealms`), hiding a control the caller cannot use with `@context.canInvoke` and `POST {realm}/_capabilities`, the rules lowering enforces, the refusals a caller sees (under a realm policy too), and the access posture a policy-gated realm gives. Activates on `@operation`, `callApi`, `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, an operation `label`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation", "hide the button if they can''t".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type", "hide the button if they can''t". Covers declaring `@operation` as data (the base operations, `params`, the typed references, the sugar clauses and the `bxl` escape hatch, `links`, `html`, `label`), `callApi` requests with credential slots, invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search, hiding a control with `@context.canInvoke` and `_capabilities`, what lowering refuses, and the refusals a caller sees. Activates on `@operation`, `callApi`, `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation".'
 boxel:
   kind: skill
 ---
@@ -264,9 +264,24 @@ params: {
 ```
 
 The schema is the single source for the payload's TypeScript type, for checking
-`params('…')` references, and for the endpoint's validation. A `linkTo` param
-accepts a saved card's URL, or — inside a batch — the handle of a card the same
-batch is minting.
+`params('…')` references, and for the endpoint's validation. That validation
+checks presence, not type: every declared param must be in the payload or be
+supplied by `input` (send `null` for an optional scalar), and a scalar is never
+checked against its field class. A transform also refuses an undeclared key and
+a non-JSON value; a create or append ignores extra keys and writes whatever
+value it was given.
+
+A `linkTo` param accepts a saved card's URL, or — inside a batch — the handle
+of a card the same batch is minting. On a create or transform it is never
+`null` (400 `invalid-params`), so keep an optional link out of the declaration
+and set it afterwards; a `null` inside an `appendContainsMany` item is stored
+as an empty link.
+
+Only JSON crosses the wire (as of 2026-10): a `Date` passed for a `DateField`
+param arrives as `{}` inside `atomic()` and as an ISO datetime outside it, and
+`DateField`'s `yyyy-MM-dd` parser rejects both, so the card breaks at render.
+Declare a date param as `StringField` and pass `'YYYY-MM-DD'`; `fill` copies it
+into the `DateField`.
 
 ### The typed references
 
@@ -345,6 +360,8 @@ Each base accepts its own:
 
 A class that filters on itself takes the thunk form `() => PatientRecord`,
 because the class binding is not initialized while its own statics are built.
+`of` and `linkTo()` take the same form (`of: () => Launch`) for a class
+declared later in the module.
 
 `append` adds to a collection; cardinality comes from the field type, so the
 declaration names the field and the value and nothing else. `set` writes field
@@ -407,7 +424,13 @@ caller and the target through the `params()`, `actor()`, `instance()` and
 
 A declaration expresses its work with clauses **or** with a program, never both.
 The two appends and a file's `update` edit stored bytes rather than running a
-program over a document, so they carry no `transformations` at all.
+program over a document, so they carry no `transformations` at all. A create
+runs none either (as of 2026-10): `of` + `transformations` lowers with no
+finding and the program is stored but never reached, and an `input` program
+cannot `assert`. To guard a new record, create it as a draft
+(`fill: { status: 'draft' }`) and put the rules on a named `transform` that
+asserts over the stored card and then sets the status — both in one `atomic()`
+batch when they must land together.
 
 ### `links` — how much of the link graph an answer carries
 
@@ -778,11 +801,10 @@ Under a policy, for a caller the realm's permissions decline:
   `no such target`, and the entry only by position — its own position (`0`
   for a top-level entry) for `expect: 'one'`, `[0].boxel:target[n]` for the
   nth card an `expect: 'many'` found.
-- **The realm mints the ids of the cards the batch creates.** A `lid` still
-  links cards within the batch and comes back beside the minted id as
-  `{ lid, id }`, but it does not name the file: a caller who could pick the
-  path would learn from the answer whether a card they may not see is stored
-  there.
+- **For one who may not read the realm, it mints the ids of the cards the
+  batch creates.** A `lid` still links cards within the batch and comes back
+  beside the minted id as `{ lid, id }`, but it does not name the file (§6). A
+  caller who may read the realm names their own, as any writer does.
 
 ### Saved searches
 

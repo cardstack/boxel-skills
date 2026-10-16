@@ -150,11 +150,15 @@ const query: Query = {
 
 **Defining query-backed fields:**
 ```ts
+@field shirtSize = contains(StringField);
+
 @field shirts = linksToMany(Shirt, {
   query: {
     filter: {
       // implicit clause merged during execution: on: { module: Shirt.module, name: 'Shirt' }
-      eq: { size: '$this.profile.shirtSize' },
+      // `$this.` interpolates the owner's own attributes; `$this.profile.shirtSize`
+      // would index empty — see query-backed-relationships "Interpolation".
+      eq: { size: '$this.shirtSize' },
     },
     realm: '$REALM',
     sort: [
@@ -193,7 +197,7 @@ That lands on the most natural thing to write with this feature:
 
 On a loaded card this counts what the field holds. In the indexed document it holds the value as of the last time the card was indexed. A count indexed as `0` before any match existed is the worst version, since `0` is also a real answer.
 
-**A query-backed field holds one page of results, not the whole match set** — on a loaded card a query with no `page` is clamped to the server ceiling, and one declaring a `page.size` above that ceiling is rejected with a 400 rather than trimmed. The bound applies to live reads; it is not applied during indexing. For a true total, run the query with `getCards` and read `meta.page.total`.
+**A query-backed field holds one page of results, not the whole match set** — 500 by default, up to 2000 declared, clamped above that — on every leg, the index included. Read `totalMatchCount` for the true count; see *Limits and ceilings* below.
 
 So:
 
@@ -247,7 +251,7 @@ get featured() { return (this.skills?.instances ?? []).slice(0, 3); } // derive 
 {{#if this.skills.isLoading}}Loading…{{else}}{{#each this.featured as |card|}}…{{/each}}{{/if}}
 ```
 
-`getCards` exposes `instances` / `instancesByRealm` / `meta` and `isLoading`; `getCard` exposes `card` and `isLoaded` + `cardError` (`isLoaded` is also true for a failed card, so check `cardError` first); `getCardCollection` exposes `cards` and `isLoaded` + `cardErrors`. `getCards` has no error property — a failed search looks empty except that `meta.incomplete` is set, so check it before reporting a count. An `undefined` id or id list reports `isLoaded: false` forever, so check your own input before showing a loading state. `getCards` is not live unless you pass `{ isLive: true }`.
+`getCards` exposes `instances` / `instancesByRealm` / `meta` and `isLoading`; `getCard` exposes `card` and `isLoaded` + `cardError` (`isLoaded` is also true for a failed card, so check `cardError` first); `getCardCollection` exposes `cards` and `isLoaded` + `cardErrors`. `getCards` has no error property — a failed search looks empty except that `meta.incomplete` is set, so check it before reporting a count; and `meta.page.total` reads `0` before the first search lands, so show a count only once `isLoading` has been `true` or rows have arrived. An `undefined` id or id list reports `isLoaded: false` forever, so check your own input before showing a loading state. `getCards` is not live unless you pass `{ isLive: true }`.
 
 Smells — any of these means the resource is being fought instead of read: awaiting a resource; calling `.then` on one; copying `.instances` / `.card` / `.cards` into a `@tracked` field; holding a promise for one; polling one on a timer or racing it against a timeout; reading one from a constructor; creating one inside a getter (a new search per read); swallowing its error. A genuinely one-shot read inside a click handler or command uses the promise API instead — `await @context.store.search(...)` / `store.get(id)`; `store.get` resolves to the card or its error, so check which before using it. Full recipe for all three getters and the smell list: pattern `resource-consume-from-context`.
 
@@ -292,6 +296,20 @@ class BlogPost extends CardDef {
 - `@overlays` — whether each row registers with the operator-mode overlay (chip, options menu, selection toggle). Defaults to `true`; pass `false` for a card that lays results out in its own UI.
 - `@displayContainer` — whether each row renders inside its card-container chrome. Defaults to `true`; pass `false` for a consumer that frames results itself — the same switch `<@fields.x @displayContainer={{false}} />` offers. It applies to the inert prerendered HTML and the hydrated card alike: the boundary ring goes on every row, and an atom-format row additionally collapses to `display: contents` (fitted and embedded rows keep their box).
 - Yields `results`: `results.entries` (each `entry` exposes `.component`, `.id`, `.isError`, plus `.displayName` / `.iconHtml` for a row with no HTML yet), `results.isLoading`, `results.meta` (`{ page: { total } }`), and `results.errors`.
+
+## Limits and ceilings
+
+Every live search is bounded. Which bound applies depends on who asks:
+
+| Caller | No `page` | `page.size` honoured to | Above that | Also |
+|---|---|---|---|---|
+| `@context.getCards` (also during prerender) | first 100 | 100 | **rejected** — the resource settles empty: `meta.page.total: 0`, `meta.incomplete: true`, no error | at most 2 realms per search (a third → the same empty result); 2 card searches in flight per store, the rest queue |
+| `await @context.store.search(…)` | first 100 | 100 | **rejected** — the promise throws `SearchBoundError` | same realm cap; resolves to instances only, no `meta` |
+| Query-backed `linksTo` / `linksToMany` | first 500 | 2000 | clamped to 2000, `isPartial: true` — on every leg, the index included | `linksTo` is always page 1 of size 1; `totalMatchCount` is the true count |
+| `@context.searchResultsComponent` | not capped | not capped | — | pages lazily; `results.meta.page.total` is the true count |
+| `boxel search` (CLI) | first 500 | 2000 | clamped to 2000 | not under the card caps — it cannot validate a card's page size |
+
+A search running past ~30 s is cut off (in a card: the same empty, `meta.incomplete` result). The card caps are fixed; the server figures are defaults an operator can tune. Past 100 rows in a card: render with `searchResultsComponent`, count with `getCards` and `page: { size: 1 }` reading `meta.page.total`, or page with `page.number` in an action via `await @context.store.search(…)`.
 
 ## Removed: `PrerenderedCardSearch`
 

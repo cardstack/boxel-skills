@@ -5,7 +5,7 @@ A component brings behaviour and accessibility. The app's look comes from the th
 ## The steps
 
 1. **The theme tokens.** Set colour, radius and type once in the app's Theme (`--primary`, `--primary-foreground`, `--background`, `--foreground`, `--border`, `--ring`, `--radius`, and the tokens of any other tone you use); every Pret UI component reads them, so this restyles all of them together.
-2. **The component's documented attributes and CSS variables.** They are listed in the component's Spec `readMe` or its writeup (step 3 of the discovery procedure says where for each library). A component that documents none skips this step. For the Pret UI `Button`: `@variant`, `@tone`, `@appearance`, `@size`, `@shape`, and the variables `--pretui-button-h`, `--pretui-button-px`, `--pretui-button-radius`, `--pretui-button-bg`, `--pretui-button-fg`, set on the button or on an ancestor.
+2. **The component's documented attributes and CSS variables.** They are listed in the component's Spec `readMe` or its writeup (step 3 of the discovery procedure says where for each library). A component that documents none skips this step. For the Pret UI `Button`: `@tone` (unset means `primary`), `@appearance`, `@size`, `@shape` (`@variant` is deprecated sugar over the first two; never pass it), and the variables `--pretui-button-h`, `--pretui-button-px`, `--pretui-button-radius`, `--pretui-button-bg`, `--pretui-button-fg`, set on the button or on an ancestor.
    **A restyle needs no write-up read.** Use a `--pretui-*` variable the user named, or one this file names,
    as given. For a part nobody has named a variable for, use step 1 or step 3, which need no variable
    names.

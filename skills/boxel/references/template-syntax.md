@@ -125,6 +125,24 @@ TypeError: Cannot read properties of null (reading 'manager')
 
 …sometimes wrapped as `"Render binding desync"` in the indexer's error_doc with the TypeError buried in `additionalErrors[0]`. The error does NOT name the offending block-param or tag, and the same message can come from many other causes (any path where Glimmer is asked to invoke a `null` component reference). Treat the message as a hint to look for this footgun, *not* as proof of it — but the easiest way not to chase the message is to not write the footgun in the first place.
 
+#### ⚠️ Named blocks: all-or-nothing, direct children only
+
+Once an invocation passes one named block (`<:footer>`, `<:eyebrow>`…), every child must be a named block: wrap the body in `<:default>…</:default>`. Whitespace and `{{!-- --}}` comments between blocks are fine. Named blocks must also be direct children of the invocation, never inside `{{#if}}`/`{{#each}}` — put the conditional inside the block. Both mistakes pass `boxel parse` and realm lint, then fail at transpile (`Unexpected content inside <X> component invocation: when using named blocks, the tag cannot contain other content` / `Unexpected named block nested in a normal block`) and the whole module fails to load; `npx boxel read-transpiled <path> --realm <url>` shows the error.
+
+```hbs
+{{!-- ❌ loose body beside a named block; named block inside a conditional --}}
+<Panel>
+  body
+  {{#if @model.status}}<:status>{{@model.status}}</:status>{{/if}}
+</Panel>
+
+{{!-- ✅ --}}
+<Panel>
+  <:default>body</:default>
+  <:status>{{#if @model.status}}{{@model.status}}{{/if}}</:status>
+</Panel>
+```
+
 #### ⚠️ Decorators inside inline component-class assignments
 
 Glint (ember-tsc) type checking does not support decorators (`@tracked`, etc.) on fields inside an inline class expression assigned to a static property. The pattern works at runtime, but fails type checking with "Decorators are not valid here". Declare the component class separately:

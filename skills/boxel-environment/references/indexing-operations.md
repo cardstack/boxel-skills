@@ -98,9 +98,7 @@ return await realm.index.cancelJob();
 
 ## Post-push verification gate
 
-After any multi-file push, verify that the realm actually indexed the cards — **push success does not mean index success.** The `/_atomic` endpoint will write files to disk and return ok while silently dropping some indexing jobs.
-
-Sample command from the shell:
+After any multi-file push, climb the ladder in "Verifying a change landed" below — **push success does not mean index success.** The count probe for its rung 5:
 
 ```sh
 # Expected card instances under a kit (skip .gts modules, _learnings, Theme JSON)
@@ -112,11 +110,11 @@ indexed=$(npx boxel search --realm <url> --query \
 echo "$indexed / $expected indexed"
 ```
 
-Sample at 30-second intervals for 5 minutes. Rising count = just slow, leave it alone. Flat count = stuck. Far below expected = jobs were dropped.
+Sample at 30-second intervals for 5 minutes. Rising count = just slow, leave it alone. Flat count = stuck. Far below expected once the queue has drained = files that never indexed; `indexing-errors` lists failed attempts only, so find them by diffing `npx boxel file ls` against the typed search.
 
 ## The `/_atomic` batch trap
 
-Pushing 30+ files via `npx boxel realm push <dir>` uses the `/_atomic` HTTP endpoint. Observed failure modes (institutional-meerkat, 2026-05-22):
+Pushing 30+ files via `npx boxel realm push <dir>` uses the `/_atomic` HTTP endpoint. Failure modes observed on an earlier server build (re-measure before relying on the figures):
 
 - **351 files at once** → 500 Internal Server Error; push reports failure.
 - **30-44 files per atomic batch** → push reports success, but a fraction of indexing jobs are silently dropped. Cards land on disk but never index.
@@ -126,7 +124,7 @@ Pushing 30+ files via `npx boxel realm push <dir>` uses the `/_atomic` HTTP endp
 
 1. Push one CardDef family at a time (its `.gts` modules + Theme + a small batch of instances).
 2. Verify with the post-push gate above before pushing the next.
-3. Use `npx boxel realm sync` instead of `push` when in doubt — sync acks per file.
+3. If you split a push, push the modules' chunk first. Within one `realm push` (or `realm sync`, which uses the same single `/_atomic` call) the realm already orders modules ahead of instances.
 4. Fall back to `npx boxel file write <path>` for the last few stragglers a batch may have dropped.
 
 ## Don't reach for `cancel-indexing`
@@ -143,7 +141,7 @@ If the count is genuinely flat for 10+ minutes with no progress at all:
 
 ## Inspecting indexer errors
 
-The realm stores per-card indexer error state in postgres `boxel_index.error_doc`. Endpoints + tools:
+The realm stores each file's latest indexing attempt, including its error. Endpoints + tools:
 
 | Need | How |
 |---|---|
@@ -151,7 +149,7 @@ The realm stores per-card indexer error state in postgres `boxel_index.error_doc
 | Try to load a card TYPE | `npx boxel run-command @cardstack/boxel-host/tools/instantiate-card/default --realm <url> --input '{"moduleIdentifier":"<module-url>","cardName":"<ClassName>","realmIdentifier":"<url>"}'` |
 | Force reindex of one card | `npx boxel file touch <path> --realm <url>` |
 | Force reindex of whole realm | In the app: `realm.index.fullReindex()` in a `run-realm-code` script. From a terminal only: `npx boxel run-command @cardstack/boxel-host/tools/full-reindex-realm/default --realm <url> --input '{"realmIdentifier":"<url>"}'` |
-| Authoritative error_doc list (admin) | `GET <realm>/_publishability` — requires `authedRealmFetch`; no CLI subcommand yet |
+| List every file whose latest attempt failed | `npx boxel realm indexing-errors --realm <url> [--json]` (see rung 4 below) |
 
 ### Postgres `\u0000` symptom
 
@@ -162,23 +160,18 @@ If a card URL returns 500 with `code: "22P05"` and `detail: "\u0000 cannot be co
 3. `npx boxel file touch <the-card's-.gts-module>` — forces recompile of the type.
 4. Full realm reindex.
 
-Upstream fix needed: realm-server should sanitize indexer error messages (strip 0x00–0x1F control chars) before persisting them, or store error blobs as bytea. Without this, a single bad byte in any error path can stick a card in error state permanently.
+## Verifying a change landed
 
-## Verification hierarchy — lint vs index vs render
+Push success is not index success, and lint is advisory. Climb in order; no rung vouches for the ones above it.
 
-`npx boxel file lint` and `npx boxel lint --realm` are advisory only. Declaring "kit shipped" based on lint-clean has caused full-kit indexing failures to be reported as success. **The truth source for indexing state is `npx boxel search`.**
+1. **Bytes landed** — `npx boxel file read <path>` matches the local file.
+2. **Compiles** — `npx boxel lint <path> --realm <url>`; the `get-card-type-schema` probe below proves the module evaluates.
+3. **Queue drained** — `npx boxel realm wait-for-ready --realm <url> --timeout 180000`: no queued or running index-writing job from anyone, not a health check. Batch writes, wait once, never loop.
+4. **Indexing errors** — `timeout 120 npx boxel realm indexing-errors --realm <url>`: waits unbounded for a running pass but not for queued work, so run it after rung 3; a timeout is no answer (`timeout` is GNU coreutils: on macOS use `gtimeout` from Homebrew `coreutils`, or stop it by hand after 2 minutes); findings are each file's latest attempt.
+5. **Indexed content** — typed `npx boxel search --json` (count, `attributes`, `included`). Search never waits for your write; identical bytes queue nothing, so force a re-index with `npx boxel file touch <path>`.
+6. **Renders** — open the card (`show-card`, `instantiate-card`, `boxel test`). The indexer renders each format once, headless, without interaction; only this proves a card. Still erroring after a module fix: touch the instance, reopen.
 
-| Check | Validates | Does NOT validate |
-|---|---|---|
-| `npx boxel file lint <path> --realm <url> --file <path>` | Local JSON/GTS structure, basic syntax | Module evaluation, indexing, render |
-| `npx boxel lint <path> --realm <url>` | TypeScript / boxel static checks against realm config | Module evaluation at runtime, indexing |
-| `npx boxel run-command get-card-type-schema` | **Module evaluation** — does the .gts actually load? | Whether instances index, whether rendering works |
-| `npx boxel search --realm <url> --query '{}'` | **Truth.** What the realm has actually indexed | Whether the visual render is correct |
-| Loading the card in the host UI | Render output | (this is the final truth) |
-
-A schema can pass every static check and still fail to load at runtime. A module can load and still produce zero indexed instances. **Only `npx boxel search` reads the truth state of the realm.**
-
-Required gate before declaring "kit shipped":
+Required gate (rungs 2 and 5) before declaring "kit shipped":
 
 ```sh
 REALM="<realm-url>"
@@ -223,12 +216,17 @@ Each passes `npx boxel file lint` clean. Each makes `npx boxel search` return em
 
 | Symptom | Where | Cause |
 |---|---|---|
-| `cardOrThunk was undefined. There might be a cyclic dependency...` | `get-card-type-schema` output, or indexer error_doc | A thunk dereferenced undefined. Either a named import doesn't exist on the source module, OR a cycle prevented the target class from being defined in time. |
+| `cardOrThunk was undefined. There might be a cyclic dependency...` | `get-card-type-schema` output, or an `indexing-errors` finding | A thunk dereferenced undefined. Either a named import doesn't exist on the source module, OR a cycle prevented the target class from being defined in time. |
 | `Unexpected token (1:0)` from acorn's `parseExprAtomDefault` | Host (browser) loading a transpiled module | The realm couldn't compile the `.gts`; it returned HTML 500; the host's JS parser hit `<` at byte 0. Same upstream cause as cardOrThunk. Use `get-card-type-schema` to find which module. |
 | `Export "X" not found in module "Y"` | `get-card-type-schema` probing a named export | The module doesn't export X (named). Probably a default-only export — switch to `import X from 'Y'`. |
 | `Cannot resolve bare package specifier "X/Y"` | `LinksTo.deserialize` in card-api | An instance's `links.self` is a bare path. Must start with `./`, `../`, or be a full URL. |
-| `Instance ... is not a card resource document` | Indexer error_doc | Almost certainly: `linksToMany` written as an array under `links.self` instead of indexed-key shape. |
+| `Instance ... is not a card resource document` | `indexing-errors` finding | Almost certainly: `linksToMany` written as an array under `links.self` instead of indexed-key shape. |
 | 403 Access Denied (XML body) from `boxel-icons.boxel.ai` | Host load | A phantom icon — present in workspace source files but never deployed. CDN-verify with curl before assigning. |
+
+## Changing a schema while instances are live
+
+- **Narrowing a `linksTo`/`linksToMany` type strands instances that already link the old type.** Opening one fails with `field validation error: tried set <Old> as field '<f>' but it is not an instance of <New>`; lint is silent and the index records no instance error (at most a `broken-link` on that field). Before retyping, find instances with that relationship set and, in the same change, relink each to the new type or clear it (`{ "links": { "self": null } }`).
+- **A rename is add before remove.** Write the new module and the instances adopting it (a new folder is a new URL), update every referrer (`linksTo` targets miss as `broken-link` findings; `index.json` entries and string paths in modules miss silently), then delete the old. Grep for the old names and expect zero hits.
 
 ## Moving `.gts` files strands existing instances
 
