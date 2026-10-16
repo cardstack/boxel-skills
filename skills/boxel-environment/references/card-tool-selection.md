@@ -7,7 +7,7 @@ Choosing the right host-command combination for creating new cards or editing ex
 | Tool | Use When |
 |------|----------|
 | **run-realm-code** | **Always — any new file**, `.gts` definitions and `.json` instances alike (use `realm.fs.writeText`) |
-| **copy-card + patch-fields** | Clone existing card as template, then modify |
+| **run-realm-code** with `realm.fs.copy` | Clone existing card or file as template in the same realm, then modify the copy with `realm.fs.replace` in the same script |
 | **write-text-file** | Avoid for source files — use `run-realm-code` instead |
 
 ## Editing Cards
@@ -25,7 +25,7 @@ Choosing the right host-command combination for creating new cards or editing ex
 Card doesn't exist yet?
 ├─ New .gts file → `run-realm-code` with `realm.fs.writeText`
 ├─ New .json instance → `run-realm-code` with `realm.fs.writeText`
-└─ Clone + modify → copy-card → patch-fields
+└─ Clone + modify → `run-realm-code` with `realm.fs.copy`, then `realm.fs.replace`
 
 Card already exists?
 ├─ Update fields → patch-fields (preferred)
@@ -37,7 +37,7 @@ Card already exists?
 ## Conventions
 
 - **File naming:** Definitions: `kebab-case.gts` | Instances: `PascalCase/slug.json` | Links: `BlogPost/my-post` (no `.json`)
-- **Path rules:** Use `./`, `../` relative paths for same-realm `adoptsFrom`. Use absolute URLs for cross-realm. After copy/move, verify linkage!
+- **Path rules:** Use `./`, `../` relative paths for same-realm `adoptsFrom`. Use absolute URLs for cross-realm. `realm.fs.copy` does not change relative paths, so after a copy to a different folder depth, or to another realm, fix them and verify linkage!
 
 ## Pair with
 

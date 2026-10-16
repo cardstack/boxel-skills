@@ -25,14 +25,6 @@ boxel:
         name: default
       requiresApproval: false
     - codeRef:
-        module: '@cardstack/boxel-host/tools/copy-card'
-        name: default
-      requiresApproval: true
-    - codeRef:
-        module: '@cardstack/boxel-host/tools/copy-source'
-        name: default
-      requiresApproval: true
-    - codeRef:
         module: '@cardstack/boxel-host/tools/patch-fields'
         name: default
       requiresApproval: true
@@ -55,12 +47,10 @@ Quick lookup of every command available to this skill, what it does, and notable
 
 ## Editing
 
-- **`run-realm-code`** — The way to create or edit source files. It runs a script that saves each file as it writes it, and triggers correctness checks after indexing. Use `realm.fs.writeText` for a new file and `realm.fs.replace` for an existing one. `realm.fs.delete` deletes a file, such as a file written by mistake; a run that contains it waits for the user to approve it.
+- **`run-realm-code`** — The way to create or edit source files. It runs a script that saves each file as it writes it, and triggers correctness checks after indexing. Use `realm.fs.writeText` for a new file, `realm.fs.replace` for an existing one, and `realm.fs.copy` to duplicate a file in the same realm. `realm.fs.delete` deletes a file, such as a file written by mistake; a run that contains it waits for the user to approve it.
 - `patch-fields_3e67` — Field updates on an indexed card the user is looking at, with their approval. Not for repairing a file you just wrote or one that failed a check: that card may not be indexed yet, so the tool applies to nothing — edit the `.json` with `run-realm-code` instead.
 - `patchCardInstance` — Update card data only.
 - `ApplyMarkdownEditCommand_c112` — Edit long markdown fields (>500 chars) surgically without truncation (requires approval).
-- `copy-card_eefc` — Duplicate a card (requires approval).
-- `copy-source_5d09` — Duplicate a file (requires approval).
 - `transform-cards_33d7` — Bulk update with a command (requires approval).
 
 ## Media
@@ -122,7 +112,7 @@ What you can and cannot see:
 ## Approval requirements
 
 The following require user approval before execution:
-- `transform-cards`, `copy-card`, `copy-source`, `patch-fields`, `apply-markdown-edit`
+- `transform-cards`, `patch-fields`, `apply-markdown-edit`
 - A `run-realm-code` script that names `realm.images.generate`
 - A `run-realm-code` script that names `realm.fs.download`
 - A `run-realm-code` script that names `realm.index.fullReindex` or `realm.index.cancelJob`

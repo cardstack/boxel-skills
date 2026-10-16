@@ -59,7 +59,7 @@ The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-co
 
 ```
 ├─ New .json instance?                 → `run-realm-code` with `realm.fs.writeText`
-├─ Clone + modify?                     → copy-card → patch-fields
+├─ Clone + modify?                     → `run-realm-code` with `realm.fs.copy`, then `realm.fs.replace` on the copy
 ├─ Long markdown field (>500 chars)?  → ApplyMarkdownEditCommand_c112
 ├─ Small/targeted change?              → patch-fields_3e67
 ├─ Full card update?                   → patchCardInstance
