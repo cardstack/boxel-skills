@@ -193,9 +193,9 @@ card code cannot copy it. Use instead:
   `...attributes` through (Pret UI and boxel-ui controls, and a linked or
   compound field invocation such as `<@fields.link class='…' />`) lands on its
   root and is reachable with a plain scoped selector. Pret UI's own styles are
-  in cascade layers, so that rule wins without extra specificity; the
-  exception is `Select`, whose trigger and option rules are unlayered and
-  whose class lands on a wrapper. A boxel-ui component is restyled through
+  in cascade layers, so that rule wins without extra specificity. A class on
+  `Select` lands on its wrapper, so reach its trigger with
+  `:deep(.pretui-selecttrigger)`. A boxel-ui component is restyled through
   its knobs, not a rule on its classes. A primitive leaf field
   (`<@fields.title class='…' />` on a `StringField`) renders bare text, so the
   class lands nowhere; wrap it in an element of your own.
