@@ -389,12 +389,6 @@ Apply each row only where its surface exists: no list, no stagger; nothing rearr
 - **`fitted` and `embedded` get no entrance of their own,** because they render many instances. At most a hover or press, on an inner element or the parent's wrapper, never on the fitted root (a transform there clips host overlays).
 - **Heavier motion is opt-in:** scroll scrub, parallax, drag, a `<Choreo>` scene. Build it only when the user asks for it (the build then records it in the brief's `motion` field), or when it is the build's signature ([`signature-treatments.md`](../../boxel-design/references/signature-treatments.md)).
 
-When you report the build, give the motion in this shape, with every row filled:
-
-```
-Motion: entrance ✓ (hero) · stagger ✓ (menu grid) · hover/press ✓ (CTAs, tiles) · layout/presence n/a (nothing rearranges)
-```
-
 ---
 
 ## After stage 4 — build check
