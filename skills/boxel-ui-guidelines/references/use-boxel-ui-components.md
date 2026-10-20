@@ -70,7 +70,6 @@ Import these from `@cardstack/boxel-ui/components`.
 - `SortDropdown` — sort controls
 - `ViewSelector` — view mode toggle
 - `BoxelDropdown` — dropdown container
-- `Message` — chat/message bubbles
 - `KanbanPlane` — preferred drag-and-drop interface for boards. Do not hand-roll pointer drag in card templates unless no boxel-ui component exists for the interaction.
 
 ### Don't neutralize a component — pick the variant
