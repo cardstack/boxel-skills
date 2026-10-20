@@ -51,7 +51,7 @@ Asked for by hand on one screen, it reviews that screen. `refine` is review, the
 ([`references/build-check.md`](references/build-check.md)), which is pass/fail and shows no score. It
 owns the basics: hit areas, text size and contrast, phone overflow, container-query breakpoints, a
 wired main action, pseudo-controls, blank regions, and fitted/embedded carrying the key fact. When a
-build of an app, a card family or a user-facing card finishes, the builder captures its own work, fixes
+build of an app, a card family or a page finishes, the builder captures its own work, fixes
 every failing line, re-checks the views the fix touched, and reports "what I fixed / what is still
 open". No scorecard, no 8.5 verdict, no invitation to a review.
 

@@ -369,7 +369,7 @@ Push each format.
 
 ## After stage 4 — baseline motion
 
-This section is the one place the baseline is defined; other files point here. Whenever a route goes on to a user-facing build (straight from the request, from a `domain-interview` brief, or from a brief or design the user already has), the build ships this baseline in its first version, unasked. Leave it out only when the user asked for no motion (in the conversation, or recorded in the brief's `spec`), or for a utility card with no user-facing surface. A user who asked for calm or minimal motion (about the motion itself; a calm look or feel is not such an ask) gets the baseline at its quietest: the entrance and hover and press, no stagger. Read [`card-motion`](../../card-motion/SKILL.md) before writing it, plus only the references for the rows you use: it says which pattern does each job, what a realm can import, and the Glimmer rules that silently stop motion.
+This section is the one place the baseline is defined; other files point here. Whenever a route goes on to a design build — an app, a card family or a page — (straight from the request, from a `domain-interview` brief, or from a brief or design the user already has), the build ships this baseline in its first version, unasked. Leave it out only when the user asked for no motion (in the conversation, or recorded in the brief's `spec`), or for a single card, unless the user asks for motion. A user who asked for calm or minimal motion (about the motion itself; a calm look or feel is not such an ask) gets the baseline at its quietest: the entrance and hover and press, no stagger. Read [`card-motion`](../../card-motion/SKILL.md) before writing it, plus only the references for the rows you use: it says which pattern does each job, what a realm can import, and the Glimmer rules that silently stop motion.
 
 | Where | Baseline | card-motion pattern |
 |---|---|---|
@@ -393,7 +393,7 @@ Apply each row only where its surface exists: no list, no stagger; nothing rearr
 
 ## After stage 4 — build check
 
-When the build is done, run the builder's pass/fail [build check](../../design-review/references/build-check.md) without being asked, fix every failing line, and report what was fixed and what is open, with no score. A scored [`design-review`](../../design-review/SKILL.md) runs only when the user asks for it. Skip the check only for a utility card with no user-facing surface.
+When the build is done, run the builder's pass/fail [build check](../../design-review/references/build-check.md) without being asked, fix every failing line, and report what was fixed and what is open, with no score. A scored [`design-review`](../../design-review/SKILL.md) runs only when the user asks for it. Skip the check for a single card, unless the user asks for it.
 
 ---
 
