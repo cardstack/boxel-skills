@@ -157,9 +157,13 @@ identical either way.
   read, the catalog included, so you need no realm URL. Pass
   `realms: ['@cardstack/catalog/']` to search only the catalog (its full
   `https://` URL works too), and pass your own realm's URL for the self-check
-  below. Put all the searches of a step in one script. The realm calls of a run go one at a time, also in `Promise.all`,
-  and a run has 55 seconds, so put at most five searches in one script and
-  split more across runs. It answers `{ entries, total, truncated, incomplete }`.
+  below. A realm is a realm root such as `…/catalog/`: a module folder inside
+  it (`…/catalog/<app-folder>/`) is not a realm, and one such URL fails the
+  whole search. To narrow to one app, `matches` its name (or, for instances,
+  anchor `on` its type). Put all the searches of a step in one script. The
+  realm calls of a run go one at a time, also in `Promise.all`, and a run has
+  55 seconds, so put at most five searches in one script and split more across
+  runs. It answers `{ entries, total, truncated, incomplete }`.
   Each entry is `{ url, kind, ref, specType, cardTitle, cardDescription, name,
   readMe }`, with the fields at the top level, not under `attributes`. An entry
   does not carry the card's other fields or its links.
@@ -352,6 +356,9 @@ Re-read what you built. For everything you authored from scratch:
 - Does every refusal name its mismatch, and is every real gap recorded?
 - If this reply answers a change request, did it write the change? Explaining
   why the catalog part doesn't fit is the start of the work, not the end.
+
+And of what you said: did I end on a question the workflow had already
+answered?
 
 If the honest answer to any of these is "I didn't look", that thing needs
 replacing with its catalog equivalent. Only then is it done.
