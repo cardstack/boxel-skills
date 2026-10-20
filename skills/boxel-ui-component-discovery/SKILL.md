@@ -170,9 +170,10 @@ of truth for what's available and what each component is called.
      are in `<name>.usage.gts`. Read the write-up before you use the
      component. The search entry does not carry its path, so make the
      path from `ref.module`: for `@cardstack/pretui/components/button`
-     the write-up is `components/button.md` in the Pret UI realm,
-     `@cardstack/pretui/`. Read it in a second `run-realm-code` run
-     with `realm` set to `@cardstack/pretui/`. A run can read a realm
+     the write-up is `components/button.md` in the Pret UI realm. Read it
+     in a second `run-realm-code` run with `realm` set to the Pret UI
+     realm's full `https://` URL; `realm` refuses the `@cardstack/pretui/`
+     prefix. A run can read a realm
      that the user can only read. Read all the write-ups you need in
      that one run. If the run is refused, choose from the spec's
      `readMe` and `cardDescription`, and tell the user that you could
