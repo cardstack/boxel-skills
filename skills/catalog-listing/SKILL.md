@@ -51,6 +51,13 @@ Before running the operation, ensure the following conditions are met:
 - A Listing Card
 - An Action Type: "use", "install", or "remix"
 
+To find the Listing card, search for it rather than guessing folders: in a
+`run-realm-code` script, `realm.entries.search` with
+`{ filter: { on: { module: '@cardstack/catalog/catalog-app/listing/listing', name: 'Listing' }, matches: '<app name>' } }`
+and `realms: ['@cardstack/catalog/']`. If no Listing matches,
+the catalog has none for it: there is nothing to install or remix, so reference
+or specialize the catalog's Specs instead (see `catalog-reuse`).
+
 If any value is missing, prompt the user to provide the missing input(s). If all inputs are available, proceed automatically without asking for confirmation.
 
 Based on the action type:

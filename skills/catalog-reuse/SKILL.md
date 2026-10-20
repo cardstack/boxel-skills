@@ -134,8 +134,9 @@ field. What it forbids is hand-building a part when a bigger unit contains it.
 instances the catalog ships for it. Check it before authoring instances by hand.
 A search entry does not carry it. Read the Spec with `realm.cards.get(url)`,
 where `url` is the entry's `url`, in a `run-realm-code` run whose `realm` is the
-Spec's realm (the catalog realm, `@cardstack/catalog/`); a run can read a realm
-that the user can only read. The answer's `relationships` lists each example as
+Spec's realm: the catalog's full `https://` URL, never the `@cardstack/catalog/`
+prefix, which `realm` refuses. A run can read a realm that the user can only
+read. The answer's `relationships` lists each example as
 `linkedExamples.0`, `linkedExamples.1`, and so on.
 
 **Declaring a relationship and filling it are different steps.** You declare
@@ -153,9 +154,9 @@ identical either way.
   `run-realm-code` tool; the sandbox rules for the script are in
   `source-code-editing`. Without `realms`, it searches every realm the user can
   read, the catalog included, so you need no realm URL. Pass
-  `realms: ['@cardstack/catalog/']` to search only the catalog, and pass your
-  own realm's URL for the self-check below. Put all the searches of a step in
-  one script. The realm calls of a run go one at a time, also in `Promise.all`,
+  `realms: ['@cardstack/catalog/']` to search only the catalog (its full
+  `https://` URL works too), and pass your own realm's URL for the self-check
+  below. Put all the searches of a step in one script. The realm calls of a run go one at a time, also in `Promise.all`,
   and a run has 55 seconds; if a run with many searches stops at that limit,
   split the searches across two runs. It answers `{ entries, total, truncated, incomplete }`.
   Each entry is `{ url, kind, ref, specType, cardTitle, cardDescription, name,
@@ -226,11 +227,18 @@ entry, so judging needs no follow-up read. `cardDescription` is often empty, so 
 and `ref` are usually what settle it. Judging on the title alone is how a Spec
 that answered the need gets discarded.
 
+Keep what a script returns small: everything it returns stays in the
+conversation for every later turn. Return `{ url, ref, specType, cardTitle }`
+for each hit, and the `readMe` only of the few hits you are choosing between.
+Ask for `limit: 10` per term; a need that ten best-first hits do not answer
+needs a better term, not a longer list.
+
 **If a need returns nothing, broaden once** before concluding a gap: re-query
 with two or three alternates joined by `OR`, and drop the `specType` constraint.
 Each answer carries a `total`, the number of matches. When `truncated` is
 `true`, more entries match than the answer holds; the search does not page, so
-raise `limit` (at most 50) or narrow the query. When `incomplete` is `true`, a
+narrow the query first, and raise `limit` (at most 50) only to see more
+titles. When `incomplete` is `true`, a
 realm did not answer, and an empty answer is not yet a gap. The catalog is a corpus of app-specific parts, not a standard library, so
 "nothing fits" is often correct — but it is a verdict you record, never one you
 take silently.
@@ -258,8 +266,10 @@ naming why the hit itself could not be linked, installed, or copied.
   code that already exists costs a large multiple of any reuse and drifts from
   the original. Visual or naming differences are never a reason to skip reuse —
   reference and restyle. When the user wants their own bundle, install rather
-  than re-type, and remix when they will change its schema. `catalog-listing`
-  has the mechanics.
+  than re-type, and remix when the bundle they own will diverge from the
+  catalog's. `catalog-listing` has the mechanics. Changing behavior is not
+  asking to own a copy: a new rule or a new scale of values is a
+  specialization (see the change-request bullet below), not a remix.
 - **Reuse *from a user realm* does mean copying.** User realms have no import
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.
@@ -279,14 +289,40 @@ naming why the hit itself could not be linked, installed, or copied.
   the change and asking whether to make it. A part a catalog definition almost
   covers is a specialization, and you write it now:
   1. In your realm, write a definition that `extends` the catalog one (or calls
-     the factory its Spec ships) and overrides only what changed.
+     the factory its Spec ships) and overrides only what changed. Redeclaring
+     an inherited `@field` replaces it in the subclass. For a field a factory
+     builds, call the same factory with the new values:
+
+     ```gts
+     import { contains, field } from '@cardstack/base/card-api';
+     import { statusField } from '@cardstack/catalog/fields/status/status';
+     import { Shipment } from '@cardstack/catalog/<shipment-module>';
+
+     export const OurStageField = statusField({
+       options: [{ value: 'Packed' }, { value: 'At hub' }, { value: 'Delivered' }],
+     });
+
+     export class OurShipment extends Shipment {
+       @field stage = contains(OurStageField);
+     }
+     ```
+
+     A catalog readMe that calls a vocabulary "hardcoded" describes the
+     catalog's own module, not what your subclass can declare.
   2. Code in the catalog definition that reads the field you changed — an SLA
      table keyed on priority, a badge colour, a sort — is part of that
      override, not a reason to stop. Override the members that read it, or
      build the field and name which catalog behaviour still uses the old
-     values.
+     values. A rule the catalog keeps in data can change in data: a new
+     instance of the catalog's rule or policy card, keyed on the new value,
+     often needs no code at all.
   3. Point the instances you made at the new definition (`meta.adoptsFrom`)
      and show one, so the user sees the change.
+
+  Read the module that declares the changed field and the one that reads it,
+  then write in your next turn. A turn of reading with no write after the plan
+  is clear is the failure this bullet exists to prevent; so is going looking
+  for a Listing to remix, which the change request did not ask for.
 
   When part of the request is beyond the platform (a timer that has to fire
   with nobody watching, say), build the parts within reach — the field, the
@@ -317,6 +353,7 @@ replacing with its catalog equivalent. Only then is it done.
 - `boxel-ui-component-discovery` — the specialized front-end for UI primitives;
   use it whenever the task is writing template UI. This skill is the general form.
 - `catalog-listing` — install / remix / update mechanics for Listings.
-- `boxel-file-structure` — the `linksTo`-vs-`contains` rule, module paths, and
-  where definitions and instances live on disk.
+- `boxel/references/enumerations.md` and
+  `boxel-patterns/patterns/organize-atomic-field-factory` — fields built by a
+  factory, and how a usage overrides its defaults.
 - `boxel` — CardDef / FieldDef authoring, query syntax.
