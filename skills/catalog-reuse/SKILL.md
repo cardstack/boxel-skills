@@ -133,9 +133,10 @@ field. What it forbids is hand-building a part when a bigger unit contains it.
 `linkedExamples` on a Spec hit is the direct route from a definition to the
 instances the catalog ships for it. Check it before authoring instances by hand.
 A search entry does not carry it. Read the Spec with `realm.cards.get(url)`,
-where `url` is the entry's `url`, in a `run-realm-code` run whose `realm` is the
-Spec's realm: the catalog's full `https://` URL, never the `@cardstack/catalog/`
-prefix, which `realm` refuses. A run can read a realm that the user can only
+where `url` is the entry's `url`, in a `run-realm-code` call whose `realm`
+argument is the Spec's realm: the catalog's full `https://` URL, never the
+`@cardstack/catalog/` prefix, which the argument refuses. That is the tool's
+argument, not the script's `realm` global, which stays the API. A run can read a realm that the user can only
 read. The answer's `relationships` lists each example as
 `linkedExamples.0`, `linkedExamples.1`, and so on.
 
@@ -157,8 +158,8 @@ identical either way.
   `realms: ['@cardstack/catalog/']` to search only the catalog (its full
   `https://` URL works too), and pass your own realm's URL for the self-check
   below. Put all the searches of a step in one script. The realm calls of a run go one at a time, also in `Promise.all`,
-  and a run has 55 seconds; if a run with many searches stops at that limit,
-  split the searches across two runs. It answers `{ entries, total, truncated, incomplete }`.
+  and a run has 55 seconds, so put at most five searches in one script and
+  split more across runs. It answers `{ entries, total, truncated, incomplete }`.
   Each entry is `{ url, kind, ref, specType, cardTitle, cardDescription, name,
   readMe }`, with the fields at the top level, not under `attributes`. An entry
   does not carry the card's other fields or its links.
@@ -232,6 +233,13 @@ conversation for every later turn. Return `{ url, ref, specType, cardTitle }`
 for each hit, and the `readMe` only of the few hits you are choosing between.
 Ask for `limit: 10` per term; a need that ten best-first hits do not answer
 needs a better term, not a longer list.
+
+Read catalog source the same way. Read a module only when you will extend it
+or call it, never a folder's worth of files, and when you need one member,
+return the lines around it rather than the whole file. A catalog import
+without an extension (`./utils/sla`) may be a `.ts` file rather than `.gts`:
+on `File not found`, `realm.fs.list` that folder (it lists one level) and read
+the name it returns instead of guessing again.
 
 **If a need returns nothing, broaden once** before concluding a gap: re-query
 with two or three alternates joined by `OR`, and drop the `specType` constraint.
