@@ -133,12 +133,9 @@ field. What it forbids is hand-building a part when a bigger unit contains it.
 `linkedExamples` on a Spec hit is the direct route from a definition to the
 instances the catalog ships for it. Check it before authoring instances by hand.
 A search entry does not carry it. Read the Spec with `realm.cards.get(url)`,
-where `url` is the entry's `url`, in a `run-realm-code` call whose `realm`
-argument is the Spec's realm: the catalog's full `https://` URL, never the
-`@cardstack/catalog/` prefix, which the argument refuses. That is the tool's
-argument, not the script's `realm` global, which stays the API. A run can read a realm that the user can only
-read. The answer's `relationships` lists each example as
-`linkedExamples.0`, `linkedExamples.1`, and so on.
+where `url` is the entry's `url`, in a run in the catalog (see *Read catalog
+source in a run in the catalog* below). The answer's `relationships` lists each
+example as `linkedExamples.0`, `linkedExamples.1`, and so on.
 
 **Declaring a relationship and filling it are different steps.** You declare
 `@field author = linksTo(Author)` from a Spec hit's `ref` (parts); you fill it by
@@ -238,12 +235,45 @@ for each hit, and the `readMe` only of the few hits you are choosing between.
 Ask for `limit: 10` per term; a need that ten best-first hits do not answer
 needs a better term, not a longer list.
 
-Read catalog source the same way. Read a module only when you will extend it
-or call it, never a folder's worth of files, and when you need one member,
-return the lines around it rather than the whole file. A catalog import
-without an extension (`./utils/sla`) may be a `.ts` file rather than `.gts`:
-on `File not found`, `realm.fs.list` that folder (it lists one level) and read
-the name it returns instead of guessing again.
+**Read catalog source in a run in the catalog.** A `run-realm-code` script
+reads and writes only the realm the tool's `realm` argument names
+(`boxel-environment/references/workflows-and-orchestration.md` → *Multi-Realm
+Operations*). That is the tool's argument, not the script's `realm` global,
+which stays the API. Every `realm.fs` path resolves against that realm, and
+`realm.fs.readText` takes a path only — a second argument such as `{ realm }`
+is ignored, so a catalog path read from a run in your workspace answers
+`File not found`. A run can read a realm that the user can only read.
+
+1. **Search and read in one run in the catalog.** Set the tool's `realm`
+   argument to the catalog's full `https://` URL, never the
+   `@cardstack/catalog/` prefix, which the argument refuses.
+   `realm.entries.search` reaches every realm from any run, so the search fits
+   in the same script: search, pick the hit you will extend, then read its
+   module and the `./` modules it imports, with paths relative to the catalog
+   root.
+2. **Write in the next run, in your own workspace**, importing the catalog
+   module by its `@cardstack/catalog/…` path.
+
+```js
+// run-realm-code with realm: '<catalog https:// URL>'
+let spec = { module: '@cardstack/base/spec', name: 'Spec' };
+let found = await realm.entries.search(
+  { filter: { on: spec, every: [{ eq: { specType: 'card' } }, { matches: 'ticket' }] } },
+  { limit: 10 },
+);
+let ticket = await realm.fs.readText('cards/service-desk/ticket.gts');
+return {
+  hits: found.entries.map(({ url, ref, cardTitle }) => ({ url, ref, cardTitle })),
+  ticket,
+};
+```
+
+Read a module only when you will extend it or call it, never a folder's worth
+of files, and read each file once — its text stays in the conversation. When
+you need one member, return the lines around it rather than the whole file. A
+catalog import without an extension (`./utils/sla`) may be a `.ts` file rather
+than `.gts`: on `File not found`, `realm.fs.list` that folder (it lists one
+level) and read the name it returns instead of guessing again.
 
 **If a need returns nothing, broaden once** before concluding a gap: re-query
 with two or three alternates joined by `OR`, and drop the `specType` constraint.
