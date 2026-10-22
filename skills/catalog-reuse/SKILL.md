@@ -32,6 +32,9 @@ that kind.** Everything below is that one idea, made operational.
 4. **Never pass over a suitable result without recording why.** Every hit is
    adopted, or refused in writing naming what mismatched. A Listing you answered
    by referencing its parts counts as adopted — say which parts, and move on.
+   A second hit that ships an export you already took is refused as a
+   duplicate, not taken as well: two Listings for one `WineBottle` are one
+   decision.
 5. **Never copy what you can reference.** Catalog modules import directly, so a
    definition can be used without taking a copy of it. Install or remix a
    Listing when the user wants their own bundle — and when you do take a copy,
@@ -55,6 +58,9 @@ tell you how to build well, not whether to build at all.
    capacity" — a possessive names the entity as surely as a bare noun does, and
    what it owns is the card's business, not yours to re-declare.
 2. **Search Specs** for each enumerated need, and reference what you find.
+   One `matches` term per need. A search for the whole deliverable ("a service
+   desk", "a support app") is not a search for its parts and does not replace
+   one.
 3. **Search Listings only when the user asked to own something**, and be able
    to quote the words that asked — "our own", "a copy we can change",
    "independent of theirs". No such words, no Listing search. That a Listing
@@ -63,7 +69,8 @@ tell you how to build well, not whether to build at all.
    theme, config, image, or a sample to start from.
 5. **Evaluate** each hit against the need; broaden once before calling anything
    a gap.
-6. **Build only confirmed gaps**, and record them.
+6. **Build only confirmed gaps**, and record them. When a catalog definition
+   answers the brief, the build is an instance of it, not a design pass.
 7. **Self-audit** before finishing.
 
 Step 2 is the default because a catalog definition can be referenced where it
@@ -115,8 +122,7 @@ Cardinal Rules own CardDef-vs-FieldDef and `contains` vs `linksTo`. Here you
 decide *which* catalog unit answers the need; go there for how to write it.
 
 `specType` crosses these rows — five values name module exports, `file` is an
-instance. It is advisory and sometimes absent,
-so constrain it explicitly rather than assuming every Spec carries one.
+instance.
 
 Within parts, prefer more whole over less: a card over a field, a field over
 hand-rolled markup. This is not a queue — a need that *is* a field starts at the
@@ -150,11 +156,11 @@ identical either way.
 - **`realm.entries.search(query, { realms, scope, limit })` in a
   `run-realm-code` script**, in an assistant room. This skill declares the
   `run-realm-code` tool; the sandbox rules for the script are in
-  `source-code-editing`. Without `realms`, it searches every realm the user can
-  read, the catalog included, so you need no realm URL. Pass
-  `realms: ['@cardstack/catalog/']` to search only the catalog (its full
-  `https://` URL works too), and pass your own realm's URL for the self-check
-  below. A realm is a realm root such as `…/catalog/`: a module folder inside
+  `source-code-editing`. For parts, pass `realms: ['@cardstack/catalog/']` (its
+  full `https://` URL works too): without `realms` the search also reads every
+  workspace the user can read, and a definition or policy from another
+  workspace is not a catalog part. Pass your own realm's URL for the
+  self-check below. A realm is a realm root such as `…/catalog/`: a module folder inside
   it (`…/catalog/<app-folder>/`) is not a realm, and one such URL fails the
   whole search. To narrow to one app, `matches` its name (or, for instances,
   anchor `on` its type). Put all the searches of a step in one script. The
@@ -205,8 +211,12 @@ for content, the card type itself.
 rows. It is orthogonal to which type you anchor on — Specs, Listings and Authors
 are all card instances. Use `'files'` for assets.
 
-**Two query rules that decide outcomes:**
+**Three query rules that decide outcomes:**
 
+- **The query is the first argument**, never `realm.entries.search({ query })`
+  or a bare string: both are refused, the first with `unknown field in query:
+  query`. Anchor Spec searches `on: Spec`, or you get instances and Listings
+  and read an example to find the definition it adopts from.
 - **`matches` ANDs its words.** `"person author"` means *person AND author*.
   One concept per query; spell alternatives as `"person OR author"`. Keep an
   `OR` set to terms of comparable specificity — one generic word swamps it
@@ -248,9 +258,10 @@ is ignored, so a catalog path read from a run in your workspace answers
    argument to the catalog's full `https://` URL, never the
    `@cardstack/catalog/` prefix, which the argument refuses.
    `realm.entries.search` reaches every realm from any run, so the search fits
-   in the same script: search, pick the hit you will extend, then read its
-   module and the `./` modules it imports, with paths relative to the catalog
-   root.
+   in the same script: search, pick the hit you will extend, then read only
+   the lines you need (the reading budget below) from its module and from the
+   module that declares the member you will override, with paths relative to
+   the catalog root.
 2. **Write in the next run, in your own workspace**, importing the catalog
    module by its `@cardstack/catalog/…` path.
 
@@ -268,12 +279,39 @@ return {
 };
 ```
 
-Read a module only when you will extend it or call it, never a folder's worth
-of files, and read each file once — its text stays in the conversation. When
-you need one member, return the lines around it rather than the whole file. A
-catalog import without an extension (`./utils/sla`) may be a `.ts` file rather
-than `.gts`: on `File not found`, `realm.fs.list` that folder (it lists one
-level) and read the name it returns instead of guessing again.
+**Reading budget.** Everything a read returns stays in the conversation, so a
+catalog module you read is paid for again on every later turn. Read catalog
+source in a `run-realm-code` script, never with `readRealmFile`, which returns
+the whole file and cannot slice it. What each operation needs:
+
+| To | Read |
+|---|---|
+| link an instance | nothing; `realm.cards.get(url)` if you need its values |
+| link a type, contain a field, import a component, call a command | nothing: the hit's `ref` and `readMe` are the contract |
+| write an instance of a catalog type | one of the Spec's `linkedExamples`, for the field shapes (`vintage: { value: 2015 }`, `purchasePrice: { amount: 650, currency: { code: 'USD' } }`); a bare `2015` or `'USD'` indexes as null |
+| extend without changing behaviour | nothing beyond the `readMe` |
+| extend and change a field the catalog reads | the declaration, and every place that reads the field — usually two modules |
+
+Return windows, not files. Search the text for the name and return the lines
+around each match:
+
+```js
+let src = await realm.fs.readText('cards/service-desk/sla-policy.gts');
+let windows = [];
+for (let at = src.indexOf('priority'); at >= 0; at = src.indexOf('priority', at + 1)) {
+  windows.push(src.slice(Math.max(0, at - 300), at + 900));
+}
+return { windows: windows.slice(0, 6) };
+```
+
+Never cut from the top (`src.slice(0, 6000)`): the member sits past the cut
+and you read the file again. Take every window you need from a file in one
+run, and read each file once. When every need has a disposition, the next run
+writes.
+
+A catalog import without an extension (`./utils/sla`) may be a `.ts` file
+rather than `.gts`. On `File not found`, run `realm.fs.list` on that folder (it
+lists one level) and read the name it returns instead of guessing again.
 
 **If a need returns nothing, broaden once** before concluding a gap: re-query
 with two or three alternates joined by `OR`, and drop the `specType` constraint.
@@ -286,12 +324,13 @@ realm did not answer, and an empty answer is not yet a gap. The catalog is a cor
 take silently.
 
 **Then disposition every hit**: adopted, or refused naming what actually
-mismatched — the fields it lacks, the design rule it breaks. A hit that is
-neither is the failure this skill exists to prevent.
+mismatched — the fields it lacks, the design rule it breaks. Reading a hit and
+then authoring your own is a refusal, not a reuse: record it as one, naming
+why the hit itself could not be linked, installed, or copied.
 
-**Reading a hit is not adopting it.** Opening a found card to understand its
-shape and then authoring your own is a refusal, not a reuse — record it as one,
-naming why the hit itself could not be linked, installed, or copied.
+Before you say a catalog card lacks an action, look in the formats your
+subclass inherits: the catalog `Ticket`'s `edit` format mounts its workspace,
+and Escalate is there.
 
 ## Edge cases
 
@@ -316,12 +355,8 @@ naming why the hit itself could not be linked, installed, or copied.
   prefix and literal realm URLs are lint-banned. This restricts user realms, not
   the catalog — catalog modules import directly.
 - **Reuse the model, own the look.** A reused catalog card keeps its fields,
-  computeds and operations, not necessarily its stock look. A card the app renders as its own
-  UI must look designed for this app: take the lowest step that works, judged
-  from a capture (theme, own markup, extend and override its formats, then build
-  new on a model mismatch, remixing only a copy the user asked to own). Record it
-  in the disposition as `adopted, route: theme`, `own markup` or `extended`; a new
-  build is a refusal naming the mismatch. The steps and their traps:
+  computeds and operations, not necessarily its stock look; restyle it with the
+  lowest step that works and record the route in the disposition:
   [`restyle-reused-card.md`](references/restyle-reused-card.md).
 - **A change request goes through the same workflow, and is built in that
   reply.** When a later message changes what you built — a scale of values the
@@ -360,6 +395,16 @@ naming why the hit itself could not be linked, installed, or copied.
      often needs no code at all.
   3. Point the instances you made at the new definition (`meta.adoptsFrom`)
      and show one, so the user sees the change.
+  4. Check the rule before the reply claims it. A field, option or factor you
+     add changes nothing until catalog code reads it: `SlaTargetField.minutesFor`
+     reads the catalog's own `TicketPriorityField`, so a factor on your field is
+     never used. Where the catalog keeps the rule in data, change it in data —
+     an `SlaPolicy` whose `conditions` are
+     `[{ attribute: 'priority', operator: 'is', value: 'P0' }]` and whose
+     First response target has `baseMinutes: 15` — and link it. Where only code
+     reads it, override that member. Every number in the reply then comes from
+     the index (`realm.cards.get` in the next run) or is marked as one you
+     typed.
 
   Read the module that declares the changed field and the one that reads it,
   then write in your next turn. A turn of reading with no write after the plan
@@ -386,6 +431,9 @@ Re-read what you built. For everything you authored from scratch:
 - Does every refusal name its mismatch, and is every real gap recorded?
 - If this reply answers a change request, did it write the change? Explaining
   why the catalog part doesn't fit is the start of the work, not the end.
+- Does every number my reply states come from the index or from a catalog
+  computation, or did I type it? Did I read any catalog module I neither
+  extended nor called?
 
 And of what you said: did I end on a question the workflow had already
 answered?
