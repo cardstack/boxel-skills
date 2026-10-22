@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: 'Score the taste and coherence of a built Boxel screen, card or whole app against its brief and an aesthetic bar, from captures. Runs only when asked (`/design-review`, optionally as a mode, `set`, `card <CardDef>` or `refine`, scoped with `--layout`, `--typo`, `--colour` or `--coherence`, anchored with `--benchmark`, cut to the numbers with `--score`, or `--redesign` for a bigger rebuild from existing parts). Use it when someone points at a card or app they already have and wants it reviewed or scored, or asks for a critique ("how does this look", "is this good enough", "why does this feel off"), when all screens exist and need checking as a set, and for linked CardDefs whose embedded, fitted and atom views were written in passing. It reports first and edits nothing until they choose a fix. The basics (hit areas, contrast, phone overflow, wired actions) are not scored here: the build check owns them and runs automatically after every build.'
+description: 'Score the taste and coherence of a built Boxel screen, card or whole app against its brief and an aesthetic bar, from captures. Runs only when asked (`/design-review`, optionally as a mode, `set`, `card <CardDef>` or `refine`, scoped with `--layout`, `--typo`, `--colour` or `--coherence`, anchored with `--benchmark`, cut to the numbers with `--score`, or `--redesign` for a bigger rebuild from existing parts). Use it when someone points at a card or app they already have and wants it reviewed or scored, or asks for a critique ("how does this look", "is this good enough", "why does this feel off"), when all screens exist and need checking as a set, and for linked CardDefs whose embedded, fitted and atom views were written in passing. It reports first and edits nothing until they choose a fix. The basics (hit areas, contrast, phone overflow, wired actions) are not scored here: the build check owns them and runs automatically after every design build.'
 boxel:
   kind: skill
   tools:
@@ -45,7 +45,7 @@ Asked for by hand on one screen, it reviews that screen. `refine` is review, the
 `refine` is what authorises that one round (see
 [`references/benchmark-and-refine.md`](references/benchmark-and-refine.md)).
 
-## After every build: the build check, not a review
+## After every design build: the build check, not a review
 
 `boxel-design` and the design-playbook decide and build; the last step is the **build check**
 ([`references/build-check.md`](references/build-check.md)), which is pass/fail and shows no score. It
@@ -566,6 +566,6 @@ Read these live on each run. Links are relative to this skill's folder.
 
 ## Sections (load on demand)
 
-- `references/build-check.md` — the pass/fail check that finishes every build (the basics, unscored), and the *Basics* block for existing work
+- `references/build-check.md` — the pass/fail check that finishes every design build (the basics, unscored), and the *Basics* block for existing work
 - `references/capture.md` — which tool captures which view, budgets, where captures go, and the blank-region, scroll-motion and motion-off rules
 - `references/benchmark-and-refine.md` — the award-site benchmark, `refine` mode and the roles in the loop (the gate stays 8.5)
