@@ -33,8 +33,8 @@ that kind.** Everything below is that one idea, made operational.
    adopted, or refused in writing naming what mismatched. A Listing you answered
    by referencing its parts counts as adopted — say which parts, and move on.
    A second hit that ships an export you already took is refused as a
-   duplicate, not taken as well: two Listings for one `WineBottle` are one
-   decision.
+   duplicate, not taken as well: two hits that ship the same module export are
+   one decision.
 5. **Never copy what you can reference.** Catalog modules import directly, so a
    definition can be used without taking a copy of it. Install or remix a
    Listing when the user wants their own bundle — and when you do take a copy,
@@ -258,10 +258,10 @@ is ignored, so a catalog path read from a run in your workspace answers
    argument to the catalog's full `https://` URL, never the
    `@cardstack/catalog/` prefix, which the argument refuses.
    `realm.entries.search` reaches every realm from any run, so the search fits
-   in the same script: search, pick the hit you will extend, then read only
-   the lines you need (the reading budget below) from its module and from the
-   module that declares the member you will override, with paths relative to
-   the catalog root.
+   in the same script: search, pick the hit and the operation you will use
+   (link, contain, instantiate, import, call, extend), then read only what that
+   operation needs (the reading budget below), with paths relative to the
+   catalog root.
 2. **Write in the next run, in your own workspace**, importing the catalog
    module by its `@cardstack/catalog/…` path.
 
@@ -269,36 +269,39 @@ is ignored, so a catalog path read from a run in your workspace answers
 // run-realm-code with realm: '<catalog https:// URL>'
 let spec = { module: '@cardstack/base/spec', name: 'Spec' };
 let found = await realm.entries.search(
-  { filter: { on: spec, every: [{ eq: { specType: 'card' } }, { matches: 'ticket' }] } },
+  { filter: { on: spec, every: [{ eq: { specType: 'card' } }, { matches: 'contract' }] } },
   { limit: 10 },
 );
-let ticket = await realm.fs.readText('cards/service-desk/ticket.gts');
+let contract = await realm.fs.readText('cards/legal/contract.gts');
 return {
   hits: found.entries.map(({ url, ref, cardTitle }) => ({ url, ref, cardTitle })),
-  ticket,
+  contract,
 };
 ```
 
 **Reading budget.** Everything a read returns stays in the conversation, so a
 catalog module you read is paid for again on every later turn. Read catalog
 source in a `run-realm-code` script, never with `readRealmFile`, which returns
-the whole file and cannot slice it. What each operation needs:
+the whole file and cannot slice it. Most reuse needs no source at all. What
+each operation needs, in the order of the Parts table:
 
-| To | Read |
+| Operation | Read |
 |---|---|
-| link an instance | nothing; `realm.cards.get(url)` if you need its values |
-| link a type, contain a field, import a component, call a command | nothing: the hit's `ref` and `readMe` are the contract |
-| write an instance of a catalog type | one of the Spec's `linkedExamples`, for the field shapes (`vintage: { value: 2015 }`, `purchasePrice: { amount: 650, currency: { code: 'USD' } }`); a bare `2015` or `'USD'` indexes as null |
-| extend without changing behaviour | nothing beyond the `readMe` |
+| link a card type (`linksTo` / `linksToMany`) | nothing: the hit's `ref` is the contract |
+| link an existing instance | nothing; `realm.cards.get(url)` if you need its values |
+| contain a field (`contains`) | nothing: the hit's `ref` and `readMe` |
+| instantiate a catalog type (`adoptsFrom`) | one of the Spec's `linkedExamples`, for the value shapes: a `YearField` holds `{ value: … }`, an `AmountWithCurrency` holds `{ amount, currency: { code } }`; a bare number or code indexes as null |
+| import a component, call a command | the `readMe` |
+| extend without changing behaviour | the `readMe` |
 | extend and change a field the catalog reads | the declaration, and every place that reads the field — usually two modules |
 
 Return windows, not files. Search the text for the name and return the lines
 around each match:
 
 ```js
-let src = await realm.fs.readText('cards/service-desk/sla-policy.gts');
+let src = await realm.fs.readText('cards/legal/approval-rule.gts');
 let windows = [];
-for (let at = src.indexOf('priority'); at >= 0; at = src.indexOf('priority', at + 1)) {
+for (let at = src.indexOf('minValue'); at >= 0; at = src.indexOf('minValue', at + 1)) {
   windows.push(src.slice(Math.max(0, at - 300), at + 900));
 }
 return { windows: windows.slice(0, 6) };
@@ -309,7 +312,7 @@ and you read the file again. Take every window you need from a file in one
 run, and read each file once. When every need has a disposition, the next run
 writes.
 
-A catalog import without an extension (`./utils/sla`) may be a `.ts` file
+A catalog import without an extension (`./utils/format`) may be a `.ts` file
 rather than `.gts`. On `File not found`, run `realm.fs.list` on that folder (it
 lists one level) and read the name it returns instead of guessing again.
 
@@ -328,9 +331,9 @@ mismatched — the fields it lacks, the design rule it breaks. Reading a hit and
 then authoring your own is a refusal, not a reuse: record it as one, naming
 why the hit itself could not be linked, installed, or copied.
 
-Before you say a catalog card lacks an action, look in the formats your
-subclass inherits: the catalog `Ticket`'s `edit` format mounts its workspace,
-and Escalate is there.
+Before you say a catalog card lacks an action, look in its formats (`edit`,
+`isolated`): an action often lives there, and a subclass or an instance
+inherits it.
 
 ## Edge cases
 
@@ -363,8 +366,13 @@ and Escalate is there.
   catalog's field does not carry, an extra field, a new rule — list the changed
   parts, then search, evaluate and settle each one. The user's message is the
   go-ahead: state any assumption in one line and build, rather than describing
-  the change and asking whether to make it. A part a catalog definition almost
-  covers is a specialization, and you write it now:
+  the change and asking whether to make it. Take the lightest route that
+  makes the change real, and write it now. When the catalog keeps the rule in
+  a card, add an instance of that card: a contract that needs a new sign-off
+  threshold is a new `ApprovalRule` instance with its own `minValue` and
+  `requiredRoles`, like the catalog's `vendor-over-100k`, with no new field or
+  code. Link or contain a different catalog part when one fits. Extend only
+  when behaviour must change, and then:
   1. In your realm, write a definition that `extends` the catalog one (or calls
      the factory its Spec ships) and overrides only what changed. Redeclaring
      an inherited `@field` replaces it in the subclass. For a field a factory
@@ -386,25 +394,20 @@ and Escalate is there.
 
      A catalog readMe that calls a vocabulary "hardcoded" describes the
      catalog's own module, not what your subclass can declare.
-  2. Code in the catalog definition that reads the field you changed — an SLA
-     table keyed on priority, a badge colour, a sort — is part of that
+  2. Code in the catalog definition that reads the field you changed — a
+     lookup table keyed on its values, a badge colour, a sort — is part of that
      override, not a reason to stop. Override the members that read it, or
      build the field and name which catalog behaviour still uses the old
-     values. A rule the catalog keeps in data can change in data: a new
-     instance of the catalog's rule or policy card, keyed on the new value,
-     often needs no code at all.
+     values.
   3. Point the instances you made at the new definition (`meta.adoptsFrom`)
      and show one, so the user sees the change.
   4. Check the rule before the reply claims it. A field, option or factor you
-     add changes nothing until catalog code reads it: `SlaTargetField.minutesFor`
-     reads the catalog's own `TicketPriorityField`, so a factor on your field is
-     never used. Where the catalog keeps the rule in data, change it in data —
-     an `SlaPolicy` whose `conditions` are
-     `[{ attribute: 'priority', operator: 'is', value: 'P0' }]` and whose
-     First response target has `baseMinutes: 15` — and link it. Where only code
-     reads it, override that member. Every number in the reply then comes from
-     the index (`realm.cards.get` in the next run) or is marked as one you
-     typed.
+     add changes nothing until catalog code reads it: a computed that reads
+     the catalog's own field class never sees the value on yours. Search the
+     catalog module for the field name to find what reads it. If a rule card
+     carries the rule, the data route above is the change; if only code reads
+     it, override that member. Every number in the reply then comes from the
+     index (`realm.cards.get` in the next run) or is marked as one you typed.
 
   Read the module that declares the changed field and the one that reads it,
   then write in your next turn. A turn of reading with no write after the plan
@@ -432,8 +435,8 @@ Re-read what you built. For everything you authored from scratch:
 - If this reply answers a change request, did it write the change? Explaining
   why the catalog part doesn't fit is the start of the work, not the end.
 - Does every number my reply states come from the index or from a catalog
-  computation, or did I type it? Did I read any catalog module I neither
-  extended nor called?
+  computation, or did I type it? Did I read anything the operation I chose
+  didn't need?
 
 And of what you said: did I end on a question the workflow had already
 answered?
