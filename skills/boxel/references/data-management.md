@@ -35,6 +35,8 @@ my-realm/
     └── address-field.gts  # Common field definitions
 ```
 
+Each `.gts` holds one CardDef. Format components, helpers and constants get modules of their own as a card grows, and every module stays under 800 lines. The rules, a worked layout with its imports, and how to split an existing large file without breaking its instances are in [`module-structure.md`](module-structure.md).
+
 **Directory Discipline:** When creating files within a specific directory structure (e.g., `ecommerce/`), keep ALL related files within that structure. Don't create files outside the intended directory organization.
 
 **Relationship Path Tracking:** When creating related JSON instances, maintain a mental map of your file paths. Links between instances must use the exact relative paths you've created - consistency prevents broken relationships.

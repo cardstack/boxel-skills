@@ -413,7 +413,7 @@ Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. Th
 
 ## 22. Skill catalog
 
-- **`boxel`** — Core framework rules. 18+ references (`core-concept.md`, `query-systems.md`, `fitted-formats.md`, `design-playbook.md`, `lint-workflow.md`, `command-development.md`, `command-invocation-modes.md`, `container-query-fitted-layout.md`, `delegated-rendering.md`, `theme-design-system.md`, `styling-design.md`, `formatters.md`, `enumerations.md`, `date-math.md`, `base-field-catalog.md`, `imagedef.md`, `external-libraries.md`, `template-syntax.md`, `data-management.md`, `defensive-programming.md`, `common-imports.md`, `core-patterns.md`, `file-editing.md`, `icons.md`, `quick-reference.md`, `spec-usage.md`).
+- **`boxel`** — Core framework rules. 18+ references (`core-concept.md`, `query-systems.md`, `fitted-formats.md`, `design-playbook.md`, `lint-workflow.md`, `command-development.md`, `command-invocation-modes.md`, `container-query-fitted-layout.md`, `delegated-rendering.md`, `theme-design-system.md`, `styling-design.md`, `formatters.md`, `enumerations.md`, `date-math.md`, `base-field-catalog.md`, `imagedef.md`, `external-libraries.md`, `template-syntax.md`, `data-management.md`, `module-structure.md`, `defensive-programming.md`, `common-imports.md`, `core-patterns.md`, `file-editing.md`, `icons.md`, `quick-reference.md`, `spec-usage.md`).
 - **`boxel-patterns`** — Outcome-indexed catalogue of 50+ working patterns + `integration-surfaces.md` (capability cheatsheet) + `libraries.md` (import-path catalogue) + `ai-image-models.md` (verified model IDs for image generation) + `pattern-authoring.md` (README template, naming conventions, `validated:` ladder, promotion bar) + `pattern-backlog.md` (reserved-but-unextracted slugs — do not chase).
 - **`boxel-ui-guidelines`** — Template UI rules, `delegated-render-control.md`, `template-patterns.md`, `style-budget.md`, `prevent-content-overflow.md`.
 - **`boxel-design`** — Visual design + asset selection + critical anti-LLM-cliché rules.
@@ -467,7 +467,7 @@ In rough priority order:
 - **Read before writing.** Fetch a file’s current contents before calling `realm.fs.replace`.
 - **the `run-realm-code` tool for file creation and edits** — every source file, `.gts`, `.json`, `.md` and `README` alike.
 - **Look at what you make.** `realm.capture` in the `run-realm-code` script after any visual change, and before describing visual context.
-- **One CardDef per file.** FieldDefs and helpers can co-locate.
+- **One CardDef per file, each module under 800 lines.** Shared FieldDefs, large format components and helpers get modules of their own. → `boxel/references/module-structure.md`
 - **Three formats minimum.** Every CardDef ships `isolated`, `embedded`, AND `fitted`.
 
 ## 24. Patterns

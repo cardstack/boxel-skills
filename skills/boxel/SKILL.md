@@ -80,7 +80,7 @@ Specific/detailed request                        → skip the sprint, implement 
 
 ## ⚡ 500-Word Sprint (for vague requests)
 
-1. **Architecture** — 1 primary CardDef (max 3 for navigation), 3–5 supporting FieldDefs, relationship map.
+1. **Architecture** — 1 primary CardDef (max 3 for navigation), 3–5 supporting FieldDefs, relationship map, and the file layout: one module per CardDef, plus a module for each shared FieldDef, large format component and helper set (see `references/module-structure.md`).
 2. **Distinction** — Unique angle, 2–3 clever fields, smart computations, interaction hooks.
 3. **Design** — Mood, theme tokens, typography, one visual signature. (Consult `boxel-design`.)
 4. **Scenario** — 3–4 personas, believable org, specific data, pain point, success metric.
@@ -105,6 +105,7 @@ Core syntax and patterns (load when topic comes up):
 - `references/template-syntax.md` — Field access, compound fields, `@fields` delegation, array handling, fallback values, and Glimmer syntax gotchas (the `{{#if (this.x)}}` parens trap, HTML-tag-shadowing block params).
 - `references/file-editing.md` — Pointer to the `source-code-editing` skill, which defines the `run-realm-code` tool.
 - `references/data-management.md` — File organization, JSON instance format, field value patterns, relationships.
+- `references/module-structure.md` — Splitting card code across modules: one CardDef per module, format components in `components/`, helpers in plain `.ts`, the 800-line budget per module, a worked multi-card layout with its imports, and how to move a class to a new module without breaking its instances (`adoptsFrom`, query refs, re-exports).
 - `references/card-references.md` — `links.self` shapes: relative (`./Foo/bar` / `../Foo/bar`) vs absolute vs registered-prefix; FileDef-typed relationships need the file extension; `$REALM` and `@cardstack/...` rules; common silent-failure modes.
 - `references/defensive-programming.md` — Optional chaining, default values, try/catch, array validation.
 - `references/defensive-link-traversal.md` — Reading `linksTo`/`linksToMany` is not like `contains`: a linked slot reads `undefined` while loading and forever if broken. The per-slot contract, `linksToMany` `undefined` holes (`arr.length` unchanged), `.filter(Boolean)` before count/render, and `getRelationshipMembershipState`/`RelationshipState` for distinguishing loading vs broken.
@@ -158,6 +159,7 @@ Sibling skills:
 - Unused, duplicated or missing helper imports → the realm lint fixes them silently in its own copy and reports nothing, so your source stays wrong unless you run `npx boxel file lint … --file <local> --fix` (see `references/lint-workflow.md`). Import each helper once, from one source, and only if the template actually uses it. Don't import a predicate (`eq`, `gt`, `not`, `and`) from both `@ember/helper` and `@cardstack/boxel-ui/helpers`.
 - Concatenated `style='foo: {{this.x}}'` → lint error (`no-inline-styles` + `style-concatenation`). Use an `htmlSafe` getter or the `cssVar` helper; never fall back to fixed-width CSS classes. See `references/styling-design.md` "Dynamic inline styles".
 - `<input>` / `<textarea>` / `<select>` without a label → lint error (`require-input-label`). Add an `aria-label` (or associate a `<label for>`).
+- A whole app in one `.gts` file (many cards, every template, every helper) → one module per CardDef, large formats in `components/`, helpers in `.ts`, each module under 800 lines. See `references/module-structure.md`.
 - AI/image APIs returning `data:image/...;base64` → strip the prefix, write bytes with `WriteBinaryFileCommand`, and store `linksTo(ImageDef/PngDef/FileDef)`; never save the data URI in `outputImageUrl`, `outputText`, notes, JSON, or any string field.
 
 ## ✅ Always
@@ -169,6 +171,7 @@ Sibling skills:
 - Give every FieldDef a `static displayName`; its default atom is built from it (`Untitled Field` when it's missing).
 - The base `cardTitle` already reads `cardInfo.name`, with an `Untitled <displayName>` fallback. Override it to fall back to a primary field, reading `cardInfo.name` first (recommended, not required). Render `<@fields.cardTitle />` unconditionally, and show `cardDescription` / `cardThumbnailURL` where the card has a summary or image. See `references/core-patterns.md`.
 - Provide empty states for arrays.
+- Keep each module under 800 lines. Before an edit that would take a module past that, split it first; a new feature on an existing app goes in a new module. Moving a class to another module changes its identity: read `references/module-structure.md` → *Splitting an existing large file* first.
 - In a user-facing card or app, read the *After stage 4 — baseline motion* section of `references/design-playbook.md` in full before writing its `isolated` templates, and ship every row of it that applies. An entrance's `initial` comes from a getter that returns `false` when `isLiveRender()` is false, so the prerender is not blank, and every clickable tile gets hover, press and `:focus-visible`.
 - Use theme variables only; link a Theme on an instance only when it should use a specific one (`theme.css` supplies the defaults).
 - Store media as linked FileDef/ImageDef/PngDef; only small durable `http(s)` URLs belong in string fields.
