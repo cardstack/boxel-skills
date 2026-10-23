@@ -128,7 +128,7 @@ Always-relevant — read these together, first:
 By task:
 - [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards with `realm.cards.search`.
 - [`references/card-tool-selection.md`](references/card-tool-selection.md) — Which `realm.*` call creates or edits a card.
-- [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step patterns (migrations, bulk operations).
+- [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step and multi-realm patterns (migrations, bulk operations, reading or copying between realms).
 - [`references/shared-mirror-safety.md`](references/shared-mirror-safety.md) — **Read before `realm pull` / `sync`.** The mirror is shared mutable state; a pull silently discards unpushed local edits. Generating outside the mirror and pushing from there.
 - [`references/markdown-edit.md`](references/markdown-edit.md) — Editing long markdown fields surgically.
 - [`../boxel/references/lint-workflow.md`](../boxel/references/lint-workflow.md) — Required installed npm `boxel` lint gate for `.gts` code tasks.
