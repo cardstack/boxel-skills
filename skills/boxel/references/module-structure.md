@@ -9,7 +9,7 @@ Nothing in Boxel needs an app to live in one file. Cards import each other with 
 1. **One CardDef per module.** The module is named after the card in kebab-case: `blog-post.gts` exports `BlogPost`.
 2. **A FieldDef gets its own module once more than one card uses it,** or once its own templates pass a few dozen lines. A small FieldDef that only one card uses can stay in that card's module.
 3. **Format components move out as they grow.** A format (`isolated`, `embedded`, `fitted`, `edit`) of up to about 500 lines, CSS included, can stay inline as `static isolated = class Isolated extends Component<typeof this> { … }`. A bigger one goes in its own module under `components/`, and so does any component that two cards share.
-4. **Logic with no template goes in a plain `.ts` module.** Pure helpers (formatting, scoring, date maths), constants, lookup tables and shared types. Put them under `utils/`, or name the file after what it holds (`pricing.ts`).
+4. **Shared or sizeable logic with no template goes in a plain `.ts` module.** A helper, constant, lookup table or type that two or more modules use moves out, and so does a card's own helper set once it runs to a few hundred lines. Put them under `utils/`, or name the file after what it holds (`pricing.ts`). A helper only one card uses, and a short one, stays in that card's module.
 5. **Shared enums get their own module.** An `enumField` or option list that two cards read lives in one place, so the two can't drift.
 
 ### The size budget
@@ -22,7 +22,7 @@ When a module is heading past 2,000 lines, split it before adding more. Move thi
 2. helper functions and constants to a `.ts` module;
 3. any other CardDef or FieldDef in the file, each to its own module.
 
-A new feature on an existing app is a new module (a new card, a new component, a new helper file) wired in with an import. Don't grow one file to hold it.
+When the module a new feature would land in is already near the budget, the feature goes in a new module (a new card, a new component, a new helper file) wired in with an import, rather than growing that file past it. A feature that fits comfortably goes where it belongs.
 
 The budget is per module, not per app. An app of ten cards, each in a module of a few hundred to a thousand lines, is the shape to aim for.
 
@@ -101,7 +101,16 @@ The rest of the imports in this layout:
 
 - `utils/schedule.ts` exports plain functions (`export function daysUntil(date: Date): number { … }`). It has no template and imports nothing from `card-api`.
 - `task-status.ts` exports the option list (`export const taskStatusOptions = [{ value: 'todo', label: 'To do' }, …];`). `task.gts` builds its `enumField` from it, and `project.gts` reads the same list for its counts.
-- A component that only needs the type of a card imports it with `import type`. A component that needs the class as a value, for a query's `codeRef`, builds the ref from the module path with `codeRef(here, '../task', 'Task')` and doesn't import the class.
+- A component that only needs the type of a card imports it with `import type`. A component that needs the class as a value, for a query's `codeRef`, builds the ref from the module path and doesn't import the class:
+
+  ```gts
+  import { codeRef } from '@cardstack/runtime-common';
+
+  // @ts-expect-error import.meta is valid ESM but TS detects .gts as CJS
+  const here: string = import.meta.url;
+
+  const taskRef = codeRef(here, '../task', 'Task');
+  ```
 
 Imports between realm modules are relative and leave off the extension: `'./task'`, `'../project'`, `'./components/task-row'`.
 
@@ -109,7 +118,7 @@ Writing several small files costs no extra turns. Write all of a build's files i
 
 ## Splitting an existing large file
 
-A card's identity is **the module it is defined in plus its export name**. That pair is what an instance's `meta.adoptsFrom` names, what saving an instance writes, and what queries match on. Moving a class to a new module changes its identity, so a split has to bring every reference to the old identity along with it in the same change.
+A card's identity is **the module it is defined in plus its export name**. That pair is what an instance's `meta.adoptsFrom` names, what saving an instance writes, and what queries match on. Moving a class to a new module changes its identity, so every reference to the old identity has to move with it, and the old module keeps a re-export until they have.
 
 ### What happens to existing instances
 
@@ -126,16 +135,17 @@ A card's identity is **the module it is defined in plus its export name**. That 
 
 ### The procedure
 
-1. **Before moving anything, list what refers to the class.** Search for its instances: `realm.cards.search({ filter: { type: { module, name } } })` with the class's current module returns each instance's `path`. Then read every `.gts`, `.ts` and `.json` file in the realm for the old module path. The path is relative, so search for the old module's file name, not one fixed string. The references to find:
-   - `meta.adoptsFrom` in each instance file;
-   - `meta.fields.<field>.adoptsFrom` in instances where a contained field holds a subclass of a moved FieldDef;
-   - `codeRef(here, './old-module', 'Name')` in query code;
-   - `type` and `on` refs in query JSON stored in instances;
-   - the `ref` of a Spec card for the class;
-   - `import` lines in other modules, including subclasses that extend the moved class.
-2. **Write the new module, then cut the class from the old one.** Write the new file with `realm.fs.writeText` first and change the old file with `realm.fs.replace` second, in the same script. That way any import or re-export the old module keeps points at a file that already exists.
-3. **Update every reference from step 1 in the same change.** `adoptsFrom` is part of the instance file, not a field value, so change it with `realm.fs.replace` on the `.json`; `realm.cards.update` only changes attributes. The new `module` path is relative to the instance file: an instance at `Task/write-copy.json` moving from `../project-tracker` to `../task` gets `"module": "../task"`.
-4. **Leave a re-export in the old module when you can't update every reference.** That covers instances in another realm that adopt from this module by URL, more instances than one change can hold, or a published listing. Remove the re-export only once nothing names the old module.
-5. **Verify.** Lint every module you changed. Read one instance of each moved type with `realm.cards.get(path)`: it fails with the error's message if the instance doesn't load. Run each query you changed and check that it returns the rows it did before.
+The re-export is what keeps a move safe: with it in place, every instance keeps loading while its references are updated, however many runs that takes. Put it in first and take it out last.
+
+1. **Before moving anything, list what refers to the class.**
+   - Instances: `realm.cards.search({ filter: { type: { module: realm.current.url + 'project-tracker', name: 'Task' } } })` returns each instance's `path`. The `module` must be the full URL: a relative path in a search filter is not resolved. A search doesn't count toward the 20-file limit, so page through all of it.
+   - Modules: list the realm's `.gts` and `.ts` files with `realm.fs.list` and read the ones that could import the class, looking for the old module's file name in their `import` lines (including subclasses that extend the class) and in `codeRef(here, './old-module', 'Name')` calls.
+   - Other instance files: read the `.json` files that can hold a ref to the class rather than every one in the realm. Those are the instances the search returned (for `meta.adoptsFrom`, and `meta.fields.<field>.adoptsFrom` where a contained field holds a subclass of a moved FieldDef), cards whose stored query JSON has a `type` or `on` ref, and the Spec card for the class (its `ref`).
+   - Every `readText` counts toward the 20-file limit of one `run-realm-code` call, so spread a large listing over several calls.
+2. **Write the new module, and replace the class in the old module with a re-export, in one script.** Write the new file with `realm.fs.writeText` first, then `realm.fs.replace` the class in the old file with `export { Task } from './task';`. The re-export then points at a file that already exists, and nothing that names the old module breaks.
+3. **Update the references, in as many runs as it takes.** `adoptsFrom` is part of the instance file, not a field value, so change it with `realm.fs.replace` on the `.json`; `realm.cards.update` only changes attributes. The new `module` path is relative to the instance file: an instance at `Task/write-copy.json` moving from `../project-tracker` to `../task` gets `"module": "../task"`. Update the `import` lines, `codeRef` calls, stored queries and the Spec `ref` the same way. One run can touch at most 20 files, so a type with many instances takes several runs. The re-export keeps the instances you haven't reached yet loading in the meantime.
+4. **Check that nothing still names the old module.** While the re-export is in place, `realm.cards.get` succeeds whether or not an instance was updated, so it can't tell you which ones are done. Re-read the files from step 1 and confirm each names the new module.
+5. **Remove the re-export last,** once step 4 comes back clean. Keep it instead when references live where you can't update them: instances in another realm that adopt from this module by URL, or a published listing.
+6. **Verify.** Lint every module you changed. After the re-export is gone, read one instance of each moved type with `realm.cards.get(path)`: it fails with the error's message if the instance doesn't load. Run each query you changed and check that it returns the rows it did before.
 
 Move one card at a time when the file holds many. Each move is small enough to check, and a mistake breaks one type's instances, not all of them.
