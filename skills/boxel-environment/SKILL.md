@@ -45,11 +45,12 @@ If you find yourself about to say you lack a tool, or asking the user to switch 
 → Need file content? `realm.fs.readText` in a `run-realm-code` script. Need to see what is in a folder? `realm.fs.list`. Need a card's data? `realm.cards.get`.
 → For NEW files, call `realm.fs.writeText` with the complete contents; for an existing file, `realm.fs.replace`.
 → Put every file the task needs in ONE `run-realm-code` call.
-→ Before you report the change done: look at the result — `realm.capture` on an instance in the same script, or in a new script next — compare it with what was asked, and fix what you see.
-→ After user accepts (stay in current mode):
-  ├─ Run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
-  ├─ Code mode    → `realm.ui.previewFormat` in the `run-realm-code` script that wrote it
-  └─ Interact mode → return `{ show: path }` from the `run-realm-code` script
+→ That script also shows the change: end it with `return { show: path }` (the instance path), in either mode. In code mode, use `realm.ui.previewFormat(cardPath, format)` instead when you need a format other than isolated.
+→ Before you report the change done, look at the result: `realm.capture` on an instance, compare it with what was asked, and fix what you see. A capture is for your eyes only; it opens nothing for the user.
+  ├─ Capturing in the writing script? Wrap it in `try/catch`: a failed capture fails the script, and a failed script shows nothing
+  └─ Or capture in a new script next
+→ Result has no `shownCard`? The card is not on screen: show it from your next script.
+→ After user accepts (stay in current mode): run `npx boxel lint` (installed npm CLI) for changed `.gts` files (`boxel/references/lint-workflow.md`)
 ```
 
 The two code skills: [`../boxel/SKILL.md`](../boxel/SKILL.md) and [`../source-code-editing/SKILL.md`](../source-code-editing/SKILL.md). Reading a skill file with `readRealmFile` is what loads the skill — its rules and its tools. Do not turn skills on with `room.enableSkills` to use them yourself: find the skill in `index.md` and read its file.
