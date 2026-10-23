@@ -8,15 +8,15 @@ Nothing in Boxel needs an app to live in one file. Cards import each other with 
 
 1. **One CardDef per module.** The module is named after the card in kebab-case: `blog-post.gts` exports `BlogPost`.
 2. **A FieldDef gets its own module once more than one card uses it,** or once its own templates pass a few dozen lines. A small FieldDef that only one card uses can stay in that card's module.
-3. **Format components move out as they grow.** A format (`isolated`, `embedded`, `fitted`, `edit`) of up to about 200 lines, CSS included, can stay inline as `static isolated = class Isolated extends Component<typeof this> { … }`. A bigger one goes in its own module under `components/`, and so does any component that two cards share.
+3. **Format components move out as they grow.** A format (`isolated`, `embedded`, `fitted`, `edit`) of up to about 500 lines, CSS included, can stay inline as `static isolated = class Isolated extends Component<typeof this> { … }`. A bigger one goes in its own module under `components/`, and so does any component that two cards share.
 4. **Logic with no template goes in a plain `.ts` module.** Pure helpers (formatting, scoring, date maths), constants, lookup tables and shared types. Put them under `utils/`, or name the file after what it holds (`pricing.ts`).
 5. **Shared enums get their own module.** An `enumField` or option list that two cards read lives in one place, so the two can't drift.
 
 ### The size budget
 
-**Keep every module under 800 lines.** That counts everything in the file: imports, the class, its templates and their `<style>` blocks.
+**Aim to keep every module under about 2,000 lines.** That counts everything in the file: imports, the class, its templates and their `<style>` blocks. This is a strong suggestion, not a limit: nothing refuses a longer file, and a module a little past it is fine when splitting it would only scatter code that belongs together. A module well past it, or still growing, is the signal to split.
 
-Before an edit that would take a module past 800 lines, split it first and then make the edit. Move things out in this order, and stop as soon as the module is back under budget:
+When a module is heading past 2,000 lines, split it before adding more. Move things out in this order, and stop once the module is comfortably back under:
 
 1. the largest format component, usually `isolated`, to `components/`;
 2. helper functions and constants to a `.ts` module;
@@ -24,7 +24,7 @@ Before an edit that would take a module past 800 lines, split it first and then 
 
 A new feature on an existing app is a new module (a new card, a new component, a new helper file) wired in with an import. Don't grow one file to hold it.
 
-The budget is per module, not per app. An app of ten cards, each in a 400-line module, is the shape to aim for.
+The budget is per module, not per app. An app of ten cards, each in a module of a few hundred to a thousand lines, is the shape to aim for.
 
 ## A worked layout
 

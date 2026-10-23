@@ -467,7 +467,7 @@ In rough priority order:
 - **Read before writing.** Fetch a file’s current contents before calling `realm.fs.replace`.
 - **the `run-realm-code` tool for file creation and edits** — every source file, `.gts`, `.json`, `.md` and `README` alike.
 - **Look at what you make.** `realm.capture` in the `run-realm-code` script after any visual change, and before describing visual context.
-- **One CardDef per file, each module under 800 lines.** Shared FieldDefs, large format components and helpers get modules of their own. → `boxel/references/module-structure.md`
+- **One CardDef per file, each module under about 2,000 lines.** Shared FieldDefs, large format components and helpers get modules of their own. → `boxel/references/module-structure.md`
 - **Three formats minimum.** Every CardDef ships `isolated`, `embedded`, AND `fitted`.
 
 ## 24. Patterns
