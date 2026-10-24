@@ -22,7 +22,13 @@ When a module is heading past 2,000 lines, split it before adding more. Move thi
 2. helper functions and constants to a `.ts` module;
 3. any other CardDef or FieldDef in the file, each to its own module.
 
-When the module a new feature would land in is already near the budget, the feature goes in a new module (a new card, a new component, a new helper file) wired in with an import, rather than growing that file past it. A feature that fits comfortably goes where it belongs.
+**A module of about 1,500 lines or more takes no new feature inline.** The feature goes in new modules wired in with an import, even when it would still fit under 2,000:
+
+- a new card gets a module of its own (`bill.gts`), never a class appended to the long file;
+- a new section of an existing format (a panel on a dashboard, a new tab) is its own component under `components/`, typed against the card, and the format renders it with one line such as `<UpcomingBills @model={{@model}} />`;
+- the new section's getters and styles live in that component, not in the format.
+
+The long file then changes by a few lines: an import, a field, the line that renders the component. A feature added to a module well under 1,500 lines goes where it belongs.
 
 The budget is per module, not per app. An app of ten cards, each in a module of a few hundred to a thousand lines, is the shape to aim for.
 
