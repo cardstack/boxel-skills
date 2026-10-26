@@ -244,24 +244,41 @@ approval.
 
 **A user keeps their own keys with the Boxel CLI, never in a card.** Not in a
 field, a card's source, `realm.json` or the chat. A key belongs to the user,
-not to a realm. It is stored once, sealed, and never readable again. A user
-shares one into a realm they write to so the people there can use it:
+not to a realm. The realm server stores it sealed and never hands the value
+back; `replace` swaps in a new value. A share puts a reference to one of the
+user's keys into a realm they write to:
 
 ```sh
-boxel keys add <name>                               # masked prompt; --stdin or --key-file without a terminal
+boxel keys sign-in                                   # once: lets this CLI change keys
+boxel keys status                                    # whether it can
+boxel keys add <name>                                # masked prompt; --stdin or --key-file without a terminal
 boxel keys share <name> --realm <url> [--as <label>] # into a realm they write to
-boxel keys list                                     # their keys, never a value
-boxel keys show <name>                              # one key and the shares it's in
-boxel keys shares --realm <url>                     # a realm's shares, for its writers
+boxel keys list                                      # their keys, never a value
+boxel keys show <name>                               # one key and the shares it's in
+boxel keys shares --realm <url>                      # a realm's shares, for its writers
 ```
 
-`replace`, `delete`, `unshare` and `swap` (put one of their keys into a
-realm's suspended share) work alike. The first change opens Boxel's sign-in in
-the browser, and the CLI's ordinary sign-in can't change a key. A key stored
-this way records no destination, and no slot reads one, so storing it doesn't
-make a slotted operation work. When a user offers to paste a key, point them at
-`boxel keys add`. Never ask for the value, repeat it, or put it in a command
-line.
+`replace`, `delete` (`--yes` without a terminal), `unshare` and `swap` (put
+one of their keys into a realm's suspended share) work alike.
+
+**Nothing uses a stored or shared key.** No slot reads one, and there is no
+approval that lets an operation send one, so storing or sharing a key doesn't
+make a slotted operation work. Don't offer to approve one.
+
+**Changing a key needs the CLI signed in to manage keys.** A profile added
+with `boxel profile add` through the browser already is; otherwise
+`boxel keys sign-in` opens Boxel's sign-in in the browser and waits. Run at a
+terminal, a change that finds no sign-in opens it itself; run without one, it
+refuses and says to run `boxel keys sign-in`. `boxel keys status` says which.
+
+**Who types the value.** Never ask for a key's value, repeat it, or put it in
+a command line.
+
+- In Claude Code, have the user run `boxel keys add <name>` (or `replace`) in
+  their own terminal, or run it yourself with `--key-file <path>` for a file
+  the user names. The other commands you can run.
+- In the app, tell the user to install the Boxel CLI, sign in with
+  `boxel profile add`, and run `boxel keys add <name>` in their terminal.
 
 **Never during a render.** A template that invokes a `callApi` while the card
 renders is refused `not-during-render`: a render is replayed and shared, so it
