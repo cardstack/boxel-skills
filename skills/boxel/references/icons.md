@@ -2,6 +2,10 @@
 
 Boxel ships ~6,400 icons from Lucide + Tabler bundled as Glimmer components. Every `CardDef` and `FieldDef` SHOULD set `static icon = SomeIcon` so the card type renders with a recognizable badge in the chooser, in card lists, and in editor breadcrumbs. The default index card also keys its Library rail off this icon, one row per card type, so a type with no `icon` is the one indistinguishable row in a workspace's main navigation.
 
+## In the Boxel AI assistant: pick from the table, don't probe the CDN
+
+The CDN checks in this file are `curl` recipes for a shell (boxel-cli, a local agent). The in-app assistant has no shell. Don't check an icon with `readUrl` either: a URL you compose yourself waits for the user to approve it, so the turn stops before you write anything. Use a name from [Common icons by card-type](#common-icons-by-card-type) — all of them are verified — and when none fits exactly, take the closest one listed. An icon is never worth stopping the build for.
+
 ## ⚠️ CDN verification is the only proof an icon exists
 
 **Workspace source-file grep is NOT proof.** Source files can reference icons that were deployed and later removed, copied from other sources, or never shipped to the CDN. Examples caught the hard way: `file-signature` appears in many `.gts` files across the workspace but returns 403 from the CDN.
@@ -185,4 +189,4 @@ curl -sSI https://boxel-icons.boxel.ai/@cardstack/boxel-icons/v1/icons/<name>.js
 
 A healthy icon module returns `200` and exports a default component. A missing or private icon path returns `403` XML from S3/CloudFront.
 
-**For agents**: either use a short allowlist of verified icon names (the most common Lucide/Tabler names: `user`, `check`, `circle-check`, `arrow-up`, `calendar`, `clock`, `file`, `folder`, `tag`, `star`, etc.) or probe the CDN URL for every generated icon import before saving. Don't assume every Lucide-style name in the CDN URL pattern actually exists.
+**For agents**: either use a short allowlist of verified icon names (the most common Lucide/Tabler names: `user`, `check`, `circle-check`, `arrow-up`, `calendar`, `clock`, `file`, `folder`, `tag`, `star`, etc.) or, with a shell, probe the CDN URL for every generated icon import before saving. The in-app assistant uses the allowlist only (see the top of this file). Don't assume every Lucide-style name in the CDN URL pattern actually exists.
