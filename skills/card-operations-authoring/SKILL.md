@@ -242,6 +242,27 @@ enforces (§4) are there so an operation carrying one is recognised and refused
 at the right place, not a recipe. An operation with no slot works without any
 approval.
 
+**A user keeps their own keys with the Boxel CLI, never in a card.** Not in a
+field, a card's source, `realm.json` or the chat. A key belongs to the user,
+not to a realm. It is stored once, sealed, and never readable again. A user
+shares one into a realm they write to so the people there can use it:
+
+```sh
+boxel keys add <name>                               # masked prompt; --stdin or --key-file without a terminal
+boxel keys share <name> --realm <url> [--as <label>] # into a realm they write to
+boxel keys list                                     # their keys, never a value
+boxel keys show <name>                              # one key and the shares it's in
+boxel keys shares --realm <url>                     # a realm's shares, for its writers
+```
+
+`replace`, `delete`, `unshare` and `swap` (put one of their keys into a
+realm's suspended share) work alike. The first change opens Boxel's sign-in in
+the browser, and the CLI's ordinary sign-in can't change a key. A key stored
+this way records no destination, and no slot reads one, so storing it doesn't
+make a slotted operation work. When a user offers to paste a key, point them at
+`boxel keys add`. Never ask for the value, repeat it, or put it in a command
+line.
+
 **Never during a render.** A template that invokes a `callApi` while the card
 renders is refused `not-during-render`: a render is replayed and shared, so it
 may not send requests for whoever is looking. Invoke one from an action — a
