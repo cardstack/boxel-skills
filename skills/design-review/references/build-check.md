@@ -7,7 +7,7 @@ linked cards in the formats the app shows. This is pass/fail, never a design sco
 failing line within the authorized build; re-capture and check the affected views. Report
 "Fixed N items" and what remains open, without a scorecard, an 8.5 verdict or a review invitation.
 Stop when the checks pass or a named blocker prevents further progress; never call an open check passed.
-Skip only for a utility card with no user-facing surface, with a one-line reason.
+Skip for a single card unless the user asks for the check.
 
 For existing work, run the same check silently before reviewing, **without editing**. Report one
 *Basics* block with failed lines and evidence, grouping instances by cause. Use the actual applicable
