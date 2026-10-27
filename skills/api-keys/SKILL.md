@@ -51,9 +51,11 @@ It answers `status`:
   the same window on their click, and names the address to check. Nothing else
   for the caller to do.
 
-It never says whether the user entered or shared a key. To learn that, ask
-again later (try the operation again), never in a loop that reopens the
-window.
+It never says whether the user entered or shared a key, and nothing the app
+can call does: the window has no handle back to the page, and a stored key
+doesn't by itself change how the card's operation answers (see the last
+section). Open the window once for what it is needed for; never reopen it in a
+loop.
 
 The tool refuses on a Boxel deployment that doesn't sign users in on the
 secure origin, where the window would have no session. Say so to the user
@@ -66,6 +68,7 @@ Give the user a button; on click, run the tool with the card's own
 
 ```gts
 import { on } from '@ember/modifier';
+import { tracked } from '@glimmer/tracking';
 import { CardDef, Component, contains, field } from '@cardstack/base/card-api';
 import StringField from '@cardstack/base/string';
 import OpenSecureWindowTool from '@cardstack/boxel-host/tools/open-secure-window';
@@ -75,28 +78,40 @@ export class WeatherStation extends CardDef {
   @field city = contains(StringField);
 
   static isolated = class Isolated extends Component<typeof this> {
+    @tracked problem: string | undefined;
+
     addKey = async () => {
       let toolContext = this.args.context?.toolContext;
-      if (!toolContext) {
-        return; // not in the app (prerender, a published page)
+      if (!toolContext || !this.args.model.id) {
+        return; // not in the app (prerender, a published page), or not saved
       }
-      await new OpenSecureWindowTool(toolContext).execute({
-        mode: 'enter-key',
-        cardId: this.args.model.id,
-        operation: 'forecast',
-        reason: 'Weather Station needs your forecast service key',
-      });
+      this.problem = undefined;
+      try {
+        await new OpenSecureWindowTool(toolContext).execute({
+          mode: 'enter-key',
+          cardId: this.args.model.id,
+          operation: 'forecast',
+          reason: 'Weather Station needs your forecast service key',
+        });
+      } catch (e) {
+        // e.g. a Boxel deployment that offers no secure window
+        this.problem = e instanceof Error ? e.message : String(e);
+      }
     };
 
     <template>
       <button type='button' {{on 'click' this.addKey}}>
         Add your forecast service key
       </button>
+      {{#if this.problem}}<p role='alert'>{{this.problem}}</p>{{/if}}
     </template>
   };
 }
 ```
 
+- `execute` throws when the window can't be opened for what it was given (a
+  deployment with no secure window, a card that isn't saved yet); show the
+  message rather than leaving the click silent.
 - Name the card and the operation, not the service's URL: the window shows the
   destination from the operation's declaration on the server.
 - Don't render your own "blocked" message: the app already shows the fallback
@@ -110,10 +125,13 @@ export class WeatherStation extends CardDef {
 The tool is declared in this skill and in the index, so it is callable from
 the first step.
 
-- **The moment you learn a key is missing, call it.** The usual signal is an
-  operation refused with `binding-not-approved`, or a card that says it needs
-  a key. Use `enter-key` with the card and operation, or `share-key` with the
-  workspace. Call it once per missing key; don't reopen it in a loop.
+- **When you learn the user's key is needed, call it once.** The signal is an
+  operation that sends the user's key (a `{{userKey}}` slot) refused with
+  `binding-not-approved`, or a card that says it needs the user's key. Use
+  `enter-key` with the card and operation, or `share-key` with the workspace.
+  Call it once per operation in a conversation. The same refusal comes back
+  after the user enters a key (see the last section), so a repeated refusal is
+  never a reason to reopen the window.
 - **In the same reply, say what you opened and why**: which card needs which
   key, that the user enters it in Boxel's secure window, and that the window's
   address bar should show Boxel's secure address. If the tool answered
@@ -125,14 +143,14 @@ the first step.
 - **Never build something that collects a key**: no field, form, card or file
   for one, and no suggestion to make one.
 
-## What happens after the key is entered
+## What a stored key does
 
 Entering a key stores it for the user; sharing one puts a reference to it into
-a workspace. Neither lets an operation send it yet: an operation that carries
-a credential slot (`{{userKey}}`, `{{apiKey}}`) is still refused
-`binding-not-approved` until the user approves it for that operation. Until
-then, tell the user the key is saved and the card can't call the service with
-it yet, rather than retrying. See
+a workspace. Neither fills an operation's credential slot: an operation that
+carries one (`{{userKey}}`, `{{apiKey}}`) is refused `binding-not-approved`
+whatever keys the user has, and nothing is sent. So once the user has entered
+the key, tell them it is saved and that the card can't call the service with
+it, rather than retrying or reopening the window. See
 [`card-operations-authoring`](../card-operations-authoring/SKILL.md) §2 for
 slotted operations.
 
