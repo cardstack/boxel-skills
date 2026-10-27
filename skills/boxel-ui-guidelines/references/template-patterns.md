@@ -206,7 +206,9 @@ import { Input } from '@cardstack/pretui/components/input';
 
 ### Icons
 
-**Always set explicit `width` and `height` attributes on an icon component** — never size an icon through CSS (`.glyph { width: 1.5rem }`) alone. The attributes give the SVG an intrinsic size, which is required for it to render at the right dimensions during prerender where the scoped CSS may not have applied yet; CSS-only sizing collapses or mis-sizes the glyph in those passes. Use CSS on the icon only for color. This is the one place plain numeric (px-equivalent) sizing is expected — the rem-over-px preference does not apply to icon `width`/`height` attributes.
+**Always set explicit `width` and `height` attributes on an icon component** — never size an icon through CSS (`.glyph { width: 1.5rem }`) alone. The attributes give the SVG an intrinsic size, which is required for it to render at the right dimensions during prerender where the scoped CSS may not have applied yet; CSS-only sizing collapses or mis-sizes the glyph in those passes. This is the one place plain numeric (px-equivalent) sizing is expected — the rem-over-px preference does not apply to icon `width`/`height` attributes.
+
+With the attributes in place, CSS may resize the icon once styles apply, for example to scale it with a sized parent. A class on the icon component reaches its `<svg>` with a plain scoped selector, so no `:deep()` is needed.
 
 Icons and SVGs must not use hardcoded hex fills — use theme color tokens via CSS. "Theme token" is not the whole rule, though: **icon color obeys the same pairing rules as text.** Legal values are `--muted-foreground`, `--foreground`, or the `--*-foreground` paired with the surface the icon sits on. An action/surface token (`--primary`, `--accent`, …) is not a foreground: it names a background, and the theme guarantees no contrast for it as ink. This is a common miss precisely because "don't hardcode hex, use a token" reads as satisfied by *any* token.
 
@@ -226,6 +228,17 @@ Best of all is often no color rule at all: an incidental mark that inherits `cur
 
 // Also correct — no class; the glyph inherits currentColor from its context
 <ChefHat width='12' height='12' aria-hidden='true' />
+
+// Also correct — the attributes hold the size before CSS applies; the class
+// then scales the icon with its sized parent
+<Check width='10' height='10' class='status-icon' aria-hidden='true' />
+```
+
+```css
+.status-icon {
+  inline-size: 78%;
+  block-size: 78%;
+}
 ```
 
 ```css
