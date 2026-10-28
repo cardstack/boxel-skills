@@ -126,8 +126,10 @@ The tool is declared in this skill and in the index, so it is callable from
 the first step.
 
 - **When you learn the user's key is needed, call it once.** The signal is an
-  operation that sends the user's key (a `{{userKey}}` slot) refused with
-  `binding-not-approved`, or a card that says it needs the user's key. Use
+  operation refused "Binding not approved" whose message names a credential
+  slot "for the invoking user's own key", or a card that says it needs the
+  user's key. A slot "for the realm's key" is filled by a key the workspace
+  holds, so it is never a reason to open the window. Use
   `enter-key` with the card and operation, or `share-key` with the workspace.
   Call it once per operation in a conversation. The same refusal comes back
   after the user enters a key (see the last section), so a repeated refusal is
