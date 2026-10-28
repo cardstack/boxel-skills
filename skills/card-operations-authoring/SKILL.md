@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type", "hide the button if they can''t". Covers declaring `@operation` as data (the base operations, `params`, the typed references, the sugar clauses and the `bxl` escape hatch, `links`, `html`, `label`), `callApi` requests with credential slots, invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search, hiding a control with `@context.canInvoke` and `_capabilities`, what lowering refuses, and the refusals a caller sees. Activates on `@operation`, `callApi`, `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type", "hide the button if they can''t". Covers declaring `@operation` as data (the base operations, `params`, the typed references, the sugar clauses and the `bxl` escape hatch, `links`, `html`, `label`), `callApi` requests with credential slots, invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search, hiding a control with `@context.canInvoke` and `_capabilities`, what lowering refuses, and the refusals a caller sees. Activates on `@operation`, `callApi`, `google-service-account`, "Google Sheets API", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation".'
 boxel:
   kind: skill
 ---
@@ -254,6 +254,7 @@ user's keys into a realm they write to:
 boxel keys sign-in                                   # once: lets this CLI change keys
 boxel keys status                                    # whether it can
 boxel keys add <name>                                # masked prompt; --stdin or --key-file without a terminal
+boxel keys add <name> --kind google-service-account --key-file <file> --scope <scope>  # a Google service account
 boxel keys share <name> --realm <url> [--as <label>] # into a realm they write to
 boxel keys list                                      # their keys, never a value
 boxel keys show <name>                               # one key and the shares it's in
@@ -281,6 +282,49 @@ a command line.
   the user names. The other commands you can run.
 - In the app, open the secure window with the `open-secure-window` tool
   ([`api-keys`](../api-keys/SKILL.md)); the user types the value there.
+
+**Google APIs take a service account's token, not its key file.** A Google
+service account is a key of its own kind: the user enters its JSON key file,
+the scopes its tokens may use and, for domain-wide delegation, the user to
+act as. The realm server signs a request with the private key, exchanges it at
+Google's token endpoint for an access token lasting an hour, and fills the
+slot with that token, so Google's API sees a bearer token and the key file
+never leaves the realm server. Declare a Google request like any other, with
+the slot where Google takes the token:
+
+```ts
+@operation static readRange = {
+  base: 'callApi',
+  label: 'Read a range of this spreadsheet',
+  params: { range: StringField },
+  url: 'https://sheets.googleapis.com/v4/spreadsheets/{id}/values/{range}',
+  path: { id: instance('spreadsheetId'), range: params('range') },
+  headers: { authorization: 'Bearer {{userKey}}' },
+  output: bxl`{status: .status, values: .body.values}`,
+} satisfies OperationDeclaration;
+```
+
+- **One host per operation, and the key goes to each one separately.**
+  `sheets.googleapis.com` and `drive.googleapis.com` are different
+  destinations; nothing covers `*.googleapis.com`.
+- **Scopes belong to the key, not the card.** Say in the card which scopes it
+  needs (`https://www.googleapis.com/auth/spreadsheets.readonly`, …) so the
+  user enters a key that has them. A token without the scope gets Google's own
+  403, which comes back as the response.
+- **Never call the token endpoint yourself.** An operation addressed to
+  `https://oauth2.googleapis.com/token` is refused `guard-refused`, with or
+  without a key.
+- **A key Google refuses** (revoked, deleted, a disabled account, a subject the
+  service account can't act as) is refused `credential-rejected` with
+  `meta.reason: 'rejected'`, and nothing reaches the API: the user replaces the
+  key. `meta.reason: 'unavailable'` means Google's token endpoint kept failing;
+  asking again later may work.
+- **Entering one.** In the secure window, the user picks **Google service
+  account** and chooses the key file. From a terminal:
+  `boxel keys add <name> --kind google-service-account --key-file <path>
+--scope <scope> [--scope <scope>] [--subject <email>]`. `replace` takes a new
+  key file with `--scope` (and `--subject`) the same way. The key file is read
+  from a file or `--stdin`, never typed.
 
 **Never during a render.** A template that invokes a `callApi` while the card
 renders is refused `not-during-render`: a render is replayed and shared, so it
