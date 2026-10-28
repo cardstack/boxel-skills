@@ -14,30 +14,30 @@ and carries it out itself, so no code from the card's module runs on the write
 path.
 
 ```ts
-import StringField from "@cardstack/base/string";
+import StringField from '@cardstack/base/string';
 import {
   actor,
   operation,
   params,
   type OperationDeclaration,
-} from "@cardstack/base/operations";
+} from '@cardstack/base/operations';
 
 export class ExternalReport extends CardDef {
   @field comments = containsMany(CommentField);
 
   @operation static addComment = {
-    base: "transform",
+    base: 'transform',
     params: { body: StringField },
     append: {
-      to: "comments",
-      value: { body: params("body"), postedBy: actor() },
+      to: 'comments',
+      value: { body: params('body'), postedBy: actor() },
     },
   } satisfies OperationDeclaration;
 }
 ```
 
 ```ts
-await operations(report).addComment({ body: "Reviewed." });
+await operations(report).addComment({ body: 'Reviewed.' });
 ```
 
 Keep `satisfies OperationDeclaration` in author code. It type-checks the
@@ -47,16 +47,16 @@ declaration is invisible to those types and the payload goes unchecked.
 
 ## 1. When an operation is the right tool
 
-| You want                                                                                  | Reach for                                       |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| A user edits a field in the card's own editor                                             | A plain field — no operation                    |
-| A value derived from other fields on the same card                                        | `computeVia` — no operation                     |
-| A named action that writes the card, invocable from a template, another card, or an agent | **An operation**                                |
-| Several cards changed all-or-nothing                                                      | **An operation** inside `atomic()`              |
-| A request to an outside API that needs no key of the user's or the realm's                | **A `callApi` operation** (§2)                  |
-| Work that needs an LLM, host services, or logic around a fetch                            | A command — operations run no author JavaScript |
+| You want                                                | Reach for                                      |
+| ------------------------------------------------------- | ---------------------------------------------- |
+| A user edits a field in the card's own editor            | A plain field — no operation                   |
+| A value derived from other fields on the same card       | `computeVia` — no operation                    |
+| A named action that writes the card, invocable from a template, another card, or an agent | **An operation**        |
+| Several cards changed all-or-nothing                     | **An operation** inside `atomic()`             |
+| A request to an outside API that needs no key of the user's or the realm's | **A `callApi` operation** (§2) |
+| Work that needs an LLM, host services, or logic around a fetch | A command — operations run no author JavaScript |
 
-The dividing line is that an operation is _data the realm executes_. That buys
+The dividing line is that an operation is *data the realm executes*. That buys
 concurrency safety an author cannot write by hand — two callers titrating the
 same dose compose rather than overwrite — and costs the ability to run arbitrary
 code. A request to an outside service is the one kind of network access an
@@ -78,20 +78,20 @@ delete: asking that card to delete itself archives it.
 
 ### The base operations
 
-| Base                 | What it does                                                                             | Carried by                                                 |
-| -------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `read`               | Serves the card's indexed document                                                       | cards, files                                               |
-| `readSource`         | Serves the bytes stored at the URL                                                       | cards, files                                               |
-| `create`             | Mints a new card — type-scoped                                                           | cards                                                      |
-| `update`             | Merges field values and replaces links                                                   | cards, files                                               |
-| `delete`             | Removes the card                                                                         | cards                                                      |
-| `query`              | A saved search, run by the search engine                                                 | cards                                                      |
-| `transform`          | Runs a program over the card's stored document                                           | cards                                                      |
-| `appendContainsMany` | Appends into a `containsMany` by editing stored JSON, without loading the document       | cards                                                      |
-| `appendLine`         | Appends one newline-terminated line to a text file                                       | files                                                      |
-| `explain`            | Answers what a realm's policy decides for an actor, card and operation, invoking nothing | a card that declares it (a `RealmPolicy`)                  |
-| `validate`           | Answers what a policy card compiles to                                                   | a card that declares it (a `RealmPolicy`, a `RealmConfig`) |
-| `callApi`            | Sends a declared request to an outside service and answers with its response             | a card that declares it                                    |
+| Base                  | What it does                                                        | Carried by |
+| --------------------- | ------------------------------------------------------------------- | ---------- |
+| `read`                | Serves the card's indexed document                                   | cards, files |
+| `readSource`          | Serves the bytes stored at the URL                                   | cards, files |
+| `create`              | Mints a new card — type-scoped                                       | cards      |
+| `update`              | Merges field values and replaces links                               | cards, files |
+| `delete`              | Removes the card                                                     | cards      |
+| `query`               | A saved search, run by the search engine                             | cards      |
+| `transform`           | Runs a program over the card's stored document                       | cards      |
+| `appendContainsMany`  | Appends into a `containsMany` by editing stored JSON, without loading the document | cards |
+| `appendLine`          | Appends one newline-terminated line to a text file                   | files      |
+| `explain`             | Answers what a realm's policy decides for an actor, card and operation, invoking nothing | a card that declares it (a `RealmPolicy`) |
+| `validate`            | Answers what a policy card compiles to                               | a card that declares it (a `RealmPolicy`, a `RealmConfig`) |
+| `callApi`             | Sends a declared request to an outside service and answers with its response | a card that declares it |
 
 A def carries `explain` and `validate` only where a card declares an
 operation on them, and each must be `nonGrantable` (`realm-policy-authoring`
@@ -112,7 +112,7 @@ than the caller:
 // @cardstack/base/log-file-def
 export class LogFile extends TextFileDef {
   @operation static record = {
-    base: "appendLine",
+    base: 'appendLine',
     params: { what: StringField },
     input: bxl`. + { line: (TEXT(NOW(); "yyyy-mm-dd hh:mm:ss") + " " + actor() + " " + params("what")) }`,
   } satisfies OperationDeclaration;
@@ -129,7 +129,7 @@ invoke it by name on the linked instance:
 ```
 
 ```ts
-b.on(this.record.auditLog).record({ what: "transferred to intensive care" });
+b.on(this.record.auditLog).record({ what: 'transferred to intensive care' });
 ```
 
 The linked instance is a `LogFile` because its extension says so, whatever
@@ -162,46 +162,46 @@ invocation and sends it through its guarded outbound client. Nothing of the
 card runs at call time.
 
 ```ts
-import StringField from "@cardstack/base/string";
+import StringField from '@cardstack/base/string';
 import {
   bxl,
   instance,
   operation,
   params,
   type OperationDeclaration,
-} from "@cardstack/base/operations";
+} from '@cardstack/base/operations';
 
 export class Repository extends CardDef {
   @field owner = contains(StringField);
   @field name = contains(StringField);
 
   @operation static openIssues = {
-    base: "callApi",
-    label: "List the open issues in this repository",
+    base: 'callApi',
+    label: 'List the open issues in this repository',
     params: { label: StringField },
-    url: "https://api.github.com/repos/{owner}/{repo}/issues",
-    path: { owner: instance("owner"), repo: instance("name") },
-    query: { state: "open", labels: params("label") },
-    headers: { accept: "application/vnd.github+json" },
+    url: 'https://api.github.com/repos/{owner}/{repo}/issues',
+    path: { owner: instance('owner'), repo: instance('name') },
+    query: { state: 'open', labels: params('label') },
+    headers: { accept: 'application/vnd.github+json' },
     output: bxl`{status: .status, issues: .body}`,
   } satisfies OperationDeclaration;
 }
 ```
 
 ```ts
-let { status, issues } = await operations(repo).openIssues({ label: "bug" });
+let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
 ```
 
-| Key       | What it is                                                                                                                                               |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `url`     | Absolute `https:`, one host written out in full (no `*`). A whole path segment written `{name}` is filled from `path`; nothing else in the URL is filled |
-| `path`    | The value for each `{name}` segment. Each fills exactly one segment, encoded, so `../x` stays one segment                                                |
-| `query`   | Query-string parameters, appended and encoded                                                                                                            |
-| `headers` | Header values. `X-Boxel-*` headers are never sent                                                                                                        |
-| `json`    | A JSON body, sent as `application/json`                                                                                                                  |
-| `graphql` | `{ document, variables }`: a fixed document string, every value passed as a variable                                                                     |
-| `method`  | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. Absent: `GET`, or `POST` when there is a body                                                                 |
-| `output`  | Optional. Maps the response, `{status, headers, body}`, to the object the caller gets back — an object, never a list or a bare value                     |
+| Key        | What it is                                                                 |
+| ---------- | -------------------------------------------------------------------------- |
+| `url`      | Absolute `https:`, one host written out in full (no `*`). A whole path segment written `{name}` is filled from `path`; nothing else in the URL is filled |
+| `path`     | The value for each `{name}` segment. Each fills exactly one segment, encoded, so `../x` stays one segment |
+| `query`    | Query-string parameters, appended and encoded                              |
+| `headers`  | Header values. `X-Boxel-*` headers are never sent                          |
+| `json`     | A JSON body, sent as `application/json`                                    |
+| `graphql`  | `{ document, variables }`: a fixed document string, every value passed as a variable |
+| `method`   | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. Absent: `GET`, or `POST` when there is a body |
+| `output`   | Optional. Maps the response, `{status, headers, body}`, to the object the caller gets back — an object, never a list or a bare value |
 
 Values are the typed references (`params()`, `actor()`, `realmConfig()`,
 `instance()`). Invoked on an instance, `instance('field')` reads the card's
@@ -328,13 +328,13 @@ into the `DateField`.
 Values known only at invocation are written as markers. They are ordinary
 function calls, not interpolation syntax:
 
-| Marker               | Resolves to                                                  |
-| -------------------- | ------------------------------------------------------------ |
-| `params('key')`      | That member of the request payload                           |
-| `actor()`            | The caller's Matrix user id — **only** that                  |
-| `instance()`         | The target's own stored values — its `id` and its attributes |
-| `realmConfig('key')` | A setting from the realm's `config` on `realm.json`          |
-| `card(…)`            | A link identity, from a URL or another marker                |
+| Marker                | Resolves to                                                      |
+| --------------------- | ----------------------------------------------------------------- |
+| `params('key')`       | That member of the request payload                                 |
+| `actor()`             | The caller's Matrix user id — **only** that                        |
+| `instance()`          | The target's own stored values — its `id` and its attributes      |
+| `realmConfig('key')`  | A setting from the realm's `config` on `realm.json`                |
+| `card(…)`             | A link identity, from a URL or another marker                      |
 
 `actor()` takes no argument and **is not a card**. It belongs in text fields and
 query filters. A link to the person acting is a `params` member declared
@@ -477,11 +477,11 @@ batch when they must land together.
 A `read` or a `query` may declare how much of the card's link graph its answer
 carries. Absent means `full`.
 
-| `links`          | The answer                                                                                                                                                                                | Declarable on   |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
-| `full` (default) | Relationships name their targets, and the transitive closure of linked cards is assembled into `included` — with the results of the query-backed fields of the card the document is about | `read`, `query` |
-| `ids`            | Relationships name their targets and nothing is assembled; a consumer fetches each target on its own request                                                                              | `read`, `query` |
-| `none`           | No relationship data at all, named or assembled                                                                                                                                           | `query` only    |
+| `links`          | The answer                                                                                         | Declarable on    |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------- |
+| `full` (default) | Relationships name their targets, and the transitive closure of linked cards is assembled into `included` — with the results of the query-backed fields of the card the document is about | `read`, `query`  |
+| `ids`            | Relationships name their targets and nothing is assembled; a consumer fetches each target on its own request | `read`, `query`  |
+| `none`           | No relationship data at all, named or assembled                                                     | `query` only     |
 
 ```ts
 @operation static read = {
@@ -604,11 +604,11 @@ either answer. Read the operation through `getOperations`, which merges what
 every ancestor declared; a plain static read sees only the nearest class:
 
 ```ts
-import { operationDisplayLabel } from "@cardstack/runtime-common";
-import { getOperations } from "@cardstack/base/operations";
+import { operationDisplayLabel } from '@cardstack/runtime-common';
+import { getOperations } from '@cardstack/base/operations';
 
 let shown = operationDisplayLabel(
-  "listOpenPRs",
+  'listOpenPRs',
   getOperations(PullRequestInbox).listOpenPRs,
 );
 ```
@@ -688,10 +688,10 @@ the class is defined.
 ## 3. Invoking
 
 ```ts
-import { operations } from "@cardstack/base/operations";
+import { operations } from '@cardstack/base/operations';
 
-let result = await operations(report).addComment({ body: "Reviewed." });
-let created = await operations(Report).create({ headline: "From class" });
+let result = await operations(report).addComment({ body: 'Reviewed.' });
+let created = await operations(Report).create({ headline: 'From class' });
 ```
 
 Nothing hangs off the instance itself — a card's property namespace belongs to
@@ -795,7 +795,7 @@ takes it as a `skipIndexWait` input and reports `indexPending` in its result.
 await this.ops.atomic((b) => {
   let consult = b.requestConsult({ specialty, question });
   b.addConsult({ consult });
-  b.on(this.record.auditLog).record({ what: "consult requested" });
+  b.on(this.record.auditLog).record({ what: 'consult requested' });
 });
 ```
 
@@ -861,7 +861,7 @@ get onThisUnit() {
 ```
 
 ```hbs
-<@context.searchResultsComponent @query={{this.onThisUnit}} @mode="hover" />
+<@context.searchResultsComponent @query={{this.onThisUnit}} @mode='hover' />
 ```
 
 Calling it answers the resource; `.query()` answers the wire query, which is what
@@ -886,7 +886,7 @@ reads `actor()` — which is the search worth guarding:
 
 ```hbs
 {{#if this.myPatients}}
-  <@context.searchResultsComponent @query={{this.myPatients}} @mode="hover" />
+  <@context.searchResultsComponent @query={{this.myPatients}} @mode='hover' />
 {{/if}}
 ```
 
@@ -937,15 +937,15 @@ it, and lowering records `reserved-name`. A grant on `query` is the grant for
 ad-hoc searches — see
 [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §7.
 
-| Request                                                                                        | Answer                                                                                                                                                                      |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| An operation the type does not declare                                                         | 404 `unknown-operation`                                                                                                                                                     |
-| An `on` the realm cannot resolve                                                               | 404 `target-not-found`                                                                                                                                                      |
-| An operation that is not a query, the bare base name `query` included                          | 400 `invalid-params`, or the refusal invoking it would get (405 `operation-not-allowed` for one the type doesn't carry, 404 `unknown-operation` for one it doesn't declare) |
-| A declaration carrying lowering findings                                                       | 422 `invalid-operation`                                                                                                                                                     |
-| No `on`, `params` that is not an object, a declared param left out                             | 400 `invalid-params`                                                                                                                                                        |
-| A declaration reading `actor()`, and nobody authenticated or a render the realm runs as itself | 401 `actor-required`                                                                                                                                                        |
-| The declaration's realms and the request's share none                                          | 400 `invalid-params`; the detail does not list the declaration's realms                                                                                                     |
+| Request                                                              | Answer                      |
+| -------------------------------------------------------------------- | --------------------------- |
+| An operation the type does not declare                               | 404 `unknown-operation`     |
+| An `on` the realm cannot resolve                                     | 404 `target-not-found`      |
+| An operation that is not a query, the bare base name `query` included | 400 `invalid-params`, or the refusal invoking it would get (405 `operation-not-allowed` for one the type doesn't carry, 404 `unknown-operation` for one it doesn't declare) |
+| A declaration carrying lowering findings                             | 422 `invalid-operation`     |
+| No `on`, `params` that is not an object, a declared param left out   | 400 `invalid-params`        |
+| A declaration reading `actor()`, and nobody authenticated or a render the realm runs as itself | 401 `actor-required` |
+| The declaration's realms and the request's share none                | 400 `invalid-params`; the detail does not list the declaration's realms |
 
 **None of these applies when no realm the request names could contribute a
 row.** On `_federated-search`, when every named realm is archived, or is one the
@@ -966,15 +966,15 @@ For a caller they decline, the realm composes the grants its policy holds for
 the search into it and serves the rows those admit, or none. What a realm named
 in `_federated-search` contributes:
 
-| Realm                                                                                                                                                                                                                              | Contributes                                                                                                                                                                                                                                                                                                                              |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| One the caller reads                                                                                                                                                                                                               | Every matching row; no policy is loaded                                                                                                                                                                                                                                                                                                  |
-| Unreadable, with a policy but no grant for this search                                                                                                                                                                             | No rows, 200 — byte-identical to a grant that matches nothing                                                                                                                                                                                                                                                                            |
-| Unreadable, with no policy                                                                                                                                                                                                         | No rows; the realm is not mounted, and its `realm.json` is read from disk                                                                                                                                                                                                                                                                |
-| Unreadable, and its policy cannot be judged — the realm won't mount, the policy won't load or compile, or a compiled grant filter throws when the search runs (a grant recording `policy-not-filterable` just contributes nothing) | Counted failed: its rows are withheld, the other realms answer, and the result carries `meta.incomplete: true`                                                                                                                                                                                                                           |
-| Archived                                                                                                                                                                                                                           | No rows                                                                                                                                                                                                                                                                                                                                  |
-| Not public, from an anonymous caller                                                                                                                                                                                               | The rows its anonymous `query` grants admit where its policy opens `query` to callers who aren't signed in, or counted failed (`meta.incomplete: true`) once the caller is over its anonymous rate limit; no rows where it doesn't. When none of the named realms the caller can't otherwise read admits them, 401 for the whole request |
-| A URL the registry does not know                                                                                                                                                                                                   | 404 `Realms not found`                                                                                                                                                                                                                                                                                                                   |
+| Realm                                                   | Contributes                                                  |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| One the caller reads                                    | Every matching row; no policy is loaded                      |
+| Unreadable, with a policy but no grant for this search  | No rows, 200 — byte-identical to a grant that matches nothing |
+| Unreadable, with no policy                              | No rows; the realm is not mounted, and its `realm.json` is read from disk |
+| Unreadable, and its policy cannot be judged — the realm won't mount, the policy won't load or compile, or a compiled grant filter throws when the search runs (a grant recording `policy-not-filterable` just contributes nothing) | Counted failed: its rows are withheld, the other realms answer, and the result carries `meta.incomplete: true` |
+| Archived                                                | No rows                                                      |
+| Not public, from an anonymous caller                    | The rows its anonymous `query` grants admit where its policy opens `query` to callers who aren't signed in, or counted failed (`meta.incomplete: true`) once the caller is over its anonymous rate limit; no rows where it doesn't. When none of the named realms the caller can't otherwise read admits them, 401 for the whole request |
+| A URL the registry does not know                        | 404 `Realms not found`                                       |
 
 **A realm's own `_search` differs from `_federated-search`.** A realm with no
 policy answers a caller who cannot read it with the permissions' 403, where
@@ -1188,17 +1188,8 @@ request authenticates as any realm request does.
 ```json
 {
   "checks": [
-    {
-      "target": "https://example.com/school/Classroom/7b2",
-      "operation": "rename"
-    },
-    {
-      "target": {
-        "module": "https://example.com/school/classroom",
-        "name": "Classroom"
-      },
-      "operation": "create"
-    }
+    { "target": "https://example.com/school/Classroom/7b2", "operation": "rename" },
+    { "target": { "module": "https://example.com/school/classroom", "name": "Classroom" }, "operation": "create" }
   ]
 }
 ```
@@ -1211,21 +1202,8 @@ read as a list of denials.
 ```json
 {
   "checks": [
-    {
-      "operation": "rename",
-      "target": "https://example.com/school/Classroom/7b2",
-      "allowed": false,
-      "reason": "policy-predicate-failed"
-    },
-    {
-      "operation": "create",
-      "target": {
-        "module": "https://example.com/school/classroom",
-        "name": "Classroom"
-      },
-      "allowed": true,
-      "conditional": true
-    }
+    { "operation": "rename", "target": "https://example.com/school/Classroom/7b2", "allowed": false, "reason": "policy-predicate-failed" },
+    { "operation": "create", "target": { "module": "https://example.com/school/classroom", "name": "Classroom" }, "allowed": true, "conditional": true }
   ]
 }
 ```
@@ -1251,41 +1229,41 @@ These are recorded when the module is indexed, not thrown. An operation carrying
 findings has no runnable form, and invoking it is refused with
 `invalid-operation`.
 
-| Finding                    | What it means                                                                                                                                                    |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `unknown-field`            | A clause names a field the type does not have                                                                                                                    |
-| `not-a-collection`         | Appending to, or asserting over, a single-value field                                                                                                            |
-| `undeclared-param`         | `params('x')` for a key `params` does not declare                                                                                                                |
-| `computed-write`           | A write into a computed field — the next read overwrites it                                                                                                      |
-| `read-only-write`          | A write into a query-resolved field, or the card's `id`                                                                                                          |
-| `link-collection-replace`  | A `set` replacing a whole link collection — use `append`                                                                                                         |
-| `path-crosses-collection`  | A dotted path crossing a collection addresses nothing                                                                                                            |
-| `link-requires-identity`   | A link position holding something that is not a card identity                                                                                                    |
-| `write-through-link`       | A write whose path crosses a `linksTo` / `linksToMany`                                                                                                           |
-| `unsearchable-read`        | Reading across a link not marked `searchable`                                                                                                                    |
-| `unsnapshotted-assert`     | An `assert` over a computed or linked path without `snapshot: true`                                                                                              |
-| `unresolved-type`          | A class no module exports under a name                                                                                                                           |
-| `actor-not-a-card`         | An `actor()` where a card identity belongs                                                                                                                       |
-| `invalid-program`          | A raw program that does not parse                                                                                                                                |
-| `invalid-query`            | A declared query the query grammar refuses                                                                                                                       |
-| `reserved-name`            | An operation named `readSource` or `query`, or built on `readSource`                                                                                             |
-| `base-not-carried`         | A base the def type does not carry                                                                                                                               |
-| `unrunnable-program`       | A program on a base that runs none                                                                                                                               |
-| `incomplete-append`        | An `appendContainsMany` that does not say what to append where                                                                                                   |
-| `instance-out-of-scope`    | An `instance()` in a declared append, which never loads the document                                                                                             |
-| `links-without-assembly`   | `links` on a base other than `read` or `query`, which assembles no link closure                                                                                  |
-| `invalid-link-strategy`    | A `links` value its base can't apply — including `none` on a `read` (§2)                                                                                         |
-| `html-without-rendering`   | `html` on a base other than `read` or `query`, which serves no prerendered HTML                                                                                  |
-| `invalid-html-declaration` | `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable`                                                                        |
-| `invalid-label`            | A `label` that isn't a single short line of plain text (§2)                                                                                                      |
-| `invalid-request`          | A `callApi` request that can't be sent as written: a relative URL, a `*` in the host, a `path` value no `{name}` takes, an object where text is sent, two bodies |
-| `invalid-slot`             | Something that looks like a slot and isn't — `{{apiKey\|rot13}}`                                                                                                 |
-| `slot-placed-twice`        | One slot in two places in a request                                                                                                                              |
-| `slot-name-reused`         | One name for a `userKey` slot and an `apiKey` slot                                                                                                               |
-| `slot-out-of-place`        | A slot in the URL as written, a header or query name, or a GraphQL document                                                                                      |
-| `unencoded-path-parameter` | A value put into the URL other than as a whole `{name}` segment filled from `path`                                                                               |
-| `string-built-graphql`     | A GraphQL document built from values rather than written as one fixed string                                                                                     |
-| `lowering-failed`          | Lowering itself threw on this operation — a fault in the realm, not the declaration                                                                              |
+| Finding                   | What it means                                                      |
+| ------------------------- | ------------------------------------------------------------------- |
+| `unknown-field`           | A clause names a field the type does not have                       |
+| `not-a-collection`        | Appending to, or asserting over, a single-value field               |
+| `undeclared-param`        | `params('x')` for a key `params` does not declare                   |
+| `computed-write`          | A write into a computed field — the next read overwrites it         |
+| `read-only-write`         | A write into a query-resolved field, or the card's `id`             |
+| `link-collection-replace` | A `set` replacing a whole link collection — use `append`            |
+| `path-crosses-collection` | A dotted path crossing a collection addresses nothing               |
+| `link-requires-identity`  | A link position holding something that is not a card identity       |
+| `write-through-link`      | A write whose path crosses a `linksTo` / `linksToMany`              |
+| `unsearchable-read`       | Reading across a link not marked `searchable`                       |
+| `unsnapshotted-assert`    | An `assert` over a computed or linked path without `snapshot: true` |
+| `unresolved-type`         | A class no module exports under a name                              |
+| `actor-not-a-card`        | An `actor()` where a card identity belongs                          |
+| `invalid-program`         | A raw program that does not parse                                   |
+| `invalid-query`           | A declared query the query grammar refuses                          |
+| `reserved-name`           | An operation named `readSource` or `query`, or built on `readSource` |
+| `base-not-carried`        | A base the def type does not carry                                  |
+| `unrunnable-program`      | A program on a base that runs none                                  |
+| `incomplete-append`       | An `appendContainsMany` that does not say what to append where      |
+| `instance-out-of-scope`   | An `instance()` in a declared append, which never loads the document |
+| `links-without-assembly`  | `links` on a base other than `read` or `query`, which assembles no link closure |
+| `invalid-link-strategy`   | A `links` value its base can't apply — including `none` on a `read` (§2) |
+| `html-without-rendering`  | `html` on a base other than `read` or `query`, which serves no prerendered HTML |
+| `invalid-html-declaration`| `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable` |
+| `invalid-label`           | A `label` that isn't a single short line of plain text (§2)         |
+| `invalid-request`         | A `callApi` request that can't be sent as written: a relative URL, a `*` in the host, a `path` value no `{name}` takes, an object where text is sent, two bodies |
+| `invalid-slot`            | Something that looks like a slot and isn't — `{{apiKey\|rot13}}`     |
+| `slot-placed-twice`       | One slot in two places in a request                                  |
+| `slot-name-reused`        | One name for a `userKey` slot and an `apiKey` slot                   |
+| `slot-out-of-place`       | A slot in the URL as written, a header or query name, or a GraphQL document |
+| `unencoded-path-parameter`| A value put into the URL other than as a whole `{name}` segment filled from `path` |
+| `string-built-graphql`    | A GraphQL document built from values rather than written as one fixed string |
+| `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
 
 The decorator refuses several of these where the class is defined — a
 reserved name, a base the def type does not carry,
@@ -1333,7 +1311,7 @@ has no clause and composes its line there, that is the only form it takes.
 Thrown as `OperationsError`, whose `detail` carries the sentence:
 
 ```ts
-import { OperationsError } from "@cardstack/base/operations";
+import { OperationsError } from '@cardstack/base/operations';
 
 try {
   await this.ops.escalateRhythmEvent({ eventId, findings });
@@ -1343,31 +1321,31 @@ try {
 }
 ```
 
-| Code                        | Meaning                                                                                                                                                                                                                                                                                         |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `assertion-failed`          | A precondition did not hold — carries the author's `message`                                                                                                                                                                                                                                    |
-| `invalid-params`            | The payload does not satisfy `params`, or a marker cannot resolve                                                                                                                                                                                                                               |
-| `invalid-operation`         | The declaration has findings, so there is no runnable form                                                                                                                                                                                                                                      |
-| `unknown-operation`         | No operation of that name                                                                                                                                                                                                                                                                       |
-| `operation-not-allowed`     | The target's def type does not carry that behavior                                                                                                                                                                                                                                              |
-| `target-not-found`          | Nothing at the target's URL                                                                                                                                                                                                                                                                     |
-| `target-not-indexed`        | Written but not yet indexed — waiting resolves it                                                                                                                                                                                                                                               |
-| `target-errored`            | The target's index row is an error row                                                                                                                                                                                                                                                          |
-| `actor-required`            | The operation reads the caller, or the realm names a policy and its permissions want someone, and the request authenticated nobody                                                                                                                                                              |
-| `operation-not-permitted`   | The realm's permissions declined the caller and no policy grant admits the operation                                                                                                                                                                                                            |
-| `policy-predicate-failed`   | No grant admitted the operation and a policy predicate threw                                                                                                                                                                                                                                    |
-| `conflicting-targets`       | Two members of a parallel group write the same file                                                                                                                                                                                                                                             |
-| `version-conflict`          | A conditional write whose base version had moved                                                                                                                                                                                                                                                |
-| `precondition-unverifiable` | A conditional write the realm could not decide                                                                                                                                                                                                                                                  |
-| `payload-too-large`         | Over the realm's ceiling for a card or file                                                                                                                                                                                                                                                     |
-| `wrong-entry-point`         | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch                                                                                                                                                                                                   |
-| `binding-not-approved`      | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent                                                                                                                                                                    |
-| `credential-rejected`       | A scheduled pipeline's `callApi` whose slot is filled by an OAuth connection that can't get a token: `meta.reason` `rejected` (the user reconnects), `needs-admin` (the client needs its administrator) or `unavailable` (try later) — nothing was sent. See [`api-keys`](../api-keys/SKILL.md) |
-| `not-during-render`         | A `callApi` invoked while a card renders — nothing was sent                                                                                                                                                                                                                                     |
-| `guard-refused`             | The realm server refused the `callApi`'s destination: not https, a private address, or a request outside its declared destination (nothing was sent); or a redirect hop that was refused or one too many (the request had already reached the vendor)                                           |
-| `upstream-timeout`          | The outside service did not answer in time                                                                                                                                                                                                                                                      |
-| `response-too-large`        | The outside service's response was larger than the realm server carries                                                                                                                                                                                                                         |
-| `internal-error`            | Not the caller's — an unreadable definition, a failing executor, a policy that won't load                                                                                                                                                                                                       |
+| Code                       | Meaning                                                      |
+| -------------------------- | ------------------------------------------------------------- |
+| `assertion-failed`         | A precondition did not hold — carries the author's `message`  |
+| `invalid-params`           | The payload does not satisfy `params`, or a marker cannot resolve |
+| `invalid-operation`        | The declaration has findings, so there is no runnable form    |
+| `unknown-operation`        | No operation of that name                                     |
+| `operation-not-allowed`    | The target's def type does not carry that behavior            |
+| `target-not-found`         | Nothing at the target's URL                                   |
+| `target-not-indexed`       | Written but not yet indexed — waiting resolves it             |
+| `target-errored`           | The target's index row is an error row                        |
+| `actor-required`           | The operation reads the caller, or the realm names a policy and its permissions want someone, and the request authenticated nobody |
+| `operation-not-permitted`  | The realm's permissions declined the caller and no policy grant admits the operation |
+| `policy-predicate-failed`  | No grant admitted the operation and a policy predicate threw  |
+| `conflicting-targets`      | Two members of a parallel group write the same file           |
+| `version-conflict`         | A conditional write whose base version had moved              |
+| `precondition-unverifiable`| A conditional write the realm could not decide                |
+| `payload-too-large`        | Over the realm's ceiling for a card or file                   |
+| `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
+| `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
+| `credential-rejected`      | A scheduled pipeline's `callApi` whose slot is filled by an OAuth connection that can't get a token: `meta.reason` `rejected` (the user reconnects), `needs-admin` (the client needs its administrator) or `unavailable` (try later) — nothing was sent. See [`api-keys`](../api-keys/SKILL.md) |
+| `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
+| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or a request outside its declared destination (nothing was sent); or a redirect hop that was refused or one too many (the request had already reached the vendor) |
+| `upstream-timeout`         | The outside service did not answer in time                    |
+| `response-too-large`       | The outside service's response was larger than the realm server carries |
+| `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
 
 An author writes the `assertion-failed` text, so write it as the sentence a user
 should read: "That rhythm event is not open, so there is nothing to escalate."
@@ -1384,15 +1362,15 @@ is told turns on one thing: whether those permissions let them read the realm.
 The same table holds through `operations()` (the `_operations` envelope) and
 the card+json routes:
 
-| Situation                                                                                | Caller who may read the realm                                                              | Caller who may not                         |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------ |
-| No grant holds                                                                           | 403 `operation-not-permitted`                                                              | 404 `target-not-found`                     |
-| The target's def type does not carry the operation                                       | 405 `operation-not-allowed`                                                                | 404 `target-not-found`                     |
-| No such operation, a declaration with findings, an unresolvable type, nothing at the URL | Its own refusal — 404 `unknown-operation`, 422 `invalid-operation`, 404 `target-not-found` | 404 `target-not-found`                     |
-| A predicate threw and no other grant held                                                | 500 `policy-predicate-failed`                                                              | 404 `target-not-found`                     |
-| The policy won't load or compile                                                         | 500 `internal-error`, "Policy unavailable"                                                 | 500 `internal-error`, "Policy unavailable" |
-| A create whose `meta.realmURL` names another realm                                       | 400 `invalid-params`                                                                       | 404 `target-not-found`                     |
-| A create naming its type by a relative module                                            | 400 `invalid-params`                                                                       | 400 `invalid-params`                       |
+| Situation                                              | Caller who may read the realm                    | Caller who may not |
+| ------------------------------------------------------ | ------------------------------------------------ | ------------------ |
+| No grant holds                                         | 403 `operation-not-permitted`                    | 404 `target-not-found` |
+| The target's def type does not carry the operation     | 405 `operation-not-allowed`                      | 404 `target-not-found` |
+| No such operation, a declaration with findings, an unresolvable type, nothing at the URL | Its own refusal — 404 `unknown-operation`, 422 `invalid-operation`, 404 `target-not-found` | 404 `target-not-found` |
+| A predicate threw and no other grant held              | 500 `policy-predicate-failed`                    | 404 `target-not-found` |
+| The policy won't load or compile                       | 500 `internal-error`, "Policy unavailable"       | 500 `internal-error`, "Policy unavailable" |
+| A create whose `meta.realmURL` names another realm     | 400 `invalid-params`                             | 404 `target-not-found` |
+| A create naming its type by a relative module          | 400 `invalid-params`                             | 400 `invalid-params` |
 
 A caller who may read the realm reaches the policy only by writing — their
 reads are the permissions' to allow — so a policy that won't load is a 500 to
