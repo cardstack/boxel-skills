@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "the service rejected my key", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the two modes (enter a key, share a key), what the tool answers, the blocked-popup fallback, what to do when the service rejects a key (stop polling, show Reconnect), telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Activates on `open-secure-window`, `OpenSecureWindowTool`, "secure window", "API key", "enter a key", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`, "Reconnect".'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "the service rejected my key", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the two modes (enter a key, share a key), what the tool answers, the blocked-popup fallback, what to do when the service rejects a key (stop polling, offer Try again, replace the key), telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Activates on `open-secure-window`, `OpenSecureWindowTool`, "secure window", "API key", "enter a key", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`.'
 boxel:
   kind: skill
   tools:
@@ -160,30 +160,55 @@ From a terminal, `boxel keys` adds and shares keys too (same section).
 
 ## When the service rejects the key
 
-An operation refused **`credential-rejected`** (424) means the service the key
-is sent to rejected it: it answered 401 there. Nothing was sent. The realm
-server holds the key back from that service and retries it on its own now and
-then, notifies its owner once, and brings it back the moment a retry is
-accepted or the owner replaces the key. The refusal's `meta.slot` names the
-slot and `meta.destination` where the key goes.
+An operation refused **`credential-rejected`** (424, "Credential rejected")
+sends a key the service rejected: it answered 401 at the address the key is
+sent to. The call that got the 401 did reach the service. From then on the
+realm server holds that key back from that address, and refuses calls with
+it there without sending them, except for **one call every 15 minutes or
+so**, which it lets through as a retry. A retry the service accepts brings the
+key back, and so does its owner replacing the key. The owner is told once,
+and for a key shared into a workspace, so are the workspace's writers. The
+refusal's message names the credential slot and the address.
 
-- **A card stops polling** and shows a **Reconnect** button instead of the
-  data. Calling again sooner only gets the same refusal: the retry isn't
-  yours to drive. The button opens the window with `mode: 'enter-key'` for
-  the same card and operation, where the owner replaces the key.
+- **A card stops polling on its own** and says the service rejected the key,
+  with a **Try again** button. A timer that keeps calling only collects the
+  same refusal. A call the user starts after the interval (a click, or
+  opening the card again) is the retry, so a key the service accepts again is
+  picked up the next time the card is used. Read the refusal's `code`:
 
   ```gts
-  {{#if (eq this.refusal 'credential-rejected')}}
+  import { OperationsError } from '@cardstack/base/operations';
+
+  // in the component, around the operation call
+  try {
+    this.result = await this.load();
+    this.rejected = false;
+  } catch (err) {
+    if (err instanceof OperationsError && err.code === 'credential-rejected') {
+      this.rejected = true; // stop the polling loop; show the message
+      return;
+    }
+    throw err;
+  }
+  ```
+
+  ```gts
+  {{#if this.rejected}}
     <p>The forecast service rejected your key.</p>
-    <button type='button' {{on 'click' this.addKey}}>Reconnect</button>
+    <button type='button' {{on 'click' this.tryAgain}}>Try again</button>
   {{/if}}
   ```
 
-- **In the AI assistant**, tell the user the service rejected the key, and
-  offer to open the secure window so they can replace it. For a slot "for the
-  realm's key", the key belongs to whoever shared it into the workspace; say
-  that it needs their attention rather than opening the window.
+- **The key is replaced on its own page in Boxel's secure window**, or with
+  `boxel keys replace <name>` from a terminal. That is what clears the
+  rejection. `open-secure-window`'s `enter-key` mode adds a **new** key, which
+  leaves the rejected one in place, so don't open it for this refusal.
+- **In the AI assistant**, on an operation refused "Credential rejected", tell
+  the user which service rejected the key (the message names it). Say that
+  the key's owner replaces it on the key's page in Boxel's secure window or
+  with `boxel keys replace`, and that the card picks it up again on its own
+  once the service accepts the key. Don't open the secure window for it, and
+  never ask for the key in the chat.
 - A **403** from the service is not this refusal. It arrives as the
-  operation's answer (`status: 403`), since a service also uses it for a
-  missing permission on one resource or a rate limit; read the body.
-
+  operation's answer (`status: 403`), because a service also uses 403 for a
+  missing permission on one resource or for a rate limit. Read the body.

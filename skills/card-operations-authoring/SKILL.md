@@ -1341,7 +1341,7 @@ try {
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
 | `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
-| `credential-rejected`      | The service rejected the key a `callApi` slot sends (it answered 401) — nothing was sent. Stop polling and show Reconnect; see [`api-keys`](../api-keys/SKILL.md) |
+| `credential-rejected`      | The service rejected the key a `callApi` slot sends (it answered 401). Calls with that key to that service aren't sent, except a periodic retry. Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or a request outside its declared destination (nothing was sent); or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
 | `response-too-large`       | The outside service's response was larger than the realm server carries |
