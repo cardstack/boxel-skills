@@ -170,7 +170,7 @@ kinds of key carry it, and both live in the secure window like any other:
 - An **OAuth client** is an app registered with the service: its client id and
   secret, its sign-in and token addresses, the permissions (scopes) it asks
   for and the API hosts it serves. Whoever registered it adds it in the secure
-  window (`enter-key`, kind **OAuth app**). Most clients are for people to sign
+  window (`enter-key`, kind **Sign-in app (OAuth)**). Most clients are for people to sign
   in through; a `client_credentials` client gets tokens for itself, with no
   person signing in.
 - An **OAuth connection** is one person's sign-in through a client. It is a
