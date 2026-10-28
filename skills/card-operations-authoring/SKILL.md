@@ -283,14 +283,13 @@ a command line.
 - In the app, open the secure window with the `open-secure-window` tool
   ([`api-keys`](../api-keys/SKILL.md)); the user types the value there.
 
-**Google APIs take a service account's token, not its key file.** A Google
-service account is a key of its own kind: the user enters its JSON key file,
-the scopes its tokens may use and, for domain-wide delegation, the user to
-act as. The realm server signs a request with the private key, exchanges it at
-Google's token endpoint for an access token lasting an hour, and fills the
-slot with that token, so Google's API sees a bearer token and the key file
-never leaves the realm server. Declare a Google request like any other, with
-the slot where Google takes the token:
+**A Google service account is a key whose token is what gets sent.** The
+slot rules above apply unchanged: an operation carrying a slot is refused
+`binding-not-approved` and sends nothing. What a service account changes is
+what the slot would hold. The user stores the account's JSON key file as a
+key of its own kind, and Google's API is sent a short-lived access token made
+from it, never the file. So a Google request is declared like any other, with
+the slot where Google takes a bearer token:
 
 ```ts
 @operation static readRange = {
@@ -304,9 +303,10 @@ the slot where Google takes the token:
 } satisfies OperationDeclaration;
 ```
 
-- **One host per operation, and the key goes to each one separately.**
-  `sheets.googleapis.com` and `drive.googleapis.com` are different
-  destinations; nothing covers `*.googleapis.com`.
+- **Each Google host is its own destination.** `sheets.googleapis.com` and
+  `drive.googleapis.com` are different destinations, and nothing covers
+  `*.googleapis.com`, so a card that calls both declares an operation for
+  each.
 - **Scopes belong to the key, not the card.** Say in the card which scopes it
   needs (`https://www.googleapis.com/auth/spreadsheets.readonly`, …) so the
   user enters a key that has them. A token without the scope gets Google's own
@@ -314,8 +314,9 @@ the slot where Google takes the token:
 - **Never call the token endpoint yourself.** An operation addressed to
   `https://oauth2.googleapis.com/token` is refused `guard-refused`, with or
   without a key.
-- **A key Google refuses** (revoked, deleted, a disabled account, a subject the
-  service account can't act as) is refused `credential-rejected` with
+- **Where the slot is filled from a service account, a key Google refuses**
+  (revoked, deleted, a disabled account, a subject the service account can't
+  act as) is refused `credential-rejected` with
   `meta.reason: 'rejected'`, and nothing reaches the API: the user replaces the
   key. `meta.reason: 'unavailable'` means Google's token endpoint kept failing;
   asking again later may work.
@@ -1385,7 +1386,7 @@ try {
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
 | `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
-| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or a request outside its declared destination (nothing was sent); or a redirect hop that was refused or one too many (the request had already reached the vendor) |
+| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's (`meta.reason: 'platform-only'`), so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
 | `response-too-large`       | The outside service's response was larger than the realm server carries |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
