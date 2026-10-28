@@ -207,7 +207,10 @@ refusal's message names the credential slot and the address.
   card and the operation as `enter-key` does. The card never names a key: the
   window finds the key from the user's approval of that operation and offers
   to replace it. When the slot is filled by a key someone else shared into the
-  workspace, the window tells the user who can replace it instead. Don't open
+  workspace, there is nothing for this user to replace, so the window says
+  only the person who shared it can. It names that person to the workspace's
+  direct writers, and tells anyone else to ask one of them. When no key is
+  approved for the operation, it says there is nothing to replace. Don't open
   `enter-key` for this refusal: it adds a **new** key and leaves the rejected
   one in place. From a terminal, `boxel keys replace <name>` replaces it too.
 
@@ -217,12 +220,18 @@ refusal's message names the credential slot and the address.
     if (!toolContext || !this.args.model.id) {
       return;
     }
-    await new OpenSecureWindowTool(toolContext).execute({
-      mode: 'replace-key',
-      cardId: this.args.model.id,
-      operation: 'forecast',
-      reason: 'The forecast service rejected your key',
-    });
+    this.problem = undefined;
+    try {
+      await new OpenSecureWindowTool(toolContext).execute({
+        mode: 'replace-key',
+        cardId: this.args.model.id,
+        operation: 'forecast',
+        reason: 'The forecast service rejected your key',
+      });
+    } catch (e) {
+      // e.g. a Boxel deployment that offers no secure window
+      this.problem = e instanceof Error ? e.message : String(e);
+    }
   };
   ```
 
@@ -231,6 +240,7 @@ refusal's message names the credential slot and the address.
     <p>The forecast service rejected your key.</p>
     <button type='button' {{on 'click' this.reconnect}}>Reconnect</button>
     <button type='button' {{on 'click' this.tryAgain}}>Try again</button>
+    {{#if this.problem}}<p role='alert'>{{this.problem}}</p>{{/if}}
   {{/if}}
   ```
 
