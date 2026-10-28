@@ -1340,6 +1340,7 @@ try {
 | `payload-too-large`        | Over the realm's ceiling for a card or file                   |
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
 | `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
+| `credential-rejected`      | A `callApi` slot filled by an OAuth connection that can't get a token: `meta.reason` `rejected` (the user reconnects), `needs-admin` (the client needs its administrator) or `unavailable` (try later) — nothing was sent. See [`api-keys`](../api-keys/SKILL.md) |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or a request outside its declared destination (nothing was sent); or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
