@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "the service rejected my key", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the two modes (enter a key, share a key), what the tool answers, the blocked-popup fallback, what to do when the service rejects a key (stop polling, offer Try again, replace the key), telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Activates on `open-secure-window`, `OpenSecureWindowTool`, "secure window", "API key", "enter a key", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`.'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "the service rejected my key", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the three modes (enter a key, replace the key an operation sends, share a key), what the tool answers, the blocked-popup fallback, what to do when the service rejects a key (stop polling, offer Reconnect, which opens the window to replace the key), telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Activates on `open-secure-window`, `OpenSecureWindowTool`, "secure window", "API key", "enter a key", "replace a key", "Reconnect", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`.'
 boxel:
   kind: skill
   tools:
@@ -31,10 +31,10 @@ sealed on the realm server, and closes when the user is done.
 
 | Field       | Holds                                                                                                                                    |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`      | `enter-key` (add a key) or `share-key` (share one of the user's keys into a workspace). Required                                         |
-| `cardId`    | `enter-key`: the card instance whose operation needs the key, as a URL or prefix-form id                                                 |
-| `module`, `name`, `realm` | `enter-key`, for an operation on a card **type** instead of an instance: the type's module, its export name, and the workspace it is used in |
-| `operation` | `enter-key`: the name of the operation that needs the key. Needs `cardId`, or `module` + `name` + `realm`                                 |
+| `mode`      | `enter-key` (add a key), `replace-key` (replace the key an operation sends) or `share-key` (share one of the user's keys into a workspace). Required |
+| `cardId`    | `enter-key`, `replace-key`: the card instance whose operation needs the key, as a URL or prefix-form id                                  |
+| `module`, `name`, `realm` | `enter-key`, `replace-key`, for an operation on a card **type** instead of an instance: the type's module, its export name, and the workspace it is used in |
+| `operation` | `enter-key`, `replace-key`: the name of the operation that needs the key. Needs `cardId`, or `module` + `name` + `realm`. Required for `replace-key` |
 | `realm`     | `share-key`: the workspace the key is shared into. Required                                                                              |
 | `reason`    | One short line the window shows, labelled as written by whoever opened it ("Weather Station needs your forecast service key")            |
 
@@ -119,6 +119,8 @@ export class WeatherStation extends CardDef {
 - Don't read anything back from the window. There is no value to read, and the
   window has no handle back to the page.
 - To share a key into a workspace, pass `mode: 'share-key'` and `realm`.
+- To replace the key an operation sends, pass `mode: 'replace-key'` with the
+  same `cardId` and `operation` (see the last section).
 
 ## In the AI assistant
 
@@ -199,16 +201,47 @@ refusal's message names the credential slot and the address.
   {{/if}}
   ```
 
-- **The key is replaced on its own page in Boxel's secure window**, or with
-  `boxel keys replace <name>` from a terminal. That is what clears the
-  rejection. `open-secure-window`'s `enter-key` mode adds a **new** key, which
-  leaves the rejected one in place, so don't open it for this refusal.
-- **In the AI assistant**, on an operation refused "Credential rejected", tell
-  the user which service rejected the key (the message names it). Say that
-  the key's owner replaces it on the key's page in Boxel's secure window or
-  with `boxel keys replace`, and that the card picks it up again on its own
-  once the service accepts the key. Don't open the secure window for it, and
-  never ask for the key in the chat.
+- **The key is replaced in Boxel's secure window, from a Reconnect button.**
+  Replacing the key is what clears the rejection, so show **Reconnect** beside
+  Try again, and have it open the window with `mode: 'replace-key'`, naming the
+  card and the operation as `enter-key` does. The card never names a key: the
+  window finds the key from the user's approval of that operation and offers
+  to replace it. When the slot is filled by a key someone else shared into the
+  workspace, the window tells the user who can replace it instead. Don't open
+  `enter-key` for this refusal: it adds a **new** key and leaves the rejected
+  one in place. From a terminal, `boxel keys replace <name>` replaces it too.
+
+  ```gts
+  reconnect = async () => {
+    let toolContext = this.args.context?.toolContext;
+    if (!toolContext || !this.args.model.id) {
+      return;
+    }
+    await new OpenSecureWindowTool(toolContext).execute({
+      mode: 'replace-key',
+      cardId: this.args.model.id,
+      operation: 'forecast',
+      reason: 'The forecast service rejected your key',
+    });
+  };
+  ```
+
+  ```gts
+  {{#if this.rejected}}
+    <p>The forecast service rejected your key.</p>
+    <button type='button' {{on 'click' this.reconnect}}>Reconnect</button>
+    <button type='button' {{on 'click' this.tryAgain}}>Try again</button>
+  {{/if}}
+  ```
+
+  As for `enter-key`, the tool says only whether the window opened. The card
+  learns the key works again the next time a call succeeds, so Try again after
+  the window closes is the way to check.
+- **In the AI assistant**, on an operation refused "Credential rejected", call
+  `open-secure-window` once with `mode: 'replace-key'`, the card and the
+  operation. In the same reply, tell the user which service rejected the key
+  (the message names it) and that they replace it in the window that opens.
+  Never ask for the key in the chat.
 - A **403** from the service is not this refusal. It arrives as the
   operation's answer (`status: 403`), because a service also uses 403 for a
   missing permission on one resource or for a rate limit. Read the body.
