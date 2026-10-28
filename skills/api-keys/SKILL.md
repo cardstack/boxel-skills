@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the two modes (enter a key, share a key), what the tool answers, the blocked-popup fallback, telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Activates on `open-secure-window`, `OpenSecureWindowTool`, "secure window", "API key", "enter a key", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`.'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "the service rejected my key", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the two modes (enter a key, share a key), what the tool answers, the blocked-popup fallback, what to do when the service rejects a key (stop polling, show Reconnect), telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Activates on `open-secure-window`, `OpenSecureWindowTool`, "secure window", "API key", "enter a key", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`, "Reconnect".'
 boxel:
   kind: skill
   tools:
@@ -157,3 +157,33 @@ it, rather than retrying or reopening the window. See
 slotted operations.
 
 From a terminal, `boxel keys` adds and shares keys too (same section).
+
+## When the service rejects the key
+
+An operation refused **`credential-rejected`** (424) means the service the key
+is sent to rejected it: it answered 401 there. Nothing was sent. The realm
+server holds the key back from that service and retries it on its own now and
+then, notifies its owner once, and brings it back the moment a retry is
+accepted or the owner replaces the key. The refusal's `meta.slot` names the
+slot and `meta.destination` where the key goes.
+
+- **A card stops polling** and shows a **Reconnect** button instead of the
+  data. Calling again sooner only gets the same refusal: the retry isn't
+  yours to drive. The button opens the window with `mode: 'enter-key'` for
+  the same card and operation, where the owner replaces the key.
+
+  ```gts
+  {{#if (eq this.refusal 'credential-rejected')}}
+    <p>The forecast service rejected your key.</p>
+    <button type='button' {{on 'click' this.addKey}}>Reconnect</button>
+  {{/if}}
+  ```
+
+- **In the AI assistant**, tell the user the service rejected the key, and
+  offer to open the secure window so they can replace it. For a slot "for the
+  realm's key", the key belongs to whoever shared it into the workspace; say
+  that it needs their attention rather than opening the window.
+- A **403** from the service is not this refusal. It arrives as the
+  operation's answer (`status: 403`), since a service also uses it for a
+  missing permission on one resource or a rate limit; read the body.
+
