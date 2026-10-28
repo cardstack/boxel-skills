@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the two modes (enter a key, share a key), what the tool answers, the blocked-popup fallback, telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Activates on `open-secure-window`, `OpenSecureWindowTool`, "secure window", "API key", "enter a key", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`.'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, the two modes (enter a key, share a key), what the tool answers, the blocked-popup fallback, telling the user to check the address bar, and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in` and the rest), what a card shows for each, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Activates on `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "share a key", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`.'
 boxel:
   kind: skill
   tools:
@@ -120,6 +120,105 @@ export class WeatherStation extends CardDef {
   window has no handle back to the page.
 - To share a key into a workspace, pass `mode: 'share-key'` and `realm`.
 
+## Asking first: `keyReadiness`
+
+A card shouldn't render a control that is only going to be refused. Before
+it calls an operation that carries a credential slot, it asks
+**`@context.keyReadiness(operation, target)`** whether the call would have
+its key, and shows what would fix it if not. `target` is the card (or its
+URL), or a card class with `{ realm }` for an operation on a type, as for
+`@context.canInvoke`. It is asked on the same request as `canInvoke` and
+answers the same way: synchronously, from what the app already knows, and
+re-rendering when the answer lands.
+
+| Answer                | Means                                                                                                          | The card shows                                                       |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `ready`               | The call will have its key                                                                                     | The data; call the operation                                         |
+| `needs-connect`       | None of the user's keys may be sent where the operation sends                                                  | **Connect**, which opens the secure window (`enter-key`)             |
+| `needs-approval`      | The user has a key that could be sent there, but the operation isn't approved here, or not for use from a card | **Allow**, which opens the secure window                             |
+| `needs-reapproval`    | What the operation sends changed since it was approved                                                         | **Review the changes**, which opens the secure window                |
+| `needs-admin`         | A key the workspace provides isn't set up for this, and the user can't set it up                               | "An administrator of this workspace needs to set this up", no button |
+| `needs-sign-in`       | Nobody is signed in, and the operation takes the user's own key                                                | Sign in                                                              |
+| `rate-limited`        | Over the user's limit for now                                                                                  | Try again later                                                      |
+| `over-budget`         | The workspace's budget for this key is used up for the period                                                  | This workspace's limit is reached                                    |
+| `credential-rejected` | The service rejected the key                                                                                   | Reconnect, or the workspace's key needs attention                    |
+| `undefined`           | **Not known yet**                                                                                              | Nothing                                                              |
+
+**`undefined` is never "not ready".** It is the answer while the realm is
+being asked, where nothing can answer (a caller who may not invoke the
+operation at all, a realm that sends no outside requests), and **always in
+prerendered HTML**. Prerendered HTML is rendered once and served to every
+viewer, so a Connect button in it would be shown to people who are already
+connected. Branch on the named answers and render nothing for `undefined`.
+
+An operation that carries no credential slot is `ready`. The answer names
+what to show, never whose key fills a slot: a reader is never told who owns a
+workspace's key, its name or its budget.
+
+```gts
+import { on } from '@ember/modifier';
+import { eq } from '@cardstack/boxel-ui/helpers';
+import { CardDef, Component, contains, field } from '@cardstack/base/card-api';
+import StringField from '@cardstack/base/string';
+import OpenSecureWindowTool from '@cardstack/boxel-host/tools/open-secure-window';
+
+export class WeatherStation extends CardDef {
+  static displayName = 'Weather Station';
+  @field city = contains(StringField);
+
+  static isolated = class Isolated extends Component<typeof this> {
+    get readiness() {
+      return this.args.context?.keyReadiness?.('forecast', this.args.model);
+    }
+
+    get needsWindow() {
+      return (
+        this.readiness === 'needs-connect' ||
+        this.readiness === 'needs-approval' ||
+        this.readiness === 'needs-reapproval'
+      );
+    }
+
+    openWindow = async () => {
+      let toolContext = this.args.context?.toolContext;
+      if (!toolContext || !this.args.model.id) {
+        return;
+      }
+      await new OpenSecureWindowTool(toolContext).execute({
+        mode: 'enter-key',
+        cardId: this.args.model.id,
+        operation: 'forecast',
+        reason: 'Weather Station needs your forecast service key',
+      });
+      // Nothing to read back: readiness is asked again when the user comes
+      // back from the window.
+    };
+
+    <template>
+      {{#if (eq this.readiness 'ready')}}
+        {{! render the forecast }}
+      {{else if this.needsWindow}}
+        <button type='button' {{on 'click' this.openWindow}}>
+          {{if (eq this.readiness 'needs-reapproval') 'Review the changes' 'Connect your forecast service'}}
+        </button>
+      {{else if (eq this.readiness 'needs-admin')}}
+        <p>An administrator of this workspace needs to set this up.</p>
+      {{/if}}
+    </template>
+  };
+}
+```
+
+- **The window's outcome reaches the card only through readiness.** When the
+  user comes back to the app from the secure window, every readiness answer
+  on the page is asked again, so the card moves from `needs-approval` to
+  `ready` without a reload. Don't poll it, and don't read anything from the
+  tool's result beyond `opened` / `blocked`.
+- **Advisory, like `canInvoke`.** The call checks its approval again, so a
+  `ready` card still handles a refusal from the call itself.
+- Guard on `keyReadiness` being there (`?.`): it is absent where nothing can
+  answer.
+
 ## In the AI assistant
 
 The tool is declared in this skill and in the index, so it is callable from
@@ -148,11 +247,12 @@ the first step.
 ## What a stored key does
 
 Entering a key stores it for the user; sharing one puts a reference to it into
-a workspace. Neither fills an operation's credential slot: an operation that
-carries one (`{{userKey}}`, `{{apiKey}}`) is refused `binding-not-approved`
-whatever keys the user has, and nothing is sent. So once the user has entered
-the key, tell them it is saved and that the card can't call the service with
-it, rather than retrying or reopening the window. See
+a workspace. Neither by itself fills an operation's credential slot
+(`{{userKey}}`, `{{apiKey}}`): an approval of the operation in that workspace
+does, and without one the call is refused `binding-not-approved` whatever keys
+the user has, and nothing is sent. `@context.keyReadiness` (above) says which
+of the two is missing. So once the user has entered the key, tell them it
+is saved, rather than retrying or reopening the window. See
 [`card-operations-authoring`](../card-operations-authoring/SKILL.md) §2 for
 slotted operations.
 
