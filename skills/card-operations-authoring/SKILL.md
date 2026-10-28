@@ -242,8 +242,10 @@ enforces (§4) are there so an operation carrying one is recognised and refused
 at the right place, not a recipe. An operation with no slot works without any
 approval.
 
-**A user keeps their own keys with the Boxel CLI, never in a card.** Not in a
-field, a card's source, `realm.json` or the chat. A key belongs to the user,
+**A user keeps their own keys in Boxel's secure window or the Boxel CLI,
+never in a card.** Not in a field, a card's source, `realm.json` or the chat.
+In the app, a card or the assistant opens the secure window with the
+`open-secure-window` tool ([`api-keys`](../api-keys/SKILL.md)). A key belongs to the user,
 not to a realm. The realm server stores it sealed and never hands the value
 back; `replace` swaps in a new value. A share puts a reference to one of the
 user's keys into a realm they write to:
@@ -277,8 +279,8 @@ a command line.
 - In Claude Code, have the user run `boxel keys add <name>` (or `replace`) in
   their own terminal, or run it yourself with `--key-file <path>` for a file
   the user names. The other commands you can run.
-- In the app, tell the user to install the Boxel CLI, sign in with
-  `boxel profile add`, and run `boxel keys add <name>` in their terminal.
+- In the app, open the secure window with the `open-secure-window` tool
+  ([`api-keys`](../api-keys/SKILL.md)); the user types the value there.
 
 **Never during a render.** A template that invokes a `callApi` while the card
 renders is refused `not-during-render`: a render is replayed and shared, so it
