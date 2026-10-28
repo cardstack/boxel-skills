@@ -316,10 +316,10 @@ the slot where Google takes a bearer token:
   without a key.
 - **Where the slot is filled from a service account, a key Google refuses**
   (revoked, deleted, a disabled account, a subject the service account can't
-  act as) is refused `credential-rejected` with
-  `meta.reason: 'rejected'`, and nothing reaches the API: the user replaces the
-  key. `meta.reason: 'unavailable'` means Google's token endpoint kept failing;
-  asking again later may work.
+  act as) is refused `credential-rejected`, and nothing reaches the API; the
+  message says the owner replaces the key. The same code comes when Google's
+  token endpoint kept failing, and then the message says asking again later
+  may work. Branch on the code; show the message.
 - **Entering one.** In the secure window, the user picks **Google service
   account** and chooses the key file. From a terminal:
   `boxel keys add <name> --kind google-service-account --key-file <path>
@@ -1386,7 +1386,7 @@ try {
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
 | `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
-| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's (`meta.reason: 'platform-only'`), so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
+| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's, which only the platform calls, so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
 | `response-too-large`       | The outside service's response was larger than the realm server carries |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
