@@ -5,7 +5,7 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/open-secure-window'
+        module: "@cardstack/boxel-host/tools/open-secure-window"
         name: default
 ---
 
@@ -35,7 +35,7 @@ sealed on the realm server, and closes when the user is done.
 | `cardId`                  | `enter-key`, `connect`: the card instance whose operation needs the key, as a URL or prefix-form id                                                                               |
 | `module`, `name`, `realm` | `enter-key`, `connect`, for an operation on a card **type** instead of an instance: the type's module, its export name, and the workspace it is used in                           |
 | `operation`               | `enter-key`, `connect`: the name of the operation that needs the key. Needs `cardId`, or `module` + `name` + `realm`                                                              |
-| `realm`                   | `share-key`: the workspace the key is shared into. Required                                                                                                                       |
+| `realm`                   | `share-key`: the workspace the key is shared into. Required. `connect`, on its own: offers the clients shared into that workspace                                                 |
 | `reason`                  | One short line the window shows, labelled as written by whoever opened it ("Weather Station needs your forecast service key")                                                     |
 
 Every field **names** something; none carries a value. Never pass a key, a
@@ -134,8 +134,7 @@ the first step.
   user's key. A slot "for the realm's key" is filled by a key the workspace
   holds, so it is never a reason to open the window. Use
   `enter-key` with the card and operation, `connect` when the card says the
-  user signs in at the service (or the refusal is `credential-rejected` and
-  says its owner signs in again), or `share-key` with the workspace.
+  user signs in at the service, or `share-key` with the workspace.
   Call it once per operation in a conversation. The same refusal comes back
   after the user enters a key (see the last section), so a repeated refusal is
   never a reason to reopen the window.
@@ -177,17 +176,25 @@ kinds of key carry it, and both live in the secure window like any other:
 - An **OAuth connection** is one person's sign-in through a client. It is a
   personal key: it fills a `{{userKey}}` slot as a pasted key does, and its
   owner approves the operations that use it as for any key of theirs. The
-  realm server mints a short-lived access token from it for each call and
-  refreshes it; no token reaches the app page, the card or the chat.
+  realm server mints a short-lived access token from it, reuses it until it
+  is due, and refreshes it; no token reaches the app page, the card or the
+  chat.
 
 **A connection or a static key.** Prefer a connection when the service offers
-OAuth: the user picks the permissions on the service's own page, can revoke
+OAuth: the user approves the permissions the client asks for on the service's
+own page, can revoke
 the sign-in there, and never handles a long-lived token. Use a static key when
 the service only issues API keys. The card can't tell which fills its slot and
 doesn't need to.
 
-**What the card declares** is a plain `callApi` with a `{{userKey}}` slot where
-the service expects its token:
+**What a slot looks like** for a connection is no different from a pasted
+key: a `{{userKey}}` slot where the service expects its token. Whether to
+write a slotted operation at all is governed by
+[`card-operations-authoring`](../card-operations-authoring/SKILL.md) §2 and
+[What a stored key does](#what-a-stored-key-does): a slotted operation is
+sent only from a scheduled pipeline the realm server runs, never when a card,
+the assistant or the CLI invokes it. A connection changes what fills the
+slot, not that rule. For a pipeline, the slot reads:
 
 ```ts
 @operation static profile = {
@@ -202,37 +209,31 @@ the service expects its token:
 } satisfies OperationDeclaration;
 ```
 
-The card names no client, client id, scope or token address: the window picks
-the client from the operation's destination. A slotted operation is held to
-the rules in [`card-operations-authoring`](../card-operations-authoring/SKILL.md)
-§2, which say when one is sent; a connection changes what fills the slot, not
-those rules.
+The declaration names no client, client id, scope or token address: the
+window picks the client from the operation's destination.
 
 **Opening connect mode.** Use the button from [From a card](#from-a-card) with
 `mode: 'connect'` and the same card and operation, and a `reason` such as
 "Pull Request Inbox signs in to GitHub to read your pull requests". Open it
 when the operation is refused for the user's own key (as above) and the card
-signs in rather than taking a pasted key, or when a connection needs signing
-in again (below). The window lists the clients that serve the operation's
+signs in rather than taking a pasted key. Connect mode always makes a **new**
+connection; signing an existing one in again is its **Reconnect** button on
+the user's key page in the secure window, which keeps its approvals. The window lists the clients that serve the operation's
 destination — Boxel's own, those shared into the workspace and the user's
 own — each with the permissions it asks for. The user picks one and signs in
 on the service's page; the service sends them back to the realm server, never
 to the app. With no client to offer, the window says who can set one up.
 
-**When a connection stops working**, a call through it is refused
+**When a connection stops working**, a pipeline call through it is refused
 **`credential-rejected`** (424) and nothing is sent. The refusal's
-`meta.reason` says why. A card catching `OperationsError` gets `code` and the
-`detail` sentence, not `meta`; the sentence names the same case and who fixes
-it, so show it:
-
-| `meta.reason` | Means                                                                                                                 | What the card shows                                                                                                                                             |
-| ------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `rejected`    | The service no longer accepts the sign-in: revoked there, or expired                                                  | A **Reconnect** button that opens connect mode for the operation. The connection's own Reconnect in the secure window signs it in again and keeps its approvals |
-| `needs-admin` | The client itself is refused or gone: its secret was rejected, or its share in the workspace was removed or suspended | "An administrator needs to set this up." No button: reconnecting doesn't help, and the client's owner or a workspace writer fixes it                            |
-| `unavailable` | The service's token endpoint kept failing                                                                             | "The service isn't answering; try again later." Don't reopen the window                                                                                         |
-
-In the assistant, the same: reopen the window only for `rejected`, and say
-plainly who fixes the other two.
+`meta.reason` says why: `rejected` (the service no longer accepts the sign-in;
+its owner reconnects from their key page), `needs-admin` (the client itself
+was refused or is gone: its secret was rejected, or its share in the
+workspace was removed or suspended; the client's owner or a workspace writer
+fixes it) or `unavailable` (the service's token endpoint kept failing; a
+later run may succeed). A card or the assistant invoking an operation never
+sees this refusal: such a call is refused before any token is minted (see
+[What a stored key does](#what-a-stored-key-does)).
 
 **Sharing a client into a workspace.** A workspace writer registers one app
 with the service, adds it in the secure window, and shares it into the
@@ -241,6 +242,14 @@ everyone who can read the workspace, and each teammate signs in with their own
 account. The client secret is stored once and nobody else sees it; replacing it
 reaches every connection made through the client. Boxel also offers clients of
 its own wherever they are deployed.
+
+**Registering the app with the service** needs two things from its settings
+there: the **callback (redirect) URL**, which is the realm server's
+`/_oauth/callback` (for example `https://app.boxel.ai/_oauth/callback`),
+since a service refuses a sign-in that returns anywhere it wasn't told; and,
+for a GitHub App, an **installation** on the account or organization whose
+repositories it reads, since a connection reaches only repositories the app is
+installed on.
 
 **For GitHub, register a GitHub App, not an OAuth App.** An OAuth App's only
 scope that reaches private repositories, `repo`, can also write to them, so
