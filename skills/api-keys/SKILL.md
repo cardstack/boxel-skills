@@ -394,8 +394,9 @@ when the operation is refused for the user's own key (as above) and the card
 signs in rather than taking a pasted key. Connect mode always makes a **new**
 connection; signing an existing one in again is its **Reconnect** button on
 the user's key page in the secure window, which keeps its approvals. The window lists the clients that serve the operation's
-destination — Boxel's own, those shared into the workspace and the user's
-own — each with the permissions it asks for. The user picks one and signs in
+destination — those shared into the workspace, or Boxel's own when the
+workspace shares none, then the user's own — each with the permissions it asks
+for, and starts with the workspace's client, or else Boxel's, chosen. The user picks one and signs in
 on the service's page; the service sends them back to the realm server, never
 to the app. With no client to offer, the window says who can set one up.
 
@@ -415,8 +416,9 @@ with the service, adds it in the secure window, and shares it into the
 workspace with `share-key`, like any key. Connect mode then offers it to
 everyone who can read the workspace, and each teammate signs in with their own
 account. The client secret is stored once and nobody else sees it; replacing it
-reaches every connection made through the client. Boxel also offers clients of
-its own wherever they are deployed.
+reaches every connection made through the client. Where the workspace shares
+a client for a service, connect mode offers it in place of Boxel's own client
+for that service.
 
 **Registering the app with the service** needs two things from its settings
 there: the **callback (redirect) URL**, which is the realm server's
@@ -426,11 +428,34 @@ for a GitHub App, an **installation** on the account or organization whose
 repositories it reads, since a connection reaches only repositories the app is
 installed on.
 
-**For GitHub, register a GitHub App, not an OAuth App.** An OAuth App's only
-scope that reaches private repositories, `repo`, can also write to them, so
-every connection through it could. A GitHub App can be limited to read-only
-permissions. Where it is deployed, Boxel offers its own read-only GitHub App,
-so a card that only reads from GitHub needs no client of the workspace's.
+**For GitHub, a card that only reads uses Boxel's app.** Boxel registers its
+own GitHub App, **Boxel (read-only)**, which reads pull requests, code
+(contents), checks, issues and repository metadata and can write nothing.
+Connect mode offers it for `https://api.github.com/` wherever no client is
+shared into the workspace, so a card that only reads from GitHub needs no
+client of the workspace's and no registration of its own: it declares its
+operations against `api.github.com` with a `{{userKey}}` slot and opens connect
+mode. Each person signs in with their own GitHub account and reads only what
+that account can.
+
+**An organization installs Boxel's app once.** A GitHub App's sign-in reaches
+an organization's private repositories only where the app is installed there;
+without the install, the organization's private repositories answer as if they
+don't exist (an empty list, or 404). A member asks for it at
+`https://github.com/apps/boxel-read-only/installations/new`, picking the
+organization: a member who isn't an owner gets **Request**, which goes to the
+organization's owners, and an owner approves it once. That install covers every
+Boxel use of the app in the organization. A card that lists an organization's
+repositories or pull requests and finds none should say so and link there,
+rather than show an empty list as if there were nothing.
+
+**Register your own GitHub App when the card writes** (comments, labels,
+merges, issues), or reads something Boxel's app doesn't (organization
+members, Actions), and share it into the workspace. A client shared into the
+workspace takes Boxel's app's place in connect mode there. Make it a GitHub
+App, not an OAuth App: an OAuth App's only scope that reaches private
+repositories, `repo`, can also write to them, so every connection through it
+could, while a GitHub App asks for exactly the permissions it needs.
 
 Token endpoints are the realm server's alone: no `callApi` can send a
 credential to one, so a card never refreshes or exchanges a token itself.
