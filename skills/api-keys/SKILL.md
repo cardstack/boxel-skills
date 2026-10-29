@@ -266,9 +266,10 @@ or another workspace's, even another card calling the same service.
   go where the batch sends come first, and one that fits is chosen already;
   "Add a new key" is beside them, so `needs-connect` needs no separate
   `enter-key` first.
-- **A new place for a key** — a key with no grant where a group sends — is
-  confirmed by its full host: "Only ever sent to api.example.com, part of
-  example.com. Is that where this key belongs?"
+- **A key's first send to a host** — a key with no grant where a group sends —
+  is said in that group, by the full host: "Work GitHub token hasn't been sent
+  to uploads.github.com before." The Approve button is the one confirmation,
+  and beside it a line sums up each host a key goes to for the first time.
 - The user can untick an operation to leave it unapproved.
 - **`review-changes`** is the same flow with only the operations whose request
   changed since they were approved, each showing what changed, field by field.
