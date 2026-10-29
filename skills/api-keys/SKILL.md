@@ -277,7 +277,8 @@ rather than retrying or reopening the window. See
 [`card-operations-authoring`](../card-operations-authoring/SKILL.md) §2 for
 slotted operations.
 
-From a terminal, `boxel keys` adds and shares keys too (same section).
+From a terminal, `boxel keys` adds and shares keys, and connects accounts
+through OAuth, too (same section, and [OAuth connections](#oauth-connections)).
 
 ## When the service rejects the key
 
@@ -418,12 +419,24 @@ account. The client secret is stored once and nobody else sees it; replacing it
 reaches every connection made through the client. Boxel also offers clients of
 its own wherever they are deployed.
 
-**From a terminal**, `boxel keys` does the same three steps. The client
-secret is typed at a masked prompt (or read with `--stdin`), never given as an
-argument, and no command prints a token:
+**Registering the app with the service** needs two things from its settings
+there: the **callback (redirect) URL**, which is the realm server's
+`/_oauth/callback` (for example `https://app.boxel.ai/_oauth/callback`),
+since a service refuses a sign-in that returns anywhere it wasn't told; and,
+for a GitHub App, an **installation** on the account or organization whose
+repositories it reads, since a connection reaches only repositories the app is
+installed on.
+
+**From a terminal**, `boxel keys` adds a client, shares it into a workspace
+and connects an account through it; registering the app with the service, as
+above, comes first. The client secret is typed at a masked prompt in the
+user's own terminal (or read from a file they name with `--key-file`), never
+given as an argument or passed through the chat, and no command prints a
+token. Who runs which command, and the browser sign-in these need, are in
+[`card-operations-authoring`](../card-operations-authoring/SKILL.md) §2:
 
 ```bash
-# Register the app you created with the service, then share it in
+# Add the app you registered with the service, then share it in
 boxel keys add forge-app --kind oauth-client --client-id <id> \
   --authorize-url https://forge.example/oauth/authorize \
   --token-url https://forge.example/oauth/token \
@@ -441,18 +454,14 @@ boxel keys connect my-github --client platform:github
 `--api-host` names the API addresses the client serves, so the secure window
 offers it for operations sent there. `connect` names a shared client by its
 label with `--realm`, one of your own by its key name, and one of Boxel's as
-`platform:<name>`. It opens the service's sign-in page and waits; the browser
-comes back to Boxel's secure window, which finishes the sign-in, and the
-command ends once the connection is saved. Approving an operation for the
-connection is still done in the secure window.
-
-**Registering the app with the service** needs two things from its settings
-there: the **callback (redirect) URL**, which is the realm server's
-`/_oauth/callback` (for example `https://app.boxel.ai/_oauth/callback`),
-since a service refuses a sign-in that returns anywhere it wasn't told; and,
-for a GitHub App, an **installation** on the account or organization whose
-repositories it reads, since a connection reaches only repositories the app is
-installed on.
+`platform:<name>`. It opens the service's sign-in page and waits. The service
+sends the browser back through the realm server's `/_oauth/callback` to a
+page of Boxel's secure window, which asks the user to **Continue in the
+terminal** and hands the sign-in back to the CLI; the CLI finishes it with
+its own sign-in, so the browser needn't be signed in to Boxel. The command
+ends once the connection is saved. Like a connection made in the secure
+window, it doesn't by itself let an operation send it (see
+[What a stored key does](#what-a-stored-key-does)).
 
 **For GitHub, register a GitHub App, not an OAuth App.** An OAuth App's only
 scope that reaches private repositories, `repo`, can also write to them, so
