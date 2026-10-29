@@ -418,6 +418,34 @@ account. The client secret is stored once and nobody else sees it; replacing it
 reaches every connection made through the client. Boxel also offers clients of
 its own wherever they are deployed.
 
+**From a terminal**, `boxel keys` does the same three steps. The client
+secret is typed at a masked prompt (or read with `--stdin`), never given as an
+argument, and no command prints a token:
+
+```bash
+# Register the app you created with the service, then share it in
+boxel keys add forge-app --kind oauth-client --client-id <id> \
+  --authorize-url https://forge.example/oauth/authorize \
+  --token-url https://forge.example/oauth/token \
+  --scopes read:user --api-host https://api.forge.example/
+boxel keys share forge-app --realm <workspace-url> --as "Forge"
+
+# What you can connect through: Boxel's own, yours, and the workspace's
+boxel keys clients --realm <workspace-url>
+
+# Sign in at the service in the browser; the result is your connection
+boxel keys connect my-forge --client Forge --realm <workspace-url>
+boxel keys connect my-github --client platform:github
+```
+
+`--api-host` names the API addresses the client serves, so the secure window
+offers it for operations sent there. `connect` names a shared client by its
+label with `--realm`, one of your own by its key name, and one of Boxel's as
+`platform:<name>`. It opens the service's sign-in page and waits; the browser
+comes back to Boxel's secure window, which finishes the sign-in, and the
+command ends once the connection is saved. Approving an operation for the
+connection is still done in the secure window.
+
 **Registering the app with the service** needs two things from its settings
 there: the **callback (redirect) URL**, which is the realm server's
 `/_oauth/callback` (for example `https://app.boxel.ai/_oauth/callback`),
