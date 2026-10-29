@@ -31,34 +31,42 @@ be sent, but the vendor decides what a key can do.
 
 ## 2. Live card or pipeline
 
-A request carrying a slot is sent **only by a scheduled pipeline** the realm
-server runs. Approvals are for pipelines only, so the same operation invoked
-from a card, the AI assistant or the CLI is refused
-`interactive-use-not-approved` and nothing is sent.
+A request carrying a slot is sent **only by a pipeline** the realm server
+runs. Approvals are for pipelines only, so the same operation invoked from a
+card, the AI assistant or the CLI is refused `interactive-use-not-approved`
+and nothing is sent.
+
+**Nothing a card author writes schedules a pipeline.** No card, field,
+`realm.json` setting or operation declares one, and no operation turns a
+`callApi`'s answer into cards on its own. So a keyed integration a card author
+builds today is its declarations and its card: the user can approve the
+requests in the secure window, and the card renders fields that only a
+pipeline the platform runs would fill. Say so to the user rather than promising
+data, and never work around it by invoking the slotted operation from the
+card.
 
 - **No key → live card.** The card invokes the operation from an action (a
   click, opening a panel) and renders the answer. Never invoke one during a
   render: that is refused `not-during-render`.
-- **A key → pipeline.** The pipeline invokes the slotted operation on a
-  schedule, as whoever set it up, and writes what it learned into cards: one
-  card per pull request, say. The card a person opens renders those cards and
-  their fields, so it shows the same data in the app, in a search result and in
-  prerendered HTML, and its own code never reaches the key.
+- **A key → pipeline shape.** A pipeline invokes the slotted operation as
+  whoever approved it and writes what it learned into cards: one card per pull
+  request, say. The card a person opens renders those cards and their fields,
+  so it shows the same data in the app, in a search result and in prerendered
+  HTML, and its own code never reaches the key. Shape the card this way even
+  though nothing in the realm runs the pipeline.
 
 The reason for the split is session exposure: card code runs in the app page
 with the viewer's session, so a key a card could send interactively is a key
 any card the viewer opens could send. Per-workspace sandboxing of card code
-would close that; until then, private data comes through a pipeline.
+would close that. Without it, private data comes only through a pipeline.
 
 ## 3. Declare the `callApi` operations
 
 ```ts
-import StringField from '@cardstack/base/string';
 import {
   bxl,
   instance,
   operation,
-  params,
   type OperationDeclaration,
 } from '@cardstack/base/operations';
 
@@ -83,7 +91,9 @@ import {
 - **Unnamed slots** (`{{userKey}}`, `{{apiKey}}`) unless one request carries two
   credentials; then name them (`{{apiKey:token}}`, `{{apiKey:secret}}`).
 - **`perInstance: true`** when each card needs its own key (one webhook URL per
-  channel card); each card is approved on its own.
+  channel card); each card is approved on its own. Its approval is reached by
+  opening the window with the card (`cardId`), never the type, and
+  `keyReadiness` asked about it on the type answers `undefined`.
 - **Put the key in a header.** Never in a body field the vendor stores (a
   comment, a description), and avoid the query string, which vendors log.
 - **GraphQL takes variables.** A fixed `document`, every value passed in
@@ -92,10 +102,12 @@ import {
   a URL, a path or a body from the caller: the approval shows what is sent, and
   a passthrough would show nothing.
 - **Put the fixed part of the path first.** The request's destination is its
-  URL up to the first `{name}` segment; a key is granted for that destination,
-  so `https://api.github.com/repos/{owner}/{repo}/issues` grants
-  `api.github.com/repos/`, and `https://storage.example.com/{bucket}/…` the
-  whole host.
+  URL up to the first `{name}` segment, or up to the path's last `/` when it
+  has none; a key is granted for that destination. So
+  `https://api.github.com/repos/{owner}/{repo}/issues` grants
+  `api.github.com/repos/`, while `https://api.github.com/graphql` and
+  `https://storage.example.com/{bucket}/…` grant the whole host, and the
+  window says any request to that host can be sent with the key.
 
 **All of a card's operations are approved together.** When a card asks for
 one, the secure window shows every operation on the card that needs approving,
@@ -121,10 +133,20 @@ short:
 - Don't wait for a message from the window. Readiness is asked again when the
   user comes back to the app.
 
-In a pipeline integration, readiness answers for a call from the card, so it
-reads `needs-approval` even once the pipeline is approved. Show the Allow
-button beside the pipeline's data for whoever sets it up, and say that the
-card fills in when the pipeline next runs.
+**In a pipeline-shaped card, readiness can't tell whether the pipeline is
+set up.** It answers for a call from the card, per viewer:
+
+- A `{{userKey}}` slot reads `needs-connect` or `needs-approval` for every
+  viewer, including the one who approved it.
+- An `{{apiKey}}` slot reads `needs-admin` for everyone but the share's owner,
+  even once it is approved, and reads `needs-admin` to the owner too until the
+  first approval.
+
+So don't gate the card's data on readiness. Render the fields the pipeline
+writes whenever they hold something. Offer setup as a plain action that is
+always there: **Set up** opens the window in `approve` mode for one
+operation. When nothing needs approving, the window says so. A share's owner
+can also approve its requests from their key page (**Use with a card…**).
 
 ## 5. Polling cost
 
@@ -154,13 +176,15 @@ key owner's vendor rate limit, and for a shared key against everyone's.
   [`api-keys`](../api-keys/SKILL.md) → *OAuth connections*); otherwise the
   user pastes a fine-grained token as a key.
 - **Use GraphQL** (`https://api.github.com/graphql`): one request returns
-  pull requests, reviews and comments together. All of a card's GraphQL
-  operations share one destination, so one approval and one grant cover them.
+  pull requests, reviews and comments together. Its destination is the whole
+  host, `api.github.com/`, so one approval of the card and one grant cover
+  every GraphQL operation on it.
 - The key goes in `authorization: 'Bearer {{userKey}}'`.
 
-The PR Inbox, as a pipeline: the pipeline runs the operations below for the
-user who approved them and writes one `PullRequest` card per result; the inbox
-card lists those and offers Allow to whoever sets it up.
+The PR Inbox, in the pipeline shape: a pipeline would run the operations below
+for the user who approved them and write one `PullRequest` card per result;
+the inbox card lists those and always offers **Set up**. Nothing in the realm
+runs that pipeline, so the list stays empty until the platform does.
 
 ```ts
 import { CardDef, contains, field, linksToMany } from '@cardstack/base/card-api';
@@ -216,9 +240,9 @@ export class PRInbox extends CardDef {
 }
 ```
 
-The inbox's isolated view renders `pullRequests` and, beside them, the Allow
-button from §4 for `listPRs`; the window approves `listReviewRequests` in the
-same confirmation.
+The inbox's isolated view renders `pullRequests` and, beside them, the
+**Set up** button from §4 for `listPRs`; the window approves
+`listReviewRequests` in the same confirmation.
 
 ### A plain API key in a header
 
@@ -245,4 +269,6 @@ A local Boxel stack sends `http:` requests only to local hosts, so point the
 operation's `url` at a local stub while developing, approve it in the secure
 window at `https://localhost:4208/secure`, and switch the URL to the vendor's
 before sharing the card. Changing the URL changes the request, so the
-operation is approved again.
+operation is approved again. A call from the card is refused whatever is
+approved, so what can be checked locally is the approval: the window's batch,
+the grant it creates, and the refusal codes the card handles.

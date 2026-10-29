@@ -31,11 +31,11 @@ sealed on the realm server, and closes when the user is done.
 
 | Field                     | Holds                                                                                                                                                                                                                                                                                                                                                                               |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`                    | `enter-key` (add a key), `replace-key` (replace the key an operation sends), `share-key` (share one of the user's keys into a workspace), `connect` (sign in at a service through OAuth, see [below](#oauth-connections)), `approve` (approve the card's requests, see [Approving](#approving-a-cards-requests)) or `review-changes` (approve again what changed in them). Required |
+| `mode`                    | `enter-key` (add a key), `replace-key` (replace the key an operation sends), `share-key` (share one of the user's keys into a workspace), `swap-key` (put one of the user's keys into a workspace's suspended share), `connect` (sign in at a service through OAuth, see [below](#oauth-connections)), `approve` (approve the card's requests, see [Approving](#approving-a-cards-requests)) or `review-changes` (approve again what changed in them). Required |
 | `cardId`                  | `enter-key`, `replace-key`, `connect`, `approve`, `review-changes`: the card instance whose operation needs the key, as a URL or prefix-form id                                                                                                                                                                                                                                     |
 | `module`, `name`, `realm` | The same modes, for an operation on a card **type** instead of an instance: the type's module, its export name, and the workspace it is used in                                                                                                                                                                                                                                     |
 | `operation`               | The same modes: the name of the operation that needs the key. Needs `cardId`, or `module` + `name` + `realm`. Required for `replace-key`, `approve` and `review-changes`                                                                                                                                                                                                            |
-| `realm`                   | `share-key`: the workspace the key is shared into. Required. `connect`, on its own: offers the clients shared into that workspace                                                                                                                                                                                                                                                   |
+| `realm`, `share`          | `share-key`: the workspace the key is shared into (`realm`). Required. `swap-key`: the workspace and its suspended share (`share`, the share's id). `connect`, on its own: offers the clients shared into that workspace                                                                                                                                                                                                                                                   |
 | `reason`                  | One short line the window shows, labelled as written by whoever opened it ("Weather Station needs your forecast service key")                                                                                                                                                                                                                                                       |
 
 Every field **names** something; none carries a value. Never pass a key, a
@@ -156,12 +156,14 @@ showing, and never loops over its operations. Open it once per click; the
 answer the user comes back to is readiness asked again, not anything the
 window says.
 
-**Approving is for scheduled pipelines.** An approval lets a pipeline the
-realm server runs send the key; a call the card itself makes is still refused,
-so readiness asked from the card keeps answering `needs-approval` after the
-user approves. A card whose data needs a key shows what a pipeline wrote, with
-the Allow button for whoever sets the pipeline up, and says the card fills in
-when the pipeline next runs. See [`api-integrations`](../api-integrations/SKILL.md).
+**Approving is for pipelines.** An approval lets a pipeline the realm server
+runs send the key; a call the card itself makes is still refused, so readiness
+asked from the card never answers `ready` for an operation that carries a
+slot, and keeps answering `needs-approval` after the user approves. Nothing a
+card author writes schedules a pipeline, so a card never calls its slotted
+operation itself: it renders what a pipeline would write, and offers setup as
+an action that is always there rather than one gated on readiness. See
+[`api-integrations`](../api-integrations/SKILL.md) §2 and §4.
 
 **`undefined` is never "not ready".** It is the answer while the realm is
 being asked, where nothing can answer (a caller who may not invoke the
@@ -221,7 +223,7 @@ export class WeatherStation extends CardDef {
 
     <template>
       {{#if (eq this.readiness 'ready')}}
-        {{! render the forecast }}
+        {{! an operation with no slot: call it from an action and render the answer }}
       {{else if (eq this.readiness 'needs-connect')}}
         <button type='button' {{on 'click' this.allow}}>
           Connect your forecast service
@@ -294,9 +296,14 @@ the first step.
   `review-changes` for an operation refused "Binding needs re-approval",
   `connect` when the card says the user signs in at the service, or
   `share-key` with the workspace.
-  Call it once per operation in a conversation. The same refusal comes back
-  after the user enters a key (see the last section), so a repeated refusal is
-  never a reason to reopen the window.
+  Call it once per card in a conversation: the window gathers the card's other
+  operations, so a refusal of another of them is not a reason to open it again.
+  The same refusal comes back after the user approves (see the last section),
+  so a repeated refusal is never a reason to reopen the window either.
+- **"Interactive use not approved"** means the operation is approved, for
+  pipelines only, so a call from the assistant is refused and nothing is sent.
+  Tell the user it is set up for pipelines and can't be run from the chat;
+  don't open the window for it.
 - **In the same reply, say what you opened and why**: which card needs which
   key, that the user enters it in Boxel's secure window, and that the window's
   address bar should show Boxel's secure address. If the tool answered
