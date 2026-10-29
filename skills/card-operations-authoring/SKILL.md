@@ -1,6 +1,6 @@
 ---
 name: card-operations-authoring
-description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type", "hide the button if they can''t". Covers declaring `@operation` as data (the base operations, `params`, the typed references, the sugar clauses and the `bxl` escape hatch, `links`, `html`, `label`), `callApi` requests with credential slots, invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search, hiding a control with `@context.canInvoke` and `_capabilities`, what lowering refuses, and the refusals a caller sees. Activates on `@operation`, `callApi`, `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation".'
+description: 'Use when adding an operation to a card — "let users add a comment / invite a guardian / create a linked X from this card", "batch create and link", "append to a log without loading the card", "a saved search on this card type", "hide the button if they can''t". Covers declaring `@operation` as data (the base operations, `params`, the typed references, the sugar clauses and the `bxl` escape hatch, `links`, `html`, `label`), `callApi` requests with credential slots, invoking through `operations()` and `atomic()`, `nonGrantable`, what a policy does to a batch and to a search, hiding a control with `@context.canInvoke` and `_capabilities`, what lowering refuses, and the refusals a caller sees. Activates on `@operation`, `callApi`, `google-service-account`, "Google Sheets API", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `operations(`, `atomic(`, `appendContainsMany`, `appendLine`, `nonGrantable`, `operation-not-permitted`, `policyScopedRealms`, `canInvoke`, `_capabilities`, "card operation", "named operation".'
 boxel:
   kind: skill
 ---
@@ -254,6 +254,7 @@ user's keys into a realm they write to:
 boxel keys sign-in                                   # once: lets this CLI change keys
 boxel keys status                                    # whether it can
 boxel keys add <name>                                # masked prompt; --stdin or --key-file without a terminal
+boxel keys add <name> --kind google-service-account --key-file <file> --scope <scope>  # a Google service account
 boxel keys share <name> --realm <url> [--as <label>] # into a realm they write to
 boxel keys list                                      # their keys, never a value
 boxel keys show <name>                               # one key and the shares it's in
@@ -281,6 +282,50 @@ a command line.
   the user names. The other commands you can run.
 - In the app, open the secure window with the `open-secure-window` tool
   ([`api-keys`](../api-keys/SKILL.md)); the user types the value there.
+
+**A Google service account is a key whose token is what gets sent.** The
+slot rules above apply unchanged: an operation carrying a slot is refused
+`binding-not-approved` and sends nothing. What a service account changes is
+what the slot would hold. The user stores the account's JSON key file as a
+key of its own kind, and Google's API is sent a short-lived access token made
+from it, never the file. So a Google request is declared like any other, with
+the slot where Google takes a bearer token:
+
+```ts
+@operation static readRange = {
+  base: 'callApi',
+  label: 'Read a range of this spreadsheet',
+  params: { range: StringField },
+  url: 'https://sheets.googleapis.com/v4/spreadsheets/{id}/values/{range}',
+  path: { id: instance('spreadsheetId'), range: params('range') },
+  headers: { authorization: 'Bearer {{userKey}}' },
+  output: bxl`{status: .status, values: .body.values}`,
+} satisfies OperationDeclaration;
+```
+
+- **Each Google host is its own destination.** `sheets.googleapis.com` and
+  `drive.googleapis.com` are different destinations, and nothing covers
+  `*.googleapis.com`, so a card that calls both declares an operation for
+  each.
+- **Scopes belong to the key, not the card.** Say in the card which scopes it
+  needs (`https://www.googleapis.com/auth/spreadsheets.readonly`, …) so the
+  user enters a key that has them. A token without the scope gets Google's own
+  403, which comes back as the response.
+- **Never call the token endpoint yourself.** An operation addressed to
+  `https://oauth2.googleapis.com/token` is refused `guard-refused`, with or
+  without a key.
+- **Where the slot is filled from a service account, a key Google refuses**
+  (revoked, deleted, a disabled account, a subject the service account can't
+  act as) is refused `credential-rejected`, and nothing reaches the API; the
+  message says the owner replaces the key. The same code comes when Google's
+  token endpoint kept failing, and then the message says asking again later
+  may work. Branch on the code; show the message.
+- **Entering one.** In the secure window, the user picks **Google service
+  account** and chooses the key file. From a terminal:
+  `boxel keys add <name> --kind google-service-account --key-file <path>
+--scope <scope> [--scope <scope>] [--subject <email>]`. `replace` takes a new
+  key file with `--scope` (and `--subject`) the same way. The key file is read
+  from a file or `--stdin`, never typed.
 
 **Never during a render.** A template that invokes a `callApi` while the card
 renders is refused `not-during-render`: a render is replayed and shared, so it
@@ -1340,10 +1385,9 @@ try {
 | `payload-too-large`        | Over the realm's ceiling for a card or file                   |
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
 | `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
-| `credential-rejected`      | A scheduled pipeline's `callApi` whose slot is filled by an OAuth connection that can't get a token: `meta.reason` `rejected` (the user reconnects), `needs-admin` (the client needs its administrator) or `unavailable` (try later) — nothing was sent. See [`api-keys`](../api-keys/SKILL.md) |
+| `credential-rejected`      | The key a `callApi` slot sends can't be used. Either the service rejected it (it answered 401), after which calls with that key to that service aren't sent except a periodic retry; or a key that mints its tokens couldn't get one, and nothing was sent: an OAuth connection in a scheduled pipeline (`meta.reason` `rejected`: the user reconnects; `needs-admin`: the client needs its administrator; `unavailable`: try later), or a Google service account whose key Google refuses or whose token endpoint keeps failing (see the Google recipe above). Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
-| `credential-rejected`      | The service rejected the key a `callApi` slot sends (it answered 401). Calls with that key to that service aren't sent, except a periodic retry. Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
-| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, or a request outside its declared destination (nothing was sent); or a redirect hop that was refused or one too many (the request had already reached the vendor) |
+| `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's, which only the platform calls, so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
 | `response-too-large`       | The outside service's response was larger than the realm server carries |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
