@@ -163,7 +163,7 @@ user who approved them and writes one `PullRequest` card per result; the inbox
 card lists those and offers Allow to whoever sets it up.
 
 ```ts
-import { CardDef, Component, contains, field, linksToMany } from '@cardstack/base/card-api';
+import { CardDef, contains, field, linksToMany } from '@cardstack/base/card-api';
 import StringField from '@cardstack/base/string';
 import {
   bxl,
