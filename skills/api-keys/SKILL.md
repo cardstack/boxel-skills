@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, share a key, connect an account through OAuth, approve a card''s requests, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`.'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, replace the key an operation sends, share a key, connect an account through OAuth, approve a card''s requests, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, and Reconnect, which opens the window to replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "replace a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`.'
 boxel:
   kind: skill
   tools:
@@ -29,14 +29,14 @@ sealed on the realm server, and closes when the user is done.
 `@cardstack/boxel-host/tools/open-secure-window` (default export,
 `OpenSecureWindowTool`). Its input:
 
-| Field                     | Holds                                                                                                                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`                    | `enter-key` (add a key), `share-key` (share one of the user's keys into a workspace), `connect` (sign in at a service through OAuth, see [below](#oauth-connections)), `approve` (approve the card's requests, see [Approving](#approving-a-cards-requests)) or `review-changes` (approve again what changed in them). Required |
-| `cardId`                  | `enter-key`, `connect`, `approve`, `review-changes`: the card instance whose operation needs the key, as a URL or prefix-form id                                                   |
-| `module`, `name`, `realm` | The same modes, for an operation on a card **type** instead of an instance: the type's module, its export name, and the workspace it is used in                                   |
-| `operation`               | The same modes: the name of the operation that needs the key (required for `approve` and `review-changes`). Needs `cardId`, or `module` + `name` + `realm`                       |
-| `realm`                   | `share-key`: the workspace the key is shared into. Required. `connect`, on its own: offers the clients shared into that workspace                                                 |
-| `reason`                  | One short line the window shows, labelled as written by whoever opened it ("Weather Station needs your forecast service key")                                                     |
+| Field                     | Holds                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`                    | `enter-key` (add a key), `replace-key` (replace the key an operation sends), `share-key` (share one of the user's keys into a workspace), `connect` (sign in at a service through OAuth, see [below](#oauth-connections)), `approve` (approve the card's requests, see [Approving](#approving-a-cards-requests)) or `review-changes` (approve again what changed in them). Required |
+| `cardId`                  | `enter-key`, `replace-key`, `connect`, `approve`, `review-changes`: the card instance whose operation needs the key, as a URL or prefix-form id                                                                                                                                                                                                                                     |
+| `module`, `name`, `realm` | The same modes, for an operation on a card **type** instead of an instance: the type's module, its export name, and the workspace it is used in                                                                                                                                                                                                                                     |
+| `operation`               | The same modes: the name of the operation that needs the key. Needs `cardId`, or `module` + `name` + `realm`. Required for `replace-key`, `approve` and `review-changes`                                                                                                                                                                                                            |
+| `realm`                   | `share-key`: the workspace the key is shared into. Required. `connect`, on its own: offers the clients shared into that workspace                                                                                                                                                                                                                                                   |
+| `reason`                  | One short line the window shows, labelled as written by whoever opened it ("Weather Station needs your forecast service key")                                                                                                                                                                                                                                                       |
 
 Every field **names** something; none carries a value. Never pass a key, a
 token, a destination URL or anything secret. The window asks the realm server
@@ -119,6 +119,8 @@ export class WeatherStation extends CardDef {
 - Don't read anything back from the window. There is no value to read, and the
   window has no handle back to the page.
 - To share a key into a workspace, pass `mode: 'share-key'` and `realm`.
+- To replace the key an operation sends, pass `mode: 'replace-key'` with the
+  same `cardId` and `operation` (see the last section).
 - To have the user sign in at the service instead of pasting a key, pass
   `mode: 'connect'` with the same card and operation (see
   [OAuth connections](#oauth-connections)).
@@ -134,16 +136,16 @@ URL), or a card class with `{ realm }` for an operation on a type, as for
 answers the same way: synchronously, from what the app already knows, and
 re-rendering when the answer lands.
 
-| Answer                | Means                                                                                                          | The card shows                                                                                                                                                             |
-| --------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ready`               | The call will have its key                                                                                     | The data; call the operation                                                                                                                                               |
-| `needs-connect`       | None of the user's keys may be sent where the operation sends                                                  | A **Connect** button that opens the secure window in `approve` mode for this operation; its key choice adds a key, and `connect` mode is for a service the user signs in to  |
-| `needs-approval`      | The user has a key that could be sent there, but the operation isn't approved here, or not for use from a card | An **Allow** button that opens the secure window in `approve` mode for this operation                                                                                      |
+| Answer                | Means                                                                                                          | The card shows                                                                                                                                                              |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ready`               | The call will have its key                                                                                     | The data; call the operation                                                                                                                                                |
+| `needs-connect`       | None of the user's keys may be sent where the operation sends                                                  | A **Connect** button that opens the secure window in `approve` mode for this operation; its key choice adds a key, and `connect` mode is for a service the user signs in to |
+| `needs-approval`      | The user has a key that could be sent there, but the operation isn't approved here, or not for use from a card | An **Allow** button that opens the secure window in `approve` mode for this operation                                                                                       |
 | `needs-reapproval`    | What the operation sends changed since it was approved                                                         | A **Review changes** button that opens the secure window in `review-changes` mode for this operation                                                                        |
-| `needs-admin`         | A key the workspace provides isn't set up for this, and the user can't set it up                               | "An administrator of this workspace needs to set this up", no button                                                                                                       |
-| `needs-sign-in`       | Nobody is signed in, and the key the operation needs isn't available to signed-out visitors                    | Sign in                                                                                                                                                                    |
-| `credential-rejected` | The service rejected the key, and the realm server is holding it back until its next retry                     | That the service rejected the key, with Try again; no secure-window button                                                                                                 |
-| `undefined`           | **Not known yet**                                                                                              | Nothing                                                                                                                                                                    |
+| `needs-admin`         | A key the workspace provides isn't set up for this, and the user can't set it up                               | "An administrator of this workspace needs to set this up", no button                                                                                                        |
+| `needs-sign-in`       | Nobody is signed in, and the key the operation needs isn't available to signed-out visitors                    | Sign in                                                                                                                                                                     |
+| `credential-rejected` | The service rejected the key, and the realm server is holding it back until its next retry                     | That the service rejected the key, with Try again and Reconnect (`replace-key`)                                                                                             |
+| `undefined`           | **Not known yet**                                                                                              | Nothing                                                                                                                                                                     |
 
 **One button per answer the window fixes, for the one operation.** Pass the
 operation the card is blocked on, never a list: the window gathers every
@@ -372,16 +374,59 @@ connection's has its own reasons, under [OAuth connections](#oauth-connections).
   {{/if}}
   ```
 
-- **The key is replaced on its own page in Boxel's secure window**, or with
-  `boxel keys replace <name>` from a terminal. That is what clears the
-  rejection. `open-secure-window`'s `enter-key` mode adds a **new** key, which
-  leaves the rejected one in place, so don't open it for this refusal.
-- **In the AI assistant**, on an operation refused "Credential rejected", tell
-  the user which service rejected the key (the message names it). Say that
-  the key's owner replaces it on the key's page in Boxel's secure window or
-  with `boxel keys replace`, and that the card picks it up again on its own
-  once the service accepts the key. Don't open the secure window for it, and
-  never ask for the key in the chat.
+- **The key is replaced in Boxel's secure window, from a Reconnect button.**
+  Replacing the key clears the rejection at once, without waiting for a
+  retry the service accepts, so show **Reconnect** beside Try again, and have
+  it open the window with `mode: 'replace-key'`, naming the card and the
+  operation as `enter-key` does. The card never names a key: the
+  window finds the key from the user's approval of that operation and offers
+  to replace it. When the slot is filled by a key someone else shared into the
+  workspace, there is nothing for this user to replace, so the window says
+  only the person who shared it can. It names that person to the workspace's
+  direct writers, and tells anyone else to ask one of them. When no key is
+  approved for the operation, it says there is nothing to replace. Don't open
+  `enter-key` for this refusal: it adds a **new** key and leaves the rejected
+  one in place. From a terminal, `boxel keys replace <name>` replaces it too.
+
+  ```gts
+  reconnect = async () => {
+    let toolContext = this.args.context?.toolContext;
+    if (!toolContext || !this.args.model.id) {
+      return;
+    }
+    this.problem = undefined;
+    try {
+      await new OpenSecureWindowTool(toolContext).execute({
+        mode: 'replace-key',
+        cardId: this.args.model.id,
+        operation: 'forecast',
+        reason: 'The forecast service rejected your key',
+      });
+    } catch (e) {
+      // e.g. a Boxel deployment that offers no secure window
+      this.problem = e instanceof Error ? e.message : String(e);
+    }
+  };
+  ```
+
+  ```gts
+  {{#if this.rejected}}
+    <p>The forecast service rejected your key.</p>
+    <button type='button' {{on 'click' this.reconnect}}>Reconnect</button>
+    <button type='button' {{on 'click' this.tryAgain}}>Try again</button>
+    {{#if this.problem}}<p role='alert'>{{this.problem}}</p>{{/if}}
+  {{/if}}
+  ```
+
+  As for `enter-key`, the tool says only whether the window opened. The card
+  learns the key works again the next time a call succeeds, so Try again after
+  the window closes is the way to check.
+
+- **In the AI assistant**, on an operation refused "Credential rejected", call
+  `open-secure-window` once with `mode: 'replace-key'`, the card and the
+  operation. In the same reply, tell the user which service rejected the key
+  (the message names it) and that they replace it in the window that opens.
+  Never ask for the key in the chat.
 - A **403** from the service is not this refusal. It arrives as the
   operation's answer (`status: 403`), because a service also uses 403 for a
   missing permission on one resource or for a rate limit. Read the body.
