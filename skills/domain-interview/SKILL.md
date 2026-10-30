@@ -133,10 +133,10 @@ approved and then rebuilt.
 ### Ask every round through the choice UI
 
 **Every round goes to the user as selectable options, not as prose questions.** When the harness
-has a structured choice tool (the Boxel AI assistant's `ask-user`, which takes one question per
-call, so a round there is one `ask-user` call for each question, in the same reply; Claude Code's
-`AskUserQuestion`, which renders as radio buttons and checkboxes), a round is one call to it, not
-a numbered list of questions typed into chat. Almost every question here has a small, nameable set of likely answers ("shared stock across platforms,
+has a structured choice tool (the Boxel AI assistant's `realm.ask`, which takes one question per
+call, so a round there is one `run-realm-code` script with a `realm.ask` call for each question;
+Claude Code's `AskUserQuestion`, which renders as radio buttons and checkboxes), a round is one
+call to it, not a numbered list of questions typed into chat. Almost every question here has a small, nameable set of likely answers ("shared stock across platforms,
 or separate per platform?", "full status lifecycle, or a simple resolved/unresolved flag?"). A
 user who is not a domain expert can pick from a list long before they could write the answer, and
 naming the options teaches them the domain.
