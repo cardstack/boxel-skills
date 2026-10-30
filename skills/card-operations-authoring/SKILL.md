@@ -259,7 +259,7 @@ boxel keys share <name> --realm <url> [--as <label>] # into a realm they write t
 boxel keys list                                      # their keys, never a value
 boxel keys show <name>                               # one key and the shares it's in
 boxel keys shares --realm <url>                      # a realm's shares, for its writers
-boxel keys add <name> --kind oauth-client --client-id <id> --authorize-url <url> --token-url <url> --scopes <scope>  # an OAuth app
+boxel keys add <name> --kind oauth-client --client-id <id> --authorize-url <url> --token-url <url> --scopes <scope> --api-host <url>  # an OAuth app
 boxel keys clients [--realm <url>]                   # the OAuth apps they can connect through
 boxel keys connect <name> --client <app> [--realm <url>]  # sign in at the service in the browser
 ```
