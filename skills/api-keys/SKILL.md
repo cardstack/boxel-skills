@@ -335,7 +335,8 @@ than retrying from the card or reopening the window. See
 slotted operations and [`api-integrations`](../api-integrations/SKILL.md) for
 the card-plus-pipeline shape.
 
-From a terminal, `boxel keys` adds and shares keys too (same section).
+From a terminal, `boxel keys` adds and shares keys, and connects accounts
+through OAuth, too (same section, and [OAuth connections](#oauth-connections)).
 
 ## When the service rejects the key
 
@@ -526,6 +527,42 @@ since a service refuses a sign-in that returns anywhere it wasn't told; and,
 for a GitHub App, an **installation** on the account or organization whose
 repositories it reads, since a connection reaches only repositories the app is
 installed on.
+
+**From a terminal**, `boxel keys` adds a client, shares it into a workspace
+and connects an account through it; registering the app with the service, as
+above, comes first. The client secret is typed at a masked prompt in the
+user's own terminal (or read from a file they name with `--key-file`), never
+given as an argument or passed through the chat, and no command prints a
+token. Who runs which command, and the browser sign-in these need, are in
+[`card-operations-authoring`](../card-operations-authoring/SKILL.md) §2:
+
+```bash
+# Add the app you registered with the service, then share it in
+boxel keys add forge-app --kind oauth-client --client-id <id> \
+  --authorize-url https://forge.example/oauth/authorize \
+  --token-url https://forge.example/oauth/token \
+  --scopes read:user --api-host https://api.forge.example/
+boxel keys share forge-app --realm <workspace-url> --as "Forge"
+
+# What you can connect through: Boxel's own, yours, and the workspace's
+boxel keys clients --realm <workspace-url>
+
+# Sign in at the service in the browser; the result is your connection
+boxel keys connect my-forge --client Forge --realm <workspace-url>
+boxel keys connect my-github --client platform:github
+```
+
+`--api-host` names the API addresses the client serves, so the secure window
+offers it for operations sent there. `connect` names a shared client by its
+label with `--realm`, one of your own by its key name, and one of Boxel's as
+`platform:<name>`. It opens the service's sign-in page and waits. The service
+sends the browser back through the realm server's `/_oauth/callback` to a
+page of Boxel's secure window, which asks the user to **Continue in the
+terminal** and hands the sign-in back to the CLI; the CLI finishes it with
+its own sign-in, so the browser needn't be signed in to Boxel. The command
+ends once the connection is saved. Like a connection made in the secure
+window, it doesn't by itself let an operation send it (see
+[What a stored key does](#what-a-stored-key-does)).
 
 **For GitHub, register a GitHub App, not an OAuth App.** An OAuth App's only
 scope that reaches private repositories, `repo`, can also write to them, so
