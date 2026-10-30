@@ -397,9 +397,9 @@ the user's key page in the secure window, which keeps its approvals. The window 
 destination — those shared into the workspace, or Boxel's own when the
 workspace shares none for that service, then the user's own — each with the
 permissions it asks for. When the list leads with the workspace's one client
-for the service, or Boxel's one, that client starts out chosen; otherwise the
-user picks. The user picks one and signs in
-on the service's page; the service sends them back to the realm server, never
+for the service, or Boxel's one, or offers only one client, that client starts
+out chosen; otherwise the user picks one. The user signs in with the chosen
+client on the service's page; the service sends them back to the realm server, never
 to the app. With no client to offer, the window says who can set one up.
 
 **When a connection stops working**, a pipeline call through it is refused
