@@ -54,6 +54,7 @@ declaration is invisible to those types and the payload goes unchecked.
 | A named action that writes the card, invocable from a template, another card, or an agent | **An operation**        |
 | Several cards changed all-or-nothing                     | **An operation** inside `atomic()`             |
 | A request to an outside API that needs no key of the user's or the realm's | **A `callApi` operation** (§2) |
+| A request to an outside API with the user's or the realm's key | **A `callApi` operation with a slot**, sent only by a pipeline the platform runs; nothing in a card or realm schedules one ([`api-integrations`](../api-integrations/SKILL.md)) |
 | Work that needs an LLM, host services, or logic around a fetch | A command — operations run no author JavaScript |
 
 The dividing line is that an operation is *data the realm executes*. That buys
@@ -64,10 +65,9 @@ operation has: the card declares it as data and the realm server sends it. A
 model call, a host service, or code around a fetch is a command.
 
 **No card code reaches a key the user or the realm holds.** A `callApi`
-credential slot is refused `binding-not-approved` (§2), and the free-form
-proxy (`SendRequestViaProxyCommand`) never fills one. For an API that needs
-such a key, tell the user a card can't call it with their key — don't ship a
-slotted operation, and never put a key in card code.
+credential slot is filled only for a scheduled pipeline, from an approval its
+key's owner gave in the secure window (§2), and the free-form proxy
+(`SendRequestViaProxyCommand`) never fills one. Never put a key in card code.
 
 ## 2. Declaring
 
@@ -201,6 +201,7 @@ let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
 | `json`     | A JSON body, sent as `application/json`                                    |
 | `graphql`  | `{ document, variables }`: a fixed document string, every value passed as a variable |
 | `method`   | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. Absent: `GET`, or `POST` when there is a body |
+| `perInstance` | Optional. `true` when each card needs its own approval (one webhook URL per channel card). Approved from the card (`cardId`), never the type; `keyReadiness` on the type answers `undefined` |
 | `output`   | Optional. Maps the response, `{status, headers, body}`, to the object the caller gets back — an object, never a list or a bare value |
 
 Values are the typed references (`params()`, `actor()`, `realmConfig()`,
@@ -230,17 +231,23 @@ otherwise. `headers` carries only the ones that describe the body
 (`content-type`, `etag`, `cache-control`, `link`, `location`, `retry-after`,
 rate-limit headers and the like), never `set-cookie`.
 
-**A request that needs a key has no working path.** The declaration grammar
-has credential slots — `{{userKey}}` for the invoking user's key, `{{apiKey}}`
-for one the realm holds, `{{apiKey:name}}` for a named one, `|basic` for the
-HTTP Basic form — written inside a header, query, `path` or JSON body string.
-But the realm binds no key to a slot, so **every operation carrying one is
-refused `binding-not-approved`, and nothing is sent**, whoever invokes it. Don't
-write a slotted operation: for an API that needs the user's or the realm's key,
-tell the user a card can't call it with their key. The slot rules lowering
-enforces (§4) are there so an operation carrying one is recognised and refused
-at the right place, not a recipe. An operation with no slot works without any
-approval.
+**A request that needs a key is sent only by a pipeline.** The
+declaration grammar has credential slots — `{{userKey}}` for the invoking
+user's key, `{{apiKey}}` for one the realm holds, `{{apiKey:name}}` for a named
+one, `|basic` for the HTTP Basic form — written inside a header, query, `path`
+or JSON body string. A slot is filled only from an **approval**: the key's
+owner approves the operation, in this realm, in Boxel's secure window (every
+operation on the card at once; see [`api-keys`](../api-keys/SKILL.md)), naming
+which of their keys fills it. Until then the operation is refused
+`binding-not-approved` and nothing is sent. Approvals are for pipelines only:
+the same operation invoked from a card, the AI assistant or the CLI is refused
+`interactive-use-not-approved`. A pipeline is run by the realm server, and
+nothing a card author writes — no card, field, operation or `realm.json`
+setting — schedules one. So a card whose data needs a key renders fields a
+pipeline would write, and never calls the slotted operation itself;
+[`api-integrations`](../api-integrations/SKILL.md) shows the shape. An
+operation with no slot works without any approval. The slot rules lowering
+enforces are in §4.
 
 **A user keeps their own keys in Boxel's secure window or the Boxel CLI,
 never in a card.** Not in a field, a card's source, `realm.json` or the chat.
@@ -264,9 +271,10 @@ boxel keys shares --realm <url>                      # a realm's shares, for its
 `replace`, `delete` (`--yes` without a terminal), `unshare` and `swap` (put
 one of their keys into a realm's suspended share) work alike.
 
-**Nothing uses a stored or shared key.** No slot reads one, and there is no
-approval that lets an operation send one, so storing or sharing a key doesn't
-make a slotted operation work. Don't offer to approve one.
+**A stored or shared key fills nothing by itself.** Approving the operation in
+the secure window is what names a key for a slot, and only for a scheduled
+pipeline. Storing or sharing a key without that approval leaves a slotted
+operation refused `binding-not-approved`.
 
 **Changing a key needs the CLI signed in to manage keys.** A profile added
 with `boxel profile add` through the browser already is; otherwise
@@ -284,8 +292,8 @@ a command line.
   ([`api-keys`](../api-keys/SKILL.md)); the user types the value there.
 
 **A Google service account is a key whose token is what gets sent.** The
-slot rules above apply unchanged: an operation carrying a slot is refused
-`binding-not-approved` and sends nothing. What a service account changes is
+slot rules above apply unchanged: an operation carrying a slot is sent only
+from an approved scheduled pipeline. What a service account changes is
 what the slot would hold. The user stores the account's JSON key file as a
 key of its own kind, and Google's API is sent a short-lived access token made
 from it, never the file. So a Google request is declared like any other, with
@@ -1384,7 +1392,10 @@ try {
 | `precondition-unverifiable`| A conditional write the realm could not decide                |
 | `payload-too-large`        | Over the realm's ceiling for a card or file                   |
 | `wrong-entry-point`        | Reached the operation core with a `query`, or sent a `callApi` in a read-only (`QUERY`) batch |
-| `binding-not-approved`     | A `callApi` carrying a credential slot; the realm binds no key to one, so every such operation is refused — nothing was sent |
+| `binding-not-approved`     | A `callApi` carrying a credential slot that no approval fills for this caller in this realm (never approved, or its key or grant was removed) — nothing was sent. The key's owner approves it in the secure window ([`api-keys`](../api-keys/SKILL.md)) |
+| `share-suspended`          | A slot filled from a workspace's share that is suspended (its owner lost write access, a writer suspended it, or its key was deleted) — nothing was sent; a direct writer resumes it or swaps a key in |
+| `binding-needs-reapproval` | The operation sends something other than what was approved for a slot — nothing is sent until its key's owner reviews the change in the secure window |
+| `interactive-use-not-approved` | A slotted `callApi` invoked from a card, the assistant or the CLI: approvals are for scheduled pipelines only — nothing was sent |
 | `credential-rejected`      | The key a `callApi` slot sends can't be used. Either the service rejected it (it answered 401), after which calls with that key to that service aren't sent except a periodic retry; or a key that mints its tokens couldn't get one, and nothing was sent: an OAuth connection in a scheduled pipeline (`meta.reason` `rejected`: the user reconnects; `needs-admin`: the client needs its administrator; `unavailable`: try later), or a Google service account whose key Google refuses or whose token endpoint keeps failing (see the Google recipe above). Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's, which only the platform calls, so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
