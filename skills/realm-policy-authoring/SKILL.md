@@ -410,10 +410,12 @@ permissions decline:
 - **The module serve resolves an import name as it does for a reader.**
   `./classroom` reaches `classroom.gts`, and the gate judges the module the
   name resolved to, so a grant on `GtsFileDef` serves it by either name.
-- **Neither the source cache nor the module caches.** Nothing the routes cached
-  for a reader answers them, and nothing read or compiled for them is kept
-  for anyone else: admitted callers asking for the same version of a module at
-  the same moment share one compile, and nothing outlives it.
+- **The gate decides before any cache answers.** Nothing the routes cached
+  for a reader answers a caller the gate refuses. A caller it admits to a
+  module is served from the module caches a reader is, and a module compiled
+  for them fills those caches for whoever asks next. Source read on
+  `card+source` or the raw file serve is read for them alone, and isn't
+  cached.
 - **A granted response is always `Cache-Control: private`.**
 - **`If-None-Match` and the other validators count only after the gate has
   admitted the read**, so a refused caller can't probe a file's content with an
@@ -458,11 +460,17 @@ but only on the part of that type's chain that is code:
   [Over HTTP](#over-http)).
 - **Its `where` reads what a data file's does**: `actor()`, `instance("id")`
   and `realmConfig()` (see [Predicates on a file](#predicates-on-a-file)).
-- **A granted module is served `Cache-Control: private`** and compiled outside
-  the module caches. Nothing compiled is kept, so an admitted read costs a
-  compile unless another admitted caller is compiling the same version at that
-  moment. A revalidation whose `If-None-Match` still matches answers 304
-  without one. A caller with the realm's own read is served from the caches.
+- **A granted module is served `Cache-Control: private`**, from the same
+  module caches a caller with the realm's own read is served from, once the
+  gate has admitted the read. A compile depends on nothing but the file, so a
+  module is compiled once per version of the file, whoever asks for it first,
+  and every caller the gate admits after that is served the cached compile. A
+  caller the gate refuses never reaches the caches, and a revalidation is
+  compared only after the gate admits it. A shared cache in front of the realm
+  (a CDN or a proxy) never stores a granted module, because it would answer
+  without the gate: past each grant's blocklist and rate limit, and after a
+  grant is narrowed or removed. Put modules that need to be CDN-cacheable in a
+  realm with a `*: read` permission.
 - **A code grant can open modules to callers who aren't signed in**, as any
   file grant can, when its `where` names them (§12). A card opened to visitors
   needs its module opened to them too, or the card reads and fails to render.
