@@ -315,11 +315,13 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   it needs someone at the browser and can't run in a script, `--yes` or not.
   An approval that only reuses where the key already goes finishes in the
   terminal. `boxel keys swap` works the same way. Run without a terminal,
-  any approval needs `--yes`.
+  any approval needs `--yes`. The window approves every slot of an
+  operation, so `--slot` works only where the key already goes.
 - **`pending`** lists the approvals that need approving again: one whose
   request changed since it was approved (even before any call has found it),
-  one whose grant was removed (so everything an `ungrant` revoked), and one
-  whose operation can't be read now.
+  and one whose operation can't be read now. `revoke` and `ungrant` take
+  approvals away entirely, so those aren't listed: approve again to put
+  them back.
 - **The CLI invokes interactively**, as a card or the assistant does, so
   `boxel operations invoke` sends a keyless operation and answers with what
   the vendor answered, while one that sends a key, such as `listPRs`, is
