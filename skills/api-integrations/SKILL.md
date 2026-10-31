@@ -284,33 +284,47 @@ is reported with the code lowering gives it (`slot-out-of-place`,
 `label` and on a URL that isn't `https:` (a local stub's, while
 developing).
 
-The user approves and checks the operations from the CLI too:
+The user approves and checks the operations from the CLI too. For the PR
+inbox in §6, defined in `pr-inbox.gts` in the workspace (`--operation` takes
+the module relative to `--realm`, or its full URL):
 
 ```bash
 # Approve every operation on the card that needs it, with one of your keys.
-# Every request is printed first; one confirmation approves them all.
-boxel keys approve "Work GitHub token" --operation inbox#Inbox --realm <workspace-url>
-# Or one operation, or the workspace's shared key by its label.
-boxel keys approve "Work GitHub token" --operation inbox#Inbox.listPRs --realm <workspace-url>
-boxel keys approve Forge --operation inbox#Inbox --realm <workspace-url>
+# Every request is printed first, then one confirmation approves them.
+boxel keys approve "Work GitHub token" --operation pr-inbox#PRInbox --realm <workspace-url>
+# Or just one of them.
+boxel keys approve "Work GitHub token" --operation pr-inbox#PRInbox.listPRs --realm <workspace-url>
 
-boxel keys pending                       # approvals whose request changed since
-boxel keys revoke "Work GitHub token" --operation inbox#Inbox.listPRs --realm <workspace-url>
+boxel keys pending      # approvals that won't send as approved
+boxel keys revoke "Work GitHub token" --operation pr-inbox#PRInbox.listPRs --realm <workspace-url>
 boxel keys ungrant "Work GitHub token" --destination https://api.github.com/
 
-# Invoke an operation on a card, or on a type as <module>#<Class>.
-boxel operations invoke <card-url> listPRs --params '{"state":"open"}'
+# Invoke an operation on a card, or on a type as <module URL>#<Class>.
+boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
 ```
 
+- **A `{{userKey}}` slot takes one of your keys by its name; an `{{apiKey}}`
+  slot takes your share in the workspace by its label**, so for an operation
+  written with `{{apiKey}}` the first argument is the label the workspace
+  knows the share by. `--slot` picks one slot when an operation has several.
+- **One confirmation approves up to a batch's worth.** A card with very many
+  operations says how many are left, and running it again approves the rest.
 - **A key's first send to a host is confirmed in the secure window.** When
   approving would send a key somewhere it has never been sent, the CLI opens
-  the window's approval for that batch and finishes when the window does.
+  the window's approval for that batch and finishes when the window does, so
+  it needs someone at the browser and can't run in a script, `--yes` or not.
   An approval that only reuses where the key already goes finishes in the
-  terminal. `boxel keys swap` works the same way.
+  terminal. `boxel keys swap` works the same way. Run without a terminal,
+  any approval needs `--yes`.
+- **`pending`** lists the approvals that need approving again: one whose
+  request changed since it was approved (even before any call has found it),
+  one whose grant was removed (so everything an `ungrant` revoked), and one
+  whose operation can't be read now.
 - **The CLI invokes interactively**, as a card or the assistant does, so
   `boxel operations invoke` sends a keyless operation and answers with what
-  the vendor answered, while one that sends a key is refused
-  `interactive-use-not-approved`: approvals are for pipelines.
-  `--interactive` on `approve` is refused for the same reason.
+  the vendor answered, while one that sends a key, such as `listPRs`, is
+  refused `interactive-use-not-approved`: approvals are for pipelines.
+  `--interactive` on `approve` is refused for the same reason. A type is
+  named by its module's full URL here, not one relative to a workspace.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.
