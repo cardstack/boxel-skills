@@ -156,9 +156,12 @@ key owner's vendor rate limit, and for a shared key against everyone's. Calls
 from a live card also count against the limits the key's owner sets in Boxel:
 by default 25 calls at once per viewer, refilled at 15 a minute, and 2,400
 calls a day for the key across every viewer. A card refreshing 25 calls every
-5 minutes fits one viewer's limit; keep the per-day estimate under the key's
-daily budget, or the card stops for everyone until the day turns. A
-pipeline's calls don't count against these.
+5 minutes fits one viewer's rate limit, but not the daily budget all day: that
+is 300 calls an hour, so one tab open for 8 hours spends the 2,400, and one
+left open around the clock spends 7,200. Keep the per-day estimate under the
+key's daily budget, or the card stops for every viewer until it resets at
+midnight UTC. Pausing while the tab is hidden is what keeps a live card within
+it. A pipeline's calls don't count against these.
 
 - **Batch.** One GraphQL query for everything the card shows beats one REST
   call per item.
