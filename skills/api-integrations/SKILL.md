@@ -152,7 +152,13 @@ can also approve its requests from their key page (**Use with a card…**).
 
 Estimate calls per day before choosing a schedule:
 `viewers × runs per day × operations per run`. Every call counts against the
-key owner's vendor rate limit, and for a shared key against everyone's.
+key owner's vendor rate limit, and for a shared key against everyone's. Calls
+from a live card also count against the limits the key's owner sets in Boxel:
+by default 25 calls at once per viewer, refilled at 15 a minute, and 2,400
+calls a day for the key across every viewer. A card refreshing 25 calls every
+5 minutes fits one viewer's limit; keep the per-day estimate under the key's
+daily budget, or the card stops for everyone until the day turns. A
+pipeline's calls don't count against these.
 
 - **Batch.** One GraphQL query for everything the card shows beats one REST
   call per item.
@@ -161,9 +167,11 @@ key owner's vendor rate limit, and for a shared key against everyone's.
 - In a live card, fetch only in the `isolated` view, never in `embedded` or
   `fitted` (a search result lists dozens), and pause while the tab is hidden
   (`document.visibilityState`).
-- On `credential-rejected`, stop polling until the user acts; on a vendor's
-  own rate-limit answer (a 429 or a `retry-after` header in the response), wait
-  before calling again.
+- On `credential-rejected` or `over-budget`, stop polling until the user acts
+  or the budget resets; on `rate-limited`, wait the refusal's
+  `retryAfterSeconds` before calling again ([`api-keys`](../api-keys/SKILL.md)
+  → *When a call is over a limit*). On a vendor's own rate-limit answer (a 429
+  or a `retry-after` header in the response), wait before calling again.
 
 ## 6. Recipes
 
