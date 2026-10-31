@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, replace the key an operation sends, share a key, connect an account through OAuth, approve a card''s requests, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, and Reconnect, which opens the window to replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "replace a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`.'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, replace the key an operation sends, share a key, connect an account through OAuth, approve a card''s requests, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, and Reconnect, which opens the window to replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`, `rate-limited`, `over-budget`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Also covers a call refused for the key owner''s limits (`rate-limited`, `over-budget`, `rate-limit-unavailable`): backing off by `retryAfterSeconds` and saying the limit is reached without naming a budget. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "replace a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `credential-rejected`, `rate-limited`, `over-budget`.'
 boxel:
   kind: skill
   tools:
@@ -145,6 +145,8 @@ re-rendering when the answer lands.
 | `needs-admin`         | A key the workspace provides isn't set up for this, and the user can't set it up                               | "An administrator of this workspace needs to set this up", no button                                                                                                        |
 | `needs-sign-in`       | Nobody is signed in, and the key the operation needs isn't available to signed-out visitors                    | Sign in                                                                                                                                                                     |
 | `credential-rejected` | The service rejected the key, and the realm server is holding it back until its next retry                     | That the service rejected the key, with Try again and Reconnect (`replace-key`)                                                                                             |
+| `rate-limited`        | The user has made as many calls with this key as its owner's limit allows for now                              | The last data, and "Try again in a moment"; don't call until the limit refills                                                                                             |
+| `over-budget`         | The key has served its owner's daily or monthly budget of calls                                                | The last data, and "This workspace's limit for this service is reached" ("your limit" for a `{{userKey}}` slot); no calls until the budget resets                          |
 | `undefined`           | **Not known yet**                                                                                              | Nothing                                                                                                                                                                     |
 
 **One button per answer the window fixes, for the one operation.** Pass the
@@ -174,9 +176,9 @@ connected. Branch on the named answers and render nothing for `undefined`.
 
 An operation that carries no credential slot is `ready`. The answer names
 what to show, never whose key fills a slot: a reader is never told who owns a
-workspace's key, its name or its budget. A limit or a used-up budget is not a
-readiness answer: the call's own refusal carries it (`rate-limited`,
-`over-budget`). A key the service rejected reads `credential-rejected` while
+workspace's key, its name or its budget numbers: `over-budget` says only that
+the limit is reached. See [When a call is over a limit](#when-a-call-is-over-a-limit).
+A key the service rejected reads `credential-rejected` while
 the realm server is holding it back; show what
 [When the service rejects the key](#when-the-service-rejects-the-key) shows.
 
@@ -337,6 +339,54 @@ the card-plus-pipeline shape.
 
 From a terminal, `boxel keys` adds and shares keys, and connects accounts
 through OAuth, too (same section, and [OAuth connections](#oauth-connections)).
+
+## When a call is over a limit
+
+A key's owner sets how much of it anyone may spend: a number of calls each
+person may make at once, refilled over time, and a daily and a monthly budget
+of calls for the key across everyone. A key nobody set limits on gets
+Boxel's defaults (25 calls at once, then 15 a minute; 2,400 calls a day). Only
+calls from a card, the AI assistant or the CLI count; a scheduled pipeline's
+don't. A call over a limit is refused before anything is sent:
+
+| `code`                   | Status | Means                                                     | What to do                                                                                   |
+| ------------------------ | ------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `rate-limited`           | 429    | This user's calls with the key are over its limit for now | Wait `retryAfterSeconds`, then call again; never retry sooner                                |
+| `over-budget`            | 429    | The key's budget for the day or month is used up          | Stop calling and say the limit is reached; resume after `retryAfterSeconds`                  |
+| `rate-limit-unavailable` | 503    | Boxel couldn't count the call, so it didn't send it       | Wait `retryAfterSeconds` and call again once                                                 |
+
+Budgets reset at midnight UTC, and the monthly one on the 1st of the month,
+UTC, so `retryAfterSeconds` on `over-budget` can be hours or days. The wait is
+the error's `retryAfterSeconds`:
+
+```gts
+import { OperationsError } from '@cardstack/base/operations';
+
+try {
+  this.result = await this.load();
+  this.limitReached = false;
+} catch (err) {
+  if (err instanceof OperationsError) {
+    let wait = err.retryAfterSeconds ?? 60;
+    if (err.code === 'rate-limited' || err.code === 'rate-limit-unavailable') {
+      this.nextPollAt = Date.now() + wait * 1000; // back off, keep the last data
+      return;
+    }
+    if (err.code === 'over-budget') {
+      // Say the limit is reached, and poll again only once the budget resets;
+      // the next successful load clears the message.
+      this.limitReached = true;
+      this.nextPollAt = Date.now() + wait * 1000;
+      return;
+    }
+  }
+  throw err;
+}
+```
+
+A refusal through a workspace's key (an `{{apiKey}}` slot) never says whose
+key it is or what its budget is; don't guess one in the message. Only the key's owner changes its limits, and should check
+their vendor plan's own limit when they raise them.
 
 ## When the service rejects the key
 
