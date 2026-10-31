@@ -496,9 +496,12 @@ when the operation is refused for the user's own key (as above) and the card
 signs in rather than taking a pasted key. Connect mode always makes a **new**
 connection; signing an existing one in again is its **Reconnect** button on
 the user's key page in the secure window, which keeps its approvals. The window lists the clients that serve the operation's
-destination — Boxel's own, those shared into the workspace and the user's
-own — each with the permissions it asks for. The user picks one and signs in
-on the service's page; the service sends them back to the realm server, never
+destination — those shared into the workspace, or Boxel's own when the
+workspace shares none for that service, then the user's own — each with the
+permissions it asks for. When the list leads with the workspace's one client
+for the service, or Boxel's one, or offers only one client, that client starts
+out chosen; otherwise the user picks one. The user signs in with the chosen
+client on the service's page; the service sends them back to the realm server, never
 to the app. With no client to offer, the window says who can set one up.
 
 **When a connection stops working**, a pipeline call through it is refused
@@ -517,8 +520,9 @@ with the service, adds it in the secure window, and shares it into the
 workspace with `share-key`, like any key. Connect mode then offers it to
 everyone who can read the workspace, and each teammate signs in with their own
 account. The client secret is stored once and nobody else sees it; replacing it
-reaches every connection made through the client. Boxel also offers clients of
-its own wherever they are deployed.
+reaches every connection made through the client. Where the workspace shares
+a client for a service, connect mode offers it in place of Boxel's own client
+for that service; Boxel's clients for other services are still offered.
 
 **Registering the app with the service** needs two things from its settings
 there: the **callback (redirect) URL**, which is the realm server's
@@ -564,11 +568,42 @@ ends once the connection is saved. Like a connection made in the secure
 window, it doesn't by itself let an operation send it (see
 [What a stored key does](#what-a-stored-key-does)).
 
-**For GitHub, register a GitHub App, not an OAuth App.** An OAuth App's only
-scope that reaches private repositories, `repo`, can also write to them, so
-every connection through it could. A GitHub App can be limited to read-only
-permissions. Where it is deployed, Boxel offers its own read-only GitHub App,
-so a card that only reads from GitHub needs no client of the workspace's.
+**For GitHub, a card that only reads uses Boxel's app.** Boxel registers its
+own GitHub App, **Boxel (read-only)**, which reads pull requests, code
+(contents), checks, issues and repository metadata and can write nothing.
+Where Boxel's deployment has it set up, connect mode offers it for
+`https://api.github.com/` wherever no GitHub client is shared into the
+workspace, so a card that only reads from GitHub needs no client of the
+workspace's and no registration of its own. Its operations target
+`api.github.com` with a `{{userKey}}` slot, and run as any slotted operation
+does (see [What a stored key does](#what-a-stored-key-does)); the card's
+Connect button opens connect mode. Each person signs in with their own GitHub
+account and reads only what that account can.
+
+**Each account installs Boxel's app once.** A GitHub App's sign-in reaches
+private repositories only on accounts where the app is installed: the
+person's own account as much as an organization. Without the install, those
+private repositories answer as if they don't exist (an empty list, or 404).
+The install is at `https://github.com/apps/boxel-read-only/installations/new`:
+
+- **For their own repositories**, the person installs it on their personal
+  account.
+- **For an organization's**, a member picks the organization. Someone who
+  can't install it there gets **Request**, which goes to the organization's
+  owners (unless the organization has turned requests off), and an owner
+  approves it once. That install covers every Boxel use of the app in the
+  organization.
+
+A card that lists repositories or pull requests and finds none should say so
+and link there, rather than show an empty list as if there were nothing.
+
+**Register your own GitHub App when the card writes** (comments, labels,
+merges, issues), or reads something Boxel's app doesn't (organization
+members, Actions), and share it into the workspace. A client shared into the
+workspace takes Boxel's app's place in connect mode there. Make it a GitHub
+App, not an OAuth App: an OAuth App's only scope that reaches private
+repositories, `repo`, can also write to them, so every connection through it
+could, while a GitHub App asks for exactly the permissions it needs.
 
 Token endpoints are the realm server's alone: no `callApi` can send a
 credential to one, so a card never refreshes or exchanges a token itself.
