@@ -272,3 +272,45 @@ before sharing the card. Changing the URL changes the request, so the
 operation is approved again. A call from the card is refused whatever is
 approved, so what can be checked locally is the approval: the window's batch,
 the grant it creates, and the refusal codes the card handles.
+
+## 8. From the terminal
+
+`boxel lint` (and `boxel file lint`) checks every `callApi` declaration the
+way indexing does, so a declaration mistake shows before the module is
+indexed rather than as `invalid-operation` on the first call. Each problem
+is reported with the code lowering gives it (`slot-out-of-place`,
+`unencoded-path-parameter`, `undeclared-param`, and the rest in
+`card-operations-authoring`). It also warns on an operation without a
+`label` and on a URL that isn't `https:` (a local stub's, while
+developing).
+
+The user approves and checks the operations from the CLI too:
+
+```bash
+# Approve every operation on the card that needs it, with one of your keys.
+# Every request is printed first; one confirmation approves them all.
+boxel keys approve "Work GitHub token" --operation inbox#Inbox --realm <workspace-url>
+# Or one operation, or the workspace's shared key by its label.
+boxel keys approve "Work GitHub token" --operation inbox#Inbox.listPRs --realm <workspace-url>
+boxel keys approve Forge --operation inbox#Inbox --realm <workspace-url>
+
+boxel keys pending                       # approvals whose request changed since
+boxel keys revoke "Work GitHub token" --operation inbox#Inbox.listPRs --realm <workspace-url>
+boxel keys ungrant "Work GitHub token" --destination https://api.github.com/
+
+# Invoke an operation on a card, or on a type as <module>#<Class>.
+boxel operations invoke <card-url> listPRs --params '{"state":"open"}'
+```
+
+- **A key's first send to a host is confirmed in the secure window.** When
+  approving would send a key somewhere it has never been sent, the CLI opens
+  the window's approval for that batch and finishes when the window does.
+  An approval that only reuses where the key already goes finishes in the
+  terminal. `boxel keys swap` works the same way.
+- **The CLI invokes interactively**, as a card or the assistant does, so
+  `boxel operations invoke` sends a keyless operation and answers with what
+  the vendor answered, while one that sends a key is refused
+  `interactive-use-not-approved`: approvals are for pipelines.
+  `--interactive` on `approve` is refused for the same reason.
+- `ungrant` lists the approvals removing the grant would revoke before it
+  asks.

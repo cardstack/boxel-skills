@@ -280,7 +280,10 @@ or another workspace's, even another card calling the same service.
   Changing an operation's `label` or `output` changes nothing that needs
   approving again; changing its URL, headers, body, or where the key goes does.
 - The user can also approve a key for a card ahead of time, from the key's
-  page in the window (**Use with a card…**).
+  page in the window (**Use with a card…**), or from a terminal with
+  `boxel keys approve` (see
+  [`api-integrations`](../api-integrations/SKILL.md) §8), which confirms a
+  key's first send to a host in this window too.
 
 ## In the AI assistant
 
