@@ -163,6 +163,13 @@ key's daily budget, or the card stops for every viewer until it resets at
 midnight UTC. Pausing while the tab is hidden is what keeps a live card within
 it. A pipeline's calls don't count against these.
 
+From a terminal, `boxel keys usage "<key name>"` (or `boxel keys usage
+"<share label>" --realm <workspace-url>` for a shared key) shows today's and
+this month's calls against those budgets, the last use, the top callers and
+the refusals by reason; the key's owner changes the limits with `boxel keys
+limits`, with the same arguments plus `--rate <burst>/<refill>`, `--daily
+<n>` or `--monthly <n>`.
+
 - **Batch.** One GraphQL query for everything the card shows beats one REST
   call per item.
 - **A pipeline polls once for everyone** who reads its cards; a live card polls
