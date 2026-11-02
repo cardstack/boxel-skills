@@ -1332,10 +1332,10 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   `submitFeedback`), plus the ad-hoc `query`. A `where` naming `"anonymous"`
   on a named query (`listMine`) records `anonymous-not-base-operation`, and
   the grant is inactive for signed-in callers too.
-- **A `callApi` is eligible when every key it sends is a shared one**
-  (`{{apiKey}}`, or none). The share's owner must also allow anonymous use of
-  it when approving the card's calls, and visitors are then limited by
-  address and by the share's anonymous cap
+- **A `callApi` is eligible when it sends no key or only shared ones**
+  (`{{apiKey}}`). One that sends a shared key also needs the share's owner to
+  allow anonymous use of it when approving the card's calls, and visitors are
+  then limited by address and by the share's anonymous cap
   ([`api-integrations`](../api-integrations/SKILL.md) §2). One with a
   `{{userKey}}` slot sends the caller's own key, which a visitor doesn't
   have: a grant naming `"anonymous"` on it records `anonymous-grant-user-key`

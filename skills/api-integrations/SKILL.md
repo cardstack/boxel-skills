@@ -73,26 +73,36 @@ approval for interactive use asks its owner for the share's daily budget.
 **Public cards: visitors who aren't signed in.** A published card can call a
 service for anyone who opens it, such as a weather widget, but only with a key
 shared into the workspace, never a `{{userKey}}`: a visitor has no key of
-their own. Three things have to be in place, and each is someone else's to
-set:
+their own. The card's part is an operation that sends only shared keys
+(`{{apiKey}}`), invoked on a card, not on its type. Two more things are other
+people's to set:
 
-- the operation sends only shared keys (`{{apiKey}}`), and the workspace's
-  policy opens it to visitors with a grant whose `where` names `"anonymous"`
+- the workspace's policy opens the operation to visitors, with a grant whose
+  `where` names `"anonymous"`
   ([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12);
 - the share's owner ticks **Also for people who aren't signed in** under
   **On a schedule and when the card is opened** when approving the card's
   calls, and names the share's **anonymous cap**: the most calls a day all
   visitors together make with it, counted inside the share's daily budget so
-  signed-in readers keep the rest;
-- each visitor is limited by their address, at the share's per-person rate.
+  signed-in readers keep the rest.
 
-Offer this only for responses anyone may see, from a key scoped read-only at
-the service: anyone on the internet can make these calls. Until all three are
-in place, a visitor's call is refused (`anonymous-use-not-approved`, or
-`actor-required` for an operation that sends the caller's own key), and
-`keyReadiness` answers `needs-sign-in`: show a sign-in prompt, not an error
-(§4). A visitor over the anonymous cap or their address's rate gets
-`over-budget` or `rate-limited`, as anyone over a limit does.
+Each visitor is also limited by their address, at the share's per-person
+rate; nobody sets that. Offer this only for responses anyone may see, from a
+key scoped read-only at the service: anyone on the internet can make these
+calls.
+
+What a visitor gets meanwhile depends on what is missing:
+
+| What is missing                                                   | The call is refused            | `keyReadiness`                             |
+| ----------------------------------------------------------------- | ------------------------------ | ------------------------------------------ |
+| The policy doesn't open the operation to visitors                 | `operation-not-permitted`      | no answer; `canInvoke` is `false`          |
+| The share isn't approved yet, or only for scheduled pipelines     | `binding-not-approved` / `interactive-use-not-approved` | `needs-admin`, as for any reader |
+| The share is approved for opened cards, but not for visitors      | `anonymous-use-not-approved`   | `needs-sign-in`                            |
+| The operation sends the caller's own key (`{{userKey}}`)          | `actor-required`               | `needs-sign-in`                            |
+
+Show `needs-sign-in` as a sign-in prompt, not an error (§4). A visitor over the
+anonymous cap or their address's rate gets `over-budget` or `rate-limited`,
+as anyone over a limit does.
 
 **Nothing a card author writes schedules a pipeline.** No card, field,
 `realm.json` setting or operation declares one, and no operation turns a
@@ -557,6 +567,8 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   aren't signed in** does; it is refused for an approval that fills no share.
   A share's first anonymous approval takes `--anonymous-cap <calls>`, at most
   its daily budget. Re-approving one already allowed for visitors takes
-  `--anonymous` again.
+  `--anonymous` again. When the approval sends a key somewhere new, leave
+  both `--daily-budget` and `--anonymous-cap` off: the secure window confirms
+  it and asks for them there.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.
