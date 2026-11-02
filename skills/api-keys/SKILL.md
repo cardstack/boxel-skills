@@ -308,9 +308,10 @@ or another workspace's, even another card calling the same service.
   that the service limits to reading." A share's first approval for
   interactive use also asks for the share's daily budget. There is no choice
   here for people who aren't signed in: the share settles that when it is
-  shared (`share-key`, above). Where the workspace's policy opens a group's
-  calls to visitors and the share allows them, the group says "Anyone can use
-  it for requests to <domain>, including people who aren't signed in." Card
+  shared (`share-key`, above). Where the workspace's policy opens a ticked
+  operation to visitors and the share allows them, its group says "Anyone can
+  use it for requests to <domain> (<host and path>), including people who
+  aren't signed in." Card
   code is not sandboxed per realm origin, which is why the window warns:
   [`api-integrations`](../api-integrations/SKILL.md) §2 has the whole of it.
 - **`review-changes`** is the same flow with only the operations whose request

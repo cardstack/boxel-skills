@@ -89,9 +89,10 @@ other people's to set, and a visitor is served only when all three hold:
   opened**, and the share's limits have room.
 
 Approving the card's calls has no choice of its own for visitors: the share
-decides. Where the policy and the share both let visitors in, each group of
-the approve window says "Anyone can use it for requests to <domain>,
-including people who aren't signed in."
+decides. Where the policy opens a ticked operation to visitors and the share
+allows them, that operation's group in the approve window says "Anyone can use
+it for requests to <domain> (<host and path>), including people who aren't
+signed in."
 
 When sharing, the owner can also set the share's **anonymous cap**: the most
 calls a day all visitors together make with it, counted inside the share's
@@ -580,7 +581,9 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   interactive use takes `--interactive` too: without it the CLI refuses,
   rather than returning a live card to pipelines only.
 - **`approve` has no option for visitors.** Whether people who aren't
-  signed in can use a share is the share's, set when it is shared.
+  signed in can use a share is the share's, set when it is shared;
+  `approve --anonymous` is listed in its help only to say so, and the realm
+  server refuses it.
 - **`boxel keys share <name> --realm <url> --anonymous`** lets people who
   aren't signed in use the share, wherever the workspace's policy opens an
   operation that sends it to them (§2). `--anonymous-cap <calls>` sets the
