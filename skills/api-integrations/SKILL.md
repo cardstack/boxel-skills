@@ -129,7 +129,7 @@ opens a ticked operation to visitors and the chosen share's key allows them,
 that operation's group says "Anyone can use it for requests to <domain>
 (<host and path>), including people who aren't signed in.", and where the key
 doesn't, it notes that people who aren't signed in are asked to sign in.
-`boxel keys approve --interactive` prints the same lines.
+`boxel keys approve --interactive` prints the equivalent lines (§8).
 
 Visitors together spend at most half of each share's daily budget (the
 platform's setting), so signed-in readers always keep the rest, whatever cap
