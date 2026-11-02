@@ -315,6 +315,93 @@ interface PR {
   updatedAt: string;
 }
 
+class LivePRInboxIsolated extends Component<typeof LivePRInbox> {
+  @tracked pullRequests: PR[] | undefined;
+  @tracked problem: string | undefined;
+
+  // The component's model, as the card it is.
+  get record(): LivePRInbox {
+    return this.args.model as LivePRInbox;
+  }
+
+  get readiness() {
+    return this.args.context?.keyReadiness?.('listPRs', this.record);
+  }
+
+  // Loaded once, even when the list came back empty.
+  get loaded() {
+    return this.pullRequests !== undefined;
+  }
+
+  load = async () => {
+    this.problem = undefined;
+    try {
+      // An operation with an `output` answers what the mapping makes,
+      // which the type doesn't know.
+      let { status, nodes } = (await operations<typeof LivePRInbox>(
+        this.record,
+      ).listPRs()) as { status: number; nodes: PR[] | null };
+      if (status !== 200) {
+        this.problem = `GitHub answered ${status}`;
+        return;
+      }
+      this.pullRequests = nodes ?? [];
+    } catch (err) {
+      // rate-limited, over-budget, credential-rejected: see api-keys
+      this.problem =
+        err instanceof OperationsError ? (err.detail ?? err.message) : String(err);
+    }
+  };
+
+  openWindow = async (mode: 'approve' | 'review-changes' | 'replace-key') => {
+    let toolContext = this.args.context?.toolContext;
+    if (!toolContext || !this.record.id) {
+      return;
+    }
+    try {
+      await new OpenSecureWindowTool(toolContext).execute({
+        mode,
+        cardId: this.record.id,
+        operation: 'listPRs',
+        reason: 'PR Inbox lists your open pull requests when you open it',
+      });
+    } catch (e) {
+      this.problem = e instanceof Error ? e.message : String(e);
+    }
+  };
+  allow = () => this.openWindow('approve');
+  review = () => this.openWindow('review-changes');
+  replace = () => this.openWindow('replace-key');
+
+  <template>
+    {{#if (eq this.readiness 'ready')}}
+      <button type='button' {{on 'click' this.load}}>
+        {{if this.loaded 'Refresh' 'Show my pull requests'}}
+      </button>
+    {{else if (eq this.readiness 'needs-connect')}}
+      <button type='button' {{on 'click' this.allow}}>Connect GitHub</button>
+    {{else if (eq this.readiness 'needs-approval')}}
+      <button type='button' {{on 'click' this.allow}}>Allow</button>
+    {{else if (eq this.readiness 'needs-reapproval')}}
+      <button type='button' {{on 'click' this.review}}>Review changes</button>
+    {{else if (eq this.readiness 'credential-rejected')}}
+      <p>GitHub rejected your key.</p>
+      <button type='button' {{on 'click' this.replace}}>Replace key</button>
+    {{else if (eq this.readiness 'rate-limited')}}
+      <p>Too many refreshes. Try again in a minute.</p>
+    {{else if (eq this.readiness 'over-budget')}}
+      <p>This key has used today's calls. The list below is the last one.</p>
+    {{else if (eq this.readiness 'needs-sign-in')}}
+      <p>Sign in to see your pull requests.</p>
+    {{/if}}
+    {{! the last list loaded stays while readiness moves to a limit }}
+    {{#each this.pullRequests as |pr|}}
+      <p><a href={{pr.url}}>{{pr.title}}</a></p>
+    {{/each}}
+    {{#if this.problem}}<p role='alert'>{{this.problem}}</p>{{/if}}
+  </template>
+}
+
 export class LivePRInbox extends CardDef {
   static displayName = 'Live PR Inbox';
   @field login = contains(StringField);
@@ -332,74 +419,7 @@ export class LivePRInbox extends CardDef {
     output: bxl`{status: .status, nodes: .body.data.user.pullRequests.nodes}`,
   } satisfies OperationDeclaration;
 
-  static isolated = class Isolated extends Component<typeof this> {
-    @tracked pullRequests: PR[] | undefined;
-    @tracked problem: string | undefined;
-
-    get readiness() {
-      return this.args.context?.keyReadiness?.('listPRs', this.args.model);
-    }
-
-    // Loaded once, even when the list came back empty.
-    get loaded() {
-      return this.pullRequests !== undefined;
-    }
-
-    load = async () => {
-      this.problem = undefined;
-      try {
-        let { status, nodes } = await operations<typeof LivePRInbox>(
-          this.args.model,
-        ).listPRs();
-        if (status !== 200) {
-          this.problem = `GitHub answered ${status}`;
-          return;
-        }
-        this.pullRequests = nodes as PR[];
-      } catch (err) {
-        // rate-limited, over-budget, credential-rejected: see api-keys
-        this.problem =
-          err instanceof OperationsError ? (err.detail ?? err.message) : String(err);
-      }
-    };
-
-    openWindow = async (mode: 'approve' | 'review-changes') => {
-      let toolContext = this.args.context?.toolContext;
-      if (!toolContext || !this.args.model.id) {
-        return;
-      }
-      try {
-        await new OpenSecureWindowTool(toolContext).execute({
-          mode,
-          cardId: this.args.model.id,
-          operation: 'listPRs',
-          reason: 'PR Inbox lists your open pull requests when you open it',
-        });
-      } catch (e) {
-        this.problem = e instanceof Error ? e.message : String(e);
-      }
-    };
-    allow = () => this.openWindow('approve');
-    review = () => this.openWindow('review-changes');
-
-    <template>
-      {{#if (eq this.readiness 'ready')}}
-        <button type='button' {{on 'click' this.load}}>
-          {{if this.loaded 'Refresh' 'Show my pull requests'}}
-        </button>
-        {{#each this.pullRequests as |pr|}}
-          <p><a href={{pr.url}}>{{pr.title}}</a></p>
-        {{/each}}
-      {{else if (eq this.readiness 'needs-connect')}}
-        <button type='button' {{on 'click' this.allow}}>Connect GitHub</button>
-      {{else if (eq this.readiness 'needs-approval')}}
-        <button type='button' {{on 'click' this.allow}}>Allow</button>
-      {{else if (eq this.readiness 'needs-reapproval')}}
-        <button type='button' {{on 'click' this.review}}>Review changes</button>
-      {{/if}}
-      {{#if this.problem}}<p role='alert'>{{this.problem}}</p>{{/if}}
-    </template>
-  };
+  static isolated = LivePRInboxIsolated;
 }
 ```
 
@@ -409,8 +429,11 @@ export class LivePRInbox extends CardDef {
   reads `needs-approval`, and **Allow** opens the approve page, where they
   pick **Also when I open this card**. Readiness is asked again when they come
   back to the app, so the list's button appears without a reload.
-- `rate-limited`, `over-budget` and `credential-rejected`, as readiness
-  answers or as refusals, are shown as in [`api-keys`](../api-keys/SKILL.md).
+- **Every readiness answer shows something**, and the last list loaded
+  stays while readiness moves to `rate-limited` or `over-budget`. The same
+  codes can also come back as refusals from a click, which `load` shows from
+  the error's detail. [`api-keys`](../api-keys/SKILL.md) has the full
+  readiness table.
 
 ### A plain API key in a header
 
@@ -505,7 +528,9 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   pipelines, as **Also when I open this card** does. A share's first
   interactive approval also takes `--daily-budget <calls>`, the share's daily
   budget. When the approval needs a new grant, the secure window it opens
-  starts on interactive use. `--anonymous` is refused: anonymous use isn't
-  offered.
+  starts on interactive use. Re-approving an operation that is approved for
+  interactive use takes `--interactive` too: without it the CLI refuses,
+  rather than returning a live card to pipelines only. `--anonymous` is
+  refused: anonymous use isn't offered.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.

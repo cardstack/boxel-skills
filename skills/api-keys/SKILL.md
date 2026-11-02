@@ -228,7 +228,7 @@ export class WeatherStation extends CardDef {
 
     <template>
       {{#if (eq this.readiness 'ready')}}
-        {{! an operation with no slot: call it from an action and render the answer }}
+        {{! nothing in the way: call it from an action and render the answer }}
       {{else if (eq this.readiness 'needs-connect')}}
         <button type='button' {{on 'click' this.allow}}>
           Connect your forecast service
@@ -317,17 +317,19 @@ the first step.
   `connect` when the card says the user signs in at the service, or
   `share-key` with the workspace.
   Call it once per card in a conversation: the window gathers the card's other
-  operations, so a refusal of another of them is not a reason to open it again.
-  A refusal that comes back after the user approved (one approved for
-  pipelines only still refuses the assistant's call) is never a reason to
-  reopen the window either.
+  operations, so a refusal of another of them, or the same refusal coming back
+  after the user approved, is not a reason to open it again.
 - **"Interactive use not approved"** means the operation is approved for
   scheduled pipelines only, so a call from the assistant is refused and
-  nothing is sent. Call the tool once with `approve` and the card and that
-  operation, and say in the same reply what you opened and why: the user can
-  allow it there under **Also when I open this card**, after which the
-  assistant can run it. If they keep it to pipelines, it stays refused from
-  the chat.
+  nothing is sent. If the window hasn't been opened for this card in the
+  conversation, call the tool once with `approve` and the card and that
+  operation, and say in the same reply what you opened and why. If it's the
+  user's own key, they can allow it there under **Also when I open this
+  card**, after which the assistant can run it. For a key shared into the
+  workspace, whoever shared it allows it, and the window tells the user
+  there's nothing for them to approve. If the window was already opened for
+  the card, don't open it again: say the operation stays refused from the
+  chat unless it is allowed under **Also when I open this card**.
 - **In the same reply, say what you opened and why**: which card needs which
   key, that the user enters it in Boxel's secure window, and that the window's
   address bar should show Boxel's secure address. If the tool answered
