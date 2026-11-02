@@ -1333,13 +1333,15 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   on a named query (`listMine`) records `anonymous-not-base-operation`, and
   the grant is inactive for signed-in callers too.
 - **A `callApi` is eligible when it sends no key or only shared ones**
-  (`{{apiKey}}`). One that sends a shared key also needs the share's owner to
-  have allowed people who aren't signed in when sharing the key into the
-  workspace, and visitors are then limited by address and, when the owner set
-  one, by the share's anonymous cap
-  ([`api-integrations`](../api-integrations/SKILL.md) §2). Write the grant
-  before the key is shared: sharing then asks the owner to agree to visitors
-  using it, while a key shared earlier stays for signed-in people only. One with a
+  (`{{apiKey}}`). The grant decides where visitors can use a shared key; a
+  shared key serves them only where its owner also allows anonymous use on
+  the key itself (when adding it, or from the key's page), and visitors are
+  then limited by address and, when the key's owner set one, by the key's
+  anonymous cap ([`api-integrations`](../api-integrations/SKILL.md) §2).
+  Sharing a key into the workspace reflects the grant: where the key doesn't
+  allow anonymous use, sharing asks its owner to agree, which turns it on for
+  the key. A key already shared when the grant is written serves visitors if
+  it allows anonymous use, and otherwise they are asked to sign in. One with a
   `{{userKey}}` slot sends the caller's own key, which a visitor doesn't
   have: a grant naming `"anonymous"` on it records `anonymous-grant-user-key`
   and admits no visitor, and still applies to signed-in callers.
