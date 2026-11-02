@@ -70,6 +70,30 @@ when the user picks **On a schedule and when the card is opened**.
 caller, and a daily and a monthly budget of calls for the key. A share's first
 approval for interactive use asks its owner for the share's daily budget.
 
+**Public cards: visitors who aren't signed in.** A published card can call a
+service for anyone who opens it, such as a weather widget, but only with a key
+shared into the workspace, never a `{{userKey}}`: a visitor has no key of
+their own. Three things have to be in place, and each is someone else's to
+set:
+
+- the operation sends only shared keys (`{{apiKey}}`), and the workspace's
+  policy opens it to visitors with a grant whose `where` names `"anonymous"`
+  ([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12);
+- the share's owner ticks **Also for people who aren't signed in** under
+  **On a schedule and when the card is opened** when approving the card's
+  calls, and names the share's **anonymous cap**: the most calls a day all
+  visitors together make with it, counted inside the share's daily budget so
+  signed-in readers keep the rest;
+- each visitor is limited by their address, at the share's per-person rate.
+
+Offer this only for responses anyone may see, from a key scoped read-only at
+the service: anyone on the internet can make these calls. Until all three are
+in place, a visitor's call is refused (`anonymous-use-not-approved`, or
+`actor-required` for an operation that sends the caller's own key), and
+`keyReadiness` answers `needs-sign-in`: show a sign-in prompt, not an error
+(§4). A visitor over the anonymous cap or their address's rate gets
+`over-budget` or `rate-limited`, as anyone over a limit does.
+
 **Nothing a card author writes schedules a pipeline.** No card, field,
 `realm.json` setting or operation declares one, and no operation turns a
 `callApi`'s answer into cards on its own. So a pipeline-shaped integration is
@@ -527,7 +551,12 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   budget. When the approval needs a new grant, the secure window it opens
   starts on interactive use. Re-approving an operation that is approved for
   interactive use takes `--interactive` too: without it the CLI refuses,
-  rather than returning a live card to pipelines only. `--anonymous` is
-  refused: anonymous use isn't offered.
+  rather than returning a live card to pipelines only.
+- **`--anonymous`** (with `--interactive`) also lets visitors who aren't
+  signed in use the shares the approval fills, as **Also for people who
+  aren't signed in** does; it is refused for an approval that fills no share.
+  A share's first anonymous approval takes `--anonymous-cap <calls>`, at most
+  its daily budget. Re-approving one already allowed for visitors takes
+  `--anonymous` again.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.
