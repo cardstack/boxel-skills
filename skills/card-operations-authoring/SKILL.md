@@ -240,8 +240,7 @@ owner approves the operation, in this realm, in Boxel's secure window (every
 operation on the card at once; see [`api-keys`](../api-keys/SKILL.md)), naming
 which of their keys fills it. Until then the operation is refused
 `binding-not-approved` and nothing is sent. The approval also says where the
-operation runs: **Only in scheduled pipelines** (the default), or **Also when
-I open this card**, which lets a card, the AI assistant or the CLI invoke it
+operation runs: **On a schedule only** (the default), or **On a schedule and when the card is opened**, which lets a card, the AI assistant or the CLI invoke it
 too, within the key's limits. Approved for pipelines only, an invocation from
 a card, the assistant or the CLI is refused `interactive-use-not-approved`. A
 pipeline is run by the realm server, and nothing a card author writes — no
@@ -1403,7 +1402,7 @@ try {
 | `binding-not-approved`     | A `callApi` carrying a credential slot that no approval fills for this caller in this realm (never approved, or its key or grant was removed) — nothing was sent. The key's owner approves it in the secure window ([`api-keys`](../api-keys/SKILL.md)) |
 | `share-suspended`          | A slot filled from a workspace's share that is suspended (its owner lost write access, a writer suspended it, or its key was deleted) — nothing was sent; a direct writer resumes it or swaps a key in |
 | `binding-needs-reapproval` | The operation sends something other than what was approved for a slot — nothing is sent until its key's owner reviews the change in the secure window |
-| `interactive-use-not-approved` | A slotted `callApi` invoked from a card, the assistant or the CLI whose approval is for scheduled pipelines only — nothing was sent. The key's owner can allow it in the secure window's `approve` mode, under **Also when I open this card** |
+| `interactive-use-not-approved` | A slotted `callApi` invoked from a card, the assistant or the CLI whose approval is for scheduled pipelines only — nothing was sent. The key's owner can allow it in the secure window's `approve` mode, under **On a schedule and when the card is opened** |
 | `credential-rejected`      | The key a `callApi` slot sends can't be used. Either the service rejected it (it answered 401), after which calls with that key to that service aren't sent except a periodic retry; or a key that mints its tokens couldn't get one, and nothing was sent: an OAuth connection (`meta.reason` `rejected`: the user reconnects; `needs-admin`: the client needs its administrator; `unavailable`: try later), or a Google service account whose key Google refuses or whose token endpoint keeps failing (see the Google recipe above). Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's, which only the platform calls, so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |

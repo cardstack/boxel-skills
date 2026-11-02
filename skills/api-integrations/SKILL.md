@@ -1,6 +1,6 @@
 ---
 name: api-integrations
-description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card) and for a plain API key sent in a header. Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "Also when I open this card", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`.'
+description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card) and for a plain API key sent in a header. Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`.'
 boxel:
   kind: skill
 ---
@@ -32,18 +32,16 @@ be sent, but the vendor decides what a key can do.
 ## 2. Live card or pipeline
 
 A request carrying a slot is sent in one of two shapes. The key's owner
-picks which when they approve it in the secure window, under **Where these
-requests run**:
+picks which when they approve it in the secure window, under **When calls run**:
 
 - **Pipeline.** A pipeline the realm server runs calls the vendor on a
   schedule, as whoever approved it, and writes what cards need into the
   realm: one card per pull request, say. Readers open those cards and never
   call the vendor, so the card shows the same data in the app, in a search
   result and in prerendered HTML, and its own code never reaches the key.
-  **Only in scheduled pipelines** is the default.
+  **On a schedule only** is the default.
 - **Live card.** The card invokes the operation itself while it is open and
-  renders the answer. That takes an approval with **Also when I open this
-  card**. An operation approved for pipelines only refuses a call from a
+  renders the answer. That takes an approval with **On a schedule and when the card is opened**. An operation approved for pipelines only refuses a call from a
   card, the AI assistant or the CLI with `interactive-use-not-approved`, and
   nothing is sent.
 
@@ -66,7 +64,7 @@ So approve interactive use only for responses that aren't private, with a key
 scoped read-only at the vendor. Private data comes through a pipeline: readers
 get only what it wrote into the realm, behind the realm's own read
 permissions. The secure window says this in the one confirmation it asks for
-when the user picks **Also when I open this card**.
+when the user picks **On a schedule and when the card is opened**.
 
 **Interactive calls count against the key's limits** (§5): a rate limit per
 caller, and a daily and a monthly budget of calls for the key. A share's first
@@ -149,8 +147,7 @@ short:
   changes** (`needs-reapproval`) in `review-changes` mode, each for that one
   operation. The window gathers the rest; never loop over operations. An
   operation approved for pipelines only reads `needs-approval`, and its
-  **Allow** opens the page where the user can choose **Also when I open this
-  card**.
+  **Allow** opens the page where the user can choose **On a schedule and when the card is opened**.
 - `needs-admin`: "An administrator of this workspace needs to set this up".
   `needs-sign-in`: a sign-in prompt. `credential-rejected`: the service
   rejected the key, with Try again.
@@ -159,7 +156,7 @@ short:
 
 **In a live card, readiness is the gate.** It answers `ready` once a call from
 the card will be served: for a `{{userKey}}` slot, once that viewer approved
-the operation with **Also when I open this card**; for an `{{apiKey}}` slot,
+the operation with **On a schedule and when the card is opened**; for an `{{apiKey}}` slot,
 once the share's owner did, for every reader. Call the operation only on
 `ready`.
 
@@ -289,7 +286,7 @@ The inbox's isolated view renders `pullRequests` and, beside them, the
 The same inbox as a live card, in `live-pr-inbox.gts`: the card calls
 `listPRs` itself while it is open and renders the answer, with no
 `PullRequest` cards in between. Each viewer approves it with their own key and
-**Also when I open this card**. It suits responses that aren't private, such
+**On a schedule and when the card is opened**. It suits responses that aren't private, such
 as a key scoped read-only to public repositories; for private repositories,
 keep the pipeline shape (§2).
 
@@ -427,7 +424,7 @@ export class LivePRInbox extends CardDef {
   template while it renders. The template only reads `pullRequests`.
 - **Readiness decides what shows.** A viewer who approved for pipelines only
   reads `needs-approval`, and **Allow** opens the approve page, where they
-  pick **Also when I open this card**. Readiness is asked again when they come
+  pick **On a schedule and when the card is opened**. Readiness is asked again when they come
   back to the app, so the list's button appears without a reload.
 - **Every readiness answer shows something**, and the last list loaded
   stays while readiness moves to `rate-limited` or `over-budget`. The same
@@ -461,7 +458,7 @@ operation's `url` at a local stub while developing, approve it in the secure
 window at `https://localhost:4208/secure`, and switch the URL to the vendor's
 before sharing the card. Changing the URL changes the request, so the
 operation is approved again. A live card's calls are served once the
-operation is approved with **Also when I open this card**, so it can be
+operation is approved with **On a schedule and when the card is opened**, so it can be
 checked end to end against the stub. For a pipeline-shaped card, what can be
 checked locally is the approval: the window's batch, the grant it creates, and
 the refusal codes the card handles.
@@ -525,7 +522,7 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   type is named by its module's full URL here, not one relative to a
   workspace.
 - **`--interactive` on `approve`** approves interactive use as well as
-  pipelines, as **Also when I open this card** does. A share's first
+  pipelines, as **On a schedule and when the card is opened** does. A share's first
   interactive approval also takes `--daily-budget <calls>`, the share's daily
   budget. When the approval needs a new grant, the secure window it opens
   starts on interactive use. Re-approving an operation that is approved for

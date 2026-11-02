@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, replace the key an operation sends, share a key, connect an account through OAuth, approve a card''s requests for scheduled pipelines or also for when the card is opened, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, and Reconnect, which opens the window to replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`, `rate-limited`, `over-budget`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Also covers a call refused for the key owner''s limits (`rate-limited`, `over-budget`, `rate-limit-unavailable`): backing off by `retryAfterSeconds` and saying the limit is reached without naming a budget. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "replace a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `interactive-use-not-approved`, "Also when I open this card", `credential-rejected`, `rate-limited`, `over-budget`.'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, replace the key an operation sends, share a key, connect an account through OAuth, approve a card''s requests for scheduled pipelines or also for when the card is opened, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, and Reconnect, which opens the window to replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`, `rate-limited`, `over-budget`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Also covers a call refused for the key owner''s limits (`rate-limited`, `over-budget`, `rate-limit-unavailable`): backing off by `retryAfterSeconds` and saying the limit is reached without naming a budget. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "replace a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `interactive-use-not-approved`, "On a schedule and when the card is opened", `credential-rejected`, `rate-limited`, `over-budget`.'
 boxel:
   kind: skill
   tools:
@@ -280,16 +280,22 @@ or another workspace's, even another card calling the same service.
   to uploads.github.com before." The Approve button is the one confirmation,
   and beside it a line sums up each host a key goes to for the first time.
 - The user can untick an operation to leave it unapproved.
-- **Where these requests run**: **Only in scheduled pipelines**, the default,
-  or **Also when I open this card**, which lets a card, the AI assistant or
-  the CLI invoke the operations too. Choosing the second asks one
-  confirmation for the whole batch. For the user's own key (`{{userKey}}`):
-  "Any card you open can run these operations as you and read what comes
-  back." For a workspace's share (`{{apiKey}}`): "Any card a reader of this
-  realm opens, from any realm, can run these operations with this key and
-  read the responses. Allow this only for keys whose responses aren't
-  private, and that are scoped read-only at the vendor." A share's first
-  approval for interactive use also asks for the share's daily budget. Card
+- **Approval is once, not per call.** The window calls the card's requests
+  "calls". An approval covers every card of that type in the workspace (one
+  card, for an operation approved `perInstance`), and from then on the
+  platform makes those calls without asking, until the card changes a call,
+  which brings `needs-reapproval`. The key's limits bound the calls day to
+  day.
+- **When calls run**: **On a schedule only**, the default, or **On a
+  schedule and when the card is opened**, which lets a card, the AI
+  assistant or the CLI invoke the operations too. Choosing the second shows
+  one warning for the whole batch. For the user's own key (`{{userKey}}`):
+  "Any card you open can make these calls as you and read what comes back."
+  For a workspace's share (`{{apiKey}}`): "Any card a reader of this realm
+  opens, from any realm, can make these calls with this key and read the
+  responses. Allow this only for a key whose responses aren't private, and
+  that the service limits to reading." A share's first approval for
+  interactive use also asks for the share's daily budget. Card
   code is not sandboxed per realm origin, which is why the window warns:
   [`api-integrations`](../api-integrations/SKILL.md) §2 has the whole of it.
 - **`review-changes`** is the same flow with only the operations whose request
@@ -324,12 +330,11 @@ the first step.
   nothing is sent. If the window hasn't been opened for this card in the
   conversation, call the tool once with `approve` and the card and that
   operation, and say in the same reply what you opened and why. If it's the
-  user's own key, they can allow it there under **Also when I open this
-  card**, after which the assistant can run it. For a key shared into the
+  user's own key, they can allow it there under **On a schedule and when the card is opened**, after which the assistant can run it. For a key shared into the
   workspace, whoever shared it allows it, and the window tells the user
   there's nothing for them to approve. If the window was already opened for
   the card, don't open it again: say the operation stays refused from the
-  chat unless it is allowed under **Also when I open this card**.
+  chat unless it is allowed under **On a schedule and when the card is opened**.
 - **In the same reply, say what you opened and why**: which card needs which
   key, that the user enters it in Boxel's secure window, and that the window's
   address bar should show Boxel's secure address. If the tool answered
@@ -351,7 +356,7 @@ the window's `approve` mode. So:
 - A pipeline the realm server runs sends the key once the key's owner has
   approved the operation there.
 - A card, the assistant or the CLI invoking the same operation sends it only
-  when the approval allows interactive use (**Also when I open this card**).
+  when the approval allows interactive use (**On a schedule and when the card is opened**).
   Approved for pipelines only, the call is refused
   `interactive-use-not-approved`; before any approval, `binding-not-approved`.
   Either way nothing is sent, and `@context.keyReadiness` reads
