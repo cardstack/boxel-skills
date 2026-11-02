@@ -1338,9 +1338,9 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   the key itself (when adding it, or from the key's page), and visitors are
   then limited by address and, when the key's owner set one, by the key's
   anonymous cap ([`api-integrations`](../api-integrations/SKILL.md) §2).
-  Sharing a key into the workspace reflects the grant: where the key doesn't
-  allow anonymous use, sharing asks its owner to agree, which turns it on for
-  the key. A key already shared when the grant is written serves visitors if
+  Sharing or swapping a key into the workspace makes no choice: with the
+  grant in place, visitors will use any key shared there, so a key that
+  doesn't allow anonymous use isn't shared or swapped in. A key already shared when the grant is written serves visitors if
   it allows anonymous use, and otherwise they are asked to sign in. One with a
   `{{userKey}}` slot sends the caller's own key, which a visitor doesn't
   have: a grant naming `"anonymous"` on it records `anonymous-grant-user-key`

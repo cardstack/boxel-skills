@@ -100,29 +100,43 @@ the window's **Share a key** page says so in bold, and `boxel keys share`
 prints the same warning. A key that doesn't allow anonymous use isn't shared
 there at all: the page links to the key's page to allow it first, and the CLI
 says to run `boxel keys anonymous <name> on`. Where the policy opens nothing to
-visitors, sharing is for signed-in people only.
+visitors, sharing is for signed-in people only. Swapping a key into a share
+follows the same rule: in such a workspace the **Swap** page says visitors
+will use this key, `boxel keys swap` warns, and a key that doesn't allow
+anonymous use is refused (400).
+
+Only a key that can serve visitors takes the setting: a static key, a Google
+service account, or an OAuth client whose grant type is `client_credentials`.
+A sign-in app (an `authorization_code` client) and a connection are each
+person's own sign-in and never serve visitors, so they can't be set to allow
+anonymous use, and sharing or swapping one has no anonymous check.
 
 When you, the AI assistant, are about to open the window's `share-key` mode
 for a workspace, read the workspace's policy first (its `realm.json`
 `policy` card; see
 [`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12). If a
-grant there names `"anonymous"` on a `callApi` that sends `{{apiKey}}`, warn
+grant there has a `where` of `actor() == "anonymous"` on a `callApi`
+operation whose every credential slot is `{{apiKey}}`, warn
 the user in the same reply, before the window opens: sharing a key into this
 workspace means people who aren't signed in will use it — anyone on the
 internet who opens its cards — with their calls counted against the key
 owner's quota and bill; and the key must allow anonymous use on its own page,
 or the window won't share it there. If you can't read the policy, say the
-window will tell them whether that applies. The approve window has no choice for visitors either: where the policy
+window will tell them whether that applies.
+
+The approve window has no choice for visitors either: where the policy
 opens a ticked operation to visitors and the chosen share's key allows them,
 that operation's group says "Anyone can use it for requests to <domain>
 (<host and path>), including people who aren't signed in.", and where the key
-doesn't, it notes that people who aren't signed in are asked to sign in. A
-key that is swapped into a share brings its own setting with it.
+doesn't, it notes that people who aren't signed in are asked to sign in.
+`boxel keys approve --interactive` prints the same lines.
 
-The key's owner can also set its **anonymous cap**: the most calls a day all
-visitors together make with it, across every workspace it is shared into.
-Each share's daily budget still bounds the calls through that share. Without
-a cap, visitors spend the share's daily and monthly budgets like anyone.
+Visitors together spend at most half of each share's daily budget (the
+platform's setting), so signed-in readers always keep the rest, whatever cap
+the key's owner set, or none. The key's owner can also set its **anonymous
+cap**: the most calls a day all visitors together make with it, counted once
+across every workspace it is shared into. Visitors' calls spend the share's
+daily and monthly budgets like anyone's.
 Either way, each visitor is limited by their address, at the share's
 per-person rate; nobody sets that. Allow anonymous use only for responses
 anyone may see, from a key scoped read-only at the service: anyone on the
@@ -140,7 +154,7 @@ What a visitor gets meanwhile depends on what is missing:
 | The share isn't approved yet, or only for scheduled pipelines     | `binding-not-approved` / `interactive-use-not-approved` | `needs-admin`, as for any reader |
 | The share's key doesn't allow people who aren't signed in         | `anonymous-use-not-approved` (401) | `needs-sign-in`                        |
 | The operation sends the caller's own key (`{{userKey}}`)          | `actor-required`               | `needs-sign-in`                            |
-| Room under the visitor's address rate, or the key's anonymous cap | `rate-limited` / `over-budget` | `rate-limited` / `over-budget`             |
+| Room under the visitor's address rate, their part of the share's daily budget, or the key's anonymous cap | `rate-limited` / `over-budget` | `rate-limited` / `over-budget`             |
 
 Show `needs-sign-in` as a sign-in prompt, not an error (§4), and
 `rate-limited` / `over-budget` as anyone over a limit is shown them (§5).
@@ -602,7 +616,12 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   budget. When the approval needs a new grant, the secure window it opens
   starts on interactive use. Re-approving an operation that is approved for
   interactive use takes `--interactive` too: without it the CLI refuses,
-  rather than returning a live card to pipelines only.
+  rather than returning a live card to pipelines only. For each operation
+  the workspace's policy opens to visitors, it prints the lines the approve
+  window shows: "Anyone on the internet who opens this card, including
+  people who aren't signed in, can make … with <share>[, up to N calls a day
+  all together].", or, where the share's key doesn't allow them, that they're
+  asked to sign in.
 - **`approve` has no option for visitors.** Whether people who aren't
   signed in can use a key is the key's own setting, and where they can is the
   workspace policy's; `approve --anonymous` is listed in its help only to say
@@ -612,12 +631,15 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   opens an operation that sends it to them (§2). **`boxel keys anonymous
   <name> on|off [--cap <calls>]`** changes that later. The cap is the calls a
   day all visitors together may make with the key, across every workspace it
-  is shared into; it is optional.
+  is shared into; it is optional. `on` without `--cap` keeps the key's cap,
+  and `off` clears it. `add --anonymous` is refused for an OAuth client; turn
+  it on afterwards with `boxel keys anonymous <name> on` for a
+  `client_credentials` client. A sign-in app never takes it.
 - **`boxel keys share <name> --realm <url>`** makes no choice about visitors;
   it reflects the workspace's policy, as the window does. Where the policy
   opens a call that sends a shared key to visitors, it warns that sharing
   means people who aren't signed in will use the key, and it refuses a key
   that doesn't allow them (so does the realm server, 400), pointing to
-  `boxel keys anonymous <name> on`.
+  `boxel keys anonymous <name> on`. `boxel keys swap` does the same.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.

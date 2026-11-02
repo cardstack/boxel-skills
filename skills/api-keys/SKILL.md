@@ -123,9 +123,13 @@ export class WeatherStation extends CardDef {
   when adding it (`enter-key`), or later from the key's page in the secure
   window, each with an optional anonymous cap, the calls a day all visitors
   together may make with the key across every workspace it is shared into.
-  Without a cap, visitors are still limited by their address and spend each
-  share's daily and monthly budgets, and a share's daily budget bounds them
-  either way. Where visitors can use it is the workspace policy's to say. A
+  Turning it on again without a cap keeps the key's cap. Visitors are
+  always limited by their address, and together spend at most half of each
+  share's daily budget, so signed-in readers keep the rest. Only a static
+  key, a Google service account, or an OAuth client with grant type
+  `client_credentials` takes the setting; a sign-in app and a connection are
+  each person's own sign-in and never serve visitors. Where visitors can use
+  it is the workspace policy's to say. A
   card for visitors is in [`api-integrations`](../api-integrations/SKILL.md)
   §2: tell the key's owner to allow anonymous use on the key.
 - To share a key into a workspace, pass `mode: 'share-key'` and `realm`. The
@@ -134,12 +138,15 @@ export class WeatherStation extends CardDef {
   signed-in people only. Where the policy opens a call that sends a shared key
   (`{{apiKey}}`) to them, sharing a key there means they **will** use it: the
   window says so in bold, and a key that doesn't allow anonymous use isn't
-  shared there until its owner allows it on the key's page. Before opening the
+  shared there until its owner allows it on the key's page. `swap-key`
+  follows the same rule: the window says visitors will use the key swapped
+  in, and refuses a key that doesn't allow them. Before opening the
   window for such a workspace, warn the user in your reply that sharing means
   people who aren't signed in — anyone on the internet who opens its cards —
   will use the key, on the key owner's quota and bill, and that the key must
-  allow it ([`api-integrations`](../api-integrations/SKILL.md) §2 says how to
-  tell from the policy).
+  allow it. Tell by the workspace's `realm.json` `policy` card: a grant whose
+  `where` is `actor() == "anonymous"` on a `callApi` operation whose every
+  credential slot is `{{apiKey}}` ([`api-integrations`](../api-integrations/SKILL.md) §2).
 - To replace the key an operation sends, pass `mode: 'replace-key'` with the
   same `cardId` and `operation` (see the last section).
 - To have the user sign in at the service instead of pasting a key, pass
@@ -407,7 +414,7 @@ of calls for the key across everyone. A key nobody set limits on gets
 Boxel's defaults (25 calls at once, then 15 a minute; 2,400 calls a day). Only
 calls from a card, the AI assistant or the CLI count; a scheduled pipeline's
 don't. A share's first approval for interactive use asks its owner for the
-share's daily budget, since every reader of the workspace can then spend it. A share whose key allows people who aren't signed in limits each visitor by their address, and the key's anonymous cap, when set, bounds what visitors together spend a day across every workspace the key is shared into. A call over a limit is refused before anything is sent:
+share's daily budget, since every reader of the workspace can then spend it. A share whose key allows people who aren't signed in limits each visitor by their address, keeps visitors together to at most half of its daily budget so signed-in readers keep the rest, and the key's anonymous cap, when set, bounds what visitors together spend a day across every workspace the key is shared into. A call over a limit is refused before anything is sent:
 
 | `code`                   | Status | Means                                                     | What to do                                                                                   |
 | ------------------------ | ------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
