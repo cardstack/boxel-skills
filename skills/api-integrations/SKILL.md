@@ -340,6 +340,11 @@ export class LivePRInbox extends CardDef {
       return this.args.context?.keyReadiness?.('listPRs', this.args.model);
     }
 
+    // Loaded once, even when the list came back empty.
+    get loaded() {
+      return this.pullRequests !== undefined;
+    }
+
     load = async () => {
       this.problem = undefined;
       try {
@@ -380,7 +385,7 @@ export class LivePRInbox extends CardDef {
     <template>
       {{#if (eq this.readiness 'ready')}}
         <button type='button' {{on 'click' this.load}}>
-          {{if this.pullRequests 'Refresh' 'Show my pull requests'}}
+          {{if this.loaded 'Refresh' 'Show my pull requests'}}
         </button>
         {{#each this.pullRequests as |pr|}}
           <p><a href={{pr.url}}>{{pr.title}}</a></p>
