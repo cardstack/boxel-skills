@@ -177,7 +177,7 @@ The mismatch will surface in the result's `error` / `stackTrace` if it's present
 | Field | Import | Notes |
 |---|---|---|
 | `MarkdownField` | `'@cardstack/base/markdown'` | Plain markdown string. Renders to HTML in non-edit; textarea editor. A `:card[]` / `::card[]` directive renders as a placeholder, never the card. |
-| `RichMarkdownField` | `'@cardstack/base/rich-markdown'` | BFM with resolved `:card[]` / `::card[]` embeds, toolbar and slash menu. Required whenever the content embeds cards; a plain string value still deserializes into it. → `skills/boxel-flavored-markdown/references/card-directives-the-boxel-extension.md` |
+| `RichMarkdownField` | `'@cardstack/base/rich-markdown'` | BFM with resolved `:card[]` / `::card[]` embeds, toolbar and slash menu. Required whenever the content embeds cards; a plain string value still deserializes into it. → `boxel-flavored-markdown/references/card-directives-the-boxel-extension.md` |
 
 ## File-backed (linksTo only)
 

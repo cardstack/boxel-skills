@@ -1,7 +1,0 @@
-package.json
-package-lock.json
-.boxelignore
-README.md
-LICENSE
-.claude-plugin/
-.codex-plugin/

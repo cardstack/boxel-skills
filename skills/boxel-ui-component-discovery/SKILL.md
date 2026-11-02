@@ -30,7 +30,7 @@ libraries:
 Tell the two libraries apart by `ref.module`. When both libraries
 match, use the Pret UI one. To see which boxel-ui components a Pret UI
 component replaces, use the replacement table in
-`skills/boxel-ui-guidelines/references/use-boxel-ui-components.md`.
+`boxel-ui-guidelines/references/use-boxel-ui-components.md`.
 
 - A matching spec exists → import it via its `ref` and follow
   its documented API (step 3 says where that lives for each library). No raw `<button>`, `<input>`,
