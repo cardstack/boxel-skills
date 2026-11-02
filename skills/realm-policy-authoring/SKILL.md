@@ -1334,9 +1334,12 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   the grant is inactive for signed-in callers too.
 - **A `callApi` is eligible when it sends no key or only shared ones**
   (`{{apiKey}}`). One that sends a shared key also needs the share's owner to
-  allow anonymous use of it when approving the card's calls, and visitors are
-  then limited by address and by the share's anonymous cap
-  ([`api-integrations`](../api-integrations/SKILL.md) §2). One with a
+  have allowed people who aren't signed in when sharing the key into the
+  workspace, and visitors are then limited by address and, when the owner set
+  one, by the share's anonymous cap
+  ([`api-integrations`](../api-integrations/SKILL.md) §2). Write the grant
+  before the key is shared: sharing then asks the owner to agree to visitors
+  using it, while a key shared earlier stays for signed-in people only. One with a
   `{{userKey}}` slot sends the caller's own key, which a visitor doesn't
   have: a grant naming `"anonymous"` on it records `anonymous-grant-user-key`
   and admits no visitor, and still applies to signed-in callers.

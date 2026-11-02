@@ -74,22 +74,39 @@ approval for interactive use asks its owner for the share's daily budget.
 service for anyone who opens it, such as a weather widget, but only with a key
 shared into the workspace, never a `{{userKey}}`: a visitor has no key of
 their own. The card's part is an operation that sends only shared keys
-(`{{apiKey}}`), invoked on a card, not on its type. Two more things are other
-people's to set:
+(`{{apiKey}}`), invoked on a card, not on its type. Three more things are
+other people's to set, and a visitor is served only when all three hold:
 
 - the workspace's policy opens the operation to visitors, with a grant whose
   `where` names `"anonymous"`
   ([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12);
-- the share's owner ticks **Also for people who aren't signed in** under
-  **On a schedule and when the card is opened** when approving the card's
-  calls, and names the share's **anonymous cap**: the most calls a day all
-  visitors together make with it, counted inside the share's daily budget so
-  signed-in readers keep the rest.
+- the share's owner allowed people who aren't signed in to use the key when
+  sharing it into the workspace: **Anyone, including people who aren't signed
+  in** under **Who can use it** in the window's `share-key` mode
+  ([`api-keys`](../api-keys/SKILL.md)), or `boxel keys share --anonymous`
+  (§8);
+- the operation is approved for **On a schedule and when the card is
+  opened**, and the share's limits have room.
 
-Each visitor is also limited by their address, at the share's per-person
-rate; nobody sets that. Offer this only for responses anyone may see, from a
-key scoped read-only at the service: anyone on the internet can make these
-calls.
+Approving the card's calls has no choice of its own for visitors: the share
+decides. Where the policy and the share both let visitors in, each group of
+the approve window says "Anyone can use it for requests to <domain>,
+including people who aren't signed in."
+
+When sharing, the owner can also set the share's **anonymous cap**: the most
+calls a day all visitors together make with it, counted inside the share's
+daily budget so signed-in readers keep the rest. Without a cap, visitors
+spend the share's daily and monthly budgets like anyone. Either way, each
+visitor is limited by their address, at the share's per-person rate; nobody
+sets that. Offer this only for responses anyone may see, from a key scoped
+read-only at the service: anyone on the internet can make these calls.
+
+**Write the policy grant before the key is shared.** When the policy already
+opens a call that sends a shared key to visitors, the window's `share-key`
+mode says in bold that visitors can use the key, and the owner ticks "I
+agree…" before sharing; the CLI refuses such a share without `--anonymous`.
+A key shared before the policy opened anything to visitors stays for
+signed-in people only, and changing that on an existing share isn't offered.
 
 What a visitor gets meanwhile depends on what is missing:
 
@@ -97,12 +114,12 @@ What a visitor gets meanwhile depends on what is missing:
 | ----------------------------------------------------------------- | ------------------------------ | ------------------------------------------ |
 | The policy doesn't open the operation to visitors                 | `operation-not-permitted`      | no answer; `canInvoke` is `false`          |
 | The share isn't approved yet, or only for scheduled pipelines     | `binding-not-approved` / `interactive-use-not-approved` | `needs-admin`, as for any reader |
-| The share is approved for opened cards, but not for visitors      | `anonymous-use-not-approved`   | `needs-sign-in`                            |
+| The share's owner didn't allow people who aren't signed in        | `anonymous-use-not-approved` (401) | `needs-sign-in`                        |
 | The operation sends the caller's own key (`{{userKey}}`)          | `actor-required`               | `needs-sign-in`                            |
+| Room under the visitor's address rate, or under the anonymous cap | `rate-limited` / `over-budget` | `rate-limited` / `over-budget`             |
 
-Show `needs-sign-in` as a sign-in prompt, not an error (§4). A visitor over the
-anonymous cap or their address's rate gets `over-budget` or `rate-limited`,
-as anyone over a limit does.
+Show `needs-sign-in` as a sign-in prompt, not an error (§4), and
+`rate-limited` / `over-budget` as anyone over a limit is shown them (§5).
 
 **Nothing a card author writes schedules a pipeline.** No card, field,
 `realm.json` setting or operation declares one, and no operation turns a
@@ -562,13 +579,14 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   starts on interactive use. Re-approving an operation that is approved for
   interactive use takes `--interactive` too: without it the CLI refuses,
   rather than returning a live card to pipelines only.
-- **`--anonymous`** (with `--interactive`) also lets visitors who aren't
-  signed in use the shares the approval fills, as **Also for people who
-  aren't signed in** does; it is refused for an approval that fills no share.
-  A share's first anonymous approval takes `--anonymous-cap <calls>`, at most
-  its daily budget. Re-approving one already allowed for visitors takes
-  `--anonymous` again. When the approval sends a key somewhere new, leave
-  both `--daily-budget` and `--anonymous-cap` off: the secure window confirms
-  it and asks for them there.
+- **`approve` has no option for visitors.** Whether people who aren't
+  signed in can use a share is the share's, set when it is shared.
+- **`boxel keys share <name> --realm <url> --anonymous`** lets people who
+  aren't signed in use the share, wherever the workspace's policy opens an
+  operation that sends it to them (§2). `--anonymous-cap <calls>` sets the
+  share's anonymous cap, the calls a day all visitors together may make,
+  inside its daily budget; it is optional. When the policy already opens a
+  call that sends a shared key to visitors, the share is refused (400)
+  without `--anonymous`.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.

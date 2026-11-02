@@ -266,7 +266,7 @@ boxel keys sign-in                                   # once: lets this CLI chang
 boxel keys status                                    # whether it can
 boxel keys add <name>                                # masked prompt; --stdin or --key-file without a terminal
 boxel keys add <name> --kind google-service-account --key-file <file> --scope <scope>  # a Google service account
-boxel keys share <name> --realm <url> [--as <label>] # into a realm they write to
+boxel keys share <name> --realm <url> [--as <label>] # into a realm they write to; --anonymous [--anonymous-cap <calls>] lets people who aren't signed in use it
 boxel keys list                                      # their keys, never a value
 boxel keys show <name>                               # one key and the shares it's in
 boxel keys shares --realm <url>                      # a realm's shares, for its writers

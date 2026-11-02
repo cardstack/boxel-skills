@@ -1,6 +1,6 @@
 ---
 name: api-keys
-description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, replace the key an operation sends, share a key, connect an account through OAuth, approve a card''s requests for scheduled pipelines or also for when the card is opened, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, and Reconnect, which opens the window to replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`, `rate-limited`, `over-budget`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Also covers a call refused for the key owner''s limits (`rate-limited`, `over-budget`, `rate-limit-unavailable`): backing off by `retryAfterSeconds` and saying the limit is reached without naming a budget. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "replace a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `interactive-use-not-approved`, `anonymous-use-not-approved`, "On a schedule and when the card is opened", "people who aren''t signed in", "anonymous cap", `credential-rejected`, `rate-limited`, `over-budget`.'
+description: 'Use when a card or the AI assistant needs a user''s API key, or a key shared into a workspace — "this card needs my GitHub token", "the forecast operation was refused binding-not-approved", "let the user add their key", "share my key with this workspace", "add a key button". Also "sign in to GitHub from this card", "connect my account", "the operation was refused credential-rejected", "the service rejected my key", "should I register a GitHub App or an OAuth App". Covers getting a key from the user only through Boxel''s secure window, with the open-secure-window tool: opening it from a card through `@context.toolContext` or from the assistant, its modes (enter a key, replace the key an operation sends, share a key, connect an account through OAuth, approve a card''s requests for scheduled pipelines or also for when the card is opened, review what changed in them), passing only the operation the card is blocked on and letting the window gather the card''s other operations into one approval, what the tool answers, the blocked-popup fallback, telling the user to check the address bar, what to do when the service rejects a key (stop polling, offer Try again, and Reconnect, which opens the window to replace the key), OAuth clients and connections (when to use a connection rather than a static key, what the card declares, opening connect mode, `credential-rejected` and its reasons, sharing a client into a workspace, and why GitHub takes a GitHub App), and never asking for a credential in the chat or building a form for one. Also covers asking first with `@context.keyReadiness` — the answers (`ready`, `needs-connect`, `needs-approval`, `needs-reapproval`, `needs-admin`, `needs-sign-in`, `rate-limited`, `over-budget`), what a card shows for each and what the secure window can fix, and treating `undefined` as "not known yet" so prerendered HTML never shows Connect. Also covers a call refused for the key owner''s limits (`rate-limited`, `over-budget`, `rate-limit-unavailable`): backing off by `retryAfterSeconds` and saying the limit is reached without naming a budget. Activates on "approve", "Allow", "review changes", `needs-approval`, `needs-reapproval`, `open-secure-window`, `OpenSecureWindowTool`, `keyReadiness`, "secure window", "API key", "enter a key", "replace a key", "share a key", "OAuth", "connect", "Reconnect", "GitHub App", `{{userKey}}`, `{{apiKey}}`, `binding-not-approved`, `interactive-use-not-approved`, `anonymous-use-not-approved`, "On a schedule and when the card is opened", "Who can use it", "people who aren''t signed in", "anonymous cap", `credential-rejected`, `rate-limited`, `over-budget`.'
 boxel:
   kind: skill
   tools:
@@ -119,6 +119,17 @@ export class WeatherStation extends CardDef {
 - Don't read anything back from the window. There is no value to read, and the
   window has no handle back to the page.
 - To share a key into a workspace, pass `mode: 'share-key'` and `realm`.
+  The window's **Who can use it** asks the key's owner whether **Only people
+  who are signed in** or **Anyone, including people who aren't signed in**
+  may use the share; the second also takes an optional anonymous cap, the
+  calls a day all visitors together may make, inside the share's daily
+  budget. Without a cap, visitors are still limited by their address and
+  spend the share's daily and monthly budgets. When the workspace's policy
+  already opens a call that sends a shared key (`{{apiKey}}`) to people who
+  aren't signed in, the window says so in bold and the owner ticks "I agree…"
+  before sharing. A key shared for signed-in people only stays that way;
+  changing it on an existing share isn't offered. A card for visitors is in
+  [`api-integrations`](../api-integrations/SKILL.md) §2.
 - To replace the key an operation sends, pass `mode: 'replace-key'` with the
   same `cardId` and `operation` (see the last section).
 - To have the user sign in at the service instead of pasting a key, pass
@@ -143,7 +154,7 @@ re-rendering when the answer lands.
 | `needs-approval`      | The user has a key that could be sent there, but the operation isn't approved here, or not for use from a card | An **Allow** button that opens the secure window in `approve` mode for this operation                                                                                       |
 | `needs-reapproval`    | What the operation sends changed since it was approved                                                         | A **Review changes** button that opens the secure window in `review-changes` mode for this operation                                                                        |
 | `needs-admin`         | A key the workspace provides isn't set up for this, and the user can't set it up                               | "An administrator of this workspace needs to set this up", no button                                                                                                        |
-| `needs-sign-in`       | Nobody is signed in, and the key the operation needs isn't available to signed-out visitors                    | Sign in. A card meant for visitors shows it while the share is approved for opened cards but not yet for visitors (`api-integrations` §2)                                                          |
+| `needs-sign-in`       | Nobody is signed in, and the key the operation needs isn't available to signed-out visitors                    | Sign in. A card meant for visitors shows it when the share wasn't shared for people who aren't signed in, or the slot takes the user's own key (`api-integrations` §2)                          |
 | `credential-rejected` | The service rejected the key, and the realm server is holding it back until its next retry                     | That the service rejected the key, with Try again and Reconnect (`replace-key`)                                                                                             |
 | `rate-limited`        | The user has made as many calls with this key as its owner's limit allows for now                              | The last data, and "Try again in a moment"; don't call until the limit refills                                                                                             |
 | `over-budget`         | The key has served its owner's daily or monthly budget of calls                                                | The last data, and "This workspace's limit for this service is reached" ("your limit" for a `{{userKey}}` slot); no calls until the budget resets                          |
@@ -295,14 +306,11 @@ or another workspace's, even another card calling the same service.
   opens, from any realm, can make these calls with this key and read the
   responses. Allow this only for a key whose responses aren't private, and
   that the service limits to reading." A share's first approval for
-  interactive use also asks for the share's daily budget. Under that choice,
-  for a share, **Also for people who aren't signed in** lets anyone who opens
-  the card make the calls: it adds "Anyone on the internet who opens this
-  card can make these calls with this key, up to the anonymous cap." to the
-  warning, says in each group "Anyone can use it for requests to
-  <destination>, **including people who aren't signed in**.", and asks for the
-  share's anonymous cap the first time. A personal key is never offered for
-  it. Card
+  interactive use also asks for the share's daily budget. There is no choice
+  here for people who aren't signed in: the share settles that when it is
+  shared (`share-key`, above). Where the workspace's policy opens a group's
+  calls to visitors and the share allows them, the group says "Anyone can use
+  it for requests to <domain>, including people who aren't signed in." Card
   code is not sandboxed per realm origin, which is why the window warns:
   [`api-integrations`](../api-integrations/SKILL.md) §2 has the whole of it.
 - **`review-changes`** is the same flow with only the operations whose request
@@ -386,7 +394,7 @@ of calls for the key across everyone. A key nobody set limits on gets
 Boxel's defaults (25 calls at once, then 15 a minute; 2,400 calls a day). Only
 calls from a card, the AI assistant or the CLI count; a scheduled pipeline's
 don't. A share's first approval for interactive use asks its owner for the
-share's daily budget, since every reader of the workspace can then spend it. A call over a limit is refused before anything is sent:
+share's daily budget, since every reader of the workspace can then spend it. A share for people who aren't signed in limits each visitor by their address, and its anonymous cap, when set, bounds what visitors together spend a day. A call over a limit is refused before anything is sent:
 
 | `code`                   | Status | Means                                                     | What to do                                                                                   |
 | ------------------------ | ------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
