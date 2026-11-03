@@ -264,8 +264,8 @@ user's keys into a realm they write to:
 ```sh
 boxel keys sign-in                                   # once: lets this CLI change keys
 boxel keys status                                    # whether it can
-boxel keys add <name>                                # masked prompt; --stdin or --key-file without a terminal; --anonymous [--anonymous-cap <calls>] lets people who aren't signed in use it
-boxel keys anonymous <name> on|off [--cap <calls>]   # whether people who aren't signed in may use the key, where a workspace's policy opens calls to them
+boxel keys add <name>                                # masked prompt; --stdin or --key-file without a terminal; --anonymous [--anonymous-cap <calls>] [--anonymous-monthly-cap <calls>] lets people who aren't signed in use it
+boxel keys anonymous <name> on|off [--cap <calls>] [--monthly-cap <calls>]   # whether people who aren't signed in may use the key, where a workspace's policy opens calls to them
 boxel keys add <name> --kind google-service-account --key-file <file> --scope <scope>  # a Google service account
 boxel keys share <name> --realm <url> [--as <label>] # into a realm they write to; where its policy opens calls to visitors, warns they will use the key, and refuses a key that doesn't allow it
 boxel keys list                                      # their keys, never a value
