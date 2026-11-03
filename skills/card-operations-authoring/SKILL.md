@@ -1408,7 +1408,7 @@ try {
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's, which only the platform calls, so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
-| `response-too-large`       | The outside service's response was larger than the realm server carries |
+| `response-too-large`       | The outside service's response was larger than the realm server carries (10 MiB, counted after decompression). The card gets none of the body, never a truncated one; `meta.cap` is the limit in bytes |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
 
 An author writes the `assertion-failed` text, so write it as the sentence a user
