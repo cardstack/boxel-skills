@@ -11,7 +11,7 @@ Three tools on one engine: it measures before the render, measures after, and an
 <figure {{motion layoutId=(concat @model.id '-shot-4')}}>…</figure>  {{! the open one }}
 ```
 
-**`<LayoutGroup @id>`** — snapshots every layout-animating element before a render inside it changes the DOM, and namespaces the `layoutId`s inside it. `layout=true` needs that snapshot: with no `<LayoutGroup>` or `<Presence>` above it (`<ReorderGroup>` and `<Choreo>` snapshot too), nothing measures the element before it moves, and a list or grid that reorders, filters or sorts lands in a single frame. Put `<LayoutGroup>` around the list and `layout=true` on each item, and the items fly to their new seats while their content keeps running. Giving it `@id={{@model.id}}` keeps two instances of the same card from pairing each other's `layoutId`s.
+**`<LayoutGroup @id>`** — snapshots every layout-animating element before a render inside it changes the DOM, and namespaces the `layoutId`s inside it. `layout=true` needs that snapshot: with no `<LayoutGroup>` above it (`<ReorderGroup>` and `<Choreo>` snapshot too, and `<Presence>` only on a render that adds, removes or reorders its own `@items`), nothing measures the element before it moves, and a list or grid that reorders, filters or sorts lands in a single frame. Put `<LayoutGroup>` around the list and `layout=true` on each item, and the items fly to their new seats while their content keeps running. Giving it `@id={{@model.id}}` keeps two instances of the same card from pairing each other's `layoutId`s.
 
 ```gts
 <LayoutGroup>
