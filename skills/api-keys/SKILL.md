@@ -635,7 +635,9 @@ later call may succeed). A stored key the service answered 401 to has no
 ```gts
 if (err instanceof OperationsError && err.code === 'credential-rejected') {
   this.rejected = true; // stop polling
-  this.tryLater = err.meta.reason === 'unavailable'; // otherwise: Reconnect
+  this.tryLater = err.meta.reason === 'unavailable';
+  this.canReconnect = err.meta.reason === 'rejected'; // the connection's owner signs in again
+  this.problem = err.detail ?? err.message; // names who fixes it
 }
 ```
 
