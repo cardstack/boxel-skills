@@ -333,9 +333,10 @@ the slot where Google takes a bearer token:
 - **Where the slot is filled from a service account, a key Google refuses**
   (revoked, deleted, a disabled account, a subject the service account can't
   act as) is refused `credential-rejected`, and nothing reaches the API; the
-  message says the owner replaces the key. The same code comes when Google's
-  token endpoint kept failing, and then the message says asking again later
-  may work. Branch on the code; show the message.
+  message says the owner replaces the key, and `err.meta.reason` is
+  `rejected`. The same code comes when Google's token endpoint kept failing,
+  with `err.meta.reason` `unavailable`, and the message says asking again
+  later may work. Branch on the code and the reason; show the message.
 - **Entering one.** In the secure window, the user picks **Google service
   account** and chooses the key file. From a terminal:
   `boxel keys add <name> --kind google-service-account --key-file <path>
@@ -1404,11 +1405,11 @@ try {
 | `share-suspended`          | A slot filled from a workspace's share that is suspended (its owner lost write access, a writer suspended it, or its key was deleted) — nothing was sent; a direct writer resumes it or swaps a key in |
 | `binding-needs-reapproval` | The operation sends something other than what was approved for a slot — nothing is sent until its key's owner reviews the change in the secure window |
 | `interactive-use-not-approved` | A slotted `callApi` invoked from a card, the assistant or the CLI whose approval is for scheduled pipelines only — nothing was sent. The key's owner can allow it in the secure window's `approve` mode, under **On a schedule and when the card is opened** |
-| `credential-rejected`      | The key a `callApi` slot sends can't be used. Either the service rejected it (it answered 401), after which calls with that key to that service aren't sent except a periodic retry; or a key that mints its tokens couldn't get one, and nothing was sent: an OAuth connection (`meta.reason` `rejected`: the user reconnects; `needs-admin`: the client needs its administrator; `unavailable`: try later), or a Google service account whose key Google refuses or whose token endpoint keeps failing (see the Google recipe above). Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
+| `credential-rejected`      | The key a `callApi` slot sends can't be used. Either the service rejected it (it answered 401), after which calls with that key to that service aren't sent except a periodic retry; or a key that mints its tokens couldn't get one, and nothing was sent: an OAuth connection or a Google service account (see the Google recipe above), and `err.meta.reason` says why (`rejected`: the user reconnects or replaces the key; `needs-admin`: the OAuth client needs its administrator; `unavailable`: try later). Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's, which only the platform calls, so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
 | `upstream-timeout`         | The outside service did not answer in time                    |
-| `response-too-large`       | The outside service's response was larger than the realm server carries |
+| `response-too-large`       | The outside service's response was larger than the realm server carries; `err.meta.cap` is that limit in bytes, so ask the service for less (a smaller page, fewer fields) |
 | `internal-error`           | Not the caller's — an unreadable definition, a failing executor, a policy that won't load |
 
 An author writes the `assertion-failed` text, so write it as the sentence a user
@@ -1418,6 +1419,24 @@ A batch is all-or-nothing, so a refused batch answers one error and no results �
 nothing was written, whichever entry was wrong. `OperationsError.entry` says
 which: an index at the top level, or a path such as `[2].boxel:operations[0]` to
 a member of a group.
+
+`OperationsError.meta` holds the refusal's details a card can branch on, each
+only on its own code: `reason` on `credential-rejected` from a key that mints
+its tokens, and `cap` on `response-too-large`. It is always an object, so
+`err.meta.reason` reads `undefined` rather than throwing on a refusal that has
+none, such as a stored key the service answered 401 to. The realm's other
+refusal details (which credential slot, the destination, which guard rule
+refused it) are not on it; the `detail` sentence names what a user needs. The
+type is `OperationsErrorMeta`, from `@cardstack/base/operations`.
+
+```ts
+if (err instanceof OperationsError && err.code === 'credential-rejected') {
+  this.problem =
+    err.meta.reason === 'unavailable'
+      ? 'The service is having trouble. Try again in a few minutes.'
+      : (err.detail ?? err.message); // names who fixes it
+}
+```
 
 ### Under a realm policy
 
