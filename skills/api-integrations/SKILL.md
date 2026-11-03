@@ -191,6 +191,9 @@ key's daily budget, or the card stops for every viewer until it resets at
 midnight UTC. Pausing while the tab is hidden is what keeps a live card within
 it. A pipeline's calls don't count against these.
 
+Check how close a key is to these, and change them, from the terminal
+(§8).
+
 - **Batch.** One GraphQL query for everything the card shows beats one REST
   call per item.
 - **A pipeline polls once for everyone** who reads its cards; a live card polls
@@ -531,3 +534,21 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   refused: anonymous use isn't offered.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.
+
+How much of a key the calls spend (§5) is checked and changed from the
+terminal too:
+
+```bash
+# Today's and this month's calls against the budgets, the last use, the top
+# callers and the refusals by reason.
+boxel keys usage "Work GitHub token"
+boxel keys usage "<share label>" --realm <workspace-url>
+
+# The key's owner sets its limits: per caller, at once/refilled a minute,
+# and the daily and monthly budgets. `default` puts one back.
+boxel keys limits "Work GitHub token" --rate 25/15 --daily 2400 --monthly default
+boxel keys limits "<share label>" --realm <workspace-url> --daily 1000
+```
+
+A share's usage is for anyone who writes to the workspace; only the key's
+owner changes its limits.
