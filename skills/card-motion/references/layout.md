@@ -4,11 +4,16 @@ Three tools on one engine: it measures before the render, measures after, and an
 
 **`layout=true`** — one element, same place in the tree, its box changed (a grid item whose column changed, a panel that grew). `layout='position'` or `'size'` animates only that facet.
 
-**`layoutId`** — two elements, one identity. Give both the same `layoutId` and the engine treats them as one thing that moved; only one is on screen at a time. The tab indicator, a thumbnail opening into a detail view, a row expanding into a panel.
+**`layoutId`** — two elements, one identity. Give both the same `layoutId` and the engine treats them as one thing that moved; only one is on screen at a time. The tab indicator, a thumbnail opening into a detail view, a row expanding into a panel. The pair sits inside a `<LayoutGroup>` too: the outgoing element's box is known only if something measured it before it left, and without a group the incoming one lands in a single frame. A `<LayoutGroup @id={{@model.id}}>` also namespaces the ids by card.
 
 ```gts
-<button {{motion layoutId=(concat @model.id '-shot-4')}}>…</button>  {{! the thumbnail }}
-<figure {{motion layoutId=(concat @model.id '-shot-4')}}>…</figure>  {{! the open one }}
+<LayoutGroup @id={{@model.id}}>
+  {{#if this.open}}
+    <figure {{motion layoutId='shot-4'}}>…</figure>  {{! the open one }}
+  {{else}}
+    <button {{motion layoutId='shot-4'}}>…</button>  {{! the thumbnail }}
+  {{/if}}
+</LayoutGroup>
 ```
 
 **`<LayoutGroup @id>`** — snapshots every layout-animating element before a render inside it changes the DOM, and namespaces the `layoutId`s inside it. `layout=true` needs that snapshot: with no `<LayoutGroup>` above it (`<ReorderGroup>` and `<Choreo>` snapshot too, and `<Presence>` only on a render that adds, removes or reorders its own `@items`), nothing measures the element before it moves, and a list or grid that reorders, filters or sorts lands in a single frame. Put `<LayoutGroup>` around the `{{#each}}` that renders the list (never inside a row: Glimmer moves a row before it re-renders anything inside it) and `layout=true` on each item, and the items fly to their new seats while their content keeps running. Giving it `@id={{@model.id}}` keeps two instances of the same card from pairing each other's `layoutId`s.
