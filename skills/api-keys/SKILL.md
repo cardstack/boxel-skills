@@ -151,8 +151,9 @@ export class WeatherStation extends CardDef {
   Writing such a grant into a workspace's policy, where shared keys are
   approved for the operation it opens, makes Boxel show the person a list of
   the keys visitors will start using and the ones that will refuse them until
-  their owners allow it. Only the person confirms it, and each key's owner
-  then finds a notice on their keys page. Say so in your reply. If they choose
+  their owners allow it. Only the person confirms it. Owners of keys that
+  don't allow it yet are asked, on their keys page, to approve anonymous use
+  or decline. Say so in your reply. If they choose
   **Don't save**, report that the policy wasn't saved; writing it again when
   they ask asks them again
   ([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12).

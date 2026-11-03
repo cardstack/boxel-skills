@@ -1380,26 +1380,28 @@ also shown each key's label and owner; someone who only writes the policy card
 
 - **In Boxel**, the save opens a dialog listing the keys visitors will start
   using, and the keys that will refuse them until their owners allow it.
-  **Save and tell the owners** saves it; **Don't save** leaves the policy as it
-  was, the save reports as failed, and the next save of the change asks again.
+  **Save** saves it; **Don't save** leaves the policy as it was, the save
+  reports as failed, and the next save of the change asks again.
 - **From the CLI**, the list is printed and a terminal is asked;
   `--confirm-shared-keys` saves after printing it, and without a terminal the
   write is refused, naming the flag.
 - **The confirmation covers exactly the list shown.** A share bound, or a
   key's setting changed, before the save lands makes a new list, which is asked
   about again.
-- **Each listed key's owner gets a notice** once the save lands, which they
-  see on their keys page the next time they open it: that visitors now use
-  their key in the workspace, or that the workspace wants them to, with a
-  button there to allow it for the key and set an optional cap.
+- **Each listed key's owner hears about it** on their keys page the next time
+  they open it. The owner of a key that already allows anonymous use is told
+  that visitors now use it in the workspace. The owner of a key that doesn't
+  is asked to approve anonymous use: they can allow it for the key and set an
+  optional cap, or decline. Declining leaves the key refusing visitors there,
+  and the same request isn't made again.
 
 A save that opens nothing new to visitors, or opens only operations no share
 is approved for when a card is opened, saves as any other.
 
 **As the AI assistant**, write the policy as asked; Boxel shows the person the
 dialog, and only they confirm it. Say in your reply which shared keys the
-change lets visitors use, and that each key's owner will find a notice on
-their keys page. When a write fails because the person chose **Don't save**,
+change lets visitors use now, and that the owners of the others will be asked
+to approve anonymous use on their keys page. When a write fails because the person chose **Don't save**,
 report that the policy wasn't saved; if they then ask you to save it, write it
 again and Boxel asks them again.
 
