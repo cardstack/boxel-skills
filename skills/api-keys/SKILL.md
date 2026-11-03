@@ -633,13 +633,25 @@ client on the service's page; the service sends them back to the realm server, n
 to the app. With no client to offer, the window says who can set one up.
 
 **When a connection stops working**, a call through it is refused
-**`credential-rejected`** (424) and nothing is sent. The refusal's
-`meta.reason` says why: `rejected` (the service no longer accepts the sign-in;
+**`credential-rejected`** (424) and nothing is sent. The
+`OperationsError`'s `meta.reason` says why: `rejected` (the service no longer accepts the sign-in;
 its owner reconnects from their key page), `needs-admin` (the client itself
 was refused or is gone: its secret was rejected, or its share in the
 workspace was removed or suspended; the client's owner or a workspace writer
 fixes it) or `unavailable` (the service's token endpoint kept failing; a
-later call may succeed). A call from a card or the assistant to an operation
+later call may succeed). A stored key the service answered 401 to has no
+`meta.reason`; `err.meta` is always there, so reading it is safe either way:
+
+```gts
+if (err instanceof OperationsError && err.code === 'credential-rejected') {
+  this.rejected = true; // stop polling
+  this.tryLater = err.meta.reason === 'unavailable';
+  this.canReconnect = err.meta.reason === 'rejected'; // the connection's owner signs in again
+  this.problem = err.detail ?? err.message; // names who fixes it
+}
+```
+
+A call from a card or the assistant to an operation
 approved for pipelines only never sees this refusal: it is refused
 `interactive-use-not-approved` before any token is minted (see
 [What a stored key does](#what-a-stored-key-does)).
