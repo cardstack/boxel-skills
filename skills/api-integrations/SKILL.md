@@ -1,6 +1,6 @@
 ---
 name: api-integrations
-description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline, declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token) and for a plain API key sent in a header. Activates on "third-party API", "vendor API", "integration", "pipeline", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`.'
+description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card) and for a plain API key sent in a header. Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`.'
 boxel:
   kind: skill
 ---
@@ -31,34 +31,53 @@ be sent, but the vendor decides what a key can do.
 
 ## 2. Live card or pipeline
 
-A request carrying a slot is sent **only by a pipeline** the realm server
-runs. Approvals are for pipelines only, so the same operation invoked from a
-card, the AI assistant or the CLI is refused `interactive-use-not-approved`
-and nothing is sent.
+A request carrying a slot is sent in one of two shapes. The key's owner
+picks which when they approve it in the secure window, under **When calls run**:
+
+- **Pipeline.** A pipeline the realm server runs calls the vendor on a
+  schedule, as whoever approved it, and writes what cards need into the
+  realm: one card per pull request, say. Readers open those cards and never
+  call the vendor, so the card shows the same data in the app, in a search
+  result and in prerendered HTML, and its own code never reaches the key.
+  **On a schedule only** is the default.
+- **Live card.** The card invokes the operation itself while it is open and
+  renders the answer. That takes an approval with **On a schedule and when the card is opened**. An operation approved for pipelines only refuses a call from a
+  card, the AI assistant or the CLI with `interactive-use-not-approved`, and
+  nothing is sent.
+
+An operation with no slot needs no approval, so it is always a live card.
+Invoke any `callApi` from an action (a click, opening a panel), never during a
+render: that is refused `not-during-render`.
+
+**Prefer the pipeline for private data.** Card code runs in the app page with
+the viewer's session, so a call carries that session whichever card makes it.
+Once an operation is approved for interactive use, any card the user opens,
+from any realm, can invoke it and read the response:
+
+- For a `{{userKey}}` slot, that card calls as the user, with their key, and
+  reads whatever the key can read.
+- For an `{{apiKey}}` share, any reader of the realm can do it, through any
+  card they open, with the share's key.
+
+Card code is not sandboxed per realm origin, which is what would close this.
+So approve interactive use only for responses that aren't private, with a key
+scoped read-only at the vendor. Private data comes through a pipeline: readers
+get only what it wrote into the realm, behind the realm's own read
+permissions. The secure window says this in the one confirmation it asks for
+when the user picks **On a schedule and when the card is opened**.
+
+**Interactive calls count against the key's limits** (§5): a rate limit per
+caller, and a daily and a monthly budget of calls for the key. A share's first
+approval for interactive use asks its owner for the share's daily budget.
 
 **Nothing a card author writes schedules a pipeline.** No card, field,
 `realm.json` setting or operation declares one, and no operation turns a
-`callApi`'s answer into cards on its own. So a keyed integration a card author
-builds today is its declarations and its card: the user can approve the
-requests in the secure window, and the card renders fields that only a
-pipeline the platform runs would fill. Say so to the user rather than promising
-data, and never work around it by invoking the slotted operation from the
-card.
-
-- **No key → live card.** The card invokes the operation from an action (a
-  click, opening a panel) and renders the answer. Never invoke one during a
-  render: that is refused `not-during-render`.
-- **A key → pipeline shape.** A pipeline invokes the slotted operation as
-  whoever approved it and writes what it learned into cards: one card per pull
-  request, say. The card a person opens renders those cards and their fields,
-  so it shows the same data in the app, in a search result and in prerendered
-  HTML, and its own code never reaches the key. Shape the card this way even
-  though nothing in the realm runs the pipeline.
-
-The reason for the split is session exposure: card code runs in the app page
-with the viewer's session, so a key a card could send interactively is a key
-any card the viewer opens could send. Per-workspace sandboxing of card code
-would close that. Without it, private data comes only through a pipeline.
+`callApi`'s answer into cards on its own. So a pipeline-shaped integration is
+its declarations and its card: the user can approve the requests in the
+secure window, and the card renders fields that only a pipeline the platform
+runs would fill. Say so to the user rather than promising data. Shape the card
+this way even though nothing in the realm runs the pipeline, and don't make a
+card over private data live to get the data sooner.
 
 ## 3. Declare the `callApi` operations
 
@@ -126,21 +145,30 @@ short:
 - One button per answer the window fixes: **Connect** (`needs-connect`) and
   **Allow** (`needs-approval`) open the window in `approve` mode, **Review
   changes** (`needs-reapproval`) in `review-changes` mode, each for that one
-  operation. The window gathers the rest; never loop over operations.
+  operation. The window gathers the rest; never loop over operations. An
+  operation approved for pipelines only reads `needs-approval`, and its
+  **Allow** opens the page where the user can choose **On a schedule and when the card is opened**.
 - `needs-admin`: "An administrator of this workspace needs to set this up".
   `needs-sign-in`: a sign-in prompt. `credential-rejected`: the service
   rejected the key, with Try again.
 - Don't wait for a message from the window. Readiness is asked again when the
   user comes back to the app.
 
+**In a live card, readiness is the gate.** It answers `ready` once a call from
+the card will be served: for a `{{userKey}}` slot, once that viewer approved
+the operation with **On a schedule and when the card is opened**; for an `{{apiKey}}` slot,
+once the share's owner did, for every reader. Call the operation only on
+`ready`.
+
 **In a pipeline-shaped card, readiness can't tell whether the pipeline is
-set up.** It answers for a call from the card, per viewer:
+set up.** It answers for a call from the card, per viewer, and an approval
+for pipelines only doesn't serve that call:
 
 - A `{{userKey}}` slot reads `needs-connect` or `needs-approval` for every
-  viewer, including the one who approved it.
+  viewer, including the one who approved it for pipelines.
 - An `{{apiKey}}` slot reads `needs-admin` for everyone but the share's owner,
-  even once it is approved, and reads `needs-admin` to the owner too until the
-  first approval.
+  even once it is approved for pipelines, and reads `needs-admin` to the owner
+  too until the first approval.
 
 So don't gate the card's data on readiness. Render the fields the pipeline
 writes whenever they hold something. Offer setup as a plain action that is
@@ -255,6 +283,155 @@ The inbox's isolated view renders `pullRequests` and, beside them, the
 **Set up** button from §4 for `listPRs`; the window approves
 `listReviewRequests` in the same confirmation.
 
+The same inbox as a live card, in `live-pr-inbox.gts`: the card calls
+`listPRs` itself while it is open and renders the answer, with no
+`PullRequest` cards in between. Each viewer approves it with their own key and
+**On a schedule and when the card is opened**. It suits responses that aren't private, such
+as a key scoped read-only to public repositories; for private repositories,
+keep the pipeline shape (§2).
+
+```gts
+import { on } from '@ember/modifier';
+import { tracked } from '@glimmer/tracking';
+import { eq } from '@cardstack/boxel-ui/helpers';
+import { CardDef, Component, contains, field } from '@cardstack/base/card-api';
+import StringField from '@cardstack/base/string';
+import {
+  bxl,
+  instance,
+  operation,
+  operations,
+  OperationsError,
+  type OperationDeclaration,
+} from '@cardstack/base/operations';
+import OpenSecureWindowTool from '@cardstack/boxel-host/tools/open-secure-window';
+
+interface PR {
+  title: string;
+  url: string;
+  updatedAt: string;
+}
+
+class LivePRInboxIsolated extends Component<typeof LivePRInbox> {
+  @tracked pullRequests: PR[] | undefined;
+  @tracked problem: string | undefined;
+
+  // The component's model, as the card it is.
+  get record(): LivePRInbox {
+    return this.args.model as LivePRInbox;
+  }
+
+  get readiness() {
+    return this.args.context?.keyReadiness?.('listPRs', this.record);
+  }
+
+  // Loaded once, even when the list came back empty.
+  get loaded() {
+    return this.pullRequests !== undefined;
+  }
+
+  load = async () => {
+    this.problem = undefined;
+    try {
+      // An operation with an `output` answers what the mapping makes,
+      // which the type doesn't know.
+      let { status, nodes } = (await operations<typeof LivePRInbox>(
+        this.record,
+      ).listPRs()) as { status: number; nodes: PR[] | null };
+      if (status !== 200) {
+        this.problem = `GitHub answered ${status}`;
+        return;
+      }
+      this.pullRequests = nodes ?? [];
+    } catch (err) {
+      // rate-limited, over-budget, credential-rejected: see api-keys
+      this.problem =
+        err instanceof OperationsError ? (err.detail ?? err.message) : String(err);
+    }
+  };
+
+  openWindow = async (mode: 'approve' | 'review-changes' | 'replace-key') => {
+    let toolContext = this.args.context?.toolContext;
+    if (!toolContext || !this.record.id) {
+      return;
+    }
+    try {
+      await new OpenSecureWindowTool(toolContext).execute({
+        mode,
+        cardId: this.record.id,
+        operation: 'listPRs',
+        reason: 'PR Inbox lists your open pull requests when you open it',
+      });
+    } catch (e) {
+      this.problem = e instanceof Error ? e.message : String(e);
+    }
+  };
+  allow = () => this.openWindow('approve');
+  review = () => this.openWindow('review-changes');
+  replace = () => this.openWindow('replace-key');
+
+  <template>
+    {{#if (eq this.readiness 'ready')}}
+      <button type='button' {{on 'click' this.load}}>
+        {{if this.loaded 'Refresh' 'Show my pull requests'}}
+      </button>
+    {{else if (eq this.readiness 'needs-connect')}}
+      <button type='button' {{on 'click' this.allow}}>Connect GitHub</button>
+    {{else if (eq this.readiness 'needs-approval')}}
+      <button type='button' {{on 'click' this.allow}}>Allow</button>
+    {{else if (eq this.readiness 'needs-reapproval')}}
+      <button type='button' {{on 'click' this.review}}>Review changes</button>
+    {{else if (eq this.readiness 'credential-rejected')}}
+      <p>GitHub rejected your key.</p>
+      <button type='button' {{on 'click' this.replace}}>Replace key</button>
+    {{else if (eq this.readiness 'rate-limited')}}
+      <p>Too many refreshes. Try again in a minute.</p>
+    {{else if (eq this.readiness 'over-budget')}}
+      <p>This key has used today's calls. The list below is the last one.</p>
+    {{else if (eq this.readiness 'needs-sign-in')}}
+      <p>Sign in to see your pull requests.</p>
+    {{/if}}
+    {{! the last list loaded stays while readiness moves to a limit }}
+    {{#each this.pullRequests as |pr|}}
+      <p><a href={{pr.url}}>{{pr.title}}</a></p>
+    {{/each}}
+    {{#if this.problem}}<p role='alert'>{{this.problem}}</p>{{/if}}
+  </template>
+}
+
+export class LivePRInbox extends CardDef {
+  static displayName = 'Live PR Inbox';
+  @field login = contains(StringField);
+
+  @operation static listPRs = {
+    base: 'callApi',
+    label: 'List your open pull requests',
+    url: 'https://api.github.com/graphql',
+    headers: { authorization: 'Bearer {{userKey}}' },
+    graphql: {
+      document:
+        'query($login: String!) { user(login: $login) { pullRequests(states: OPEN, first: 50) { nodes { title url updatedAt } } } }',
+      variables: { login: instance('login') },
+    },
+    output: bxl`{status: .status, nodes: .body.data.user.pullRequests.nodes}`,
+  } satisfies OperationDeclaration;
+
+  static isolated = LivePRInboxIsolated;
+}
+```
+
+- **`listPRs` runs from an action**, like any `callApi`, and never from the
+  template while it renders. The template only reads `pullRequests`.
+- **Readiness decides what shows.** A viewer who approved for pipelines only
+  reads `needs-approval`, and **Allow** opens the approve page, where they
+  pick **On a schedule and when the card is opened**. Readiness is asked again when they come
+  back to the app, so the list's button appears without a reload.
+- **Every readiness answer shows something**, and the last list loaded
+  stays while readiness moves to `rate-limited` or `over-budget`. The same
+  codes can also come back as refusals from a click, which `load` shows from
+  the error's detail. [`api-keys`](../api-keys/SKILL.md) has the full
+  readiness table.
+
 ### A plain API key in a header
 
 For a vendor that issues one API key per account:
@@ -280,9 +457,11 @@ A local Boxel stack sends `http:` requests only to local hosts, so point the
 operation's `url` at a local stub while developing, approve it in the secure
 window at `https://localhost:4208/secure`, and switch the URL to the vendor's
 before sharing the card. Changing the URL changes the request, so the
-operation is approved again. A call from the card is refused whatever is
-approved, so what can be checked locally is the approval: the window's batch,
-the grant it creates, and the refusal codes the card handles.
+operation is approved again. A live card's calls are served once the
+operation is approved with **On a schedule and when the card is opened**, so it can be
+checked end to end against the stub. For a pipeline-shaped card, what can be
+checked locally is the approval: the window's batch, the grant it creates, and
+the refusal codes the card handles.
 
 ## 8. From the terminal
 
@@ -305,6 +484,8 @@ the module relative to `--realm`, or its full URL):
 boxel keys approve "Work GitHub token" --operation pr-inbox#PRInbox --realm <workspace-url>
 # Or just one of them.
 boxel keys approve "Work GitHub token" --operation pr-inbox#PRInbox.listPRs --realm <workspace-url>
+# Approve the live inbox for when you open it, too.
+boxel keys approve "Work GitHub token" --operation live-pr-inbox#LivePRInbox --realm <workspace-url> --interactive
 
 boxel keys pending      # approvals that won't send as approved
 boxel keys revoke "Work GitHub token" --operation pr-inbox#PRInbox.listPRs --realm <workspace-url>
@@ -335,9 +516,18 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   them back.
 - **The CLI invokes interactively**, as a card or the assistant does, so
   `boxel operations invoke` sends a keyless operation and answers with what
-  the vendor answered, while one that sends a key, such as `listPRs`, is
-  refused `interactive-use-not-approved`: approvals are for pipelines.
-  `--interactive` on `approve` is refused for the same reason. A type is
-  named by its module's full URL here, not one relative to a workspace.
+  the vendor answered. One that sends a key, such as `listPRs`, is sent once
+  it is approved for interactive use, and refused
+  `interactive-use-not-approved` while it is approved for pipelines only. A
+  type is named by its module's full URL here, not one relative to a
+  workspace.
+- **`--interactive` on `approve`** approves interactive use as well as
+  pipelines, as **On a schedule and when the card is opened** does. A share's first
+  interactive approval also takes `--daily-budget <calls>`, the share's daily
+  budget. When the approval needs a new grant, the secure window it opens
+  starts on interactive use. Re-approving an operation that is approved for
+  interactive use takes `--interactive` too: without it the CLI refuses,
+  rather than returning a live card to pipelines only. `--anonymous` is
+  refused: anonymous use isn't offered.
 - `ungrant` lists the approvals removing the grant would revoke before it
   asks.
