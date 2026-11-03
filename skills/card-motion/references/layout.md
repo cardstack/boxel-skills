@@ -11,7 +11,17 @@ Three tools on one engine: it measures before the render, measures after, and an
 <figure {{motion layoutId=(concat @model.id '-shot-4')}}>…</figure>  {{! the open one }}
 ```
 
-**`<LayoutGroup @id>`** — namespaces the `layoutId`s inside it and snapshots every layout-animating element before a render inside it changes the DOM. A filtered or reordered grid wants `<LayoutGroup>` around it and `layout=true` on each item; the items fly to their new seats while their content keeps running. Giving it `@id={{@model.id}}` keeps two instances of the same card from pairing each other's `layoutId`s.
+**`<LayoutGroup @id>`** — snapshots every layout-animating element before a render inside it changes the DOM, and namespaces the `layoutId`s inside it. `layout=true` needs that snapshot: with no `<LayoutGroup>` or `<Presence>` above it (`<ReorderGroup>` and `<Choreo>` snapshot too), nothing measures the element before it moves, and a list or grid that reorders, filters or sorts lands in a single frame. Put `<LayoutGroup>` around the list and `layout=true` on each item, and the items fly to their new seats while their content keeps running. Giving it `@id={{@model.id}}` keeps two instances of the same card from pairing each other's `layoutId`s.
+
+```gts
+<LayoutGroup>
+  <ul>
+    {{#each this.sortedItems key='id' as |item|}}
+      <li {{motion layout=true}}>{{item.name}}</li>
+    {{/each}}
+  </ul>
+</LayoutGroup>
+```
 
 ```gts
 <LayoutGroup @id={{@model.id}}>
@@ -23,6 +33,7 @@ Three tools on one engine: it measures before the render, measures after, and an
 
 ## Rules
 
+- **Key a moving row by a stable id, never by its position.** Use a linked card's `id`, or an id field a row is given when it is added. A key built from an index changes when the rows before it shift (a removal, a sort), and Glimmer replaces a row whose key changed with a new element, which has no earlier box to animate from. `key='@index'` keeps every element where it is and swaps its content, so nothing moves at all.
 - **Radius and shadow go through the modifier.** Layout animation scales the element, corners included. The engine corrects `borderRadius` and `boxShadow` per frame, but only values it holds: `{{motion layout=true style=(styles borderRadius='14px')}}`. A stylesheet radius comes out oval mid-flight.
 - **Text under a non-uniform scale smears.** Give the child its own `layout=true`; it is measured in its own right and the parent's scale is undone.
 - With `<Presence>`, an exiting element hands its `layoutId` over to the entering one.

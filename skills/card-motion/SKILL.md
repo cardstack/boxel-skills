@@ -1,6 +1,6 @@
 ---
 name: card-motion
-description: 'Use when a card should animate: elements entering and leaving, a list or grid rearranging, a tile opening into a detail view, drag and reorder, scroll-linked effects, or several elements moving in a sequenced scene. Covers which of glimmer-motion''s patterns to reach for ({{motion}}, <Presence>, layout / layoutId, drag and <ReorderGroup>, scrollProgress / InView) and when to escalate to a <Choreo> timeline, the imports a realm can resolve (motion-dom only through glimmer-motion), the three Glimmer rules that silently stop motion, and the card-specific rules that follow from cards sharing the host''s copy of both libraries. Activates on glimmer-motion, @cardstack/choreo, {{motion}}, Presence, layoutId, Choreo, "animate", "transition", "enter/exit animation", "reorder", "parallax", "magic move".'
+description: 'Use when a card should animate: elements entering and leaving, a list or grid rearranging, a tile opening into a detail view, drag and reorder, scroll-linked effects, or several elements moving in a sequenced scene. Covers which of glimmer-motion''s patterns to reach for ({{motion}}, <Presence>, layout / layoutId, drag and <ReorderGroup>, scrollProgress / InView) and when to escalate to a <Choreo> timeline, the imports a realm can resolve (motion-dom only through glimmer-motion), the four Glimmer rules that silently stop motion, and the card-specific rules that follow from cards sharing the host''s copy of both libraries. Activates on glimmer-motion, @cardstack/choreo, {{motion}}, Presence, layoutId, Choreo, "animate", "transition", "enter/exit animation", "reorder", "parallax", "magic move".'
 boxel:
   kind: skill
 ---
@@ -54,7 +54,7 @@ Escalation order: element → presence → layout → Choreo.
 | --- | --- | --- |
 | "fade/slide/scale this in", hover/tap states, keyframes, variants, stagger | `{{motion}}` with `initial` / `animate` / `transition` | [element.md](references/element.md) |
 | "animate it when it's removed", list add/remove, a panel opening and closing | `<Presence>` + `exit` | [presence.md](references/presence.md) |
-| "it moved because the layout changed", a filtered grid, a tab indicator, a thumbnail opening into a detail view of the SAME thing | `layout=true` / `layoutId` / `<LayoutGroup>` | [layout.md](references/layout.md) |
+| "it moved because the layout changed", a filtered grid, a list that re-sorts, a tab indicator, a thumbnail opening into a detail view of the SAME thing | `layout=true` inside a `<LayoutGroup>` / `layoutId` | [layout.md](references/layout.md) |
 | drag, swipe-to-dismiss, a reorderable list or grid | `drag` / `<ReorderGroup>` | [drag-and-reorder.md](references/drag-and-reorder.md) |
 | parallax, a scroll progress bar, reveal-on-scroll | `scrollProgress` / `InView` / `whileInView` | [scroll.md](references/scroll.md) |
 | "first X, THEN everyone moves, THEN Y"; z-index for the span of a move; one element's motion computed from another's box; flying to a place that must not deform; two views of the card swapping as one Magic Move | `<Choreo>` timeline (+ `{{beacon}}`) | [choreo.md](references/choreo.md) |
@@ -68,7 +68,7 @@ The classic wrong reaches:
 - **`<Choreo>` for one element.** One element, no ordering, no cross-element measurement: `{{motion}}` (or `<Presence>` if it leaves).
 - **A one-off CSS entrance is fine as CSS.** A single keyframed fade needs no library; follow the resting-state rule in `boxel-ui-guidelines/references/template-patterns.md` (the resting CSS state is the final one). Reach for glimmer-motion when the motion depends on state, interrupts, leaves the DOM, or follows layout.
 
-## The three Glimmer rules (each silently stops motion)
+## The four Glimmer rules (each silently stops motion)
 
 1. **Motion owns the inline style.** Never put a bound `style="…"` attribute on a motion element: Glimmer rewrites the whole declaration on re-render and wipes the transform the engine just wrote. Pass styles through the modifier instead.
    ```gts
@@ -78,6 +78,20 @@ The classic wrong reaches:
    (Static styling belongs in `<style scoped>` as always; this is about values you bind.)
 2. **Declare what should be tweened or corrected.** A stylesheet `border-radius` is invisible to the engine, so a layout-animating tile grows with oval corners. Pass radius and shadow through the modifier: `{{motion layout=true style=(styles borderRadius='14px')}}`.
 3. **A leaving element stays live.** Glimmer re-runs a leaver's block from current tracked state while its exit plays, so whatever the exit shows must ride on the item `<Presence>` yields, not be re-read from state that has already moved on.
+4. **`layout=true` animates only inside a `<LayoutGroup>` or `<Presence>`.** The box a layout animation starts from has to be measured before Glimmer changes the DOM, and only a `<LayoutGroup>`, `<Presence>`, `<ReorderGroup>` or `<Choreo>` above the element measures it. A list or grid of `layout=true` items that reorders, filters or sorts with none of them above it jumps instead of gliding. Wrap it in the card's own template, so it animates wherever the card renders. Key each row by something that stays with it, never by its position: a linked card's `id`, or an id field a row is given when it is added. Glimmer moves an element only when its key follows the row, and a row whose key changes is a new element with no earlier box to animate from. `@identity` breaks the same way when the code replaces a row's object (`list[i] = new Item({ … })`).
+   ```gts
+   {{! ✗ re-sorts in a single frame }}
+   <ul>{{#each this.sorted key='@index' as |item|}}<li {{motion layout=true}}>{{item.name}}</li>{{/each}}</ul>
+
+   {{! ✓ }}
+   <LayoutGroup>
+     <ul>
+       {{#each this.sorted key='id' as |item|}}
+         <li {{motion layout=true}}>{{item.name}}</li>
+       {{/each}}
+     </ul>
+   </LayoutGroup>
+   ```
 
 ## Cards share the host's copy
 
