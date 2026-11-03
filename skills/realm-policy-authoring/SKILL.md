@@ -1340,8 +1340,10 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   anonymous cap ([`api-integrations`](../api-integrations/SKILL.md) §2).
   Sharing or swapping a key into the workspace makes no choice: with the
   grant in place, visitors will use any key shared there, so a key that
-  doesn't allow anonymous use isn't shared or swapped in. A key already shared when the grant is written serves visitors if
-  it allows anonymous use, and otherwise they are asked to sign in. One with a
+  doesn't allow anonymous use isn't shared or swapped in. A key already
+  shared when the grant is saved serves visitors if it allows anonymous use,
+  and otherwise they are asked to sign in, so saving such a grant asks first:
+  see [Saving a grant that opens shared keys](#saving-a-grant-that-opens-shared-keys). One with a
   `{{userKey}}` slot sends the caller's own key, which a visitor doesn't
   have: a grant naming `"anonymous"` on it records `anonymous-grant-user-key`
   and admits no visitor, and still applies to signed-in callers.
@@ -1361,6 +1363,40 @@ request uses (below): `actingUser`, `blocklist`, `rateLimitRequests` and
 profile (§6), and may read the governed realm's settings
 (`realmConfig("key")`), a field of the policy card (`policy("field")`), or be
 written out as a constant.
+
+### Saving a grant that opens shared keys
+
+A save that opens a `callApi` with a shared key to visitors, where keys are
+already shared into the governed workspace and bound to that operation, needs
+confirming. That is a save of the policy card a workspace names, or of the
+workspace's `realm.json` pointing at another one, from any surface: the card
+editor, the code editor, the AI assistant, `boxel file write` or `boxel realm
+push`/`sync`. The realm refuses it with 409 `policy-opens-shares-to-anonymous`,
+listing each such share: its label, its owner, whether its key allows
+anonymous use, and the operations.
+
+- **In Boxel**, the save opens a dialog listing the keys visitors will start
+  using, and the keys that will refuse them until their owners allow it.
+  **Save and tell the owners** saves it; **Don't save** leaves the policy as it
+  was and the save reports as failed.
+- **From the CLI**, the list is printed and a terminal is asked;
+  `--confirm-shared-keys` saves after printing it, and without a terminal the
+  write is refused, naming the flag.
+- **The confirmation covers exactly the list shown.** A share bound, or a
+  key's setting changed, before the save lands makes a new list, which is asked
+  about again.
+- **Each listed key's owner is told** once the save lands: that visitors now
+  use their key in the workspace, or that the workspace wants them to and they
+  can allow it on the key's page, with an optional cap.
+
+A save that opens nothing new to visitors, or opens only operations no share
+is bound to, saves as any other.
+
+**As the AI assistant**, write the policy as asked; Boxel shows the person the
+dialog, and only they confirm it. Say in your reply which shared keys the
+change lets visitors use, and that their owners are told. When a write fails
+because the person chose **Don't save**, report that the policy wasn't saved;
+don't write it again unasked.
 
 ### Scoping an anonymous grant
 
