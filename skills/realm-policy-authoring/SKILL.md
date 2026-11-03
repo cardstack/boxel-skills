@@ -821,6 +821,7 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `grant-expression-reads-target`       | inactive | grant    | A `blocklist` or rate-limit expression reads `instance()`, or any of the four reads `actor()` (§12) |
 | `anonymous-write-without-acting-user` | warning  | grant    | A write grant whose `where` names `"anonymous"` has no `actingUser`, so it admits no visitor's write; it still admits signed-in callers (§12) |
 | `anonymous-grant-reads-actor`         | warning  | grant    | A grant whose `where` names `"anonymous"` is on an operation whose program, template or output reads `actor()`, so it admits no visitor (§12). Recorded at `.operation` |
+| `anonymous-grant-user-key`            | warning  | grant    | A grant whose `where` names `"anonymous"` is on a `callApi` that sends the caller's own key (`{{userKey}}`), which a visitor doesn't have, so it admits no visitor (§12). Recorded at `.operation` |
 | `acting-user-never-used`              | warning  | grant    | An `actingUser` on a grant whose `where` never names `"anonymous"`, or on an operation that doesn't write (§12) |
 | `grant-expression-wrong-type`         | warning  | grant    | An expression that is a single value of the wrong kind, such as `actingUser: "42"` or `rateLimitRequests: "\"lots\""` (§12) |
 | `acting-user-from-submitted-card`     | warning  | grant    | A `create` grant whose `where` names `"anonymous"` has an `actingUser` that reads `instance()`, which on a create is the card the visitor sends, so the visitor picks who the card is created as (§12). Recorded at `.actingUser` |
@@ -1331,6 +1332,19 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   `submitFeedback`), plus the ad-hoc `query`. A `where` naming `"anonymous"`
   on a named query (`listMine`) records `anonymous-not-base-operation`, and
   the grant is inactive for signed-in callers too.
+- **A `callApi` is eligible when it sends no key or only shared ones**
+  (`{{apiKey}}`). The grant decides where visitors can use a shared key; a
+  shared key serves them only where its owner also allows anonymous use on
+  the key itself (when adding it, or from the key's page), and visitors are
+  then limited by address and, when the key's owner set one, by the key's
+  anonymous cap ([`api-integrations`](../api-integrations/SKILL.md) §2).
+  Sharing or swapping a key into the workspace makes no choice: with the
+  grant in place, visitors will use any key shared there, so a key that
+  doesn't allow anonymous use isn't shared or swapped in. A key already shared when the grant is written serves visitors if
+  it allows anonymous use, and otherwise they are asked to sign in. One with a
+  `{{userKey}}` slot sends the caller's own key, which a visitor doesn't
+  have: a grant naming `"anonymous"` on it records `anonymous-grant-user-key`
+  and admits no visitor, and still applies to signed-in callers.
 - **Prefer a named operation for a visitor's write.** It states exactly what a
   visitor may do, such as "submit this form", where a raw `update` lets them
   write any field (§14). A named operation is one invocation of its base: one
