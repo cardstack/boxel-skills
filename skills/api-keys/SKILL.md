@@ -148,6 +148,16 @@ export class WeatherStation extends CardDef {
   allow it. Tell by the workspace's `realm.json` `policy` card: a grant whose
   `where` is `actor() == "anonymous"` on a `callApi` operation whose every
   credential slot is `{{apiKey}}` ([`api-integrations`](../api-integrations/SKILL.md) §2).
+- The other way round, a policy saved after keys were shared, asks first.
+  Writing such a grant into a workspace's policy, where shared keys are
+  approved for the operation it opens, makes Boxel show the person a list of
+  the keys visitors will start using and the ones that will refuse them until
+  their owners allow it. Only the person confirms it. Owners of keys that
+  don't allow it yet are asked, on their keys page, to approve anonymous use
+  or decline. Say so in your reply. If they choose
+  **Don't save**, report that the policy wasn't saved; writing it again when
+  they ask asks them again
+  ([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12).
 - To replace the key an operation sends, pass `mode: 'replace-key'` with the
   same `cardId` and `operation` (see the last section).
 - To have the user sign in at the service instead of pasting a key, pass
