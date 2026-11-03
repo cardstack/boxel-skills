@@ -148,12 +148,13 @@ export class WeatherStation extends CardDef {
   `where` is `actor() == "anonymous"` on a `callApi` operation whose every
   credential slot is `{{apiKey}}` ([`api-integrations`](../api-integrations/SKILL.md) §2).
 - The other way round, a policy saved after keys were shared, asks first.
-  Writing such a grant into a workspace's policy, where shared keys are bound
-  to the operation it opens, makes Boxel show the person a list of the keys
-  visitors will start using and the ones that will refuse them until their
-  owners allow it, and the keys' owners are told once it is saved. Only the
-  person confirms it. Say so in your reply, and if they choose **Don't
-  save**, report that the policy wasn't saved
+  Writing such a grant into a workspace's policy, where shared keys are
+  approved for the operation it opens, makes Boxel show the person a list of
+  the keys visitors will start using and the ones that will refuse them until
+  their owners allow it. Only the person confirms it, and each key's owner
+  then finds a notice on their keys page. Say so in your reply. If they choose
+  **Don't save**, report that the policy wasn't saved; writing it again when
+  they ask asks them again
   ([`realm-policy-authoring`](../realm-policy-authoring/SKILL.md) §12).
 - To replace the key an operation sends, pass `mode: 'replace-key'` with the
   same `cardId` and `operation` (see the last section).
