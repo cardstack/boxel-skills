@@ -1336,8 +1336,8 @@ feedback". For such a visitor, `actor()` is `"anonymous"`.
   (`{{apiKey}}`). The grant decides where visitors can use a shared key; a
   shared key serves them only where its owner also allows anonymous use on
   the key itself (when adding it, or from the key's page), and visitors are
-  then limited by address and, when the key's owner set one, by the key's
-  anonymous cap ([`api-integrations`](../api-integrations/SKILL.md) §2).
+  then limited by address and, where the key's owner set them, by the key's
+  daily or monthly anonymous cap ([`api-integrations`](../api-integrations/SKILL.md) §2).
   Sharing or swapping a key into the workspace makes no choice: with the
   grant in place, visitors will use any key shared there, so a key that
   doesn't allow anonymous use isn't shared or swapped in. A key already shared when the grant is written serves visitors if

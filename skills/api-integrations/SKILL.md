@@ -131,8 +131,8 @@ that operation's group says "Anyone can use it for requests to <domain>
 doesn't, it notes that people who aren't signed in are asked to sign in.
 `boxel keys approve --interactive` prints the equivalent lines (§8).
 
-Visitors together spend at most half of each share's daily budget (the
-platform's setting), so signed-in readers always keep the rest, whatever caps
+Visitors together spend at most half of each share's daily budget and half
+of its monthly one (the platform's setting), so signed-in readers always keep the rest, whatever caps
 the key's owner set, or none. The key's owner can also set its **anonymous
 caps**, each optional: the most calls a UTC day, and the most calls a UTC
 month, all visitors together make with it, each counted once across every
@@ -155,7 +155,7 @@ What a visitor gets meanwhile depends on what is missing:
 | The share isn't approved yet, or only for scheduled pipelines     | `binding-not-approved` / `interactive-use-not-approved` | `needs-admin`, as for any reader |
 | The share's key doesn't allow people who aren't signed in         | `anonymous-use-not-approved` (401) | `needs-sign-in`                        |
 | The operation sends the caller's own key (`{{userKey}}`)          | `actor-required`               | `needs-sign-in`                            |
-| Room under the visitor's address rate, their part of the share's daily budget, or the key's daily or monthly anonymous cap | `rate-limited` / `over-budget` | `rate-limited` / `over-budget`             |
+| Room under the visitor's address rate, their part of the share's daily or monthly budget, or the key's daily or monthly anonymous cap | `rate-limited` / `over-budget` | `rate-limited` / `over-budget`             |
 
 Show `needs-sign-in` as a sign-in prompt, not an error (§4), and
 `rate-limited` / `over-budget` as anyone over a limit is shown them (§5).
@@ -623,9 +623,10 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   rather than returning a live card to pipelines only. For each operation
   the workspace's policy opens to visitors, it prints the lines the approve
   window shows: "Anyone on the internet who opens this card, including
-  people who aren't signed in, can make … with <share>[, up to N calls a day
-  and M a month all together].", or, where the share's key doesn't allow them, that they're
-  asked to sign in.
+  people who aren't signed in, can make … with <share>[, up to <its caps>
+  all together].", where the caps read "N calls a day", "M calls a month"
+  or "N calls a day and M a month", whichever the key has; or, where the
+  share's key doesn't allow them, that they're asked to sign in.
 - **`approve` has no option for visitors.** Whether people who aren't
   signed in can use a key is the key's own setting, and where they can is the
   workspace policy's; `approve --anonymous` is listed in its help only to say
@@ -637,7 +638,8 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   [--monthly-cap <calls>]`** changes that later. The caps are the calls a UTC
   day and a UTC month all visitors together may make with the key, across
   every workspace it is shared into; each is optional. `on` keeps a cap it
-  isn't given, and `off` clears both. `add --anonymous` is refused for an OAuth client; turn
+  isn't given, `--cap none` or `--monthly-cap none` removes that cap while
+  anonymous use stays on, and `off` clears both. `add --anonymous` is refused for an OAuth client; turn
   it on afterwards with `boxel keys anonymous <name> on` for a
   `client_credentials` client. A sign-in app never takes it.
 - **`boxel keys share <name> --realm <url>`** makes no choice about visitors;

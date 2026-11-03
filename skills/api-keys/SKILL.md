@@ -123,9 +123,10 @@ export class WeatherStation extends CardDef {
   when adding it (`enter-key`), or later from the key's page in the secure
   window, each with two optional anonymous caps, the calls a day and the calls
   a month all visitors together may make with the key across every workspace
-  it is shared into. Turning it on again without a cap keeps the key's caps. Visitors are
-  always limited by their address, and together spend at most half of each
-  share's daily budget, so signed-in readers keep the rest. Only a static
+  it is shared into. An empty cap field means no cap, and turning anonymous
+  use off clears both. Visitors are always limited by their address, and
+  together spend at most half of each share's daily budget and half of its
+  monthly one, so signed-in readers keep the rest. Only a static
   key, a Google service account, or an OAuth client with grant type
   `client_credentials` takes the setting; a sign-in app and a connection are
   each person's own sign-in and never serve visitors. Where visitors can use
@@ -414,7 +415,7 @@ of calls for the key across everyone. A key nobody set limits on gets
 Boxel's defaults (25 calls at once, then 15 a minute; 2,400 calls a day). Only
 calls from a card, the AI assistant or the CLI count; a scheduled pipeline's
 don't. A share's first approval for interactive use asks its owner for the
-share's daily budget, since every reader of the workspace can then spend it. A share whose key allows people who aren't signed in limits each visitor by their address, keeps visitors together to at most half of its daily budget so signed-in readers keep the rest, and the key's daily and monthly anonymous caps, when set, bound what visitors together spend a day and a month across every workspace the key is shared into. A call over a limit is refused before anything is sent:
+share's daily budget, since every reader of the workspace can then spend it. A share whose key allows people who aren't signed in limits each visitor by their address, keeps visitors together to at most half of its daily budget and half of its monthly one so signed-in readers keep the rest, and the key's daily and monthly anonymous caps, when set, bound what visitors together spend a day and a month across every workspace the key is shared into. A call over a limit is refused before anything is sent:
 
 | `code`                   | Status | Means                                                     | What to do                                                                                   |
 | ------------------------ | ------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
