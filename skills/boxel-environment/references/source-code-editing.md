@@ -4,7 +4,7 @@ The `run-realm-code` tool call format is defined in the canonical **`source-code
 
 When you need to edit a `.gts` or `.json` file from inside the Boxel app, load that skill:
 
-- Path: `skills/source-code-editing/SKILL.md`
+- Path: `source-code-editing/SKILL.md`
 - Trigger: any code-change intent — adding/editing imports, fields, templates, computed properties, or creating new `.gts` files.
 
 Key reminders for the runtime context:

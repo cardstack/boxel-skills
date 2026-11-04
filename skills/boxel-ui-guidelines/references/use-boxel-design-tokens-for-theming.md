@@ -146,7 +146,7 @@ A component that pins its neutrals (ink, panels, borders) to literals but reads 
 
 ### Semantic Theme Variables (prefer these)
 
-The full inventory — surfaces and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, typography, spacing, radius, shadows — lives in one place: `skills/boxel-ui-guidelines/references/theme-token-contract.md`. Read it before styling; this reference only covers how to *use* those tokens. In short: every surface token names a background and pairs with its own `--*-foreground`; the neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) pair with `--foreground`; a hue used as text or icon color on a neutral surface takes its `--*-ink` token.
+The full inventory — surfaces and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, typography, spacing, radius, shadows — lives in one place: `boxel-ui-guidelines/references/theme-token-contract.md`. Read it before styling; this reference only covers how to *use* those tokens. In short: every surface token names a background and pairs with its own `--*-foreground`; the neutral surfaces (`--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, `--selected`) pair with `--foreground`; a hue used as text or icon color on a neutral surface takes its `--*-ink` token.
 
 ### Color Pairing Rules
 
@@ -212,7 +212,7 @@ The literal `black` there is deliberate, not an exception to the no-hardcoded-co
 
 ### Spacing Tokens
 
-**Important:** the theme's `spacing` is multiplied by 4 at runtime to produce `--boxel-sp` (a 16px base is stored as `0.25rem`); see "Spacing" in `skills/boxel-ui-guidelines/references/theme-token-contract.md`.
+**Important:** the theme's `spacing` is multiplied by 4 at runtime to produce `--boxel-sp` (a 16px base is stored as `0.25rem`); see "Spacing" in `boxel-ui-guidelines/references/theme-token-contract.md`.
 
 Do not copy a shadcn, Tailwind, or DESIGN.md base spacing value directly into Boxel `--spacing` without normalization. If the source system says the base spacing rhythm is `1rem`, Boxel usually wants `spacing: 0.25rem`.
 
@@ -228,7 +228,7 @@ All three options below are valid — choose based on whether you want spacing t
 
 **Note on `--spacing`:** Using `--spacing` directly is valid, but it's a single value. If you need a range of sizes, use the `--boxel-sp-*` scale — or derive your own variables with `calc(var(--spacing) * n)`.
 
-The `--boxel-sp-*` ladder and its default values are listed in `skills/boxel-ui-guidelines/references/theme-token-contract.md`.
+The `--boxel-sp-*` ladder and its default values are listed in `boxel-ui-guidelines/references/theme-token-contract.md`.
 
 ### Typography Tokens
 
@@ -246,7 +246,7 @@ Choose based on whether you want the text to respond to the linked theme.
 
 #### Semantic typography variables
 
-These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. Use them when styling text by semantic role (heading, section heading, subheading, body, caption, UI label, eyebrow). Use `--font-sans/serif/mono` only when referencing a generic font stack directly. The role tokens and the low-level size ladder are listed in `skills/boxel-ui-guidelines/references/theme-token-contract.md`.
+These are **in addition to** `--font-sans`, `--font-serif`, and `--font-mono`. Use them when styling text by semantic role (heading, section heading, subheading, body, caption, UI label, eyebrow). Use `--font-sans/serif/mono` only when referencing a generic font stack directly. The role tokens and the low-level size ladder are listed in `boxel-ui-guidelines/references/theme-token-contract.md`.
 
 These are good for isolated or embedded card views. The sizes might be too large for fitted card templates. Before declaring any of them, check what `CardContainer` already applies (body role on the root, heading roles on `h1`–`h3`, the caption role's size, line height and tracking on `small`; see the contract reference) — most templates need no typography declarations at all.
 
@@ -258,11 +258,11 @@ Each role, including `label` and `eyebrow`, is a slot on the theme's `typography
 
 ### Border & Radius Tokens
 
-`--radius` is valid for the base radius, but it's a single value. If you need a range of sizes, use the `--boxel-border-radius-*` scale (listed in `skills/boxel-ui-guidelines/references/theme-token-contract.md`) — or derive your own variables with `calc(var(--radius) * n)`. The scale is pre-built and re-scales with the theme's `radius` setting. `--boxel-border` / `--boxel-border-color` are fixed Boxel chrome values; themed content uses `1px solid var(--border)`.
+`--radius` is valid for the base radius, but it's a single value. If you need a range of sizes, use the `--boxel-border-radius-*` scale (listed in `boxel-ui-guidelines/references/theme-token-contract.md`) — or derive your own variables with `calc(var(--radius) * n)`. The scale is pre-built and re-scales with the theme's `radius` setting. `--boxel-border` / `--boxel-border-color` are fixed Boxel chrome values; themed content uses `1px solid var(--border)`.
 
 ### Shadow & Effects Tokens
 
-Prefer the theme's shadow scale (`--shadow-2xs` … `--shadow-2xl`, plus `--shadow-inset` for sunken wells; see `skills/boxel-ui-guidelines/references/theme-token-contract.md`): it is part of the contract, so a theme can retune elevation and the template follows. `--boxel-box-shadow`, `--boxel-box-shadow-hover`, `--boxel-deep-box-shadow`, and `--boxel-transition` are fixed Boxel chrome values that do not respond to the theme.
+Prefer the theme's shadow scale (`--shadow-2xs` … `--shadow-2xl`, plus `--shadow-inset` for sunken wells; see `boxel-ui-guidelines/references/theme-token-contract.md`): it is part of the contract, so a theme can retune elevation and the template follows. `--boxel-box-shadow`, `--boxel-box-shadow-hover`, `--boxel-deep-box-shadow`, and `--boxel-transition` are fixed Boxel chrome values that do not respond to the theme.
 
 ### Primitive Color Tokens — Do Not Use for Brand/Theme
 
@@ -294,7 +294,7 @@ var(--boxel-warning)
 
 ### Tokens Outside the Contract
 
-`StructuredTheme` has no slot for tokens the contract does not name, and the escape hatches (a `BrandGuide`'s `customCssVariables`, or an extended theme card definition) give up the boundary reset and the ability to switch theme cards. `skills/boxel-ui-guidelines/references/theme-token-contract.md` spells out the trade-off. In a template: map onto a named token wherever one is close enough, and when you must read a custom variable under a theme that may be swapped, give it a fallback once in a local variable on the component root (exemption 2 at the top of this reference).
+`StructuredTheme` has no slot for tokens the contract does not name, and the escape hatches (a `BrandGuide`'s `customCssVariables`, or an extended theme card definition) give up the boundary reset and the ability to switch theme cards. `boxel-ui-guidelines/references/theme-token-contract.md` spells out the trade-off. In a template: map onto a named token wherever one is close enough, and when you must read a custom variable under a theme that may be swapped, give it a fallback once in a local variable on the component root (exemption 2 at the top of this reference).
 
 ### Brand Guide Tokens
 

@@ -22,6 +22,9 @@ jobs:
     with:
       staging-workspace-url: https://realms-staging.stack.cards/skills/
       production-workspace-url: https://app.boxel.ai/skills/
+      # Only `skills/` is the realm; the plugin manifests, README and repo
+      # tooling beside it are not served.
+      realm-root: skills
     secrets:
       staging-matrix-username: ${{ secrets.STAGING_MATRIX_USERNAME }}
       production-matrix-username: ${{ secrets.MATRIX_USERNAME }}
