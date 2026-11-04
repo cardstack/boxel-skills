@@ -590,7 +590,10 @@ OAuth: the user approves the permissions the client asks for on the service's
 own page, can revoke
 the sign-in there, and never handles a long-lived token. Use a static key when
 the service only issues API keys. The card can't tell which fills its slot and
-doesn't need to.
+doesn't need to. When the operation needs one of them, its `keyKind` says so
+(`'oauth'` or `'static'`), and the secure window asks the user for that kind
+without a choice; see
+[`card-operations-authoring`](../card-operations-authoring/SKILL.md).
 
 **What a slot looks like** for a connection is no different from a pasted
 key: a `{{userKey}}` slot where the service expects its token. Whether to

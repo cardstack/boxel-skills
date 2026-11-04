@@ -203,6 +203,17 @@ import {
   channel card); each card is approved on its own. Its approval is reached by
   opening the window with the card (`cardId`), never the type, and
   `keyReadiness` asked about it on the type answers `undefined`.
+- **Say what kind of key the slot takes** with `keyKind` when only one fits:
+  `'static'` for a key or token the user pastes, `'google-service-account'`
+  for a Google service account's key file, `'oauth'` for an account the user
+  connects through a sign-in app. Give one kind for every slot, or one per
+  slot by its name (`keyKind: { token: 'oauth' }`). The secure window then
+  asks for that kind of key without making the user choose. Left out, the
+  window offers the kinds that can work where the slot stands: a slot that is
+  the whole credential after an Authorization scheme other than Basic
+  (`Bearer {{userKey}}`) takes a pasted key or a connected account, and also
+  a Google service account when the request goes to a `googleapis.com` host;
+  a slot anywhere else, or with `|basic`, takes only a pasted key.
 - **Put the key in a header.** Never in a body field the vendor stores (a
   comment, a description), and avoid the query string, which vendors log.
 - **GraphQL takes variables.** A fixed `document`, every value passed in
