@@ -202,6 +202,7 @@ let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
 | `graphql`  | `{ document, variables }`: a fixed document string, every value passed as a variable |
 | `method`   | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. Absent: `GET`, or `POST` when there is a body |
 | `perInstance` | Optional. `true` when each card needs its own approval (one webhook URL per channel card). Approved from the card (`cardId`), never the type; `keyReadiness` on the type answers `undefined` |
+| `keyKind`  | Optional. The kind of key the slots take: `'static'` (a key or token pasted as it is), `'google-service-account'` (a Google service account's key file, from which Boxel mints Google access tokens) or `'oauth'` (an account connected through a sign-in app), for every slot or by slot name (`{ token: 'oauth' }`; an unnamed slot is `userKey` or `apiKey`). Only a key of that kind is approved for the slot, and the secure window asks for that kind when the user adds one. Absent, any kind may be approved — see [`api-integrations`](../api-integrations/SKILL.md) |
 | `output`   | Optional. Maps the response, `{status, headers, body}`, to the object the caller gets back — an object, never a list or a bare value |
 
 Values are the typed references (`params()`, `actor()`, `realmConfig()`,
@@ -337,8 +338,9 @@ the slot where Google takes a bearer token:
   `rejected`. The same code comes when Google's token endpoint kept failing,
   with `err.meta.reason` `unavailable`, and the message says asking again
   later may work. Branch on the code and the reason; show the message.
-- **Entering one.** In the secure window, the user picks **Google service
-  account** and chooses the key file. From a terminal:
+- **Entering one.** In the secure window, the user chooses the key file under
+  **Google service account**, which a card that declares
+  `keyKind: 'google-service-account'` asks for without a choice. From a terminal:
   `boxel keys add <name> --kind google-service-account --key-file <path>
 --scope <scope> [--scope <scope>] [--subject <email>]`. `replace` takes a new
   key file with `--scope` (and `--subject`) the same way. The key file is read
