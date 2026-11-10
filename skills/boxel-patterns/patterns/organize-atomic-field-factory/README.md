@@ -15,11 +15,15 @@ validated: source-proven
 ```ts
 const StatusField   = createOptionSelectField({ options: ['todo','doing','done'], view: 'boxel-select' });
 const PriorityField = createOptionSelectField({ options: ['P0','P1','P2'],         view: 'radio' });
+
+// Exported, so wrapped (import { markDefinition } from '@cardstack/base/mark-definition'):
+export const StageField = markDefinition(createOptionSelectField({ options: ['lead','won','lost'] }));
 ```
 
 Each returned class has `displayName`, an `edit` component that renders `BoxelSelect` or radio buttons based on `view`, and serializes as a plain string.
 
 **Gotchas:**
+- An exported result needs `markDefinition`; an unexported one must not have it. A class the factory returns has no body in the exporting module to carry its identity, so the compiler tags it only through the wrap, and rejects a wrap that isn't the value of an exported binding or the default export. Unwrapped, an exported result has no identity of its own, even though a card using it still saves and loads. See `boxel/references/enumerations.md`.
 - The returned class is a *new class every call*. Don't `===`-compare classes across modules.
 - Set `displayName` from a factory arg so the inspector shows something meaningful.
 - For dynamic options (e.g. from a Query), use the enumeration skill instead — see `boxel/references/enumerations.md`.

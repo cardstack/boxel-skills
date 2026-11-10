@@ -44,7 +44,7 @@ You are generating idiomatic Boxel: **Card Definitions** in `.gts` (Glimmer Type
 ```
 Needs own identity / referenced from multiple places? → CardDef + linksTo
 URL pointing at a card or realm file?                → linksTo / linksToMany — never StringField/UrlField (Rule 16)
-Fixed set of values (status, priority)?              → enumField(StringField, { options: [{ value, label }, …] }) (see references/enumerations.md)
+Fixed set of values (status, priority)?              → enumField(StringField, { options: [{ value, label }, …] }); exported → markDefinition(enumField(…)) (see references/enumerations.md)
 A date, or any value with a known shape?             → DateField, EmailField, UrlField, … — never a StringField (see references/base-field-catalog.md)
 Image / document / file asset?                       → FileDef subtype + linksTo (see boxel-file-def)
 Generated/uploaded media payload?                    → Write bytes with WriteBinaryFileCommand, then linksTo FileDef/ImageDef/PngDef. Never StringField data URI.

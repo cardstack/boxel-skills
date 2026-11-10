@@ -13,6 +13,13 @@ const StatusField = enumField(StringField, { options: ['Open', 'Closed'] });
 
 **Template:** `<@fields.status />` renders a BoxelSelect in edit mode.
 
+**Exporting it:** an exported definition made by a call needs `markDefinition`, and an unexported one must not have it:
+```gts
+import { markDefinition } from '@cardstack/base/mark-definition';
+export const StatusField = markDefinition(enumField(StringField, { options: ['Open', 'Closed'] }));
+```
+See "Exported definitions made by a call" below.
+
 **Rich options with labels/icons:**
 ```gts
 enumField(StringField, { 
@@ -63,6 +70,26 @@ const StatusField = enumField(StringField, { options: ['Open', 'Closed'] });
 ```hbs
 <@fields.status /> {{! Renders a BoxelSelect in edit mode }}
 ```
+
+## Exported definitions made by a call
+
+A card or field definition gets its identity from the module that exports it. A class written in the module carries it in its body. A definition the module gets by calling a function has no body to carry it, so the compiler tags it only when the exported value is wrapped in `markDefinition`:
+
+```gts
+import enumField from '@cardstack/base/enum';
+import StringField from '@cardstack/base/string';
+import { markDefinition } from '@cardstack/base/mark-definition';
+
+export const StatusField = markDefinition(
+  enumField(StringField, { options: ['Open', 'Closed'] }),
+);
+```
+
+- **Wrap every exported definition made by a call.** That covers `enumField`, the catalog's `statusField` and `priorityField`, and any factory function in your own realm that returns a card or field class. Wrap the outermost call, the one whose result is exported. Exporting it another way still needs the wrap on the `const`: `const StatusField = markDefinition(enumField(...)); export { StatusField };`. A default export takes it directly: `export default markDefinition(enumField(...));`.
+- **Never wrap one that isn't exported.** `const StatusField = enumField(...)` used only in its own module stays as it is: the compiler rejects a `markDefinition` that isn't the value of an exported binding or the default export.
+- **Import it by exactly `'@cardstack/base/mark-definition'`.** Another spelling of the base realm is a compile error.
+
+An exported definition left unwrapped compiles, but it has no identity of its own. A card definition made that way can't serialize or deserialize an instance: the error says "`<Class>` has no identity", naming the class the call returned rather than the export (an unnamed class reads "an anonymous class"). A primitive field like an `enumField` still saves and loads inside a card that uses it, so nothing on screen shows the gap. Wrap it anyway.
 
 ## Rich Options (Labels/Icons)
 

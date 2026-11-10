@@ -216,7 +216,7 @@ These extend `FileDef` and must be used with `linksTo`, never `contains`. See `b
 
 | Helper | Import | Notes |
 |---|---|---|
-| `enumField(BaseField, { options })` | `'@cardstack/base/enum'` (default export) | Wraps a base field with constrained values + a `BoxelSelect` editor. See `enumerations.md`. |
+| `enumField(BaseField, { options })` | `'@cardstack/base/enum'` (default export) | Wraps a base field with constrained values + a `BoxelSelect` editor. Exported, the result is wrapped in `markDefinition` from `'@cardstack/base/mark-definition'`. See `enumerations.md`. |
 
 ## Special
 
