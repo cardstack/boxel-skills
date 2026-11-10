@@ -85,12 +85,13 @@ export const StatusField = markDefinition(
 );
 ```
 
-- **Wrap every exported definition made by a call.** That covers `enumField`, the catalog's `statusField` and `priorityField`, and any factory function in your own realm that returns a card or field class. Wrap the outermost call, the one whose result is exported. `export { StatusField }` and `export default markDefinition(...)` work too.
+- **Wrap every exported definition made by a call.** That covers `enumField`, the catalog's `statusField` and `priorityField`, and any factory function in your own realm that returns a card or field class. Wrap the outermost call, the one whose result is exported. Exporting it another way still needs the wrap on the `const`: `const StatusField = markDefinition(enumField(...)); export { StatusField };`. A default export takes it directly: `export default markDefinition(enumField(...));`.
 - **Never wrap one that isn't exported.** `const StatusField = enumField(...)` used only in its own module stays as it is: the compiler rejects a `markDefinition` that isn't the value of an exported binding or the default export.
 - **Import it by exactly `'@cardstack/base/mark-definition'`.** Another spelling of the base realm is a compile error.
 
-An exported definition left unwrapped compiles, but it has no identity: anything that has to name it, such as deserializing a card that uses it, fails with "`<Name>` has no identity".
+An exported definition left unwrapped compiles, but it has no identity of its own. A card definition made that way can't serialize or deserialize an instance: the error says "`<Class>` has no identity", naming the class the call returned rather than the export (an unnamed class reads "an anonymous class"). A primitive field like an `enumField` still saves and loads inside a card that uses it, so nothing on screen shows the gap. Wrap it anyway.
 
+## Rich Options (Labels/Icons)
 
 ```gts
 enumField(StringField, { 
