@@ -1,6 +1,7 @@
 import { StringField, Component } from '@cardstack/base/card-api';
 import { BoxelSelect } from '@cardstack/boxel-ui/components';
 import { eq } from '@cardstack/boxel-ui/helpers';
+import { markDefinition } from '@cardstack/base/mark-definition';
 
 // 🧩 PATTERN: Atomic Field factory with view prop
 //
@@ -53,17 +54,26 @@ export function createOptionSelectField(config: OptionSelectConfig) {
 
 // === Usage =============================================================
 
-export const StatusField = createOptionSelectField({
-  displayName: 'Status',
-  options: ['todo', 'doing', 'done'] as const,
-  view: 'boxel-select',
-});
+// A class the factory returns gets its identity only through markDefinition,
+// so every exported result is wrapped. A result used only in this module
+// stays unwrapped: the compiler rejects markDefinition anywhere but the value
+// of an exported binding or the default export.
 
-export const PriorityField = createOptionSelectField({
-  displayName: 'Priority',
-  options: ['P0', 'P1', 'P2'] as const,
-  view: 'radio',
-});
+export const StatusField = markDefinition(
+  createOptionSelectField({
+    displayName: 'Status',
+    options: ['todo', 'doing', 'done'] as const,
+    view: 'boxel-select',
+  }),
+);
+
+export const PriorityField = markDefinition(
+  createOptionSelectField({
+    displayName: 'Priority',
+    options: ['P0', 'P1', 'P2'] as const,
+    view: 'radio',
+  }),
+);
 
 // In a card:
 //   @field status   = contains(StatusField);

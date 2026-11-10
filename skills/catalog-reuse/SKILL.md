@@ -380,17 +380,23 @@ inherits it.
 
      ```gts
      import { contains, field } from '@cardstack/base/card-api';
+     import { markDefinition } from '@cardstack/base/mark-definition';
      import { statusField } from '@cardstack/catalog/fields/status/status';
      import { Shipment } from '@cardstack/catalog/<shipment-module>';
 
-     export const OurStageField = statusField({
-       options: [{ value: 'Packed' }, { value: 'At hub' }, { value: 'Delivered' }],
-     });
+     export const OurStageField = markDefinition(
+       statusField({
+         options: [{ value: 'Packed' }, { value: 'At hub' }, { value: 'Delivered' }],
+       }),
+     );
 
      export class OurShipment extends Shipment {
        @field stage = contains(OurStageField);
      }
      ```
+
+     An exported definition made by a call is wrapped in `markDefinition`
+     (`boxel/references/enumerations.md`).
 
      A catalog readMe that calls a vocabulary "hardcoded" describes the
      catalog's own module, not what your subclass can declare.
