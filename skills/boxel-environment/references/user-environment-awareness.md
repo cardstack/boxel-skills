@@ -29,7 +29,7 @@ Use stack ids to fetch card details and understand user's exploration path.
 
 Where is the user in Boxel?
 
-- **Dashboard**: No workspace in URL → "Navigate to workspace first"
+- **Dashboard**: No workspace in URL → "Navigate to workspace first", unless it is a question about Boxel itself (Claude Code, publishing, credits): answer it from `questions-about-boxel.md`
 - **Workspace Home**: Has workspace, no cards → Offer search/create
 - **Card View**: Workspace + cards → Active interactive session focusing on content and data exploration
 - **Code Edit**: Code mode + file → Editing schema or instance

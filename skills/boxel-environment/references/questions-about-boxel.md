@@ -36,7 +36,7 @@ Each place has its own **Unpublish**.
 - **Cards that failed to index.** The dialog warns that the workspace can't be safely published. You can help: find and fix them ([`indexing-operations.md`](indexing-operations.md), "Verifying a change landed").
 - **Routing rules that point at a card that no longer exists.** Visitors to those paths get "page not found". Fix or remove the rule in the workspace's `hostRoutingRules`.
 - **Private dependencies.** A card that uses a definition or a card from a workspace visitors can't read renders with errors on the published site.
-- **Host isn't in the mode menu.** The workspace can't be published: it is itself a published copy, or a shared system workspace. Publish from the source workspace instead.
+- **Host isn't in the mode menu.** The workspace can't be published: it is itself a published copy (publish from the workspace it was copied from), or a shared system workspace.
 
 From a terminal, `npx boxel realm publish <source> <published>` and `realm unpublish` do the same.
 
