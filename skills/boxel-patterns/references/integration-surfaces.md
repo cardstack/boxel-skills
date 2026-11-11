@@ -315,6 +315,8 @@ Headings, lists, code fences, tables, alerts (`> [!NOTE]`), task lists, striketh
 
 ## 10. boxel-cli commands
 
+In Claude Code, the `boxel-cli` plugin (`/plugin marketplace add cardstack/boxel`, then `/plugin install boxel-cli`) documents these commands and brings in the Boxel skills. → `boxel-environment/references/questions-about-boxel.md`
+
 Local CLI for realm sync, watching, checkpoints, federated search, and scripted host commands.
 
 > **Note on versions.** If `/usr/local/bin/boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's a stale install. The full set below comes from the source at `packages/boxel-cli` in the boxel monorepo. Rebuild + relink to get all commands.

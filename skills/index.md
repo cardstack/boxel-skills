@@ -25,7 +25,7 @@ Boxel is a card-based development platform. The unit of construction is the **ca
 - **AI-powered cards** — cards that kick off AI assistant conversations (`command-with-skill-card-ref`), perform one-shot LLM requests (`integrate-one-shot-llm`), generate images through OpenRouter (`integrate-openrouter-image-generation`, with Gemini image as the default and ChatGPT/OpenAI image models when requested), or batch-process via on-the-fly commands.
 - **Catalog assets** — installable listings (cards, fields, skills, themes; apps are reused through their app Specs) shipped through the catalog with atomic install/remix flows.
 - **Rich markdown content** — BFM-authored content with card-embed directives, fenced renderers (mermaid, math, csv, kanban, excalidraw), and `static markdown` template output.
-- **Local synced development** — pull a realm to a local directory, edit `.gts` files in your IDE, sync changes back. The `boxel-cli` provides bidirectional sync with conflict resolution.
+- **Local synced development** — pull a realm to a local directory, edit `.gts` files in your IDE, sync changes back with `boxel-cli`; its Claude Code plugin brings these skills into Claude Code. A sync never merges: when a file changed on both sides, a flag picks which side wins.
 
 The skill catalog below covers the workflows that produce these deliverables.
 
@@ -129,7 +129,7 @@ Each skill is a folder next to this index. Read only the ones the task needs, no
 
 ### Runtime
 
-- **[`boxel-environment/`](boxel-environment/SKILL.md)** — Driving the live Boxel app: run-realm-code, host commands, searching for cards, indexing.
+- **[`boxel-environment/`](boxel-environment/SKILL.md)** — Driving the live Boxel app: run-realm-code, host commands, searching for cards, indexing. Also answers a user's questions about Boxel itself: working from Claude Code, and publishing a workspace.
 - **[`catalog-listing/`](catalog-listing/SKILL.md)** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
 - **[`boxel-create-edit-cards/`](boxel-create-edit-cards/SKILL.md)** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (the `realm.*` calls for card create/edit).
 

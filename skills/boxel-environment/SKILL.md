@@ -1,6 +1,6 @@
 ---
 name: boxel-environment
-description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, searching and editing cards, indexing, or any operation that drives the Boxel UI, all through `realm.*` and `room.*` calls in a run-realm-code script. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
+description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, searching and editing cards, indexing, or any operation that drives the Boxel UI, all through `realm.*` and `room.*` calls in a run-realm-code script. Also for a user's questions about using Boxel itself: working from Claude Code or another editor, and publishing a workspace. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
 boxel:
   kind: skill
 ---
@@ -34,7 +34,8 @@ If you find yourself about to say you lack a tool, or asking the user to switch 
 ├─ A) CODE  (new .gts, edit template, schema change)  → Step 3
 ├─ B) DATA  (card content, field values)              → Step 4
 ├─ C) SEARCH / FIND                                   → Step 5
-└─ D) NAVIGATE                                        → Step 6
+├─ D) NAVIGATE                                        → Step 6
+└─ E) QUESTION about Boxel itself (Claude Code, publishing) → answer from references/questions-about-boxel.md; no tool call
 ```
 
 ### Step 3 — Code task
@@ -127,6 +128,7 @@ Always-relevant — read these together, first:
 - [`references/user-environment-awareness.md`](references/user-environment-awareness.md) — Parse workspace, mode, open cards from each message.
 
 By task:
+- [`references/questions-about-boxel.md`](references/questions-about-boxel.md) — Answering a user's questions about Boxel itself: working from Claude Code (boxel-cli and its plugin), and publishing a workspace (where it can go, republishing, what blocks it, no domain of your own).
 - [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards with `realm.cards.search`.
 - [`references/card-tool-selection.md`](references/card-tool-selection.md) — Which `realm.*` call creates or edits a card.
 - [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step and multi-realm patterns (migrations, bulk operations, reading or copying between realms).

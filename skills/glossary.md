@@ -253,7 +253,7 @@ The dialect Boxel reads and writes. See [bfm.boxel.site](https://bfm.boxel.site)
 - **`RoutingRuleField`** — FieldDef inside `RealmConfig.hostRoutingRules`. Each rule = `{ path: StringField, instance: linksTo(CardDef) }`.
 - **`hostRoutingRules`** — `containsMany(RoutingRuleField)` on `RealmConfig`. Maps clean paths (`/`, `/about`, `/blog`) to cards in the same realm.
 - **same-realm guard** — Defensive read-time filter that drops routing rules pointing at cards in *other* realms. Prevents private-realm card surfacing via a public realm's URL.
-- **published realm** — Realm reachable by anonymous visitors over HTTPS at a public domain.
+- **published realm** — Realm reachable by anonymous visitors over HTTPS at a public domain. A copy, republished to update; the user publishes from Host mode. → `boxel-environment/references/questions-about-boxel.md`
 - **print and published-output hardening** — Unclip host wrappers in print media, use semantic SVG fill attributes, validate Chromium and Firefox print output, and reindex before checking published HTML. → `boxel-ui-guidelines/references/print-and-published-output.md`
 - **`/_search-prerendered`** — Deployment-specific realm-server endpoint for prerendered HTML. Where exposed, call it with HTTP `QUERY`, not `GET`; otherwise use `npx boxel search --json` and inspect `relationships.html`.
 - **`.boxel-history/`** — Per-realm git repo for change history; managed by `boxel-cli`.
