@@ -1,6 +1,6 @@
 # Questions about using Boxel
 
-Some questions are about Boxel itself, not about a card: can I work from Claude Code, how do I put this online. Answer them in plain words from this page. They need no tool call, and the answer is a few sentences with the next step, not a tour of Boxel's internals. When a question asks for something this page says Boxel doesn't have, say so; never describe a flow that doesn't exist.
+Some questions are about Boxel itself, not about a card: can I work from Claude Code, how do I put this online, how many credits do I have. Answer them in plain words from this page. Only a credits question needs a tool call, and the answer is a few sentences with the next step, not a tour of Boxel's internals. When a question asks for something this page says Boxel doesn't have, say so; never describe a flow that doesn't exist.
 
 ## Working from Claude Code
 
@@ -37,3 +37,7 @@ Each place has its own **Unpublish**.
 - **A workspace that isn't publishable.** The dialog says so, and nothing can be published from it.
 
 From a terminal, `npx boxel realm publish <source> <published>` and `realm unpublish` do the same.
+
+## Credits
+
+A question about the user's plan, how many credits they have left, or what this conversation has cost is answered from `await room.credits()` in a `run-realm-code` script, never from memory. The rule for reading its answer is in `index.md` (*Questions about credits get the user's real numbers*), and the shape of what it returns is in [`../../source-code-editing/SKILL.md`](../../source-code-editing/SKILL.md). Plan prices aren't in it: point to Profile → Membership Tier for those.
