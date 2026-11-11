@@ -3,8 +3,10 @@ name: Release
 # Drafts a release from the version in .codex-plugin/plugin.json, so the tag and
 # the Codex manifest can never disagree (v0.1.11 and v0.1.13 were tagged by
 # hand with a stale version, and Codex keys its plugin cache on that field).
-# Three steps: bump `version` on main, run this workflow, then open the draft
-# and click "Publish release".
+# Four steps: bump `version` on main, run this workflow, open the draft and
+# click "Publish release", then move the boxel-skills pin in cardstack/boxel
+# (the `ref` in .claude-plugin/marketplace.json and .agents/plugins/marketplace.json).
+# The pin comes last because it names a tag, and a draft has no tag yet.
 #
 # The release is a draft because a release this workflow publishes with
 # `github.token` starts no other workflow: GitHub doesn't deliver events
@@ -43,5 +45,8 @@ jobs:
           fi
           URL=$(gh release create "$TAG" --draft --target "$(git rev-parse HEAD)" --title "$TAG" --generate-notes)
           echo "::notice title=Publish $TAG to finish the release::Open $URL and click Publish release. Publishing starts the production sync."
-          echo "### Publish $TAG to finish the release" >> "$GITHUB_STEP_SUMMARY"
-          echo "Open the draft and click **Publish release**: $URL" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Finish $TAG"
+            echo "1. Open the draft and click **Publish release**: $URL. Publishing starts the production sync."
+            echo "2. In cardstack/boxel, set the \`boxel-skills\` \`ref\` to \`$TAG\` in both \`.claude-plugin/marketplace.json\` and \`.agents/plugins/marketplace.json\`. Claude Code and Codex users get $TAG only after that merges."
+          } >> "$GITHUB_STEP_SUMMARY"
