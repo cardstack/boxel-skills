@@ -163,7 +163,7 @@ This is **schema-level** and resolves against the index, so it reflects any card
 
 Looping `@fields` is right for stored and linked fields. For a derived list, fold once per render:
 
-- Put the derivation in a plain module function that returns plain objects; build any `Intl` formatter it uses once, at module scope.
+- Put the derivation in a plain module function that returns plain objects; build any `Intl` formatter it uses once, at module scope — a formatter built per row leaks memory the GC never frees (Cardinal Rule 18).
 - Call it from a `@cached` component getter and loop the plain result. Counters read the same getter, never the computed list.
 - Keep a computed field only if the card's JSON or search needs the list, and have it call the same function.
 - A card whose isolated view is expensive also needs its own `static markdown`, or the default markdown renders that view a second time (see `boxel-markdown-format`).

@@ -375,7 +375,9 @@ export class Todo extends CardDef {
 ```
 
 ```gts
-// ✅ CORRECT: logic in a component getter; formatters built once at module scope
+// ✅ CORRECT: logic in a component getter; formatters built once at module scope.
+// A formatter built inside the getter leaks memory the GC never frees on every
+// render (Cardinal Rule 18; boxel-workspace-cardinal-rules #13).
 const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' });
 
 function processData(data: any) {
