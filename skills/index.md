@@ -94,7 +94,7 @@ await realm.fs.writeText(
 
 ## Skill catalog
 
-Each skill is a folder next to this index. Read only the ones the task needs, not all of them upfront. In the Boxel AI assistant, read a skill's `SKILL.md` with `readRealmFile` — reading the file loads its instructions and the tools it declares. Do not turn skills on with `room.enableSkills` to use them.
+Each skill is a folder next to this index. Read only the ones the task needs, not all of them up front. In the Boxel AI assistant, read a skill's `SKILL.md` with `readRealmFile` — reading the file loads its instructions and the tools it declares. Do not turn skills on with `room.enableSkills` to use them.
 
 ### Foundation
 
