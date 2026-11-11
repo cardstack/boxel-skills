@@ -1,6 +1,6 @@
 ---
 name: api-integrations
-description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card) and for a plain API key sent in a header. Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`.'
+description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card), for a plain API key sent in a header, and for images, audio or files from an AI vendor called with the user''s own key (Boxel''s own AI requests carry text only). Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`, "image generation", "transcribe audio", "AI vendor key".'
 boxel:
   kind: skill
 ---
@@ -556,6 +556,45 @@ For a vendor that issues one API key per account:
 Use `{{apiKey}}` instead when the workspace pays for one account everyone
 shares, and `authorization: 'Basic {{userKey|basic}}'` for a vendor that takes
 the key as HTTP Basic credentials.
+
+### Images, audio or files from an AI vendor
+
+Boxel's own AI requests, which Boxel bills in credits, carry text only. An
+automation's run sends a text prompt and reads a text answer, and Boxel
+refuses a request that sends or asks for images, audio or files. Boxel can't
+work out what such a request costs before sending it, so the request could
+spend past the automation's AI spending limit.
+
+To generate an image, transcribe audio or read a PDF, call the AI vendor
+directly with the user's own key. Declare a `callApi` operation to the
+vendor's API with a `{{userKey}}` slot. The vendor bills the key's owner, not
+Boxel, and the request uses none of Boxel's credits:
+
+```ts
+@operation static drawCover = {
+  base: 'callApi',
+  label: 'Draw a cover image for this post with OpenAI',
+  url: 'https://api.openai.com/v1/images/generations',
+  headers: { authorization: 'Bearer {{userKey}}' },
+  json: {
+    model: 'gpt-image-1',
+    prompt: instance('coverPrompt'),
+    size: '1024x1024',
+  },
+  output: bxl`{status: .status, image: .body.data[0].b64_json}`,
+} satisfies OperationDeclaration;
+```
+
+- The operation lives on a card type like any other `callApi`. For an
+  automation, add the type and operation to the automation's **Outside
+  services**, so a run may call the operation.
+- The automation's **Outside calls** and **Data received** limits bound these
+  calls. **AI spending** doesn't apply, since Boxel doesn't bill them. An image
+  or audio response can be several megabytes, so set **Data received** high
+  enough for the responses the run expects.
+- Ask the user for a key the vendor lets the key's owner limit, such as an
+  OpenAI project key with a monthly budget. The vendor's own limits are the only spending
+  limit on these calls.
 
 ## 7. Testing locally
 
