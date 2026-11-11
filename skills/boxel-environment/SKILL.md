@@ -23,7 +23,7 @@ If you find yourself about to say you lack a tool, or asking the user to switch 
 
 ```
 ├─ Loop detected (same commands repeating)?  → STOP. Alert: "Detected potential loop."
-├─ No workspace in context?                  → Ask user to navigate, open a card, reply 'continue'
+├─ No workspace in context?                  → A question about Boxel itself (Step 2, E) needs none: go to E. Otherwise ask user to navigate, open a card, reply 'continue'
 ├─ Already where the task needs you?          → The last tool result's context.submode / codeMode.currentFile say so. Do the work; no navigation call
 └─ Workspace found                            → Continue to Step 2
 ```

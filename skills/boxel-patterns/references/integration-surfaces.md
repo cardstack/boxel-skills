@@ -381,7 +381,7 @@ npx boxel consolidate-workspaces                            Merge multiple watch
 | `--dry-run` | pull / push / sync / status | Preview without writing. |
 | `--delete` | pull / push / sync | Also propagate deletions. |
 | `--force` | push | Re-upload everything, even unchanged. |
-| `--prefer-local` / `--prefer-remote` / `--prefer-newest` | sync | Conflict resolution policy. One required for sync. |
+| `--prefer-local` / `--prefer-remote` / `--prefer-newest` | sync | Conflict resolution policy. Without one, sync skips conflicting files and reports them. |
 | `--realm <url>` | run-command, wait-for-ready, cancel-indexing | Realm context. |
 | `--input <json>` | run-command | JSON-string input. |
 | `--json` | run-command, list, search | Raw JSON output (for piping). |
