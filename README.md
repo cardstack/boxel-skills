@@ -22,13 +22,13 @@ To iterate on a skill live, start Claude Code with the checkout as a plugin — 
 
 To test content changes against a real workspace, install the [Boxel CLI](https://www.npmjs.com/package/@cardstack/boxel-cli) (`npm install -g @cardstack/boxel-cli`, then `boxel profile add` once) and push to a workspace you own:
 
-    boxel realm push . https://app.boxel.ai/myuser/myworkspace/
+    boxel realm push skills https://app.boxel.ai/myuser/myworkspace/
 
 Commit, push your branch, and raise a PR. Merged changes go to the staging realm; tagged releases go to production and become eligible for the plugin's version pin.
 
 Two invariants to keep by hand (nothing rewrites your files):
 
-- Self-references are realm-root-relative — `skills/<name>/…` — never absolute `https://…/skills/` URLs, so the realm stays cloneable to other hosts.
+- Self-references are realm-root-relative — `<name>/…`, since the realm root is `skills/` — never absolute `https://…/skills/` URLs, so the realm stays cloneable to other hosts.
 - Every shipped `SKILL.md` carries `boxel.kind: skill` frontmatter; the `boxel-skill-authoring` skill documents the full contract.
 
 ## Releasing
@@ -39,6 +39,6 @@ Users get a release once the boxel monorepo moves its pin: the `ref` of the `box
 
 ## Layout
 
-- `skills/` — the skill trees (`<name>/SKILL.md` + `references/`), read by Claude Code, boxel-cli and the in-app AI assistant.
-- `index.md` — the realm's entry document; `CLAUDE.md` and `AGENTS.md` are symlinks to it.
-- `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` — make this repository installable as the `boxel-skills` plugin, and a checkout loadable via `claude --plugin-dir` for authoring. Not pushed to the realm (see `.boxelignore`).
+- `skills/` — the skills realm's root, synced to `https://app.boxel.ai/skills/`, so `skills/boxel/SKILL.md` is served at `https://app.boxel.ai/skills/boxel/SKILL.md`. It holds the skill trees (`<name>/SKILL.md` + `references/`), read by Claude Code, Codex, boxel-cli and the in-app AI assistant, beside the realm's own files: `index.md` (the entry document), `realm.json` and `index.json`.
+- `CLAUDE.md` and `AGENTS.md` — point agents working in this repository at `skills/index.md`.
+- `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` — make this repository installable as the `boxel-skills` plugin, and a checkout loadable via `claude --plugin-dir` for authoring. Outside `skills/`, so not pushed to the realm.

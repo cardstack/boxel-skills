@@ -15,7 +15,7 @@
 
 ## The 16 named sizes — verify against ALL of them
 
-This file, `skills/boxel/references/fitted-formats.md`, is the only copy of the size table; every other skill points here instead of repeating it. Source of record: `FITTED_FORMATS` in `packages/boxel-ui/src/utils/fitted-formats.ts`, mirrored in `packages/runtime-common/formats.ts`, which is the copy BFM `::card[... | <id>]` directives resolve against.
+This file, `boxel/references/fitted-formats.md`, is the only copy of the size table; every other skill points here instead of repeating it. Source of record: `FITTED_FORMATS` in `packages/boxel-ui/src/utils/fitted-formats.ts`, mirrored in `packages/runtime-common/formats.ts`, which is the copy BFM `::card[... | <id>]` directives resolve against.
 
 The host previews fitted cards at 16 specific size boxes when validating a CardDef. A fitted layout that looks great at one size and breaks at another isn't done. Walk through every cell below and confirm content fits, type is hierarchically legible, and nothing overflows.
 

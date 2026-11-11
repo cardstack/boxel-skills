@@ -6,7 +6,7 @@ Official shadcn convention: semantic tokens come in background/foreground pairs.
 
 Boxel runtime convention: `CardContainer` maps the theme's semantic tokens into Boxel component variables, including spacing, typography, radius, borders, and foreground color.
 
-The token inventory itself lives in `skills/boxel-ui-guidelines/references/theme-token-contract.md`; this file covers how Boxel UI components consume each token and what that means for the values a theme author picks.
+The token inventory itself lives in `boxel-ui-guidelines/references/theme-token-contract.md`; this file covers how Boxel UI components consume each token and what that means for the values a theme author picks.
 
 Sources to re-check when this model changes:
 
@@ -24,7 +24,7 @@ Sources to re-check when this model changes:
 - Always set the paired foreground when setting a semantic surface: `--primary-foreground`, `--secondary-foreground`, `--accent-foreground`, `--destructive-foreground`, `--success-foreground`, `--warning-foreground`, `--info-foreground`, `--attention-foreground`, `--sidebar-primary-foreground`, and `--sidebar-accent-foreground`.
 - A hue used *as* ink on a neutral surface is a separate token: `--primary-ink`, `--success-ink`, etc. Each defaults to the hue mixed 60% toward `--foreground`, so setting only the fill yields a readable ink; set the ink explicitly only when the brand wants a specific text shade.
 - The neutral surfaces `--canvas`, `--inset`, `--field`, `--hover`, `--stripe`, and `--selected` carry no `-foreground`: `--foreground` must read on all of them, so keep them close in lightness to `--background`. `--hover` should be translucent so it composes over any surface.
-- Every token above has a `theme.css` default and is reset at each themed-card boundary; a theme only has to set what it changes. Tokens the contract does not name come from a `BrandGuide` (`customCssVariables`, `brandColorPalette`) or an extended theme card definition, at a cost spelled out under "Not part of the contract" in `skills/boxel-ui-guidelines/references/theme-token-contract.md`.
+- Every token above has a `theme.css` default and is reset at each themed-card boundary; a theme only has to set what it changes. Tokens the contract does not name come from a `BrandGuide` (`customCssVariables`, `brandColorPalette`) or an extended theme card definition, at a cost spelled out under "Not part of the contract" in `boxel-ui-guidelines/references/theme-token-contract.md`.
 - Boxel Teal and other bright brand colors may be valid `--primary` values, but they are often poor text colors on light surfaces. Use them as fills (behind text, progress, selection) paired with `--primary-foreground`; a stroke or mark on a neutral surface uses `--primary-ink`.
 - `--spacing` is not the desired base gap directly. Boxel computes `--boxel-sp` from `calc(var(--spacing) * 4)`.
 

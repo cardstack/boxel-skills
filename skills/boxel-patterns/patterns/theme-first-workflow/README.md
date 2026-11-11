@@ -99,7 +99,7 @@ No hard-coded `#7b61ff`, no `font-family: 'Inter'`. Tokens only. `theme.css` pro
 
 ### Step 3 — Verify via preview
 
-After writing the card and a sample instance, preview it in the live app (see `skills/boxel-environment/SKILL.md`). Confirm that an unthemed instance uses the Boxel defaults, or, when a specific Theme was selected, that the Theme is applied; a missing or incorrect `cardInfo.theme` link is a common cause when the selected Theme does not appear.
+After writing the card and a sample instance, preview it in the live app (see `boxel-environment/SKILL.md`). Confirm that an unthemed instance uses the Boxel defaults, or, when a specific Theme was selected, that the Theme is applied; a missing or incorrect `cardInfo.theme` link is a common cause when the selected Theme does not appear.
 
 **Standard theme tokens to expect (from catalog Themes):**
 

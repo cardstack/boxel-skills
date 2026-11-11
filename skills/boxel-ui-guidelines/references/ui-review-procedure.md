@@ -105,6 +105,6 @@ A card that handles Escape itself (dismissing a dropdown, clearing a search) mus
 
 - Re-run the step 0 greps; every count should be zero or named.
 - Re-run the dead-selector and repeated-declaration checks from step 7b.
-- Lint: `npx boxel file lint` for a realm card (see `skills/boxel/references/lint-workflow.md`), `pnpm lint` in the package for host or base-realm code, then Prettier. None of them parses the CSS inside `<style scoped>`, so after any scripted deletion of a rule or `@keyframes` block, check that every style block's braces balance; a stray `}` surfaces only at runtime as `<css input>:N: Unexpected }` when the card loads.
+- Lint: `npx boxel file lint` for a realm card (see `boxel/references/lint-workflow.md`), `pnpm lint` in the package for host or base-realm code, then Prettier. None of them parses the CSS inside `<style scoped>`, so after any scripted deletion of a rule or `@keyframes` block, check that every style block's braces balance; a stray `}` surfaces only at runtime as `<css input>:N: Unexpected }` when the card loads.
 - View the card under the default theme and under a dark or branded theme. If you cannot, say the change is unverified.
 - The report lists what changed per step, the visible differences to expect, and every remaining item by name with the reason it was left.

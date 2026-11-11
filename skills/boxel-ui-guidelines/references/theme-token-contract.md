@@ -8,7 +8,7 @@ Source of record: `packages/boxel-ui/src/styles/theme.css` (every token's defaul
 
 Reference tokens directly. Never wrap them in `hsl(var(...))`; Boxel stores resolved colors, not channel triples.
 
-**Which card holds the contract.** Only `StructuredTheme` and its subclasses declare these tokens as fields; the bare `Theme` card's free-form `cssVariables` string bypasses everything on this page. Which subclass to start from is decided once, in the ThemeCard Types table of `skills/boxel/references/theme-design-system.md`.
+**Which card holds the contract.** Only `StructuredTheme` and its subclasses declare these tokens as fields; the bare `Theme` card's free-form `cssVariables` string bypasses everything on this page. Which subclass to start from is decided once, in the ThemeCard Types table of `boxel/references/theme-design-system.md`.
 
 ### Colors
 

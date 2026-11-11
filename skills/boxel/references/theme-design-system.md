@@ -116,7 +116,7 @@ Our design system is compatible with shadcn css variables.
 
 When assigning values, remember that Boxel UI treats shadcn-style tokens as paired surface/foreground contracts. `--spacing` is a quarter-unit the runtime multiplies by 4 (see "Spacing" in the token contract, linked below).
 
-The complete token inventory — color roles and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, fonts, typography roles (`heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label`, `eyebrow`), spacing, radius, and shadows — is maintained in one file: `skills/boxel-ui-guidelines/references/theme-token-contract.md`. It also explains the boundary reset (a theme only sets what it changes; everything else falls back to `theme.css`) and what custom variables outside the contract (a `BrandGuide`'s fields, or an extended theme card definition) give up. Do not duplicate the list here.
+The complete token inventory — color roles and their paired foregrounds, status fills, neutral surfaces, hue-as-ink tokens, borders, charts, sidebar, fonts, typography roles (`heading`, `sectionHeading`, `subheading`, `body`, `caption`, `label`, `eyebrow`), spacing, radius, and shadows — is maintained in one file: `boxel-ui-guidelines/references/theme-token-contract.md`. It also explains the boundary reset (a theme only sets what it changes; everything else falls back to `theme.css`) and what custom variables outside the contract (a `BrandGuide`'s fields, or an extended theme card definition) give up. Do not duplicate the list here.
 
 #### CSS Usage Examples:
 
