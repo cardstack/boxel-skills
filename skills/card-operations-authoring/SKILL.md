@@ -1218,6 +1218,19 @@ answer locally from `canWrite` instead: it says yes to an operation the type
 does not carry and to a card that is gone, where the gate says no, and it is
 no answer at all for an operation built on a read.
 
+**An answer is about the operation, not the card+json verb.** A pair is
+judged as `operations()` would invoke it. Where the type declares its own
+`update`, `create` or `delete`, the answer is about that declaration, so a
+caller the realm admits through a grant on it is told `true`. The card+json
+`PATCH`, `POST` and `DELETE` reach the built-in behavior only, and refuse that
+caller (§6). The store saves and deletes a card through those verbs, so a
+`store.add` or `store.delete` is refused where `canInvoke` said `true`, and so
+are operator mode's own saves and Delete, which use the store. A card+json
+write that side-loads cards is refused to that caller too, and no pair asks
+about it. So gate a control on `canInvoke` when the control invokes through
+`operations()`. A control that writes through the store matches the answer
+only where the type declares none of the three names.
+
 **`canInvoke` surfaces no `conditional`.** It answers `allowed`, so a
 conditional answer reads as `true`. On the raw `_capabilities` answer,
 `conditional: true` appears only for a create against a type whose matched
