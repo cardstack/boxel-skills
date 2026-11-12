@@ -266,10 +266,12 @@ people.sort((a, b) => byName.compare(a.name, b.name));
 
 Safe on any path:
 
-- `toLocaleString()` with no options and one fixed locale (`n.toLocaleString()`,
-  `n.toLocaleString('en-US')`), which reuses a cached formatter. A locale that
-  changes from row to row defeats that cache, so build those formatters in a
-  module-level `Map` as above.
+- `toLocaleString()`, `toLocaleDateString()`, `toLocaleTimeString()` and
+  `localeCompare(other)` with no options and at most one fixed locale
+  (`n.toLocaleString()`, `d.toLocaleDateString('en-US')`,
+  `a.localeCompare(b)`), which reuse a cached formatter or collator. A locale
+  that changes from row to row defeats that cache, so build those formatters in
+  a module-level `Map` as above.
 - The `formatDateTime`, `formatCurrency`, `formatNumber` and
   `formatRelativeTime` helpers, which cache their formatters.
 
