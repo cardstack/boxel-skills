@@ -1,9 +1,18 @@
 name: Release
 
-# Cuts a release from the version in .codex-plugin/plugin.json, so the tag and
+# Drafts a release from the version in .codex-plugin/plugin.json, so the tag and
 # the Codex manifest can never disagree (v0.1.11 and v0.1.13 were tagged by
 # hand with a stale version, and Codex keys its plugin cache on that field).
-# Two steps: bump `version` on main, then run this workflow.
+# Four steps: bump `version` on main, run this workflow, open the draft and
+# click "Publish release", then move the boxel-skills pin in cardstack/boxel
+# (the `ref` in .claude-plugin/marketplace.json and .agents/plugins/marketplace.json).
+# The pin comes last because it names a tag, and a draft has no tag yet.
+#
+# The release is a draft because a release this workflow publishes with
+# `github.token` starts no other workflow: GitHub doesn't deliver events
+# made with that token. The production sync (sync-to-workspace.yml) and the
+# version check (check-plugin-version.yml) run on `release: published`, so
+# a person publishes the draft.
 
 on:
   workflow_dispatch:
@@ -19,7 +28,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Publish v<version> from main
+      - name: Draft v<version> from main
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -30,5 +39,14 @@ jobs:
             echo "::error file=.codex-plugin/plugin.json::$TAG already exists. Bump version on main first."
             exit 1
           fi
-          gh release create "$TAG" --target "$(git rev-parse HEAD)" --title "$TAG" --generate-notes
-          echo "Published $TAG"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::A release named $TAG already exists, maybe as a draft. Publish or delete it first."
+            exit 1
+          fi
+          URL=$(gh release create "$TAG" --draft --target "$(git rev-parse HEAD)" --title "$TAG" --generate-notes)
+          echo "::notice title=Publish $TAG to finish the release::Open $URL and click Publish release. Publishing starts the production sync."
+          {
+            echo "### Finish $TAG"
+            echo "1. Open the draft and click **Publish release**: $URL. Publishing starts the production sync."
+            echo "2. In cardstack/boxel, set the \`boxel-skills\` \`ref\` to \`$TAG\` in both \`.claude-plugin/marketplace.json\` and \`.agents/plugins/marketplace.json\`. Claude Code and Codex users get $TAG only after that merges."
+          } >> "$GITHUB_STEP_SUMMARY"
