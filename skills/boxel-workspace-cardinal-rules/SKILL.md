@@ -207,26 +207,30 @@ Grep for `:global(` before finishing any card.
 
 ## 13. Build every `Intl` formatter once, at module scope — never per call
 
-Each `new Intl.DateTimeFormat(…)` allocates about 29 KB of ICU memory **outside
+Each `new Intl.DateTimeFormat(…)` holds roughly 15–30 KB of ICU memory **outside
 the JavaScript heap**. The garbage collector does not count that memory, so it
-never feels pressure to free it. A date formatter built inside a function that
+feels no pressure to free it. A date formatter built inside a function that
 runs per row, per render, grows the browser tab by hundreds of MB per second
 while the JS heap stays small: the render times out, the tab is killed, and a
-prerender of the card can take down every other card rendering beside it.
-200,000 constructions grow a tab from 34 MB to 5.8 GB; one shared formatter
-doing the same 200,000 calls grows it by nothing. The other formatters
-(`Intl.NumberFormat`, `RelativeTimeFormat`, `Collator`, `PluralRules`,
-`ListFormat`) hold less memory, but each construction still costs about 40
-`format` calls. Lint passes, sample data renders fine, and the card fails only
-once real data piles up.
+prerender of the card can take down every other card rendering beside it. In
+Chrome, 200,000 constructions grew a tab from 34 MB to 5.8 GB; one shared
+formatter doing the same 200,000 calls grew it by nothing. The other
+formatters (`Intl.NumberFormat`, `RelativeTimeFormat`, `Collator`,
+`PluralRules`, `ListFormat`) hold less memory, but each construction still
+costs about 40 `format` calls. Lint passes, sample data renders fine, and the
+card fails only once real data piles up.
 
-Never build an `Intl` formatter, and never call `toLocaleString` /
-`toLocaleDateString` / `toLocaleTimeString` **with options** (each such call
-builds a formatter internally), inside:
+Inside a getter, `computeVia`, helper, loop, `map` / `filter` / `sort` /
+`reduce` callback, or any function a template calls (or one called from it),
+never:
 
-- a getter, `computeVia`, or helper;
-- a function a template calls, or a function called from one;
-- a loop, `map`, `filter`, `sort`, or `reduce` callback.
+- construct an `Intl` formatter (`new Intl.DateTimeFormat(…)`, or the same
+  call without `new`);
+- call `toLocaleString` / `toLocaleDateString` / `toLocaleTimeString` with
+  options, or `localeCompare` with options. Each such call builds a formatter
+  or collator internally and throws it away. That costs CPU on every call
+  (about 30 times a shared formatter's `format`) rather than memory, but
+  per row and per render it adds up the same way.
 
 Build each formatter once at module scope. When the locale, time zone or
 currency comes from the data, cache formatters in a module-level `Map` keyed by
@@ -237,7 +241,7 @@ the options:
 const dayKey = (d: Date, timeZone: string) =>
   new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 
-// wrong — the same cost, hidden inside toLocaleDateString
+// wrong — rebuilds a formatter internally on every call
 const dayLabel = (d: Date) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
 // right — module scope: one formatter for the whole module
@@ -254,14 +258,21 @@ function dayKey(d: Date, timeZone: string) {
   }
   return format.format(d); // YYYY-MM-DD in that time zone
 }
+
+// right — sorting by a locale-aware compare: one collator, not one per comparison
+const byName = new Intl.Collator('en', { sensitivity: 'base' });
+people.sort((a, b) => byName.compare(a.name, b.name));
 ```
 
-`toLocaleString()` with no options (`n.toLocaleString()`,
-`n.toLocaleString('en-US')`) reuses a cached formatter and is safe. The
-`formatDateTime`, `formatCurrency` and `formatNumber` template helpers build a
-formatter on every call. They are fine for a handful of values; inside an
-`{{#each}}` over a list that grows with the data, format each row with a
-module-scope formatter in the getter that builds the rows, and never call
-those helpers from code. Grep for `new Intl.`
-and `toLocale` before finishing any card: every hit is at module scope, inside
-a module-level cache, or a `toLocale*String` call with no options.
+Safe on any path:
+
+- `toLocaleString()` with no options and one fixed locale (`n.toLocaleString()`,
+  `n.toLocaleString('en-US')`), which reuses a cached formatter. A locale that
+  changes from row to row defeats that cache, so build those formatters in a
+  module-level `Map` as above.
+- The `formatDateTime`, `formatCurrency`, `formatNumber` and
+  `formatRelativeTime` helpers, which cache their formatters.
+
+For a card that formats dates, numbers or currency, grep for `Intl.`,
+`toLocale` and `localeCompare` before finishing. Every hit is at module scope,
+inside a module-level cache, or a safe call from the list above.
