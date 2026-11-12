@@ -12,7 +12,7 @@ Yes. A user can work on a workspace from Claude Code, or any editor, with boxel-
 
 Two warnings belong in the answer:
 
-- `npx boxel realm pull` overwrites local edits that weren't pushed, with no warning. On a folder already in use, `npx boxel realm status --pull` takes only the files with no local changes. [`shared-mirror-safety.md`](shared-mirror-safety.md) has the details.
+- `npx boxel realm pull` overwrites local edits that weren't pushed, with no warning. On a folder already in use, `npx boxel realm status --pull` takes only the files with no local changes (an older install may not have `status`: check `npx boxel realm --help`, and reinstall to get it). [`shared-mirror-safety.md`](shared-mirror-safety.md) has the details.
 - `npx boxel realm sync` doesn't merge. When the same file changed on both sides, sync skips it and reports the conflict, unless a flag picks which side wins (`--prefer-local`, `--prefer-remote` or `--prefer-newest`). With a flag, the other side's edits to that file are lost: `--prefer-remote` drops the local ones.
 
 ## Publishing a workspace

@@ -319,7 +319,7 @@ In Claude Code, the `boxel-cli` plugin (`/plugin marketplace add cardstack/boxel
 
 Local CLI for realm sync, watching, checkpoints, federated search, and scripted host commands.
 
-> **Note on versions.** If `/usr/local/bin/boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's a stale install. The full set below comes from the source at `packages/boxel-cli` in the boxel monorepo. Rebuild + relink to get all commands.
+> **Note on versions.** If `boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's an older install: `npm install -g @cardstack/boxel-cli@latest` gets the full set below. Working from a boxel monorepo checkout, rebuild and relink `packages/boxel-cli` instead.
 
 ### Full subcommand surface
 
