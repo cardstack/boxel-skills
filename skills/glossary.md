@@ -40,8 +40,8 @@ Entry shape: `**Term** — one-sentence definition + (optional) where it's cover
 - **link strategy (`links`)** — How much of a card's link graph a `read` or `query` answer carries: `full` (the default; the linked closure is assembled into `included`), `ids` (relationships name their targets, nothing assembled) or `none` (no relationship data; a query only). Applies to every caller alike; the request may narrow it further, never wider. → `card-operations-authoring` §2
 - **unshareable format** — A prerendered format a `read` or `query` declares `unshareable` in its `html`, so that row is served data-only to every caller. Prerendered HTML is rendered once and shared, so it can't vary by caller. → `card-operations-authoring` §2
 - **`isLiveRender()`** — From `@cardstack/base/render-context`: `false` while a card renders for the index (the prerender) and `true` when someone is looking at it, so a baseline-motion entrance reads it per render and skips its start state when it is `false`. → `boxel/references/design-playbook.md` (After stage 4 — baseline motion)
-- **host mode** — The realm-server's public published-realm rendering path (`/index.html` + prerendered HTML). Distinct from operator/interact mode.
-- **operator mode / interact mode / code mode** — Three host UI modes. Interact = browse/edit cards; code = source view; operator = combined editor.
+- **host mode** — Two senses. In the app, Host is the third mode, beside Interact and Code, picked from the mode menu: it shows the workspace as visitors will see it, and holds Publish Site. On the realm server, host mode is the public rendering path a published realm is served through (`/index.html` + prerendered HTML), with the same renderer.
+- **operator mode / interact mode / code mode** — Operator mode is the app's main view; its modes (Interact, Code, Host) are picked from the mode menu. Interact = browse and edit cards; Code = source view; Host = the workspace as visitors will see it (see host mode).
 - **prerendered HTML** — Cached server-side HTML for each card's format (isolated/embedded/fitted), used to bypass client-render latency.
 
 ## 2. Schema — `@field` decorators & relationships
@@ -253,7 +253,7 @@ The dialect Boxel reads and writes. See [bfm.boxel.site](https://bfm.boxel.site)
 - **`RoutingRuleField`** — FieldDef inside `RealmConfig.hostRoutingRules`. Each rule = `{ path: StringField, instance: linksTo(CardDef) }`.
 - **`hostRoutingRules`** — `containsMany(RoutingRuleField)` on `RealmConfig`. Maps clean paths (`/`, `/about`, `/blog`) to cards in the same realm.
 - **same-realm guard** — Defensive read-time filter that drops routing rules pointing at cards in *other* realms. Prevents private-realm card surfacing via a public realm's URL.
-- **published realm** — Realm reachable by anonymous visitors over HTTPS at a public domain.
+- **published realm** — Realm reachable by anonymous visitors over HTTPS at a public domain. A copy, republished to update; the user publishes from Host mode. → `boxel-environment/references/questions-about-boxel.md`
 - **print and published-output hardening** — Unclip host wrappers in print media, use semantic SVG fill attributes, validate Chromium and Firefox print output, and reindex before checking published HTML. → `boxel-ui-guidelines/references/print-and-published-output.md`
 - **`/_search-prerendered`** — Deployment-specific realm-server endpoint for prerendered HTML. Where exposed, call it with HTTP `QUERY`, not `GET`; otherwise use `npx boxel search --json` and inspect `relationships.html`.
 - **`.boxel-history/`** — Per-realm git repo for change history; managed by `boxel-cli`.
@@ -391,7 +391,7 @@ Available only inside the running Boxel app. Each is a default-export `Command` 
 
 ## 21. `boxel-cli` (the local CLI)
 
-Use the namespaced CLI published from the Boxel monorepo through `npx boxel`. The standalone flat-command CLI is legacy and its command shapes must not be copied into current guidance.
+Install the namespaced CLI published from the Boxel monorepo with `npm install -g @cardstack/boxel-cli`; after that, `boxel …` and `npx boxel …` both run it, since npx finds the global install. Without an install, `npx boxel` fetches an unrelated npm package named `boxel`. The standalone flat-command CLI is legacy and its command shapes must not be copied into current guidance.
 
 - **`npx boxel profile <list|add|switch|remove|migrate>`** — Profile / environment management. `switch` changes the global active profile; restore it after a temporary environment change.
 - **`npx boxel realm <create|list|remove|wait-for-ready|cancel-indexing>`** — Realm lifecycle. `wait-for-ready` returns when the realm has no queued or running index-writing job from anyone (queue drained, not health). → `boxel-environment/references/indexing-operations.md` "Verifying a change landed"

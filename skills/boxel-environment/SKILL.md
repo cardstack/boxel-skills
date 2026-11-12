@@ -1,6 +1,6 @@
 ---
 name: boxel-environment
-description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, searching and editing cards, indexing, or any operation that drives the Boxel UI, all through `realm.*` and `room.*` calls in a run-realm-code script. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
+description: Use when running, navigating, or orchestrating tasks inside the live Boxel application — switching between Code Mode and Interact Mode, searching and editing cards, indexing, or any operation that drives the Boxel UI, all through `realm.*` and `room.*` calls in a run-realm-code script. Also for a user's questions about using Boxel itself: working from Claude Code or another editor, publishing a workspace, and their credits. Activates for Boxel-app runtime work, not for writing card definitions (see boxel for that).
 boxel:
   kind: skill
 ---
@@ -23,7 +23,7 @@ If you find yourself about to say you lack a tool, or asking the user to switch 
 
 ```
 ├─ Loop detected (same commands repeating)?  → STOP. Alert: "Detected potential loop."
-├─ No workspace in context?                  → Ask user to navigate, open a card, reply 'continue'
+├─ No workspace in context?                  → A question about Boxel itself (Step 2, E) needs none: go to E. Otherwise ask user to navigate, open a card, reply 'continue'
 ├─ Already where the task needs you?          → The last tool result's context.submode / codeMode.currentFile say so. Do the work; no navigation call
 └─ Workspace found                            → Continue to Step 2
 ```
@@ -34,7 +34,8 @@ If you find yourself about to say you lack a tool, or asking the user to switch 
 ├─ A) CODE  (new .gts, edit template, schema change)  → Step 3
 ├─ B) DATA  (card content, field values)              → Step 4
 ├─ C) SEARCH / FIND                                   → Step 5
-└─ D) NAVIGATE                                        → Step 6
+├─ D) NAVIGATE                                        → Step 6
+└─ E) QUESTION about Boxel itself (Claude Code, publishing, credits) → answer from references/questions-about-boxel.md; only credits take a call (`room.credits()`)
 ```
 
 ### Step 3 — Code task
@@ -127,6 +128,7 @@ Always-relevant — read these together, first:
 - [`references/user-environment-awareness.md`](references/user-environment-awareness.md) — Parse workspace, mode, open cards from each message.
 
 By task:
+- [`references/questions-about-boxel.md`](references/questions-about-boxel.md) — Answering a user's questions about Boxel itself: working from Claude Code (boxel-cli and its plugin), publishing a workspace (where it can go, republishing, what blocks it, no domain of your own), and where credit answers come from.
 - [`references/searching-and-querying.md`](references/searching-and-querying.md) — Query syntax for finding cards with `realm.cards.search`.
 - [`references/card-tool-selection.md`](references/card-tool-selection.md) — Which `realm.*` call creates or edits a card.
 - [`references/workflows-and-orchestration.md`](references/workflows-and-orchestration.md) — Multi-step and multi-realm patterns (migrations, bulk operations, reading or copying between realms).

@@ -315,9 +315,11 @@ Headings, lists, code fences, tables, alerts (`> [!NOTE]`), task lists, striketh
 
 ## 10. boxel-cli commands
 
+In Claude Code, the `boxel-cli` plugin (`/plugin marketplace add cardstack/boxel`, then `/plugin install boxel-cli`) documents these commands and brings in the Boxel skills. → `boxel-environment/references/questions-about-boxel.md`
+
 Local CLI for realm sync, watching, checkpoints, federated search, and scripted host commands.
 
-> **Note on versions.** If `/usr/local/bin/boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's a stale install. The full set below comes from the source at `packages/boxel-cli` in the boxel monorepo. Rebuild + relink to get all commands.
+> **Note on versions.** If `boxel --help` shows a smaller surface (just `realm create/pull/push/sync` + `profile` + `run-command`), that's an older install: `npm install -g @cardstack/boxel-cli@latest` gets the full set below. Working from a boxel monorepo checkout, rebuild and relink `packages/boxel-cli` instead.
 
 ### Full subcommand surface
 
@@ -379,7 +381,7 @@ npx boxel consolidate-workspaces                            Merge multiple watch
 | `--dry-run` | pull / push / sync / status | Preview without writing. |
 | `--delete` | pull / push / sync | Also propagate deletions. |
 | `--force` | push | Re-upload everything, even unchanged. |
-| `--prefer-local` / `--prefer-remote` / `--prefer-newest` | sync | Conflict resolution policy. One required for sync. |
+| `--prefer-local` / `--prefer-remote` / `--prefer-newest` | sync | Conflict resolution policy. Without one, sync skips conflicting files and reports them. |
 | `--realm <url>` | run-command, wait-for-ready, cancel-indexing | Realm context. |
 | `--input <json>` | run-command | JSON-string input. |
 | `--json` | run-command, list, search | Raw JSON output (for piping). |
