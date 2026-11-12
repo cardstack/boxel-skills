@@ -1,6 +1,6 @@
 ---
 name: api-integrations
-description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card) and for a plain API key sent in a header. Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`.'
+description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card), for a plain API key sent in a header, and for images from an AI vendor called with the user''s own key (an automation run''s own AI requests carry text only). Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`, "image generation", "AI vendor key", "automation image".'
 boxel:
   kind: skill
 ---
@@ -556,6 +556,59 @@ For a vendor that issues one API key per account:
 Use `{{apiKey}}` instead when the workspace pays for one account everyone
 shares, and `authorization: 'Basic {{userKey|basic}}'` for a vendor that takes
 the key as HTTP Basic credentials.
+
+### Images from an AI vendor
+
+An automation run's own AI requests, which Boxel bills in credits, carry text
+only. Boxel refuses a run's AI request that sends or asks for images, audio or
+files: Boxel can't work out what such a request costs before sending the
+request, so the request could spend past the automation's AI spending limit.
+
+To generate an image, call the AI vendor directly through a `callApi`
+operation with the user's own key. The vendor bills the key's owner, not
+Boxel, and the call spends none of Boxel's credits:
+
+```ts
+@operation static drawCover = {
+  base: 'callApi',
+  label: 'Draw a cover image for this post with OpenAI',
+  url: 'https://api.openai.com/v1/images/generations',
+  headers: { authorization: 'Bearer {{userKey}}' },
+  json: {
+    model: 'gpt-image-1',
+    prompt: instance('coverPrompt'),
+    size: '1024x1024',
+    output_format: 'jpeg',
+    output_compression: 80,
+  },
+  output: bxl`{status: .status, image: .body.data[0].b64_json, error: .body.error.message}`,
+} satisfies OperationDeclaration;
+```
+
+- **A `callApi` sends JSON and reads text.** Pick an endpoint that takes a
+  JSON body and returns the media as base64 inside JSON, as image generation
+  does. An endpoint that takes a multipart upload (OpenAI's transcription and
+  file upload) or returns raw binary (OpenAI's speech) can't be called this
+  way.
+- **In an automation, the key belongs to the payer.** An automation's run acts
+  as the person who turned the automation on, so `{{userKey}}` takes that
+  person's key. Add the type and operation to the automation's **Outside
+  services**, and have that person approve the operation in Boxel's secure
+  window ([`api-keys`](../api-keys/SKILL.md)). **On a schedule only** is
+  enough for an automation. Until that person approves, Boxel refuses every
+  call with `binding-not-approved`.
+- **Which limits apply.** The automation's **Outside calls** and **Data
+  received** limits bound these calls. **AI spending** doesn't apply, since
+  Boxel doesn't bill the calls. Boxel refuses any single `callApi` response
+  over 10 MiB, so ask for a compressed format (`output_format: 'jpeg'`), and
+  set **Data received** to cover every image a run asks for.
+- **The vendor's limit is the only spending limit on these calls.** Ask for a
+  key the vendor lets the key's owner cap, such as an OpenAI project key with
+  **Enforce a hard limit** turned on. An OpenAI monthly budget alone only
+  sends alerts.
+- **Read the vendor's refusal.** `error` carries the vendor's message when the
+  vendor refuses the request, for example over a spending limit or a content
+  policy.
 
 ## 7. Testing locally
 
