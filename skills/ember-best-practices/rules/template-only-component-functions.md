@@ -37,11 +37,11 @@ export class ProductCard extends Component {
 
 ```glimmer-js
 // app/components/product-card.gjs
+// Built once at module scope, never per call
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
 function formatPrice(price) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(price);
+  return usd.format(price);
 }
 
 function calculateDiscount(price, discountPercent) {
@@ -169,11 +169,10 @@ function calculateTotal(basePrice, taxAmount, quantity) {
   return (basePrice + taxAmount) * quantity;
 }
 
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
 function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount);
+  return usd.format(amount);
 }
 
 <template>

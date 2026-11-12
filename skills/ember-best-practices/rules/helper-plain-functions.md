@@ -49,11 +49,17 @@ import { formatDate } from '../utils/format-date';
 
 ```javascript
 // app/utils/format-currency.js
+// One formatter per currency, built once: an Intl formatter is expensive to
+// construct and holds memory outside the JS heap.
+const currencyFormats = new Map();
+
 export function formatCurrency(amount, currency = 'USD') {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(amount);
+  let format = currencyFormats.get(currency);
+  if (!format) {
+    format = new Intl.NumberFormat('en-US', { style: 'currency', currency });
+    currencyFormats.set(currency, format);
+  }
+  return format.format(amount);
 }
 ```
 

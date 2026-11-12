@@ -204,3 +204,77 @@ card code cannot copy it. Use instead:
   and an unscoped descendant, which the browser accepts.
 
 Grep for `:global(` before finishing any card.
+
+## 13. Build every `Intl` formatter once, at module scope — never per call
+
+Each `new Intl.DateTimeFormat(…)` holds roughly 15–30 KB of ICU memory **outside
+the JavaScript heap**. The garbage collector does not count that memory, so it
+feels no pressure to free it. A date formatter built inside a function that
+runs per row, per render, grows the browser tab by hundreds of MB per second
+while the JS heap stays small: the render times out, the tab is killed, and a
+prerender of the card can take down every other card rendering beside it. In
+Chrome, 200,000 constructions grew a tab from 34 MB to 5.8 GB; one shared
+formatter doing the same 200,000 calls grew it by nothing. The other
+formatters (`Intl.NumberFormat`, `RelativeTimeFormat`, `Collator`,
+`PluralRules`, `ListFormat`) hold less memory, but each construction still
+costs about 40 `format` calls. Lint passes, sample data renders fine, and the
+card fails only once real data piles up.
+
+Inside a getter, `computeVia`, helper, loop, `map` / `filter` / `sort` /
+`reduce` callback, or any function a template calls (or one called from it),
+never:
+
+- construct an `Intl` formatter (`new Intl.DateTimeFormat(…)`, or the same
+  call without `new`);
+- call `toLocaleString` / `toLocaleDateString` / `toLocaleTimeString` with
+  options, or `localeCompare` with options. Each such call builds a formatter
+  or collator internally and throws it away. That costs CPU on every call
+  (about 30 times a shared formatter's `format`) rather than memory, but
+  per row and per render it adds up the same way.
+
+Build each formatter once at module scope. When the locale, time zone or
+currency comes from the data, cache formatters in a module-level `Map` keyed by
+the options:
+
+```ts
+// wrong — a new formatter for every row, on every render
+const dayKey = (d: Date, timeZone: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+
+// wrong — rebuilds a formatter internally on every call
+const dayLabel = (d: Date) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+// right — module scope: one formatter for the whole module
+const dayLabelFormat = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+const dayLabel = (d: Date) => dayLabelFormat.format(d);
+
+// right — options vary with the data: one formatter per time zone, ever
+const dayKeyFormats = new Map<string, Intl.DateTimeFormat>();
+function dayKey(d: Date, timeZone: string) {
+  let format = dayKeyFormats.get(timeZone);
+  if (!format) {
+    format = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
+    dayKeyFormats.set(timeZone, format);
+  }
+  return format.format(d); // YYYY-MM-DD in that time zone
+}
+
+// right — sorting by a locale-aware compare: one collator, not one per comparison
+const byName = new Intl.Collator('en', { sensitivity: 'base' });
+people.sort((a, b) => byName.compare(a.name, b.name));
+```
+
+Safe on any path:
+
+- `toLocaleString()`, `toLocaleDateString()`, `toLocaleTimeString()` and
+  `localeCompare(other)` with no options and at most one fixed locale
+  (`n.toLocaleString()`, `d.toLocaleDateString('en-US')`,
+  `a.localeCompare(b)`), which reuse a cached formatter or collator. A locale
+  that changes from row to row defeats that cache, so build those formatters in
+  a module-level `Map` as above.
+- The `formatDateTime`, `formatCurrency`, `formatNumber` and
+  `formatRelativeTime` helpers, which cache their formatters.
+
+For a card that formats dates, numbers or currency, grep for `Intl.`,
+`toLocale` and `localeCompare` before finishing. Every hit is at module scope,
+inside a module-level cache, or a safe call from the list above.

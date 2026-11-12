@@ -124,7 +124,7 @@ Format dates inside templates instead:
 {{formatDateTime @model.date size="medium"}}
 ```
 
-If you absolutely need a formatted string in a `computeVia`, use an `Intl.DateTimeFormat` built once at module scope. `toLocaleDateString` with options builds a new formatter on every call, which costs about 70× a `format` call:
+If you need a formatted string in a `computeVia`, a getter, or any function a template or loop calls, use an `Intl.DateTimeFormat` built once at module scope. Never construct one inside the function: each date formatter holds memory outside the JavaScript heap that the garbage collector does not count, so a per-row formatter grows the tab by GBs until the render is killed. That part is a memory hazard, not a speed tip. Calling `toLocaleDateString` / `toLocaleString` with options there rebuilds a formatter internally on every call, which costs CPU per row instead. See Cardinal Rule 18, and [`boxel-workspace-cardinal-rules/SKILL.md`](../../boxel-workspace-cardinal-rules/SKILL.md) #13 for the module-level cache to use when the time zone varies:
 
 ```ts
 const shortDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }); // module scope
