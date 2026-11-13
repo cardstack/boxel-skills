@@ -78,6 +78,27 @@ lives. Step 3 hands the user a copy — a separate thing to own, which cannot be
 re-attached to the catalog later — so it answers a stated wish for their own
 bundle, not a match in the search results.
 
+### One card: one search run, then write
+
+When the user asks for a single card with a few fields of its own, and not an
+app, a card family or a page, the workflow takes one read-only run, and the
+next run writes.
+
+1. **Search in one script.** Search Specs for the entity the card is, and put
+   the broadened query of step 5 (`OR` alternates, no `specType`) in the same
+   script, so the broadening costs no turn of its own. Return
+   `{ url, ref, specType, cardTitle }` for each hit, and the `readMe` of the
+   top two or three. The card's own attributes (a first name, a headline) are
+   not needs of their own: the search for the entity covers them.
+2. **Decide from the `readMe`.** Adopt a hit by its `ref` (link, contain or
+   extend, as in the Parts table), or refuse it naming the mismatch. Read
+   source only where the reading budget below says the chosen operation needs
+   it.
+3. **Write in the next run.**
+
+A control in the card's template is `boxel-ui-component-discovery`'s search,
+not a second catalog search.
+
 ## Reuse strategy: classify, then operate
 
 **You may import catalog modules directly.** `@cardstack/catalog/` is a
