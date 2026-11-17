@@ -106,7 +106,7 @@ npx boxel realm pull <realm-url> ./my-realm
 npx boxel realm push ./my-realm <realm-url>
 ```
 
-The in-app path is the realm config editor (the UI guard in CS-10052 enforces same-realm `instance` selection so you can't point at a private realm by mistake).
+The in-app path is the realm config editor (its UI enforces same-realm `instance` selection so you can't point at a private realm by mistake).
 
 ## Common configurations
 
@@ -158,7 +158,7 @@ The blog post pages are accessed via their card URLs (e.g. `/BlogPost/welcome-to
 - **Same-realm only.** The `instance` reference must resolve to a card in the realm whose `realm.json` declares the rule. Cross-realm references are dropped at read time with a warning. Reason: a malicious realm owner could otherwise point `/pricing` at a private realm's card and surface its prerendered HTML through their public URL.
 - **Public permissions required.** Host-mode routing only applies when the realm is reachable by anonymous visitors. A non-public realm 401s before the routing-map lookup happens (`serve-index.ts` checks `hasPublicPermissions(routedRealm, ...)` first).
 - **Card must be saved.** `instance` is `linksTo(CardDef)`, which needs an id. Unsaved drafts won't route.
-- **Trailing-slash handling has a recent fix** (commit `3e167af246`). If you're seeing `/blog/` route correctly but `/blog` not, make sure your boxel deployment is at or past 2026-05-21.
+- **A trailing slash doesn't matter.** A rule for `/blog` matches `/blog` and `/blog/`. The server answers `/blog/` with a 308 redirect to `/blog`, so links and crawlers use one URL. The root rule `/` keeps its slash.
 - **The routing map is read from the indexed searchDoc.** A rule added to `realm.json` doesn't take effect until the realm re-indexes that file. `npx boxel realm push` triggers it; if you edit via the in-app editor, the save handles indexing.
 - **Keep fixed paths unique.** When two fixed rules share a path, the server keeps the first and drops the other.
 - **No fallback chain.** If no rule matches the path, the request falls through to the standard card-URL resolver (`<host>/<path>` interpreted as a card id). For a published site, that usually means a 404. Add a `path: "/"` rule explicitly even if you don't think you need it — without it, the bare host URL renders the workspace's default index card, which is rarely what a marketing site wants.
@@ -171,10 +171,6 @@ The blog post pages are accessed via their card URLs (e.g. `/BlogPost/welcome-to
 - Server-side request rewrite: `packages/realm-server/handlers/serve-index.ts` → matches the path against the routing map, rewrites `cardURL`, and injects the host-prefixed map into the config meta tag.
 - Client-side hydration path: `packages/host/app/services/host-mode-service.ts` → `hostRoutingMap` getter + `resolveRoutedPath()`; called from `packages/host/app/routes/index.gts`.
 - Tests / fixtures: `packages/realm-server/tests/realm-routing-test.ts` (the test fixture is the cleanest concrete example of the `realm.json` shape).
-- Key commits:
-  - `3c01ee3db4` *Add host mode routing from realm.json (#4709)* — the main one
-  - `7f5c8e4ca0` *Simplify host routing rules to URL-only references*
-  - `3e167af246` *Fix host mode routing without trailing slash (#4915)* — recent fix
 
 ## Local development / preview
 
