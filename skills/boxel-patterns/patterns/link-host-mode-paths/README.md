@@ -106,7 +106,7 @@ npx boxel realm pull <realm-url> ./my-realm
 npx boxel realm push ./my-realm <realm-url>
 ```
 
-The in-app path is the realm config editor (the UI guard in CS-10052 enforces same-realm `instance` selection so you can't point at a private realm by mistake).
+The in-app path is the realm config editor (its UI enforces same-realm `instance` selection so you can't point at a private realm by mistake).
 
 ## Common configurations
 
@@ -136,29 +136,31 @@ Each path → a dedicated CardDef instance. Add a nav bar to each page (or to a 
   { "path": "/blog" }
 ]
 ```
-The blog post pages are accessed via their card URLs (e.g. `/BlogPost/welcome-to-2026`) — you don't need a rule per post. The `/blog` rule renders the index card (which uses `@context.searchResultsComponent` to list posts). Individual post pages still have card-id-based URLs and look unstyled in the URL bar; live with it, or use the next pattern.
+The blog post pages are accessed via their card URLs (e.g. `/BlogPost/welcome-to-2026`) — you don't need a rule per post. The `/blog` rule renders the index card (which uses `@context.searchResultsComponent` to list posts). Individual post pages still have card-id-based URLs. To give each post a clean address, add one dynamic route (see below).
 
-**Pretty-slug-per-post (still requires a rule per post — no wildcards):**
+**A clean address per post (one dynamic route):**
 ```json
 "hostRoutingRules": [
   { "path": "/" },
   { "path": "/blog" },
-  { "path": "/blog/welcome-to-2026" },
-  { "path": "/blog/why-cards" },
-  { "path": "/blog/launch-recap" }
+  {
+    "path": "/blog/:slug",
+    "type": { "module": "./blog-post", "name": "BlogPost" },
+    "match": { "slug": ":slug" }
+  }
 ]
 ```
-With each `instance` linking to the corresponding `BlogPost` card. **There's no path-parameter syntax (`/blog/:slug`)** — every public URL has to be an explicit rule. For high-volume blogs, consider a build-time generator that regenerates `realm.json` from your post index.
+`/blog/welcome-to-2026` serves the `BlogPost` whose `slug` field is `welcome-to-2026`. A route with a `:name` segment is a dynamic route: it has no `instance`, and all its keys are in `attributes`. The forms, the rules and a worked example are in [`link-host-mode-dynamic-routes`](../link-host-mode-dynamic-routes/README.md).
 
 ## Gotchas
 
-- **Static paths only.** No `/blog/:slug`, no `/products/*`, no regex. Each public URL is a literal `path` string. For dynamic-feeling URLs (e.g. blog posts) either enumerate every rule or live with id-based URLs for the leaf pages.
+- **A fixed route is one literal path.** A rule with an `instance` cannot have a `:name` segment; the server drops it. One route for many cards (`/blog/:slug`) is a dynamic route with a different shape: see [`link-host-mode-dynamic-routes`](../link-host-mode-dynamic-routes/README.md). There are no wildcards (`/products/*`) and no regular expressions in either.
 - **Same-realm only.** The `instance` reference must resolve to a card in the realm whose `realm.json` declares the rule. Cross-realm references are dropped at read time with a warning. Reason: a malicious realm owner could otherwise point `/pricing` at a private realm's card and surface its prerendered HTML through their public URL.
 - **Public permissions required.** Host-mode routing only applies when the realm is reachable by anonymous visitors. A non-public realm 401s before the routing-map lookup happens (`serve-index.ts` checks `hasPublicPermissions(routedRealm, ...)` first).
 - **Card must be saved.** `instance` is `linksTo(CardDef)`, which needs an id. Unsaved drafts won't route.
-- **Trailing-slash handling has a recent fix** (commit `3e167af246`). If you're seeing `/blog/` route correctly but `/blog` not, make sure your boxel deployment is at or past 2026-05-21.
+- **A trailing slash doesn't matter.** A rule for `/blog` matches `/blog` and `/blog/`. The server answers `/blog/` with a 308 redirect to `/blog`, so links and crawlers use one URL. The root rule `/` keeps its slash.
 - **The routing map is read from the indexed searchDoc.** A rule added to `realm.json` doesn't take effect until the realm re-indexes that file. `npx boxel realm push` triggers it; if you edit via the in-app editor, the save handles indexing.
-- **Path collisions silently lose to the first match.** If two rules share a path, `getHostRoutingMap` returns both and the consumer uses `.find()`, so the *first* wins. Don't rely on that — keep paths unique.
+- **Keep fixed paths unique.** When two fixed rules share a path, the server keeps the first and drops the other.
 - **No fallback chain.** If no rule matches the path, the request falls through to the standard card-URL resolver (`<host>/<path>` interpreted as a card id). For a published site, that usually means a 404. Add a `path: "/"` rule explicitly even if you don't think you need it — without it, the bare host URL renders the workspace's default index card, which is rarely what a marketing site wants.
 - **Default-index prerender opt-in.** The default `RealmConfig` includes `includePrerenderedDefaultRealmIndex: false` — the workspace's default index card's isolated HTML is skipped on indexing to save wall-clock. Routed sites can leave this off (the routed `path: "/"` rule supplies the home card directly). Set to `true` only if you actually serve the default index card as `/`. Both default index cards are recognized here, `Workspace` and the older `CardsGrid`, so the flag behaves the same whichever your workspace adopts.
 
@@ -169,10 +171,6 @@ With each `instance` linking to the corresponding `BlogPost` card. **There's no 
 - Server-side request rewrite: `packages/realm-server/handlers/serve-index.ts` → matches the path against the routing map, rewrites `cardURL`, and injects the host-prefixed map into the config meta tag.
 - Client-side hydration path: `packages/host/app/services/host-mode-service.ts` → `hostRoutingMap` getter + `resolveRoutedPath()`; called from `packages/host/app/routes/index.gts`.
 - Tests / fixtures: `packages/realm-server/tests/realm-routing-test.ts` (the test fixture is the cleanest concrete example of the `realm.json` shape).
-- Key commits:
-  - `3c01ee3db4` *Add host mode routing from realm.json (#4709)* — the main one
-  - `7f5c8e4ca0` *Simplify host routing rules to URL-only references*
-  - `3e167af246` *Fix host mode routing without trailing slash (#4915)* — recent fix
 
 ## Local development / preview
 
@@ -186,6 +184,7 @@ For end-to-end test coverage, see `packages/matrix/tests/host-mode.spec.ts` — 
 
 ## See also
 
+- [`link-host-mode-dynamic-routes`](../link-host-mode-dynamic-routes/README.md) — one route for many cards: `:name` segments, card id templates, field matches, nested routes, redirects that copy values.
 - [`app-card-home-with-search`](../app-card-home-with-search/README.md) — the Home card pattern that pairs naturally with a `/` route. Build your Home CardDef first, then add the routing rule.
 - [`theme-first-workflow`](../theme-first-workflow/README.md) — every routed page card wants a brand-driven theme.
 - [`show-card-list-with-views`](../show-card-list-with-views/README.md) — for the index card of a `/blog` route.
