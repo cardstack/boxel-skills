@@ -704,8 +704,12 @@ card. A search runs it once for its caller, before anything is composed: where
 it holds, the grant admits every card of its type and subtypes, as a grant with
 no condition does; where it doesn't hold, or throws, the grant adds nothing. No
 row is judged. A change to `realm.json` reaches the next search once the realm
-has indexed it. Any read of the card at all, `. as $c` included, takes the
-predicate down the filter path instead, so a predicate that mixes the two,
+has indexed it. Any read of the card at all takes the predicate down the
+filter path instead. So does any variable binding (`realmConfig("x") as $list |
+…`), whatever it binds, and any builtin called at the top of the predicate,
+where its input is the card (`IN(…)`, `IF(…)`): start from the setting and pipe
+it on, as `realmConfig("reviewers") | any(. == actor())` does. So a predicate
+that mixes the two,
 `(realmConfig("reviewers") | any(. == actor())) and .status == "open"`, records
 `policy-not-filterable`. To scope by both, either list the reviewers on each
 card (`(.reviewerIds | any(. == actor())) and .status == "open"` compiles), or
