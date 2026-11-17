@@ -96,8 +96,17 @@ next run writes.
    it.
 3. **Write in the next run.**
 
-A control in the card's template is `boxel-ui-component-discovery`'s search,
-not a second catalog search.
+The one search is the whole catalog step for this card:
+
+- **No second catalog search.** A control or component in the card's template
+  (an avatar, a fitted layout, a badge) is `boxel-ui-component-discovery`'s
+  search, not a catalog search.
+- **No source beyond the adopted definition.** Read only what the reading
+  budget lists for the operation you chose. A card next to the one you adopt
+  (a Contact beside the `PersonBase` you extend) is not read, and a hit you
+  refused is not a lead to follow.
+- **A follow-up edit takes no search.** Adding a field to the card you built
+  edits that card.
 
 ## Reuse strategy: classify, then operate
 
