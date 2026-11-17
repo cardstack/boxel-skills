@@ -80,33 +80,41 @@ bundle, not a match in the search results.
 
 ### One card: one search run, then write
 
-When the user asks for a single card with a few fields of its own, and not an
-app, a card family or a page, the workflow takes one read-only run, and the
-next run writes.
+When the user asks for a single card or a single instance with a few fields of
+its own, and not an app, a card family or a page, the catalog step is one
+read-only run, plus at most one more when the chosen operation needs a read.
+Then the next run writes.
 
-1. **Search in one script.** Search Specs for the entity the card is, and put
+1. **Search in one run.** Search Specs for the entity the card is, and put
    the broadened query of step 5 (`OR` alternates, no `specType`) in the same
-   script, so the broadening costs no turn of its own. Return
+   script, so the broadening costs no run of its own. When the brief names a
+   second entity, give it its own term in the same script. Return
    `{ url, ref, specType, cardTitle }` for each hit, and the `readMe` of the
    top two or three. The card's own attributes (a first name, a headline) are
-   not needs of their own: the search for the entity covers them.
+   not needs of their own: the search for the entity covers them. Run the
+   search again only when the script failed or a result came back
+   `incomplete: true`.
 2. **Decide from the `readMe`.** Adopt a hit by its `ref` (link, contain or
-   extend, as in the Parts table), or refuse it naming the mismatch. Read
-   source only where the reading budget below says the chosen operation needs
-   it.
-3. **Write in the next run.**
+   extend, as in the Parts table), or refuse it naming the mismatch.
+3. **Read only what the reading budget below lists for that operation:**
+   nothing to link, contain or extend without changing behaviour, and one of
+   the Spec's `linkedExamples` to instantiate it. That read takes at most one
+   more read-only run.
+4. **Write in the next run.**
 
-The one search is the whole catalog step for this card:
+That is the whole catalog step for this card:
 
-- **No second catalog search.** A control or component in the card's template
-  (an avatar, a fitted layout, a badge) is `boxel-ui-component-discovery`'s
-  search, not a catalog search.
-- **No source beyond the adopted definition.** Read only what the reading
-  budget lists for the operation you chose. A card next to the one you adopt
-  (a Contact beside the `PersonBase` you extend) is not read, and a hit you
-  refused is not a lead to follow.
-- **A follow-up edit takes no search.** Adding a field to the card you built
-  edits that card.
+- **Display pieces take no catalog search.** An avatar, a fitted layout or a
+  badge is built in the template. A control (a button, an input, a select, an
+  accordion, a tab, a table) is `boxel-ui-component-discovery`'s own step, not
+  a second search here.
+- **No read outside the reading budget.** A hit you refused, or a card beside
+  the one you adopted, is not a lead to read.
+- **A follow-up field.** A plain value (a company name, a date) is added to the
+  card you built, with no search. A field with a structure the catalog may
+  carry (an address, a phone number, an amount with a currency) is searched in
+  the same script that reads the card's file. A follow-up that asks for
+  another card makes a card family, and takes the full workflow.
 
 ## Reuse strategy: classify, then operate
 
@@ -394,8 +402,9 @@ inherits it.
 - **A change request goes through the same workflow, and is built in that
   reply.** When a later message changes what you built — a scale of values the
   catalog's field does not carry, an extra field, a new rule — list the changed
-  parts, then search, evaluate and settle each one. The user's message is the
-  go-ahead: state any assumption in one line and build, rather than describing
+  parts, then search, evaluate and settle each one (in a single card, a
+  plain-value field takes no search: see "One card" above). The user's message
+  is the go-ahead: state any assumption in one line and build, rather than describing
   the change and asking whether to make it. Take the lightest route that
   makes the change real, and write it now. When the catalog keeps the rule in
   a card, add an instance of that card: a contract that needs a new sign-off
