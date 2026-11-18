@@ -1,13 +1,13 @@
 ---
-title: Use Ember Concurrency for User Input Concurrency
+title: Use Ember Concurrency for a Component's Async Work
 impact: HIGH
-impactDescription: Better control of user-initiated async operations
+impactDescription: Async work is cancelled when its component is destroyed
 tags: ember-concurrency, tasks, user-input, concurrency-patterns
 ---
 
-## Use Ember Concurrency for User Input Concurrency
+## Use Ember Concurrency for a Component's Async Work
 
-Use ember-concurrency for managing **user-initiated** async operations like search, form submission, and autocomplete. It provides automatic cancelation, debouncing, and prevents race conditions from user actions.
+Use ember-concurrency for every async operation a component starts: search, form submission and autocomplete, and also loading on render and polling. It provides automatic cancelation when the component is destroyed, debouncing, and prevents race conditions.
 
 **Incorrect (manual async handling with race conditions):**
 
@@ -179,23 +179,22 @@ class FormActions extends Component {
 
 **Key Principles for ember-concurrency:**
 
-1. **User-initiated only** - Use for handling user actions, not component initialization
-2. **Return values** - Use `task.last.value`, never set `@tracked` state inside tasks
-3. **Avoid side effects** - Don't modify component state that's read during render inside tasks
+1. **Any async work a component starts** - user actions, loading on render, polling, work deferred past a render. A task is cancelled when its component is destroyed; a loose promise is not.
+2. **Prefer return values** - Read `task.last.value` or `task.lastSuccessful.value` where you can. Writing `@tracked` state after an `await` inside a task is also fine.
+3. **Never write before the first `await`** - A task performed while a render is running must not write tracked state the render already read.
 4. **Choose right modifier**:
-   - `restartableTask` - User typing/search (cancel previous)
+   - `restartableTask` - User typing/search, reloading when an argument changes (cancel previous)
    - `dropTask` - Form submit/save (prevent double-click)
    - `enqueueTask` - Sequential processing (queue user actions)
 
-**When NOT to use ember-concurrency:**
+**Never, in a component:**
 
-- ❌ Component initialization data loading (use `getPromiseState` instead)
-- ❌ Setting tracked state inside tasks (causes infinite render loops)
-- ❌ Route model hooks (return promises directly)
-- ❌ Simple async without user concurrency concerns (use async/await)
+- ❌ `void this.load()`, `promise.then(…)`, `Promise.resolve().then(…)`, `queueMicrotask(…)` - nothing cancels them when the component goes
+- ❌ `setTimeout` / `setInterval` for delays or polling - use `await timeout(ms)` inside a task
+- ❌ `isDestroying(this)` / `isDestroyed(this)` checks before writing state - the work they guard belongs in a task
 
-See **advanced-data-loading-with-ember-concurrency.md** for correct data loading patterns.
+See **advanced-data-loading-with-ember-concurrency.md** for loading data on render.
 
-ember-concurrency provides automatic cancelation, derived state (isRunning, isIdle), and better patterns for **user-initiated** async operations.
+ember-concurrency provides automatic cancelation and derived state (isRunning, isIdle, last, lastSuccessful) for every async operation a component owns.
 
 Reference: [ember-concurrency](https://ember-concurrency.com/)

@@ -108,6 +108,7 @@ import { task, restartableTask, timeout } from 'ember-concurrency'; // timeout i
 // - DOM timing: Use Glimmer modifiers with cleanup
 // - Async coordination: Use task/restartableTask from ember-concurrency  
 // - Delays: Use await timeout(ms) from ember-concurrency, not setTimeout
+// - NEVER start a loose promise in a component: no `void this.load()`, `.then()`, `Promise.resolve().then()`, `queueMicrotask`, `setInterval`. Load on render with `this.loadTask.perform()` in the constructor; poll with a loop inside a task. A task is cancelled when the component is destroyed, so an `isDestroying` / `isDestroyed` check means the work should have been a task. See boxel-workspace-cardinal-rules #14.
 // - NEVER `await someTask.perform()` (or `.then()` it) from outside a task — that downcasts the cancelable TaskInstance to a Promise, surfacing cancelations as unhandled `TaskCancelation` rejections. If the caller needs to await a task, the caller must itself be a task; invoke top-level tasks from a synchronous local handler bound with `{{on}}`.
 
 // Icon imports
