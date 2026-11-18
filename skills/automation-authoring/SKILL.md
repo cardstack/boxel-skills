@@ -5,7 +5,7 @@ boxel:
   kind: skill
   tools:
     - codeRef:
-        module: '@cardstack/boxel-host/tools/run-realm-code'
+        module: "@cardstack/boxel-host/tools/run-realm-code"
         name: default
 ---
 
@@ -62,7 +62,10 @@ Write the script and the card in one `run-realm-code` call. The card's isolated 
       ],
       "operations": [
         {
-          "targetType": { "module": "../github-repository", "name": "GitHubRepository" },
+          "targetType": {
+            "module": "../github-repository",
+            "name": "GitHubRepository"
+          },
           "operation": "openIssues"
         }
       ],
@@ -103,11 +106,11 @@ Boxel reads the card as data and never runs card code, so every value goes in a 
 
 Each trigger has a `kind`, a `label`, and the fields for its kind. Write every field of the trigger, `null` where the kind doesn't use it, as above.
 
-| `kind`    | Fields                                                                                      | Fires                                                       |
-| --------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `cron`    | `expression`, `timeZone`; optional `count`, and `untilDate` with optional `untilTime`       | on the schedule, until `count` runs or past `untilDate`      |
-| `once`    | `date` (`YYYY-MM-DD`), `time` (`HH:MM`, 24-hour), `timeZone`                                | once, at that wall-clock time in that zone                  |
-| `webhook` | `webhookPath`: one of the workspace's incoming webhooks                                     | never: Boxel starts no runs from webhook deliveries         |
+| `kind`    | Fields                                                                                | Fires                                                   |
+| --------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `cron`    | `expression`, `timeZone`; optional `count`, and `untilDate` with optional `untilTime` | on the schedule, until `count` runs or past `untilDate` |
+| `once`    | `date` (`YYYY-MM-DD`), `time` (`HH:MM`, 24-hour), `timeZone`                          | once, at that wall-clock time in that zone              |
+| `webhook` | `webhookPath`: one of the workspace's incoming webhooks                               | never: Boxel starts no runs from webhook deliveries     |
 
 - **A label names the trigger**, unique within the card, lowercase with hyphens (`weekday-mornings`, `kickoff`). Boxel counts each trigger's runs by label, so editing a trigger's schedule keeps the count, and a renamed label starts a new one. `manual` is reserved, since Boxel uses it for runs a person starts by hand.
 - **A cron expression has five fields**: minute, hour, day of month, month, day of week. Lists (`1,15`), ranges (`1-5`), steps (`*/15`), names (`MON`, `JAN`) and the macros `@hourly`, `@daily`, `@weekly`, `@monthly` and `@yearly` work. Seconds, `?`, `L`, `W` and `#` don't. When both day fields are restricted, a day matches when either matches: `0 9 13 * FRI` is every Friday and every 13th.
@@ -130,16 +133,16 @@ Tell the user the run's time in words and in the zone ("Tuesday, November 18 at 
 
 `caps` holds the limits each run keeps to, and the credits the automation may spend in a day and a month. Every run limit is required. `0` forbids the thing: a run with `resolveCalls: 0` makes no AI request.
 
-| Field           | Shown as      | What a run may do                                                                     |
-| --------------- | ------------- | ------------------------------------------------------------------------------------- |
-| `callApiCalls`  | Outside calls | `callApi` operations, counted one per call                                            |
-| `responseBytes` | Data received | bytes read from outside services, all calls together                                  |
-| `resolveCalls`  | AI requests   | `realm.resolve` calls                                                                 |
-| `aiCredits`     | AI spending   | credits the run's AI requests may cost, each counted at its most until the cost is in |
-| `writes`        | Saves         | files the run saves, card instances included                                          |
-| `seconds`       | Time          | seconds the script may run, at most 1200                                              |
-| `dailyCredits`  | Each day      | credits the automation may spend in a day; at most `monthlyCredits`                   |
-| `monthlyCredits`| Each month    | credits the automation may spend in a month                                           |
+| Field            | Shown as        | What a run may do                                                                                  |
+| ---------------- | --------------- | -------------------------------------------------------------------------------------------------- |
+| `callApiCalls`   | Outside calls   | `callApi` operations, counted one per call                                                         |
+| `responseBytes`  | Data received   | bytes read from outside services, all calls together (the card shows megabytes)                    |
+| `resolveCalls`   | AI requests     | `realm.resolve` calls                                                                              |
+| `aiCredits`      | AI spending     | credits the run's AI requests may cost, each counted at its most until the cost is in              |
+| `writes`         | Saves           | files the run saves, card instances included                                                       |
+| `seconds`        | Run time        | seconds the script may run, at most 1200                                                           |
+| `dailyCredits`   | Credits a day   | credits the automation may spend in a day, counting runs, AI and storage; at most `monthlyCredits` |
+| `monthlyCredits` | Credits a month | credits the automation may spend in a calendar month, counting runs, AI and storage                |
 
 - **Size each limit from what the script does, with room to spare**: two pages of issues at 100 a page is 2 calls, so `callApiCalls: 5`. A run that reaches a limit stops with an error and saves nothing.
 - **Set `monthlyCredits`.** Switching an automation on asks the person to confirm the monthly cap, and a card without one can't be switched on.
@@ -151,7 +154,7 @@ Tell the user the run's time in words and in the zone ("Tuesday, November 18 at 
 
 ### Outside calls
 
-`operations` lists each `callApi` operation a run may call, as the card type (`targetType`, a code ref) and the operation's name. Boxel refuses a run's call to any operation the list doesn't name (`operation-not-declared`), before sending anything. See *Calling an outside service* below.
+`operations` lists each `callApi` operation a run may call, as the card type (`targetType`, a code ref) and the operation's name. Boxel refuses a run's call to any operation the list doesn't name (`operation-not-declared`), before sending anything. See _Calling an outside service_ below.
 
 ### `batchedAI`
 
@@ -161,20 +164,20 @@ Leave `batchedAI` `false`.
 
 The script runs on the **automation surface**: the Realm Runner methods a `run-realm-code` script uses, minus everything that needs a person or a chat room, plus a console and run milestones. A run has no room and no one to ask.
 
-| Methods                                                                                | In a run                                                                                     |
-| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `realm.cards.search`, `realm.cards.get`, `realm.fs.readText`, `realm.fs.list`, `realm.fs.exists` | yes, in the automation's own workspace                                                       |
-| `realm.entries.search`                                                                 | yes, in the automation's own workspace only                                                  |
-| `realm.fs.writeText`, `realm.fs.writeBytes`, `realm.fs.replace`, `realm.fs.copy`       | yes; `realm.fs.writeText` writes the file whole, whether or not the file exists              |
-| `realm.cards.update`                                                                   | yes                                                                                          |
-| `realm.operations.invoke`, `realm.operations.invokeBatchOperation`                     | yes; a `callApi` only for an operation the card's `operations` names                         |
-| `realm.resolve`                                                                        | yes, within `resolveCalls` and `aiCredits`                                                   |
-| `realm.progress.plan`, `realm.progress.milestone`, `realm.progress.count`              | only in a run                                                                                |
-| `console.log`, `console.info`, `console.warn`, `console.error`                         | only in a run                                                                                |
-| `realm.fs.delete`, `realm.fs.download`                                                 | no                                                                                           |
-| `realm.web.search`, `realm.web.read`, `realm.images.generate`, `realm.capture`         | no                                                                                           |
-| `realm.ask`, `realm.plan`, `realm.ui.*`, `room.*`, `realm.workspaces.*`, `realm.index.*` | no                                                                                           |
-| `realm.transform`                                                                      | no: reshape data with plain JavaScript (`filter`, `map`, `reduce`) in the script             |
+| Methods                                                                                          | In a run                                                                         |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `realm.cards.search`, `realm.cards.get`, `realm.fs.readText`, `realm.fs.list`, `realm.fs.exists` | yes, in the automation's own workspace                                           |
+| `realm.entries.search`                                                                           | yes, in the automation's own workspace only                                      |
+| `realm.fs.writeText`, `realm.fs.writeBytes`, `realm.fs.replace`, `realm.fs.copy`                 | yes; `realm.fs.writeText` writes the file whole, whether or not the file exists  |
+| `realm.cards.update`                                                                             | yes                                                                              |
+| `realm.operations.invoke`, `realm.operations.invokeBatchOperation`                               | yes; a `callApi` only for an operation the card's `operations` names             |
+| `realm.resolve`                                                                                  | yes, within `resolveCalls` and `aiCredits`                                       |
+| `realm.progress.plan`, `realm.progress.milestone`, `realm.progress.count`                        | only in a run                                                                    |
+| `console.log`, `console.info`, `console.warn`, `console.error`                                   | only in a run                                                                    |
+| `realm.fs.delete`, `realm.fs.download`                                                           | no                                                                               |
+| `realm.web.search`, `realm.web.read`, `realm.images.generate`, `realm.capture`                   | no                                                                               |
+| `realm.ask`, `realm.plan`, `realm.ui.*`, `room.*`, `realm.workspaces.*`, `realm.index.*`         | no                                                                               |
+| `realm.transform`                                                                                | no: reshape data with plain JavaScript (`filter`, `map`, `reduce`) in the script |
 
 A method off the list isn't defined in a run at all, so a call to one throws a `TypeError`. A script that the assistant also runs by hand through `run-realm-code` to test works on both surfaces only when it guards the run-only calls (`globalThis.console?.log(...)`); write the automation's script for the automation surface, and test it with a Preview.
 
@@ -182,29 +185,29 @@ How a run differs from a `run-realm-code` call:
 
 - **Every save waits for the end.** Boxel holds a run's writes aside while the script runs and saves them together when the script finishes, all or none. A run that throws, reaches a limit or runs out of time saves nothing. Inside the run, a read of a file the run wrote returns the run's version.
 - **A run can't write code or settings.** Boxel refuses a run's write to a module (`.gts`, `.ts`, `.gjs`, `.js`), `realm.json`, a `RealmPolicy` card or an Automation card (`forbidden-path`). An automation never rewrites its own script or card.
-- **A run deletes nothing.** Mark a card done, archived or stale with a status field instead (*The workspace is the state*, below).
+- **A run deletes nothing.** Mark a card done, archived or stale with a status field instead (_The workspace is the state_, below).
 - **The card's limits replace the interactive ones.** No 20-file, 200-update or 55-second limit; `writes`, `seconds` and the other caps bound the run instead.
 - **A run holds at most 20,000,000 characters** of the files it reads and writes. Read a large workspace a page at a time and keep only what the run needs.
 - **Nothing pauses a run for a person.** A step that needs a decision belongs in the conversation before the automation is written, or in a card the run writes for the person to act on later.
 
 ### `realm.current.automation`
 
-| Field            | Holds                                                                                                   |
-| ---------------- | ------------------------------------------------------------------------------------------------------- |
-| `url`            | the Automation card's URL                                                                               |
+| Field            | Holds                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------- |
+| `url`            | the Automation card's URL                                                                                 |
 | `trigger`        | `{ label, kind }`; `kind` is `cron`, `once`, `webhook`, or `manual` for a Preview or a Run now (no label) |
-| `scheduledAt`    | when the trigger came due, or when a person started the run (ISO 8601)                                  |
-| `lastSuccessAt`  | when the automation's last complete run started, or absent before the first; a Preview never counts      |
-| `params`         | the card's params, name to value                                                                        |
-| `webhookPayload` | the delivery's JSON body, for a webhook run                                                             |
-| `dryRun`         | `true` for a Preview                                                                                    |
+| `scheduledAt`    | when the trigger came due, or when a person started the run (ISO 8601)                                    |
+| `lastSuccessAt`  | when the automation's last complete run started, or absent before the first; a Preview never counts       |
+| `params`         | the card's params, name to value                                                                          |
+| `webhookPayload` | the delivery's JSON body, for a webhook run                                                               |
+| `dryRun`         | `true` for a Preview                                                                                      |
 
 Branch on the trigger's label when triggers share a script, and give a manual run a sensible default:
 
 ```js
 const { trigger, params } = realm.current.automation;
-const label = trigger.label ?? 'weekday-mornings'; // a Preview or Run now has no label
-if (label === 'kickoff') {
+const label = trigger.label ?? "weekday-mornings"; // a Preview or Run now has no label
+if (label === "kickoff") {
   // the one-time first run: build the full report
 } else {
   // the weekday run: only what changed since the last complete run
@@ -221,9 +224,9 @@ A run calls an outside service only through a `callApi` operation on a card type
 
 ```js
 const { status, headers, body } = await realm.operations.invoke(
-  'GitHubRepository/boxel',
-  'openIssues',
-  { page: '1' },
+  "GitHubRepository/boxel",
+  "openIssues",
+  { page: "1" },
 );
 ```
 
@@ -233,7 +236,7 @@ The answer is the service's response, whatever its status: a 404 or a 500 comes 
 2. **List the operation in the card's `operations`.**
 3. **Have the person approve the operation in Boxel's secure window** ([`api-keys`](../api-keys/SKILL.md)). **On a schedule only** is enough for an automation, and keeps the key out of reach of any card the person opens. Until the person approves, every call is refused `binding-not-approved`.
 
-A run's own AI requests carry text only. To make an image, call the AI vendor through a `callApi` with the person's own key ([`api-integrations`](../api-integrations/SKILL.md) → *Images from an AI vendor*).
+A run's own AI requests carry text only. To make an image, call the AI vendor through a `callApi` with the person's own key ([`api-integrations`](../api-integrations/SKILL.md) → _Images from an AI vendor_).
 
 ## The workspace is the state
 
@@ -252,35 +255,40 @@ Settle every case a rule can settle in plain JavaScript, and send only the cases
 ```js
 const unclear = [];
 for (const issue of issues) {
-  if (issue.labels.some((l) => l.name === 'bug')) {
-    triage.set(issue.number, 'bug');
+  if (issue.labels.some((l) => l.name === "bug")) {
+    triage.set(issue.number, "bug");
   } else if (/^docs?:/i.test(issue.title)) {
-    triage.set(issue.number, 'docs');
+    triage.set(issue.number, "docs");
   } else {
-    unclear.push({ number: issue.number, title: issue.title, body: issue.body?.slice(0, 2000) });
+    unclear.push({
+      number: issue.number,
+      title: issue.title,
+      body: issue.body?.slice(0, 2000),
+    });
   }
 }
 if (unclear.length) {
   const { output } = await realm.resolve({
-    instruction: 'Sort each issue into bug, feature or question, from its title and body.',
+    instruction:
+      "Sort each issue into bug, feature or question, from its title and body.",
     input: { issues: unclear },
     outputSchema: {
-      type: 'object',
+      type: "object",
       properties: {
         issues: {
-          type: 'array',
+          type: "array",
           items: {
-            type: 'object',
+            type: "object",
             properties: {
-              number: { type: 'number' },
-              kind: { type: 'string', enum: ['bug', 'feature', 'question'] },
+              number: { type: "number" },
+              kind: { type: "string", enum: ["bug", "feature", "question"] },
             },
-            required: ['number', 'kind'],
+            required: ["number", "kind"],
             additionalProperties: false,
           },
         },
       },
-      required: ['issues'],
+      required: ["issues"],
       additionalProperties: false,
     },
   });
@@ -316,11 +324,16 @@ if (unclear.length) {
 ```js
 const issues = [];
 for (let page = 1; page <= 10; page++) {
-  const { status, headers, body } = await realm.operations.invoke(repository, 'openIssues', { page: String(page) });
-  if (status !== 200) throw new Error(`GitHub answered ${status} for page ${page}`);
+  const { status, headers, body } = await realm.operations.invoke(
+    repository,
+    "openIssues",
+    { page: String(page) },
+  );
+  if (status !== 200)
+    throw new Error(`GitHub answered ${status} for page ${page}`);
   issues.push(...body);
   realm.progress.count(page, page); // one count a page
-  if (!/rel="next"/.test(headers.link ?? '')) break;
+  if (!/rel="next"/.test(headers.link ?? "")) break;
 }
 ```
 
@@ -335,11 +348,11 @@ Cap the loop (`page <= 10`) so a service that never stops paging can't spend the
 Milestones show where a run got to. Declare every milestone up front with one `realm.progress.plan([...])` call of string literals, mark each as the run reaches it, and count progress inside one:
 
 ```js
-realm.progress.plan(['Fetch issues', 'Sort issues', 'Write digest']);
-realm.progress.milestone('Fetch issues');
+realm.progress.plan(["Fetch issues", "Sort issues", "Write digest"]);
+realm.progress.milestone("Fetch issues");
 // …
 realm.progress.count(done, total);
-realm.progress.milestone('Sort issues');
+realm.progress.milestone("Sort issues");
 ```
 
 The Automation card lists the plan's milestones before any run, and after a run shows how long each took and where a failed run stopped. Write the plan as one literal array at the top of the script, since the card reads the milestones from the script's text. Names are at most 80 characters, and a plan holds at most 50. Progress and console calls return nothing, so the script needn't `await` them. A run reports at most 5,000 of them, so count once a page or once a batch, never once an item.
