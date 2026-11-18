@@ -78,7 +78,7 @@ if (card.attributes.status === 'ended') {
 }
 ```
 
-The reply tells the user the run is at "Wednesday, November 18 at 3:10 PM Eastern", and that the run waits for the user to confirm the time, the estimate and the monthly cap before Boxel switches the automation on.
+The reply tells the user the automation will run at "Wednesday, November 18, 2026 at 3:10 PM Eastern" once a direct writer of the workspace switches the automation on, and that switching on means confirming the time, the estimate and the monthly cap.
 
 ## 2. A weekday digest that keeps one card per issue
 

@@ -127,7 +127,7 @@ A `once` trigger runs the script one time. Write the request's time as a date an
 - **"Tonight at 9", "Friday morning".** Today's date in the user's zone, or the next such day, at the time named (`21:00`; ask what "morning" means when it matters).
 - **A time already past** never fires. Check the date and time are ahead of now in the zone before writing them.
 
-Tell the user the run's time in words and in the zone ("Tuesday, November 18 at 3:45 PM Eastern"), so a wrong zone shows before anything runs.
+Tell the user the run's time in words and in the zone, with the weekday worked out from the date ("Wednesday, November 18, 2026 at 3:45 PM Eastern"), so a wrong date or zone shows before anything runs. Say the automation will run at that time once a direct writer switches the automation on, never that the run is scheduled: writing the card schedules nothing.
 
 ### Limits
 
