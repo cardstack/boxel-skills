@@ -123,7 +123,7 @@ Each trigger has a `kind`, a `label`, and the fields for its kind. Write every f
 
 A `once` trigger runs the script one time. Write the request's time as a date and a wall-clock time in the user's zone:
 
-- **"An hour from now", "in 20 minutes".** The conversation states the current date and time in UTC. Add the delay to that time, then convert the sum to the user's zone with the zone's UTC offset on that date (New York is UTC−5 in winter and UTC−4 in summer). Round up to the next whole minute. A `run-realm-code` script has no `Intl`, so do the conversion in the reply, not in the script, and write the result into the trigger. A sum that crosses midnight in the zone moves the date too.
+- **"An hour from now", "in 20 minutes".** The conversation states the current date and time in UTC. Add the delay to that time, then convert the sum to the user's zone with the zone's UTC offset on that date (New York is UTC−5 in winter and UTC−4 in summer). Round up to the next whole minute. A `run-realm-code` script has no `Intl`, so do the conversion in the reply, not in the script, and write the result into the trigger. A sum that crosses midnight in the zone moves the date too. Before writing the trigger, check the result: the current time in the zone, plus the delay, is the trigger's time. A trigger at the current time means the delay was never added.
 - **"Tonight at 9", "Friday morning".** Today's date in the user's zone, or the next such day, at the time named (`21:00`; ask what "morning" means when it matters).
 - **A time already past** never fires. Check the date and time are ahead of now in the zone before writing them.
 
