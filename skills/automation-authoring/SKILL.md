@@ -33,7 +33,7 @@ An automation is two files, plus a card type for each outside call:
 2. **The Automation card**, an instance that adopts from the catalog's `Automation` (`@cardstack/catalog/automation/automation`) and links the script.
 3. **A card type with a `callApi` operation** for each outside service a run calls ([`card-operations-authoring`](../card-operations-authoring/SKILL.md)). A run calls no service directly.
 
-Write the script and the card in one `run-realm-code` call, and show the card in the next call, with `return { show: '<card path>' }` alone. The card's isolated view shows the schedule in words, the limits and the declared milestones. Boxel takes longer to index the first Automation card in a workspace than a show waits, so a show in the same call that writes the card usually fails; when the result's `showError` says the card has not finished indexing, show the card again in one more call.
+Write the script and the card in one `run-realm-code` call. The card's isolated view shows the schedule in words, the limits and the declared milestones, so end the script with `return { show: '<card path>' }`.
 
 ## The card
 
