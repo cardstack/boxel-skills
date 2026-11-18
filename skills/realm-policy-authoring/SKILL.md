@@ -514,8 +514,11 @@ code grant's list a superset of every plan's.
 **`validate` warns when the code grant is missing.** A `read` or `query` grant
 on a type the realm defines, in a policy with no `readSource` grant on
 `TsFileDef` or `GtsFileDef`, records `module-not-granted` (§9). A rule on
-`CardDef` counts too, by the realm's own types it holds cards of. A grant never
-implies another, so the read grant can't carry the code with it.
+`CardDef` counts too, by the realm's own types it holds cards of. A code grant
+covers only the kinds of caller it can admit: one whose `where` is
+`actor() == "anonymous"` serves visitors, not the signed-in callers a read
+grant names. A grant never implies another, so the read grant can't carry the
+code with it.
 
 A rule on `TsFileDef` serves every module in the realm, including ones no
 granted card uses. To serve fewer, narrow the predicate by path
@@ -855,7 +858,7 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `acting-user-from-submitted-card`     | warning  | grant    | A `create` grant whose `where` names `"anonymous"` has an `actingUser` that reads `instance()`, which on a create is the card the visitor sends, so the visitor picks who the card is created as (§12). Recorded at `.actingUser` |
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
-| `module-not-granted`                  | warning  | grant    | A `read` or `query` grant on a type the realm defines, in a policy with no `readSource` grant on `TsFileDef` or `GtsFileDef`, so its callers can't load the code that renders the cards (§5). Also such a grant open to visitors where no code grant is (§12) |
+| `module-not-granted`                  | warning  | grant    | A `read` or `query` grant on a type the realm defines, in a policy with no `readSource` grant on `TsFileDef` or `GtsFileDef` for the same kind of caller, so its callers can't load the code that renders the cards (§5). Also such a grant open to visitors where no code grant is (§12), and one for signed-in callers where the only code grant is open to visitors alone |
 
 A card-level issue makes the whole policy uncompilable, and every signed-in
 caller the realm's permissions decline gets 500 (§13). A caller who isn't
