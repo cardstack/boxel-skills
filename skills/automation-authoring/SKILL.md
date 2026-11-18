@@ -1,6 +1,6 @@
 ---
 name: automation-authoring
-description: 'Use when the user wants work done later, once or again and again: "every Monday", "each morning", "an hour from now", "tonight at 9", "remind me", "keep this in sync", "check this every day", "when the deadline passes", "schedule", "automate". Takes the assistant from the request to an Automation card and its Realm Runner script: the card''s triggers (cron, a one-time run, a webhook), the limits each run keeps to, params, the outside calls a run may make, the automation surface and `realm.current.automation`, calling a keyed API through a `callApi` operation the person approves for automations, keeping a run''s state in the workspace, rules before AI with `realm.resolve` only for the cases rules can''t settle, paging and retrying, logging with `console` and run milestones with `realm.progress`, and the Preview-first and confirm-in-chat rules before anything runs or spends.'
+description: 'Use when the user wants work done later, once or again and again: "every Monday", "each morning", "an hour from now", "tonight at 9", "keep this in sync", "check this every day", "when the deadline passes", "schedule", "automate". Takes the assistant from the request to an Automation card and its Realm Runner script: the card''s triggers (cron, a one-time run, a webhook), the limits each run keeps to, params, the outside calls a run may make, the automation surface and `realm.current.automation`, calling a keyed API through a `callApi` operation the person approves for automations, keeping a run''s state in the workspace, rules before AI with `realm.resolve` only for the cases rules can''t settle, paging and retrying, logging with `console` and run milestones with `realm.progress`, and the Preview-first and confirm-in-chat rules before anything runs or spends.'
 boxel:
   kind: skill
   tools:
@@ -15,7 +15,7 @@ _An Automation card names a script, the triggers that start the script, and the 
 
 ## When to write one
 
-**Write an automation whenever the user wants something done at a later time.** A recurring job ("every weekday at 8:30, summarize my open issues"), a one-time job ("an hour from now, mark the sale over"), a reminder ("remind me Friday to send the invoice"), or work that keeps the workspace in step with an outside service ("keep these cards in sync with my GitHub repo") is an automation. Don't answer such a request with a card field that holds a time nobody acts on, a note promising to do the work later, or a live card that polls while the page is open: the assistant does nothing between conversations, and a live card works only while someone looks at the card.
+**Write an automation whenever the user wants something done at a later time.** A recurring job ("every weekday at 8:30, summarize my open issues"), a one-time job ("an hour from now, mark the sale over"), or work that keeps the workspace in step with an outside service ("keep these cards in sync with my GitHub repo") is an automation. A run reaches no one: it sends no message and no notification, and it only writes the workspace. So a reminder ("remind me Friday to send the invoice") is a card or a status the run writes, which the person sees on opening the workspace; say so before writing one, rather than promise a reminder that arrives on its own. Don't answer such a request with a card field that holds a time nobody acts on, a note promising to do the work later, or a live card that polls while the page is open: the assistant does nothing between conversations, and a live card works only while someone looks at the card.
 
 An automation also suits private data from a keyed service. A run calls the service as the payer and writes what readers need into the workspace, so readers never call the service and never reach the key ([`api-integrations`](../api-integrations/SKILL.md) §2 explains why private data takes this shape).
 
@@ -183,7 +183,7 @@ A method off the list isn't defined in a run at all, so a call to one throws a `
 
 How a run differs from a `run-realm-code` call:
 
-- **Every save waits for the end.** Boxel holds a run's writes aside while the script runs and saves them together when the script finishes, all or none. A run that throws, reaches a limit or runs out of time saves nothing. Inside the run, a read of a file the run wrote returns the run's version.
+- **Every save waits for the end.** Boxel holds a run's writes aside while the script runs and saves them together when the script finishes, all or none. A run that throws, reaches a limit or runs out of time saves nothing. Inside the run, a read of a file the run wrote returns the run's version, but `realm.cards.search` reads the index as it stood when the run started: it misses a card the run created and matches a card on the values it held before the run changed them. Keep what the run wrote in the script's own variables rather than searching for it again.
 - **A run can't write code or settings.** Boxel refuses a run's write to a module (`.gts`, `.ts`, `.gjs`, `.js`), `realm.json`, a `RealmPolicy` card or an Automation card (`forbidden-path`). An automation never rewrites its own script or card.
 - **A run deletes nothing.** Mark a card done, archived or stale with a status field instead (_The workspace is the state_, below).
 - **The card's limits replace the interactive ones.** No 20-file, 200-update or 55-second limit; `writes`, `seconds` and the other caps bound the run instead.
@@ -223,14 +223,15 @@ A script never branches on `dryRun` to skip its writes: a Preview already saves 
 A run calls an outside service only through a `callApi` operation on a card type, invoked with `realm.operations.invoke(cardPath, operationName, payload)`:
 
 ```js
-const { status, headers, body } = await realm.operations.invoke(
+const { document } = await realm.operations.invoke(
   "GitHubRepository/boxel",
   "openIssues",
   { page: "1" },
 );
+const { status, headers, body } = document;
 ```
 
-The answer is the service's response, whatever its status: a 404 or a 500 comes back as `{ status, headers, body }`, or as the object the operation's `output` maps it to. Check `status` before reading `body`. A call Boxel refuses throws, and nothing is sent.
+The call answers `{ path, operation, document }`, and `document` holds the service's response, whatever its status: a 404 or a 500 comes back as `{ status, headers, body }`, or as the object the operation's `output` maps it to. Check `status` before reading `body`. A call Boxel refuses throws, and nothing is sent.
 
 1. **Declare the operation on a card type** ([`card-operations-authoring`](../card-operations-authoring/SKILL.md), [`api-integrations`](../api-integrations/SKILL.md) §3): a `label` saying what the person agrees to, the key in a header as `{{userKey}}`, and one operation per request. A run calls as the person who switched the automation on, so `{{userKey}}` takes that person's key.
 2. **List the operation in the card's `operations`.**
@@ -263,7 +264,7 @@ for (const issue of issues) {
     unclear.push({
       number: issue.number,
       title: issue.title,
-      body: issue.body?.slice(0, 2000),
+      body: issue.body?.slice(0, 500),
     });
   }
 }
@@ -299,7 +300,7 @@ if (unclear.length) {
 ```
 
 - **One request for the whole batch**, never one per item: each call counts against `resolveCalls`.
-- **`realm.resolve({ instruction, input, outputSchema, maxTokens })`** answers `{ output, model }`, with `output` matching `outputSchema`. The schema is an `object` whose objects list every property in `required` and set `additionalProperties: false`. `instruction` is at most 2,000 characters, and `input` at most 128 KiB, so trim long text before sending it.
+- **`realm.resolve({ instruction, input, outputSchema, maxTokens })`** answers `{ output, model }`, with `output` matching `outputSchema`. The schema is an `object` whose objects list every property in `required` and set `additionalProperties: false`. `instruction` is at most 2,000 characters, and `input` at most 128 KiB, so trim long text before sending it. `maxTokens` bounds the answer: 2,048 when absent, at most 4,096. Size each batch so both fit, about 100 short items a request, and send a larger set as several requests, each counted against `resolveCalls`.
 - **No `webSearch` in a run.** Boxel refuses a run's AI request that searches the web, since Boxel can't price the request before sending it.
 - **Set `resolveCalls` and `aiCredits` for the batch**: one or two requests a run, and enough credits for the input the run sends. A script with no `realm.resolve` sets both to `0`.
 
@@ -324,11 +325,10 @@ if (unclear.length) {
 ```js
 const issues = [];
 for (let page = 1; page <= 10; page++) {
-  const { status, headers, body } = await realm.operations.invoke(
-    repository,
-    "openIssues",
-    { page: String(page) },
-  );
+  const { document } = await realm.operations.invoke(repository, "openIssues", {
+    page: String(page),
+  });
+  const { status, headers, body } = document;
   if (status !== 200)
     throw new Error(`GitHub answered ${status} for page ${page}`);
   issues.push(...body);
@@ -372,7 +372,7 @@ When no tool in the room starts a Preview or switches an automation on, stop aft
 
 [`references/examples.md`](references/examples.md) has three complete automations: a one-time run that ends a sale an hour from now, a weekday digest from GitHub that keeps one card per issue, and a nightly triage that settles what rules can and sends the rest to `realm.resolve`.
 
-The catalog's own examples show the card and script side by side: `automation/Automation/weekly-card-count` with `automation/scripts/weekly-card-count.js` (paging through the workspace, with milestones), and `automation/Automation/open-issues-digest` with `automation/scripts/open-issues-digest.js` (a `callApi` with the person's key, several triggers, params). Find them with `realm.entries.search` over the catalog (`realms: ['@cardstack/catalog/']`, filter on the `Automation` type), or capture a card with `realm.capture`.
+The catalog's own example shows a card and script side by side: `automation/Automation/weekly-card-count` with `automation/scripts/weekly-card-count.js` (paging through the workspace, with milestones). Find it with `realm.entries.search` over the catalog (`realms: ['@cardstack/catalog/']`, filter on the `Automation` type), or capture a card with `realm.capture`.
 
 ## Checklist
 

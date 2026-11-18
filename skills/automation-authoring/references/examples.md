@@ -101,8 +101,8 @@ async function fetchPage(page) {
   // A 5xx or a dropped connection gets two more tries at once; a 4xx stops the run.
   for (let attempt = 1; ; attempt++) {
     try {
-      const answer = await realm.operations.invoke(repository, 'openIssues', { page: String(page) });
-      if (answer.status < 500 || attempt === 3) return answer;
+      const { document } = await realm.operations.invoke(repository, 'openIssues', { page: String(page) });
+      if (document.status < 500 || attempt === 3) return document;
     } catch (error) {
       if (attempt === 3) throw error;
     }
@@ -197,6 +197,10 @@ The user: "Every night, sort the new support tickets into billing, bug or questi
 realm.progress.plan(['Find new tickets', 'Apply rules', 'Ask the AI', 'Save categories']);
 
 realm.progress.milestone('Find new tickets');
+// One AI request sorts the tickets rules leave over; 100 short tickets keep
+// the request under realm.resolve's input limit and its answer under the
+// 4,096-token cap.
+const BATCH = 100;
 const tickets = [];
 for (let number = 0, more = true; more; number++) {
   const { cards, truncated } = await realm.cards.search({
@@ -204,8 +208,10 @@ for (let number = 0, more = true; more; number++) {
     page: { size: 100, number },
   });
   tickets.push(...cards.filter((card) => !card.attributes.category));
-  more = truncated && tickets.length < 400; // the AI batch below takes at most 400
+  more = truncated && tickets.length < BATCH;
 }
+// Tickets past the batch wait for the next night.
+tickets.splice(BATCH);
 
 realm.progress.milestone('Apply rules');
 const category = new Map();
@@ -247,7 +253,7 @@ if (unclear.length) {
       required: ['tickets'],
       additionalProperties: false,
     },
-    maxTokens: 4000,
+    maxTokens: 4096,
   });
   for (const { path, category: c } of output.tickets) {
     if (unclear.some((u) => u.path === path)) category.set(path, c);
@@ -261,4 +267,4 @@ for (const [path, c] of category) {
 console.info(`${category.size} tickets sorted`);
 ```
 
-The card's trigger is `cron`, `0 2 * * *` in the user's zone, labelled `nightly`. Limits: `callApiCalls: 0`, `responseBytes: 0`, `resolveCalls: 1`, `aiCredits` enough for one request with 400 short tickets, `writes: 400`, `seconds: 300`. The script trims each ticket's body to 300 characters and caps the batch at 400 tickets, so one request stays under `realm.resolve`'s 128 KiB input limit; tickets past 400 wait for the next night. The script checks each path the AI returns against the tickets it sent, so the AI can't write a category onto any other card.
+The card's trigger is `cron`, `0 2 * * *` in the user's zone, labelled `nightly`. Limits: `callApiCalls: 0`, `responseBytes: 0`, `resolveCalls: 1`, `aiCredits` enough for one request with 100 short tickets, `writes: 100`, `seconds: 300`. The script trims each ticket's body to 300 characters and takes at most 100 tickets a night, so one request stays under `realm.resolve`'s 128 KiB input limit, its answer fits in 4,096 tokens, and the saves stay within `writes`; tickets past 100 wait for the next night. For a busier queue, raise `resolveCalls` and send the unclear tickets in batches of 100, one request each. The script checks each path the AI returns against the tickets it sent, so the AI can't write a category onto any other card.
