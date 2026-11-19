@@ -243,8 +243,9 @@ import {
 | ----------------------------- | --------------------------------------------------------- |
 | text, a number or a boolean   | `name=value`                                              |
 | an object                     | `name[member]=…` for each member                          |
-| a list of text, numbers or booleans | the name once per item: `MediaUrl=a&MediaUrl=b`; name the field `expand[]` for an API that wants `expand[]=a&expand[]=b` |
+| a field's list of text, numbers or booleans | the name once per item: `MediaUrl=a&MediaUrl=b`; name the field `expand[]` for an API that wants `expand[]=a&expand[]=b` |
 | a list of objects             | numbered: `line_items[0][price]=…&line_items[0][quantity]=…` |
+| a list inside an object or a list | numbered, whatever its items are: `line_items[0][tax_rates][0]=…&line_items[0][tax_rates][1]=…` |
 | `null`, an empty list or an empty object | left out                           |
 
 A param can hold a list of any length, so one operation covers every length
