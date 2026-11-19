@@ -209,11 +209,20 @@ let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
 A request carries one body: `json`, `graphql` or `form`. The body's content
 type is set for you unless `headers` sets one.
 
-**A form body** is a field per name. A field's value may be text, a number, a
-boolean, a typed reference, or objects and lists of those, named the way
-Stripe and Twilio read them:
+**A form body** maps each field name to its value. A value may be text, a
+number, a boolean, a typed reference, or objects and lists of those, and
+objects and lists are named the way Stripe and Twilio read them:
 
 ```ts
+import { JsonField } from '@cardstack/base/json-field';
+import {
+  actor,
+  operation,
+  params,
+  realmConfig,
+  type OperationDeclaration,
+} from '@cardstack/base/operations';
+
 @operation static startCheckout = {
   base: 'callApi',
   label: 'Start a checkout for the chosen prices',
@@ -234,12 +243,14 @@ Stripe and Twilio read them:
 | ----------------------------- | --------------------------------------------------------- |
 | text, a number or a boolean   | `name=value`                                              |
 | an object                     | `name[member]=…` for each member                          |
-| a list of text                | the name once per item: `MediaUrl=a&MediaUrl=b`; name the field `expand[]` for an API that wants `expand[]=a&expand[]=b` |
+| a list of text, numbers or booleans | the name once per item: `MediaUrl=a&MediaUrl=b`; name the field `expand[]` for an API that wants `expand[]=a&expand[]=b` |
 | a list of objects             | numbered: `line_items[0][price]=…&line_items[0][quantity]=…` |
-| `null`                        | left out                                                  |
+| `null`, an empty list or an empty object | left out                           |
 
-So one operation sends a list of any length: pass it as a param. A field
-name is sent as written and never holds a slot.
+A param can hold a list of any length, so one operation covers every length
+rather than one operation per length. A form has no way to send an empty list,
+so a card should not call with one where the API requires the field. No name
+in a form, a field's or a member's, holds a slot: names are sent as written.
 
 Values are the typed references (`params()`, `actor()`, `realmConfig()`,
 `instance()`). Invoked on an instance, `instance('field')` reads the card's
@@ -1360,7 +1371,7 @@ findings has no runnable form, and invoking it is refused with
 | `invalid-slot`            | Something that looks like a slot and isn't — `{{apiKey\|rot13}}`     |
 | `slot-placed-twice`       | One slot in two places in a request                                  |
 | `slot-name-reused`        | One name for a `userKey` slot and an `apiKey` slot                   |
-| `slot-out-of-place`       | A slot in the URL as written, a header, query or form field name, or a GraphQL document |
+| `slot-out-of-place`       | A slot in the URL as written, a header, query or form field name, a member name in a body, or a GraphQL document |
 | `unencoded-path-parameter`| A value put into the URL other than as a whole `{name}` segment filled from `path` |
 | `string-built-graphql`    | A GraphQL document built from values rather than written as one fixed string |
 | `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
