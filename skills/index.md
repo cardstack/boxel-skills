@@ -97,6 +97,8 @@ await realm.fs.writeText(
 
 **A finished design build gets build-checked; a design review runs on request.** After a design build, run the pass/fail build check in [`design-review/references/build-check.md`](design-review/references/build-check.md) without being asked: it fixes the basics (hit areas, contrast, phone overflow, wired actions) and reports what it fixed, with no score. When the user asks how a card or app looks, whether it is good enough, or wants it scored, run [`design-review/SKILL.md`](design-review/SKILL.md) (`/design-review`, scoped with `--layout`, `--typo`, `--colour` or `--coherence`, or `--redesign` for a bigger rebuild from existing parts): it captures, scores taste and coherence, and asks before editing anything. A fix after a review is a write like any other: it takes the reads above before it writes, however small it looks.
 
+**Work for later is an automation.** When the user wants something done at a later time, once or on a schedule ("every Monday", "an hour from now", "tonight at 9", "keep these in sync"), read [`automation-authoring/SKILL.md`](automation-authoring/SKILL.md) and write an Automation card and its script. A field holding a time, or a promise to do the work later, does nothing: the assistant does nothing between conversations.
+
 **Reports go in Rich Markdown, not a new card.** When a task asks for a report, summary, briefing, or dashboard-style document, read [`rich-markdown-reports/SKILL.md`](rich-markdown-reports/SKILL.md) before deciding how to build it — the default is a Rich Markdown `.md` file that embeds existing cards (custom or off-the-shelf), not a bespoke card definition authored just to present the report.
 
 ## Skill-tree glossary
@@ -139,6 +141,7 @@ Each skill is a folder next to this index. Read only the ones the task needs, no
 ### Runtime
 
 - **[`boxel-environment/`](boxel-environment/SKILL.md)** — Driving the live Boxel app: run-realm-code, host commands, searching for cards, indexing. Also answers a user's questions about Boxel itself: working from Claude Code, publishing a workspace, and credits.
+- **[`automation-authoring/`](automation-authoring/SKILL.md)** — Work done later, once or on a schedule: the Automation card (cron, one-time and webhook triggers, the limits each run keeps to, params, outside calls) and its Realm Runner script on the automation surface (`realm.current.automation`, `console`, `realm.progress` milestones), keyed APIs through `callApi`, the workspace as a run's state, rules before `realm.resolve`, paging and retrying, and the Preview-first and confirm-in-chat rules before anything runs.
 - **[`catalog-listing/`](catalog-listing/SKILL.md)** — Catalog use / install / remix / update operations, plus submission through `SubmissionWorkflowCard`.
 - **[`boxel-create-edit-cards/`](boxel-create-edit-cards/SKILL.md)** — Thin pointer to `boxel-environment/references/card-tool-selection.md` (the `realm.*` calls for card create/edit).
 
