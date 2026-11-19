@@ -1,6 +1,6 @@
 ---
 name: realm-policy-authoring
-description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy", "anyone may read", "a public form", "why was this caller refused", "should I grant update", "is snapshot ok here". The reference for a `RealmPolicy` card: rules and grants, the create lane, file and source-read grants, `where` in the `policy` BXL profile, which `query` grants compile to a search filter, `snapshot: true`, every issue code, `validate` and `explain`, anonymous callers and rate limits, the refusals a caller sees, and the judgment calls. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()`, `nonGrantable`, `readSource`, `operation-not-permitted`, `policy-not-filterable`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, `actingUser`, `blocklist`, `rateLimitRequests`, `rate-limited`.'
+description: 'Use when writing, linking, or debugging a realm policy — "let teachers read their own classrooms", "let anyone signed in create a ticket", "why does this grant admit nobody", "point this realm at a policy", "anyone may read", "a public form", "why was this caller refused", "should I grant update", "is snapshot ok here". The reference for a `RealmPolicy` card: rules and grants, the create lane, file and source-read grants, `where` in the `policy` BXL profile, which `query` grants compile to a search filter, `snapshot: true`, every issue code, `validate` and `explain`, anonymous callers and rate limits, the refusals a caller sees, and the judgment calls. Activates on `RealmPolicy`, `PolicyRule`, `OperationGrant`, `"policy"` in `realm.json`, `where`, `actor()`, `nonGrantable`, `readSource`, `operation-not-permitted`, `policy-not-filterable`, `module-not-granted`, `partial-match`, `unsnapshotted-policy-read`, `explain`, `explainDraft`, `policy-not-in-force`, `actingUser`, `blocklist`, `rateLimitRequests`, `rate-limited`.'
 boxel:
   kind: skill
 ---
@@ -480,35 +480,51 @@ but only on the part of that type's chain that is code:
 So **code and data can live in one realm.** A caller who reaches the realm only
 through grants needs the module behind every card they are granted, or the card
 reads and fails to render. Grant the code to the same people as the cards. A
-hip-recovery realm lets the patient's caregivers read and find the recovery
-plan, and load the code that renders it:
+project realm lets the reviewers its `realm.json` lists read and find its
+plans, and load the code that renders them:
 
 ```json
 {
   "rules": [
     {
-      "targetType": { "module": "../recovery/recovery-plan", "name": "RecoveryPlan" },
+      "targetType": { "module": "../plans/project-plan", "name": "ProjectPlan" },
       "grants": [
-        { "operation": "read",  "where": ".caregiverIds | any(. == actor())" },
-        { "operation": "query", "where": ".caregiverIds | any(. == actor())" }
+        { "operation": "read",  "where": "realmConfig(\"reviewers\") | any(. == actor())" },
+        { "operation": "query", "where": "realmConfig(\"reviewers\") | any(. == actor())" }
       ]
     },
     {
       "targetType": { "module": "@cardstack/base/ts-file-def", "name": "TsFileDef" },
       "grants": [
-        { "operation": "readSource", "where": "realmConfig(\"caregivers\") | any(. == actor())" }
+        { "operation": "readSource", "where": "realmConfig(\"reviewers\") | any(. == actor())" }
       ]
     }
   ]
 }
 ```
 
-The cards' grants read a `containsMany` of text on the plan, because a `query`
-grant must compile to a search filter and `realmConfig()` never does (§7). A
-module has no fields, so its grant reads the same people from the realm's
-`config` (`"caregivers": ["@ana:family.example", …]`). Keep the two lists in
-step: a caregiver on the plan but not in the config can open the plan and not
-render it.
+All three grants read one list, the realm's `config`
+(`"reviewers": ["@reviewer:example.org", …]`), so adding or removing a
+reviewer is one edit to `realm.json`. The `query` grant's `where` reads nothing
+of the card, so a search settles it once for its caller (§7). To let different
+people see different plans, keep the list on each plan instead
+(`.reviewerIds | any(. == actor())`), which compiles to a filter, and keep the
+code grant's list a superset of every plan's.
+
+**`validate` warns when the code grant is missing.** A `read` or `query` grant
+on a type the realm defines, in a policy with no `readSource` grant on
+`TsFileDef` or `GtsFileDef`, records `module-not-granted` (§9). A rule on
+`CardDef` counts too, by the realm's own types it holds cards of. A code grant
+covers only the kinds of caller it can admit: one whose `where` is
+`actor() == "anonymous"` serves visitors, not the signed-in callers a read
+grant names. Beyond that, the check never evaluates the code grant's `where`,
+so a reviewer listed on a plan but missing from the code grant's list reads the
+plan and can't render it, with no warning, and a code grant narrowed by path
+(below) silences the warning even for cards whose module lies outside it. Nor
+can it tell a module's extension, so a grant on `GtsFileDef` alone silences the
+warning while cards whose type is defined in, or descends from, a `.ts` module
+still fail to render. Grant the code on `TsFileDef`. A grant never implies
+another, so the read grant can't carry the code with it.
 
 A rule on `TsFileDef` serves every module in the realm, including ones no
 granted card uses. To serve fewer, narrow the predicate by path
@@ -685,14 +701,35 @@ What compiles:
 | A `linksToMany`                       | `.teachers \| any(.id == "<absolute URL>")`                              |
 | A computed field                      | Only with `snapshot: true`, under the same rules as a stored field      |
 | No condition                          | Always — every card of the type and its subtypes                        |
+| Nothing of the card                   | Settled once per search: every card or none (below)                     |
 
 Combine with `and`, `or` and `not` — except that a membership test or an id
 comparison can't sit under `not` or `!=`.
 
+**A predicate that reads nothing of the card is settled once per search.** One
+that reads only `actor()`, `realmConfig()`, `policy()` and fixed values, such as
+`realmConfig("reviewers") | any(. == actor())`, has the same value for every
+card. A search runs it once for its caller, before anything is composed: where
+it holds, the grant admits every card of its type and subtypes, as a grant with
+no condition does; where it doesn't hold, or throws, the grant adds nothing. No
+row is judged. A change to `realm.json` reaches the next search once the realm
+has indexed it. Any read of the card at all takes the predicate down the
+filter path instead. So does any variable binding (`realmConfig("x") as $list |
+…`), whatever it binds, and any builtin called at the top of the predicate,
+where its input is the card (`IN(…)`, `IF(…)`): start from the setting and pipe
+it on, as `realmConfig("reviewers") | any(. == actor())` does. So a predicate
+that mixes the two,
+`(realmConfig("reviewers") | any(. == actor())) and .status == "open"`, records
+`policy-not-filterable`. To scope by both, either list the reviewers on each
+card (`(.reviewerIds | any(. == actor())) and .status == "open"` compiles), or
+grant the listed reviewers a named query whose own filter does the narrowing:
+`listOpenPlans`, declared with `eq: { status: 'open' }`, granted with
+`realmConfig("reviewers") | any(. == actor())`.
+
 What doesn't compile, and records `policy-not-filterable`:
 
-- `realmConfig()`, and string functions — `startswith`, `ascii_downcase`, even
-  where the gate would accept them.
+- `realmConfig()` or `policy()` beside a read of the card, and string functions
+  — `startswith`, `ascii_downcase`, even where the gate would accept them.
 - A link's id compared with `actor()`, a relative URL, or a prefix-form id. A
   link is a card, never a person; compare `actor()` with a text field that holds
   user ids.
@@ -827,10 +864,11 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `acting-user-from-submitted-card`     | warning  | grant    | A `create` grant whose `where` names `"anonymous"` has an `actingUser` that reads `instance()`, which on a create is the card the visitor sends, so the visitor picks who the card is created as (§12). Recorded at `.actingUser` |
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
+| `module-not-granted`                  | warning  | grant    | A `read` or `query` grant on a type the realm defines, in a policy with no `readSource` grant on `TsFileDef` or `GtsFileDef` for the same kind of caller, so its callers can't load the code that renders the cards (§5). Also such a grant open to visitors when no code grant is open to visitors (§12), and one for signed-in callers where the only code grant is open to visitors alone |
 
 A card-level issue makes the whole policy uncompilable, and every signed-in
 caller the realm's permissions decline gets 500 (§13). A caller who isn't
-signed in gets 401 `actor-required` instead (§12). The seven warnings keep their grant
+signed in gets 401 `actor-required` instead (§12). The nine warnings keep their grant
 live; every other code takes its part out.
 
 ### The reach warnings
@@ -1135,7 +1173,7 @@ listed at all. Its `outcome`:
 | `held`          | The predicate evaluated to `true`                                              |
 | `did-not-hold`  | It evaluated to anything else                                                  |
 | `threw`         | It threw (§6)                                                                  |
-| `not-evaluated` | The gate decided without it: an earlier grant admitted, or a refusal came first. On a search, every grant with a `where` |
+| `not-evaluated` | The gate decided without it: an earlier grant admitted, or a refusal came first. On a search, every grant whose `where` reads the card |
 
 | `reason`                       | Means                                                                       |
 | ------------------------------ | --------------------------------------------------------------------------- |
@@ -1181,7 +1219,7 @@ the search itself would be refused:
 | ---------------------------- | ------------------------------------------------------------------------- |
 | `allowed` / `acl`            | Runs unscoped: the actor can read the realm                               |
 | `allowed` / `granted`        | Runs narrowed by the grants that admit it                                 |
-| `denied` / `no-grant`        | Returns nothing: no grant on its operation compiled a filter               |
+| `denied` / `no-grant`        | Returns nothing: no grant on its operation compiled a filter, or each one settled for the actor didn't hold |
 | `denied` / `non-grantable`   | Returns nothing: a grant compiled, and a declaration keeps the query out of every policy |
 | `denied` / `not-resolved`    | Is refused as sent: no such named query, or a filter the search grammar rejects. `refusal` is the search's own |
 | `denied` / `actor-required`  | Is refused 401: `actor` is `""`, the realm's permissions want someone, and the policy opens the search's operation to no visitor |
@@ -1192,8 +1230,11 @@ The answer's `search` holds `operation`; `types`, the types whose rules count
 anchors to none, so nothing can grant it); `filter`, the search's own filter as
 the realm runs it; `fragment`, what the policy adds, so the search runs
 `{ "every": [filter, fragment] }`; and `index`. Each listed grant carries
-`filterable: true` or `false` in place of an evaluated outcome. A grant with
-`filterable: false` is one that records `policy-not-filterable` (§7).
+`filterable: true` or `false`. A grant with `filterable: false` is one that
+records `policy-not-filterable` (§7). A grant whose `where` reads nothing of the
+card was settled for the actor, and carries that `outcome` (`held`,
+`did-not-hold` or `threw`); every other grant with a `where` is
+`not-evaluated`.
 
 **A search is as fresh as the index.** `index.pending` counts the index passes
 yet to land, and `index.oldestPendingMs` how long the oldest has waited. Until
@@ -1730,7 +1771,10 @@ grant opens no card (§3). `status` must be a `StringField` for the `query`
 grant to compile (§7). Check what a published article's `read` carries in
 `included` (`grant-reaches-ungranted-type`, §9): a visitor receives all of it.
 Signed-in callers the realm's permissions decline get neither grant; add a
-`read` and a `query` without `actor() == "anonymous"` for them.
+`read` and a `query` without `actor() == "anonymous"` for them. Visitors also
+need the code that renders an article: add a rule on `TsFileDef` granting
+`readSource` with a `where` that names them (§5), or `validate` records
+`module-not-granted` (§9).
 
 **A public feedback form.** Visitors may submit `Feedback` cards, written as a
 dedicated user, at a tighter rate than the platform's, from any address the
@@ -1990,7 +2034,8 @@ Each grant states one lane's condition, and the lanes differ:
 - **They are judged differently.** A `read` predicate is evaluated against the
   card as stored. A `query` predicate is compiled to a filter over the index,
   so it must stay inside what compiles (§7). The gate accepts some predicates,
-  `realmConfig()` and string functions among them, that no filter can express.
+  `realmConfig()` beside a read of the card and string functions among them,
+  that no filter can express.
 - **They can mean different things.** Being allowed to open a card you were
   sent a link to is different from being allowed to enumerate every card like
   it.
@@ -2061,8 +2106,16 @@ compare the answers.
 - Every membership test is `any(. == actor())`, parenthesized inside `or`/`and`.
 - Every grant that needs a computed or linked value says `snapshot: true`, and
   no `create` grant does.
-- Every `query` grant compiled a filter (no `policy-not-filterable`), and every
-  card a teacher should open also has a `read` grant.
+- Every `query` grant compiled a filter or reads nothing of the card (no
+  `policy-not-filterable`), and every card a teacher should open also has a
+  `read` grant.
+- Every `read` or `query` grant has a `readSource` grant on `TsFileDef` for the
+  same kind of caller (no `module-not-granted`, §5).
+- Every caller a `read` or `query` grant admits is also admitted by the code
+  grant's `where`: where the two read different lists, the code grant's is a
+  superset of every card's, and a code grant narrowed by path still covers
+  every granted card's module. `validate` compares only kinds of caller, signed
+  in or visitor, and never evaluates the code grant's `where`.
 - Every `readSource` grant on a card type is meant to reveal the whole stored
   document, and every file rule names the narrowest `FileDef` that fits.
 - No grant can write the field its own predicate reads. Every write grant that
