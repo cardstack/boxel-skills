@@ -519,11 +519,12 @@ covers only the kinds of caller it can admit: one whose `where` is
 `actor() == "anonymous"` serves visitors, not the signed-in callers a read
 grant names. Beyond that, the check never evaluates the code grant's `where`,
 so a reviewer listed on a plan but missing from the code grant's list reads the
-plan and can't render it, with no warning. Nor can it tell a module's
-extension, so a grant on `GtsFileDef` alone silences the warning while cards
-whose type is defined in, or descends from, a `.ts` module still fail to
-render. Grant the code on `TsFileDef`. A grant never implies another, so the read grant can't carry the
-code with it.
+plan and can't render it, with no warning, and a code grant narrowed by path
+(below) silences the warning even for cards whose module lies outside it. Nor
+can it tell a module's extension, so a grant on `GtsFileDef` alone silences the
+warning while cards whose type is defined in, or descends from, a `.ts` module
+still fail to render. Grant the code on `TsFileDef`. A grant never implies
+another, so the read grant can't carry the code with it.
 
 A rule on `TsFileDef` serves every module in the realm, including ones no
 granted card uses. To serve fewer, narrow the predicate by path
@@ -2112,8 +2113,9 @@ compare the answers.
   same kind of caller (no `module-not-granted`, §5).
 - Every caller a `read` or `query` grant admits is also admitted by the code
   grant's `where`: where the two read different lists, the code grant's is a
-  superset of every card's. `validate` compares only kinds of caller, signed in
-  or visitor, and never evaluates the code grant's `where`.
+  superset of every card's, and a code grant narrowed by path still covers
+  every granted card's module. `validate` compares only kinds of caller, signed
+  in or visitor, and never evaluates the code grant's `where`.
 - Every `readSource` grant on a card type is meant to reveal the whole stored
   document, and every file rule names the narrowest `FileDef` that fits.
 - No grant can write the field its own predicate reads. Every write grant that
