@@ -200,10 +200,46 @@ let { status, issues } = await operations(repo).openIssues({ label: 'bug' });
 | `headers`  | Header values. `X-Boxel-*` headers are never sent                          |
 | `json`     | A JSON body, sent as `application/json`                                    |
 | `graphql`  | `{ document, variables }`: a fixed document string, every value passed as a variable |
+| `form`     | A form body, `{ name: value }`, sent as `application/x-www-form-urlencoded`, for an API that takes only that (Twilio, Stripe). See below |
 | `method`   | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. Absent: `GET`, or `POST` when there is a body |
 | `perInstance` | Optional. `true` when each card needs its own approval (one webhook URL per channel card). Approved from the card (`cardId`), never the type; `keyReadiness` on the type answers `undefined` |
 | `keyKind`  | Optional. The kind of key the slots take: `'static'` (a key or token pasted as it is), `'google-service-account'` (a Google service account's key file, from which Boxel mints Google access tokens) or `'oauth'` (an account connected through a sign-in app), for every slot or by slot name (`{ token: 'oauth' }`; an unnamed slot is `userKey` or `apiKey`). Only a key of that kind is approved for the slot, and the secure window asks for that kind when the user adds one. Absent, any kind may be approved — see [`api-integrations`](../api-integrations/SKILL.md) |
 | `output`   | Optional. Maps the response, `{status, headers, body}`, to the object the caller gets back — an object, never a list or a bare value |
+
+A request carries one body: `json`, `graphql` or `form`. The body's content
+type is set for you unless `headers` sets one.
+
+**A form body** is a field per name. A field's value may be text, a number, a
+boolean, a typed reference, or objects and lists of those, named the way
+Stripe and Twilio read them:
+
+```ts
+@operation static startCheckout = {
+  base: 'callApi',
+  label: 'Start a checkout for the chosen prices',
+  params: { lines: JsonField },
+  url: 'https://api.stripe.com/v1/checkout/sessions',
+  headers: { authorization: 'Bearer {{apiKey}}' },
+  form: {
+    mode: 'payment',
+    success_url: realmConfig('checkoutDoneURL'),
+    line_items: params('lines'), // [{price, quantity}, …]
+    metadata: { buyer: actor() },
+    'expand[]': ['line_items'],
+  },
+} satisfies OperationDeclaration;
+```
+
+| Value                         | Sent as                                                   |
+| ----------------------------- | --------------------------------------------------------- |
+| text, a number or a boolean   | `name=value`                                              |
+| an object                     | `name[member]=…` for each member                          |
+| a list of text                | the name once per item: `MediaUrl=a&MediaUrl=b`; name the field `expand[]` for an API that wants `expand[]=a&expand[]=b` |
+| a list of objects             | numbered: `line_items[0][price]=…&line_items[0][quantity]=…` |
+| `null`                        | left out                                                  |
+
+So one operation sends a list of any length: pass it as a param. A field
+name is sent as written and never holds a slot.
 
 Values are the typed references (`params()`, `actor()`, `realmConfig()`,
 `instance()`). Invoked on an instance, `instance('field')` reads the card's
@@ -235,8 +271,8 @@ rate-limit headers and the like), never `set-cookie`.
 **A request that needs a key is sent only as its key's owner approved.** The
 declaration grammar has credential slots — `{{userKey}}` for the invoking
 user's key, `{{apiKey}}` for one the realm holds, `{{apiKey:name}}` for a named
-one, `|basic` for the HTTP Basic form — written inside a header, query, `path`
-or JSON body string. A slot is filled only from an **approval**: the key's
+one, `|basic` for the HTTP Basic form — written inside a header, query, `path`,
+JSON body or form value string. A slot is filled only from an **approval**: the key's
 owner approves the operation, in this realm, in Boxel's secure window (every
 operation on the card at once; see [`api-keys`](../api-keys/SKILL.md)), naming
 which of their keys fills it. Until then the operation is refused
@@ -1320,11 +1356,11 @@ findings has no runnable form, and invoking it is refused with
 | `html-without-rendering`  | `html` on a base other than `read` or `query`, which serves no prerendered HTML |
 | `invalid-html-declaration`| `html` that isn't an object naming prerendered formats, each `shareable` or `unshareable` |
 | `invalid-label`           | A `label` that isn't a single short line of plain text (§2)         |
-| `invalid-request`         | A `callApi` request that can't be sent as written: a relative URL, a `*` in the host, a `path` value no `{name}` takes, an object where text is sent, two bodies |
+| `invalid-request`         | A `callApi` request that can't be sent as written: a relative URL, a `*` in the host, a `path` value no `{name}` takes, an object where text is sent, a `form` that isn't an object of named fields, two bodies, a body on `GET` |
 | `invalid-slot`            | Something that looks like a slot and isn't — `{{apiKey\|rot13}}`     |
 | `slot-placed-twice`       | One slot in two places in a request                                  |
 | `slot-name-reused`        | One name for a `userKey` slot and an `apiKey` slot                   |
-| `slot-out-of-place`       | A slot in the URL as written, a header or query name, or a GraphQL document |
+| `slot-out-of-place`       | A slot in the URL as written, a header, query or form field name, or a GraphQL document |
 | `unencoded-path-parameter`| A value put into the URL other than as a whole `{name}` segment filled from `path` |
 | `string-built-graphql`    | A GraphQL document built from values rather than written as one fixed string |
 | `lowering-failed`         | Lowering itself threw on this operation — a fault in the realm, not the declaration |
