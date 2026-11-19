@@ -82,20 +82,23 @@ The reply tells the user the automation will run at "Wednesday, November 18, 202
 
 ## 2. A weekday digest that keeps one card per issue
 
-The user: "Every weekday at 8:30 my time (Chicago), pull the open issues from our GitHub repo into cards, and mark the ones that closed." The workspace holds a `GitHubRepository` card type with the paging `openIssues` operation from the skill's *Paging and retrying*, and an instance `GitHubRepository/boxel`. An `Issue` card type has `number`, `title`, `url`, `labels` and `status`.
+The user: "Every weekday at 8:30 my time (Chicago), pull the open issues from our GitHub repo into cards, and mark the ones that closed." The workspace holds a `GitHubRepository` card type with the paging `openIssues` operation from the skill's *Paging and retrying*, and an instance `GitHubRepository/boxel`. An `Issue` card type has `repository`, `number`, `title`, `url`, `labels` and `status`.
 
 `automations/scripts/sync-issues.js`:
 
 ```js
 /* global realm, console */
 // Mirrors a repository's open issues into one Issue card each, at a path made
-// from the issue number, and marks an Issue card closed once the issue leaves
-// the open list. Writes only cards whose fields changed.
+// from the repository and the issue number, and marks the repository's Issue
+// cards closed once their issues leave the open list. Writes only cards whose
+// fields changed, and marks nothing closed unless it read the whole list.
 
 realm.progress.plan(['Fetch open issues', 'Update issue cards', 'Mark closed issues']);
 
 const { repository = 'GitHubRepository/boxel' } = realm.current.automation.params;
 const MAX_PAGES = 10;
+// The card path's prefix: the repository card's name, such as "boxel".
+const repoName = repository.split('/').pop();
 
 async function fetchPage(page) {
   // A 5xx or a dropped connection gets two more tries at once; a 4xx stops the run.
@@ -112,22 +115,27 @@ async function fetchPage(page) {
 
 realm.progress.milestone('Fetch open issues');
 const open = [];
+let complete = false;
 for (let page = 1; page <= MAX_PAGES; page++) {
   const { status, headers, body } = await fetchPage(page);
   if (status !== 200) throw new Error(`GitHub answered ${status} for page ${page}`);
   // GitHub lists pull requests as issues too; they carry a pull_request key.
   open.push(...body.filter((item) => !item.pull_request));
   realm.progress.count(page, page);
-  if (!/rel="next"/.test(headers.link ?? '')) break;
+  if (!/rel="next"/.test(headers.link ?? '')) {
+    complete = true;
+    break;
+  }
 }
 
 realm.progress.milestone('Update issue cards');
 const openPaths = new Set();
 let written = 0;
 for (const issue of open) {
-  const path = `Issue/${issue.number}`;
+  const path = `Issue/${repoName}-${issue.number}`;
   openPaths.add(path);
   const fields = {
+    repository,
     number: issue.number,
     title: issue.title,
     url: issue.html_url,
@@ -161,9 +169,12 @@ console.info(`${open.length} open issues, ${written} cards written`);
 
 realm.progress.milestone('Mark closed issues');
 let closed = 0;
-for (let number = 0, more = true; more; number++) {
+if (!complete) {
+  console.warn(`more than ${MAX_PAGES} pages of open issues; no issue marked closed`);
+}
+for (let number = 0, more = complete; more; number++) {
   const { cards, truncated } = await realm.cards.search({
-    filter: { on: { module: realm.current.url + 'issue', name: 'Issue' }, eq: { status: 'open' } },
+    filter: { on: { module: realm.current.url + 'issue', name: 'Issue' }, eq: { status: 'open', repository } },
     page: { size: 100, number },
   });
   for (const card of cards) {
@@ -180,7 +191,7 @@ console.info(`${closed} issues marked closed`);
 
 The card's trigger is `cron`, `30 8 * * 1-5`, `America/Chicago`, labelled `weekday-mornings`; `operations` names `GitHubRepository`'s `openIssues`; `params` names the repository. Limits: `callApiCalls: 30` (ten pages, three tries each), `responseBytes: 20000000`, `resolveCalls: 0`, `aiCredits: 0`, `writes: 1100` (every issue card on the first run, plus closed ones), `seconds: 300`, and a monthly cap the user confirms. Before the first run the user approves `openIssues` in the secure window, **On a schedule only**.
 
-Two things keep the run cheap and repeatable: the card path comes from the issue number, so every run finds the same card, and the run writes a card only when a field changed, so a quiet day writes nothing.
+Two things keep the run cheap and repeatable: the card path comes from the repository and the issue number, so every run finds the same card and an automation for another repository writes cards of its own, and the run writes a card only when a field changed, so a quiet day writes nothing.
 
 ## 3. Nightly triage: rules first, AI for the rest
 
