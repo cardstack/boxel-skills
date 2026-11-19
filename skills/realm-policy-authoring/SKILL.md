@@ -517,7 +517,12 @@ on a type the realm defines, in a policy with no `readSource` grant on
 `CardDef` counts too, by the realm's own types it holds cards of. A code grant
 covers only the kinds of caller it can admit: one whose `where` is
 `actor() == "anonymous"` serves visitors, not the signed-in callers a read
-grant names. A grant never implies another, so the read grant can't carry the
+grant names. Beyond that, the check never evaluates the code grant's `where`,
+so a reviewer listed on a plan but missing from the code grant's list reads the
+plan and can't render it, with no warning. Nor can it tell a module's
+extension, so a grant on `GtsFileDef` alone silences the warning while cards
+whose type is defined in, or descends from, a `.ts` module still fail to
+render. Grant the code on `TsFileDef`. A grant never implies another, so the read grant can't carry the
 code with it.
 
 A rule on `TsFileDef` serves every module in the realm, including ones no
@@ -695,7 +700,7 @@ What compiles:
 | A `linksToMany`                       | `.teachers \| any(.id == "<absolute URL>")`                              |
 | A computed field                      | Only with `snapshot: true`, under the same rules as a stored field      |
 | No condition                          | Always — every card of the type and its subtypes                        |
-| Nothing of the card                   | Always — settled once per search (below)                                |
+| Nothing of the card                   | Settled once per search: every card or none (below)                     |
 
 Combine with `and`, `or` and `not` — except that a membership test or an id
 comparison can't sit under `not` or `!=`.
@@ -858,11 +863,11 @@ rules apply. Each issue has a `code`, a `path` at the author's position
 | `acting-user-from-submitted-card`     | warning  | grant    | A `create` grant whose `where` names `"anonymous"` has an `actingUser` that reads `instance()`, which on a create is the card the visitor sends, so the visitor picks who the card is created as (§12). Recorded at `.actingUser` |
 | `grant-reaches-ungranted-type`        | warning  | grant    | A `read` or `query` answer carries cards of a type no rule grants a read of (§3) |
 | `render-reaches-ungranted-type`       | warning  | grant    | A `query` grant's rendered rows draw on such a type                    |
-| `module-not-granted`                  | warning  | grant    | A `read` or `query` grant on a type the realm defines, in a policy with no `readSource` grant on `TsFileDef` or `GtsFileDef` for the same kind of caller, so its callers can't load the code that renders the cards (§5). Also such a grant open to visitors where no code grant is (§12), and one for signed-in callers where the only code grant is open to visitors alone |
+| `module-not-granted`                  | warning  | grant    | A `read` or `query` grant on a type the realm defines, in a policy with no `readSource` grant on `TsFileDef` or `GtsFileDef` for the same kind of caller, so its callers can't load the code that renders the cards (§5). Also such a grant open to visitors when no code grant is open to visitors (§12), and one for signed-in callers where the only code grant is open to visitors alone |
 
 A card-level issue makes the whole policy uncompilable, and every signed-in
 caller the realm's permissions decline gets 500 (§13). A caller who isn't
-signed in gets 401 `actor-required` instead (§12). The eight warnings keep their grant
+signed in gets 401 `actor-required` instead (§12). The nine warnings keep their grant
 live; every other code takes its part out.
 
 ### The reach warnings
@@ -2028,7 +2033,8 @@ Each grant states one lane's condition, and the lanes differ:
 - **They are judged differently.** A `read` predicate is evaluated against the
   card as stored. A `query` predicate is compiled to a filter over the index,
   so it must stay inside what compiles (§7). The gate accepts some predicates,
-  `realmConfig()` and string functions among them, that no filter can express.
+  `realmConfig()` beside a read of the card and string functions among them,
+  that no filter can express.
 - **They can mean different things.** Being allowed to open a card you were
   sent a link to is different from being allowed to enumerate every card like
   it.
@@ -2099,11 +2105,15 @@ compare the answers.
 - Every membership test is `any(. == actor())`, parenthesized inside `or`/`and`.
 - Every grant that needs a computed or linked value says `snapshot: true`, and
   no `create` grant does.
-- Every `query` grant compiled a filter (no `policy-not-filterable`), and every
-  card a teacher should open also has a `read` grant.
-- The callers of every `read` or `query` grant can load the code that renders
-  its cards: a `readSource` grant on `TsFileDef` admits them (no
-  `module-not-granted`, §5).
+- Every `query` grant compiled a filter or reads nothing of the card (no
+  `policy-not-filterable`), and every card a teacher should open also has a
+  `read` grant.
+- Every `read` or `query` grant has a `readSource` grant on `TsFileDef` for the
+  same kind of caller (no `module-not-granted`, §5).
+- Every caller a `read` or `query` grant admits is also admitted by the code
+  grant's `where`: where the two read different lists, the code grant's is a
+  superset of every card's. `validate` compares only kinds of caller, signed in
+  or visitor, and never evaluates the code grant's `where`.
 - Every `readSource` grant on a card type is meant to reveal the whole stored
   document, and every file rule names the narrowest `FileDef` that fits.
 - No grant can write the field its own predicate reads. Every write grant that
