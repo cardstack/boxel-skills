@@ -252,6 +252,8 @@ A param can hold a list of any length, so one operation covers every length
 rather than one operation per length. A form has no way to send an empty list,
 so a card should not call with one where the API requires the field. No name
 in a form, a field's or a member's, holds a slot: names are sent as written.
+Fields, and an object's members, are sent in the order of their names, not the
+order they are written in; a list keeps its order.
 
 Values are the typed references (`params()`, `actor()`, `realmConfig()`,
 `instance()`). Invoked on an instance, `instance('field')` reads the card's
