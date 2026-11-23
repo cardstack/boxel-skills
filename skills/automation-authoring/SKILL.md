@@ -369,7 +369,7 @@ realm.progress.task(`Skipped ${archived.length} archived issues`);
 - **Word a task as a short line in plain words, past tense and active voice, naming the thing the task acted on and the number when there is one**: "Fetched 42 open issues", "Wrote reports/open-issues.md", "Sorted 12 tickets by rule", "Skipped 3 archived issues". Never "Processing…", "Done", "Step 2", a bare count such as "40 of 120", a variable dump or a code identifier the person never sees.
 - **Keep a task short: a task past 200 characters, or an empty one, throws.** A run saves all of its writes or none, so one long task throws the whole run's work away. A task that takes in a value of unknown length (a title, a path, a param, a list of labels) cuts the value short or reports a number instead: `Skipped ${skipped.length} issues`, not `Skipped ${skipped.join(", ")}`.
 - **Report a few per milestone**: one to five is usual. A run records at most 200 tasks, and the card shows a milestone's latest five with a button for the rest, so ten tasks in one milestone are already hard to read.
-- **A milestone needs no task when its name says it all**: a single step with one outcome, such as "Load settings" that reads one fixed file. A milestone whose outcome varies (how many items, which branch the script took, what it skipped) gets a task that says which.
+- **A milestone needs no task when its name says it all**: a single step with one outcome, such as "Load settings" that reads one fixed file. A milestone whose outcome varies (how many items, which branch the script took, what it skipped) gets a task that says which, zero included: "Skipped 0 archived issues" tells the person the script checked and found none, where no line leaves them guessing. Never wrap such a task in `if (count > 0)`.
 - **Mark the milestone first.** A task before the script's first milestone throws.
 
 Progress, task and console calls return nothing, so the script needn't `await` them. A run reports at most 5,000 of them. `realm.progress.count` records nothing: a script that calls the method runs on, and the run's log says once to report tasks instead.
@@ -395,7 +395,7 @@ for (let page = 1; page <= 10; page++) {
   // … GitHub lists pull requests as issues too; the loop counts them in pullRequests and keeps the rest in issues.
 }
 realm.progress.task(`Fetched ${issues.length} open issues`);
-if (pullRequests > 0) realm.progress.task(`Skipped ${pullRequests} pull requests GitHub listed as issues`);
+realm.progress.task(`Skipped ${pullRequests} pull requests GitHub listed as issues`);
 realm.progress.milestone("Write digest");
 await realm.fs.writeText("reports/open-issues.md", digest);
 realm.progress.task("Wrote reports/open-issues.md");
