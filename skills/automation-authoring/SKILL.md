@@ -1,6 +1,6 @@
 ---
 name: automation-authoring
-description: 'Use when the user wants work done later, once or again and again: "every Monday", "each morning", "an hour from now", "tonight at 9", "keep this in sync", "check this every day", "when the deadline passes", "schedule", "automate". Takes the assistant from the request to an Automation card and its Realm Runner script: the card''s triggers (cron, a one-time run, a webhook), the limits each run keeps to, params, the outside calls a run may make, the automation surface and `realm.current.automation`, calling a keyed API through a `callApi` operation the person approves for automations, keeping a run''s state in the workspace, rules before AI with `realm.resolve` only for the cases rules can''t settle, paging and retrying, logging with `console` and run milestones with `realm.progress`, and the Preview-first and confirm-in-chat rules before anything runs or spends.'
+description: 'Use when the user wants work done later, once or again and again: "every Monday", "each morning", "an hour from now", "tonight at 9", "keep this in sync", "check this every day", "when the deadline passes", "schedule", "automate". Takes the assistant from the request to an Automation card and its Realm Runner script: the card''s triggers (cron, a one-time run, a webhook), the limits each run keeps to, params, the outside calls a run may make, the automation surface and `realm.current.automation`, calling a keyed API through a `callApi` operation the person approves for automations, keeping a run''s state in the workspace, rules before AI with `realm.resolve` only for the cases rules can''t settle, paging and retrying, logging with `console`, run milestones and the notable tasks inside each with `realm.progress`, and the Preview-first and confirm-in-chat rules before anything runs or spends.'
 boxel:
   kind: skill
   tools:
@@ -172,7 +172,7 @@ The script runs on the **automation surface**: the Realm Runner methods a `run-r
 | `realm.cards.update`                                                                             | yes                                                                              |
 | `realm.operations.invoke`, `realm.operations.invokeBatchOperation`                               | yes; a `callApi` only for an operation the card's `operations` names             |
 | `realm.resolve`                                                                                  | yes, within `resolveCalls` and `aiCredits`                                       |
-| `realm.progress.plan`, `realm.progress.milestone`, `realm.progress.count`                        | only in a run                                                                    |
+| `realm.progress.plan`, `realm.progress.milestone`, `realm.progress.task`                         | only in a run                                                                    |
 | `console.log`, `console.info`, `console.warn`, `console.error`                                   | only in a run                                                                    |
 | `realm.fs.delete`, `realm.fs.download`                                                           | no                                                                               |
 | `realm.web.search`, `realm.web.read`, `realm.images.generate`, `realm.capture`                   | no                                                                               |
@@ -332,30 +332,72 @@ for (let page = 1; page <= 10; page++) {
   if (status !== 200)
     throw new Error(`GitHub answered ${status} for page ${page}`);
   issues.push(...body);
-  realm.progress.count(page, page); // one count a page
   if (!/rel="next"/.test(headers.link ?? "")) break;
 }
+realm.progress.task(`Fetched ${issues.length} open issues`); // one task for the loop, not one a page
 ```
 
 Cap the loop (`page <= 10`) so a service that never stops paging can't spend the run's `callApiCalls`, and size `callApiCalls` for that cap.
 
 **Retry a failed call a few times, then leave the work for the next run.** A script has no `setTimeout` and can't wait between attempts, so retry at once for a `5xx` or a network error, at most twice, and stop on a `4xx` (`429` included: the service asked for a pause the script can't take). When the retries fail, throw: the run ends without saving, and the next run starts from the same workspace. When part of the work can stand alone, save what succeeded, record what didn't in a status field, and let the next run pick up the rest.
 
-## Logging and milestones
+## Logging, milestones and tasks
 
 `console.log`, `console.info`, `console.warn` and `console.error` write to the run's log, which a direct writer reads for each run. Log what a person needs to understand a run afterwards: counts, the items skipped and why, the service's status when it wasn't `200`. Boxel replaces keys and tokens with `[REDACTED]` in the log, but log no response bodies: one line can hold up to 10,000 characters, and a run's log keeps at most 10,000 lines.
 
-Milestones show where a run got to. Declare every milestone up front with one `realm.progress.plan([...])` call of string literals, mark each as the run reaches it, and count progress inside one:
+Milestones show where a run got to. Declare every milestone up front with one `realm.progress.plan([...])` call of string literals, and mark each as the run reaches it:
 
 ```js
 realm.progress.plan(["Fetch issues", "Sort issues", "Write digest"]);
 realm.progress.milestone("Fetch issues");
 // …
-realm.progress.count(done, total);
 realm.progress.milestone("Sort issues");
 ```
 
-The Automation card lists the plan's milestones before any run, and after a run shows how long each took and where a failed run stopped. Write the plan as one literal array at the top of the script, since the card reads the milestones from the script's text. Names are at most 80 characters, and a plan holds at most 50. Progress and console calls return nothing, so the script needn't `await` them. A run reports at most 5,000 of them, so count once a page or once a batch, never once an item.
+The Automation card lists the plan's milestones before any run, and after a run shows how long each took and where a failed run stopped. Write the plan as one literal array at the top of the script, since the card reads the milestones from the script's text. Names are at most 80 characters, and a plan holds at most 50.
+
+**Tasks say what the run did inside a milestone.** `realm.progress.task(text)` reports one notable task inside the current milestone. The Automation card lists each milestone's tasks under the milestone, live while the run runs, so a person sees what the run did, not just how far it got:
+
+```js
+realm.progress.milestone("Group by label");
+// …
+realm.progress.task(`Grouped ${issues.length} issues under ${labels.size} labels`);
+realm.progress.task(`Skipped ${archived.length} archived issues`);
+```
+
+- **Report what a person would check.** One task per meaningful unit of work: a fetch from a service, a file written, a group of cards updated, a batch sent to the AI, items skipped and why. Never one per loop iteration over items: report once after the loop with the number. Ask "would the person reading this run want to see this line?"
+- **Word a task as a short line in plain words, past tense and active voice, naming the thing the task acted on and the number when there is one**: "Fetched 42 open issues", "Wrote reports/open-issues.md", "Sorted 12 tickets by rule", "Skipped 3 archived issues". Never "Processing…", "Done", "Step 2", "40 of 120", a variable dump or a code identifier the person never sees. A task is at most 200 characters.
+- **Report a few per milestone**: one to five is usual. A run records at most 200 tasks, and the card shows a milestone's latest five with a button for the rest, so ten tasks in one milestone are already hard to read.
+- **A milestone needs no task when its name says it all**: a single step with one outcome, such as "End the sale" that always ends the sale. A milestone whose outcome varies (how many items, which branch the script took, what it skipped) gets a task that says which.
+- **Mark the milestone first.** A task before the script's first milestone throws.
+
+Progress, task and console calls return nothing, so the script needn't `await` them. A run reports at most 5,000 of them. `realm.progress.count` records nothing: a script that calls the method runs on, and the run's log says once to report tasks instead.
+
+A script before and after it reports tasks:
+
+```js
+// Before: the card shows the milestones and a count, and says nothing of what the run did.
+realm.progress.milestone("Fetch issues");
+for (let page = 1; page <= 10; page++) {
+  // …
+  realm.progress.count(page, page);
+}
+realm.progress.milestone("Write digest");
+await realm.fs.writeText("reports/open-issues.md", digest);
+```
+
+```js
+// After: one task for the fetch with its numbers, and one for the file the run wrote.
+realm.progress.milestone("Fetch issues");
+for (let page = 1; page <= 10; page++) {
+  // …
+}
+realm.progress.task(`Fetched ${issues.length} open issues`);
+if (pulls > 0) realm.progress.task(`Skipped ${pulls} pull requests GitHub listed as issues`);
+realm.progress.milestone("Write digest");
+await realm.fs.writeText("reports/open-issues.md", digest);
+realm.progress.task("Wrote reports/open-issues.md");
+```
 
 ## Before anything runs
 
@@ -372,13 +414,14 @@ When no tool in the room starts a Preview or switches an automation on, stop aft
 
 [`references/examples.md`](references/examples.md) has three complete automations: a one-time run that ends a sale an hour from now, a weekday digest from GitHub that keeps one card per issue, and a nightly triage that settles what rules can and sends the rest to `realm.resolve`.
 
-The catalog's own example shows a card and script side by side: `automation/Automation/weekly-card-count` with `automation/scripts/weekly-card-count.js` (paging through the workspace, with milestones). Find it with `realm.entries.search` over the catalog (`realms: ['@cardstack/catalog/']`, filter on the `Automation` type), or capture a card with `realm.capture`.
+The catalog's own example shows a card and script side by side: `automation/Automation/weekly-card-count` with `automation/scripts/weekly-card-count.js` (paging through the workspace, with milestones and tasks). Find it with `realm.entries.search` over the catalog (`realms: ['@cardstack/catalog/']`, filter on the `Automation` type), or capture a card with `realm.capture`.
 
 ## Checklist
 
 - The card adopts from `@cardstack/catalog/automation/automation`, links a `.js` script in the same workspace, and sets every run limit and `monthlyCredits`.
 - Each trigger has a unique label and every field of its kind; times are wall-clock times in an IANA zone, ahead of now.
 - The script calls only methods on the automation surface, starts with one literal `realm.progress.plan([...])`, and writes no module, `realm.json` or Automation card.
+- Each milestone whose outcome varies reports one to five tasks with `realm.progress.task`, in plain words that name what the task acted on, never one per loop iteration.
 - Each card's path comes from the item's key; the script compares before writing and writes a status instead of deleting.
 - Every outside call goes through an operation the card's `operations` names, checks `status`, and pages within a cap.
 - Rules settle what rules can; `realm.resolve` gets one batched request with a closed schema.
