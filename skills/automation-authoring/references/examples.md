@@ -242,7 +242,7 @@ for (const t of tickets) {
     unclear.push({ path: t.path, subject: t.attributes.subject, body: (t.attributes.body ?? '').slice(0, 300) });
   }
 }
-realm.progress.task(`Sorted ${category.size} of ${tickets.length} tickets by rule`);
+realm.progress.task(`Sorted ${category.size} tickets by rule, leaving ${unclear.length} for the AI`);
 
 realm.progress.milestone('Ask the AI');
 if (unclear.length) {
@@ -275,6 +275,8 @@ if (unclear.length) {
     if (unclear.some((u) => u.path === path)) category.set(path, c);
   }
   realm.progress.task(`Sent ${unclear.length} tickets to the AI in one request`);
+} else {
+  realm.progress.task('Sent nothing to the AI: the rules sorted every ticket');
 }
 
 realm.progress.milestone('Save categories');

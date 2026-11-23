@@ -343,7 +343,7 @@ Cap the loop (`page <= 10`) so a service that never stops paging can't spend the
 
 ## Logging, milestones and tasks
 
-`console.log`, `console.info`, `console.warn` and `console.error` write to the run's log, which a direct writer reads for each run. Log what a person needs to understand a run afterwards: counts, the items skipped and why, the service's status when it wasn't `200`. Boxel replaces keys and tokens with `[REDACTED]` in the log, but log no response bodies: one line can hold up to 10,000 characters, and a run's log keeps at most 10,000 lines.
+`console.log`, `console.info`, `console.warn` and `console.error` write to the run's log, which a direct writer reads for each run. Tasks (below) say on the card what the run did; the log holds the detail behind them for whoever debugs a run: which items were skipped and why, the service's status when it wasn't `200`, a retry. Boxel replaces keys and tokens with `[REDACTED]` in the log, but log no response bodies: one line can hold up to 10,000 characters, and a run's log keeps at most 10,000 lines.
 
 Milestones show where a run got to. Declare every milestone up front with one `realm.progress.plan([...])` call of string literals, and mark each as the run reaches it:
 
@@ -366,9 +366,10 @@ realm.progress.task(`Skipped ${archived.length} archived issues`);
 ```
 
 - **Report what a person would check.** One task per meaningful unit of work: a fetch from a service, a file written, a group of cards updated, a batch sent to the AI, items skipped and why. Never one per loop iteration over items: report once after the loop with the number. Ask "would the person reading this run want to see this line?"
-- **Word a task as a short line in plain words, past tense and active voice, naming the thing the task acted on and the number when there is one**: "Fetched 42 open issues", "Wrote reports/open-issues.md", "Sorted 12 tickets by rule", "Skipped 3 archived issues". Never "Processing…", "Done", "Step 2", "40 of 120", a variable dump or a code identifier the person never sees. A task is at most 200 characters.
+- **Word a task as a short line in plain words, past tense and active voice, naming the thing the task acted on and the number when there is one**: "Fetched 42 open issues", "Wrote reports/open-issues.md", "Sorted 12 tickets by rule", "Skipped 3 archived issues". Never "Processing…", "Done", "Step 2", a bare count such as "40 of 120", a variable dump or a code identifier the person never sees.
+- **Keep a task short: a task past 200 characters, or an empty one, throws.** A run saves all of its writes or none, so one long task throws the whole run's work away. A task that takes in a value of unknown length (a title, a path, a param, a list of labels) cuts the value short or reports a number instead: `Skipped ${skipped.length} issues`, not `Skipped ${skipped.join(", ")}`.
 - **Report a few per milestone**: one to five is usual. A run records at most 200 tasks, and the card shows a milestone's latest five with a button for the rest, so ten tasks in one milestone are already hard to read.
-- **A milestone needs no task when its name says it all**: a single step with one outcome, such as "End the sale" that always ends the sale. A milestone whose outcome varies (how many items, which branch the script took, what it skipped) gets a task that says which.
+- **A milestone needs no task when its name says it all**: a single step with one outcome, such as "Load settings" that reads one fixed file. A milestone whose outcome varies (how many items, which branch the script took, what it skipped) gets a task that says which.
 - **Mark the milestone first.** A task before the script's first milestone throws.
 
 Progress, task and console calls return nothing, so the script needn't `await` them. A run reports at most 5,000 of them. `realm.progress.count` records nothing: a script that calls the method runs on, and the run's log says once to report tasks instead.
@@ -387,13 +388,14 @@ await realm.fs.writeText("reports/open-issues.md", digest);
 ```
 
 ```js
-// After: one task for the fetch with its numbers, and one for the file the run wrote.
+// After: one task for the fetch with its numbers, one for what the fetch skipped, and one for the file the run wrote.
 realm.progress.milestone("Fetch issues");
+let pullRequests = 0;
 for (let page = 1; page <= 10; page++) {
-  // …
+  // … GitHub lists pull requests as issues too; the loop counts them in pullRequests and keeps the rest in issues.
 }
 realm.progress.task(`Fetched ${issues.length} open issues`);
-if (pulls > 0) realm.progress.task(`Skipped ${pulls} pull requests GitHub listed as issues`);
+if (pullRequests > 0) realm.progress.task(`Skipped ${pullRequests} pull requests GitHub listed as issues`);
 realm.progress.milestone("Write digest");
 await realm.fs.writeText("reports/open-issues.md", digest);
 realm.progress.task("Wrote reports/open-issues.md");
