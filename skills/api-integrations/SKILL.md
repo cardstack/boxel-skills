@@ -1,6 +1,6 @@
 ---
 name: api-integrations
-description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or a scheduled pipeline (and why private data takes the pipeline), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox as a pipeline and as a live card), for a plain API key sent in a header, and for images from an AI vendor called with the user''s own key (an automation run''s own AI requests carry text only). Activates on "third-party API", "vendor API", "integration", "pipeline", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`, "image generation", "AI vendor key", "automation image".'
+description: 'Use when a card needs data from, or sends data to, a third-party API — "show my GitHub pull requests in a card", "pull my open issues", "a card that calls the weather API with my key", "integrate with Stripe/Twilio/OpenAI", "how often can this card poll", "build a PR inbox". Takes a card author from "I want data from this vendor" to a working card: classifying the integration (no key, a key the workspace shares, the user''s own key, a key that can write), choosing a live card or an automation (and why private data takes the automation), declaring the `callApi` operations with labels and credential slots, estimating polling cost, and recipes for GitHub (GraphQL, a GitHub App or a read-only fine-grained token, the PR inbox filled by an automation and as a live card), for a plain API key sent in a header, and for images from an AI vendor called with the user''s own key (an automation run''s own AI requests carry text only). Activates on "third-party API", "vendor API", "integration", "automation", "on a schedule", "live card", "On a schedule and when the card is opened", "poll", "GitHub API", "GraphQL", `callApi`, `{{userKey}}`, `{{apiKey}}`, "image generation", "AI vendor key", "automation image".'
 boxel:
   kind: skill
 ---
@@ -29,19 +29,20 @@ Prefer a key the vendor lets the user scope down (read-only, one
 repository, one project). The window shows every request exactly as it will
 be sent, but the vendor decides what a key can do.
 
-## 2. Live card or pipeline
+## 2. Live card or automation
 
 A request carrying a slot is sent in one of two shapes. The key's owner
 picks which when they approve it in the secure window, under **When calls run**:
 
-- **Pipeline.** A pipeline the realm server runs calls the vendor on a
-  schedule, as whoever approved it, and writes what cards need into the
-  realm: one card per pull request, say. Readers open those cards and never
-  call the vendor, so the card shows the same data in the app, in a search
-  result and in prerendered HTML, and its own code never reaches the key.
-  **On a schedule only** is the default.
+- **Automation.** An Automation card's script runs on the realm server on a
+  schedule, as the person who switched the automation on, calls the vendor
+  through the operation, and writes what cards need into the realm: one card
+  per pull request, say. Readers open those cards and never call the vendor,
+  so the card shows the same data in the app, in a search result and in
+  prerendered HTML, and its own code never reaches the key. **On a schedule
+  only** approves the operation for automations only, and is the default.
 - **Live card.** The card invokes the operation itself while it is open and
-  renders the answer. That takes an approval with **On a schedule and when the card is opened**. An operation approved for pipelines only refuses a call from a
+  renders the answer. That takes an approval with **On a schedule and when the card is opened**. An operation approved for automations only refuses a call from a
   card, the AI assistant or the CLI with `interactive-use-not-approved`, and
   nothing is sent.
 
@@ -49,7 +50,7 @@ An operation with no slot needs no approval, so it is always a live card.
 Invoke any `callApi` from an action (a click, opening a panel), never during a
 render: that is refused `not-during-render`.
 
-**Prefer the pipeline for private data.** Card code runs in the app page with
+**Prefer the automation for private data.** Card code runs in the app page with
 the viewer's session, so a call carries that session whichever card makes it.
 Once an operation is approved for interactive use, any card the user opens,
 from any realm, can invoke it and read the response:
@@ -61,8 +62,8 @@ from any realm, can invoke it and read the response:
 
 Card code is not sandboxed per realm origin, which is what would close this.
 So approve interactive use only for responses that aren't private, with a key
-scoped read-only at the vendor. Private data comes through a pipeline: readers
-get only what it wrote into the realm, behind the realm's own read
+scoped read-only at the vendor. Private data comes through an automation:
+readers get only what its runs wrote into the realm, behind the realm's own read
 permissions. The secure window says this in the one confirmation it asks for
 when the user picks **On a schedule and when the card is opened**.
 
@@ -152,7 +153,7 @@ What a visitor gets meanwhile depends on what is missing:
 | What is missing                                                   | The call is refused            | `keyReadiness`                             |
 | ----------------------------------------------------------------- | ------------------------------ | ------------------------------------------ |
 | The policy doesn't open the operation to visitors                 | `operation-not-permitted`      | no answer; `canInvoke` is `false`          |
-| The share isn't approved yet, or only for scheduled pipelines     | `binding-not-approved` / `interactive-use-not-approved` | `needs-admin`, as for any reader |
+| The share isn't approved yet, or only for automations             | `binding-not-approved` / `interactive-use-not-approved` | `needs-admin`, as for any reader |
 | The share's key doesn't allow people who aren't signed in         | `anonymous-use-not-approved` (401) | `needs-sign-in`                        |
 | The operation sends the caller's own key (`{{userKey}}`)          | `actor-required`               | `needs-sign-in`                            |
 | Room under the visitor's address rate, their part of the share's daily or monthly budget, or the key's daily or monthly anonymous cap | `rate-limited` / `over-budget` | `rate-limited` / `over-budget`             |
@@ -160,14 +161,18 @@ What a visitor gets meanwhile depends on what is missing:
 Show `needs-sign-in` as a sign-in prompt, not an error (§4), and
 `rate-limited` / `over-budget` as anyone over a limit is shown them (§5).
 
-**Nothing a card author writes schedules a pipeline.** No card, field,
-`realm.json` setting or operation declares one, and no operation turns a
-`callApi`'s answer into cards on its own. So a pipeline-shaped integration is
-its declarations and its card: the user can approve the requests in the
-secure window, and the card renders fields that only a pipeline the platform
-runs would fill. Say so to the user rather than promising data. Shape the card
-this way even though nothing in the realm runs the pipeline, and don't make a
-card over private data live to get the data sooner.
+**An Automation card schedules the calls.** No operation turns a `callApi`'s
+answer into cards on its own, and the card that shows the data declares no
+schedule. So an automation-fed integration is three pieces: the card type that
+declares the operations and renders the fields, an Automation card whose
+triggers say when to run, and the script each run executes, which invokes the
+operations and writes the fields. Writing them is in
+[`automation-authoring`](../automation-authoring/SKILL.md). Writing the
+Automation card schedules nothing: it runs once a direct writer of the
+workspace switches it on, as that person, and every operation its runs call is
+approved by the key's owner in the secure window. Until both happen, the card
+shows no data, so say so to the user rather than promising data, and don't
+make a card over private data live to get the data sooner.
 
 ## 3. Declare the `callApi` operations
 
@@ -249,7 +254,7 @@ short:
   **Allow** (`needs-approval`) open the window in `approve` mode, **Review
   changes** (`needs-reapproval`) in `review-changes` mode, each for that one
   operation. The window gathers the rest; never loop over operations. An
-  operation approved for pipelines only reads `needs-approval`, and its
+  operation approved for automations only reads `needs-approval`, and its
   **Allow** opens the page where the user can choose **On a schedule and when the card is opened**.
 - `needs-admin`: "An administrator of this workspace needs to set this up".
   `needs-sign-in`: a sign-in prompt. `credential-rejected`: the service
@@ -263,17 +268,17 @@ the operation with **On a schedule and when the card is opened**; for an `{{apiK
 once the share's owner did, for every reader. Call the operation only on
 `ready`.
 
-**In a pipeline-shaped card, readiness can't tell whether the pipeline is
-set up.** It answers for a call from the card, per viewer, and an approval
-for pipelines only doesn't serve that call:
+**In a card an automation fills, readiness can't tell whether the automation
+is set up.** It answers for a call from the card, per viewer, and an approval
+for automations only doesn't serve that call:
 
 - A `{{userKey}}` slot reads `needs-connect` or `needs-approval` for every
-  viewer, including the one who approved it for pipelines.
+  viewer, including the one who approved it for automations.
 - An `{{apiKey}}` slot reads `needs-admin` for everyone but the share's owner,
-  even once it is approved for pipelines, and reads `needs-admin` to the owner
-  too until the first approval.
+  even once it is approved for automations, and reads `needs-admin` to the
+  owner too until the first approval.
 
-So don't gate the card's data on readiness. Render the fields the pipeline
+So don't gate the card's data on readiness. Render the fields the automation
 writes whenever they hold something. Offer setup as a plain action that is
 always there: **Set up** opens the window in `approve` mode for one
 operation. When nothing needs approving, the window says so. A share's owner
@@ -292,15 +297,15 @@ is 300 calls an hour, so one tab open for 8 hours spends the 2,400, and one
 left open around the clock spends 7,200. Keep the per-day estimate under the
 key's daily budget, or the card stops for every viewer until it resets at
 midnight UTC. Pausing while the tab is hidden is what keeps a live card within
-it. A pipeline's calls don't count against these.
+it. An automation's calls don't count against these.
 
 Check how close a key is to these, and change them, from the terminal
 (§8).
 
 - **Batch.** One GraphQL query for everything the card shows beats one REST
   call per item.
-- **A pipeline polls once for everyone** who reads its cards; a live card polls
-  once per viewer. Prefer the pipeline for anything a team looks at.
+- **An automation polls once for everyone** who reads its cards; a live card
+  polls once per viewer. Prefer the automation for anything a team looks at.
 - In a live card, fetch only in the `isolated` view, never in `embedded` or
   `fitted` (a search result lists dozens), and pause while the tab is hidden
   (`document.visibilityState`).
@@ -326,10 +331,13 @@ Check how close a key is to these, and change them, from the terminal
   every GraphQL operation on it.
 - The key goes in `authorization: 'Bearer {{userKey}}'`.
 
-The PR Inbox, in the pipeline shape: a pipeline would run the operations below
-for the user who approved them and write one `PullRequest` card per result;
-the inbox card lists those and always offers **Set up**. Nothing in the realm
-runs that pipeline, so the list stays empty until the platform does.
+The PR Inbox, filled by an automation: each run invokes the operations below
+as the person who switched the automation on and writes one `PullRequest`
+card per result; the inbox card lists those and always offers **Set up**. The
+Automation card, its script and its triggers are in
+[`automation-authoring`](../automation-authoring/SKILL.md), whose worked
+examples include a weekday GitHub digest that keeps one card per issue. The
+list stays empty until that automation is switched on and has run.
 
 ```ts
 import { CardDef, contains, field, linksToMany } from '@cardstack/base/card-api';
@@ -354,7 +362,7 @@ const AUTH = { authorization: 'Bearer {{userKey}}' };
 export class PRInbox extends CardDef {
   static displayName = 'PR Inbox';
   @field login = contains(StringField);
-  // Written by the pipeline, read by everyone who opens the inbox.
+  // Written by the automation, read by everyone who opens the inbox.
   @field pullRequests = linksToMany(PullRequest);
 
   @operation static listPRs = {
@@ -394,7 +402,7 @@ The same inbox as a live card, in `live-pr-inbox.gts`: the card calls
 `PullRequest` cards in between. Each viewer approves it with their own key and
 **On a schedule and when the card is opened**. It suits responses that aren't private, such
 as a key scoped read-only to public repositories; for private repositories,
-keep the pipeline shape (§2).
+fill the inbox from an automation (§2).
 
 ```gts
 import { on } from '@ember/modifier';
@@ -528,7 +536,7 @@ export class LivePRInbox extends CardDef {
 
 - **`listPRs` runs from an action**, like any `callApi`, and never from the
   template while it renders. The template only reads `pullRequests`.
-- **Readiness decides what shows.** A viewer who approved for pipelines only
+- **Readiness decides what shows.** A viewer who approved for automations only
   reads `needs-approval`, and **Allow** opens the approve page, where they
   pick **On a schedule and when the card is opened**. Readiness is asked again when they come
   back to the app, so the list's button appears without a reload.
@@ -618,9 +626,9 @@ window at `https://localhost:4208/secure`, and switch the URL to the vendor's
 before sharing the card. Changing the URL changes the request, so the
 operation is approved again. A live card's calls are served once the
 operation is approved with **On a schedule and when the card is opened**, so it can be
-checked end to end against the stub. For a pipeline-shaped card, what can be
-checked locally is the approval: the window's batch, the grant it creates, and
-the refusal codes the card handles.
+checked end to end against the stub. For a card an automation fills, what the
+card itself can check locally is the approval: the window's batch, the grant
+it creates, and the refusal codes the card handles.
 
 ## 8. From the terminal
 
@@ -677,16 +685,16 @@ boxel operations invoke <card-url> <operation> --params '<its params, as JSON>'
   `boxel operations invoke` sends a keyless operation and answers with what
   the vendor answered. One that sends a key, such as `listPRs`, is sent once
   it is approved for interactive use, and refused
-  `interactive-use-not-approved` while it is approved for pipelines only. A
+  `interactive-use-not-approved` while it is approved for automations only. A
   type is named by its module's full URL here, not one relative to a
   workspace.
 - **`--interactive` on `approve`** approves interactive use as well as
-  pipelines, as **On a schedule and when the card is opened** does. A share's first
+  automations, as **On a schedule and when the card is opened** does. A share's first
   interactive approval also takes `--daily-budget <calls>`, the share's daily
   budget. When the approval needs a new grant, the secure window it opens
   starts on interactive use. Re-approving an operation that is approved for
   interactive use takes `--interactive` too: without it the CLI refuses,
-  rather than returning a live card to pipelines only. For each operation
+  rather than returning a live card to automations only. For each operation
   the workspace's policy opens to visitors, it prints the lines the approve
   window shows: "Anyone on the internet who opens this card, including
   people who aren't signed in, can make … with <share>[, up to <its caps>
