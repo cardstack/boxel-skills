@@ -291,7 +291,7 @@ owner approves the operation, in this realm, in Boxel's secure window (every
 operation on the card at once; see [`api-keys`](../api-keys/SKILL.md)), naming
 which of their keys fills it. Until then the operation is refused
 `binding-not-approved` and nothing is sent. The approval also says where the
-operation runs: **On a schedule only** (the default), or **On a schedule and when the card is opened**, which lets a card, the AI assistant or the CLI invoke it
+operation runs: **On a schedule only**, or **On a schedule and when the card is opened** (where the window opened in the browser starts), which lets a card, the AI assistant or the CLI invoke it
 too, within the key's limits. Approved for automations only, an invocation
 from a card, the assistant or the CLI is refused
 `interactive-use-not-approved`. An automation is an Automation card whose

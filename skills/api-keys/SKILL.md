@@ -198,8 +198,12 @@ answer the user comes back to is readiness asked again, not anything the
 window says.
 
 **Where the approval lets the key run.** The user approves an operation for
-automations only (**On a schedule only**, the default), or also for when a
-card is opened (see [Approving](#approving-a-cards-requests)). Approved for
+automations only (**On a schedule only**), or also for when a card is opened
+(see [Approving](#approving-a-cards-requests)). Opened in the browser, the
+window starts on **On a schedule and when the card is opened** unless the
+operation was last approved for automations only; `boxel keys approve` starts
+on automations only. For private data, tell the user to pick **On a schedule
+only**. Approved for
 automations only, a call the card itself makes is refused, so readiness asked
 from the card keeps answering `needs-approval`, and **Allow** opens the page
 where the user can allow it from the card too. Approved for both, readiness
@@ -326,9 +330,10 @@ or another workspace's, even another card calling the same service.
   platform makes those calls without asking, until the card changes a call,
   which brings `needs-reapproval`. The key's limits bound the calls day to
   day.
-- **When calls run**: **On a schedule only**, the default, or **On a
-  schedule and when the card is opened**, which lets a card, the AI
-  assistant or the CLI invoke the operations too. Choosing the second shows
+- **When calls run**: **On a schedule only**, or **On a schedule and when
+  the card is opened**, which lets a card, the AI assistant or the CLI invoke
+  the operations too. The window starts on the second unless the operation
+  was last approved for automations only. Choosing the second shows
   one warning for the whole batch. For the user's own key (`{{userKey}}`):
   "Any card you open can make these calls as you and read what comes back."
   For a workspace's share (`{{apiKey}}`): "Any card a reader of this realm
@@ -409,8 +414,9 @@ the window's `approve` mode. So:
   Either way nothing is sent, and `@context.keyReadiness` reads
   `needs-approval` for it.
 
-Once the user has approved for automations only, tell them it is set up for
-the automation's runs, rather than retrying from the card. See
+Once the user has approved for automations only, tell them an automation's
+runs can now send the key, and that nothing runs until a direct writer of the
+workspace switches the automation on, rather than retrying from the card. See
 [`card-operations-authoring`](../card-operations-authoring/SKILL.md) §2 for
 slotted operations, [`api-integrations`](../api-integrations/SKILL.md) for a
 card an automation fills, and

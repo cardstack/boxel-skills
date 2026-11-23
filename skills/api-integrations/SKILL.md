@@ -40,7 +40,10 @@ picks which when they approve it in the secure window, under **When calls run**:
   per pull request, say. Readers open those cards and never call the vendor,
   so the card shows the same data in the app, in a search result and in
   prerendered HTML, and its own code never reaches the key. **On a schedule
-  only** approves the operation for automations only, and is the default.
+  only** approves the operation for automations only. The window opened from
+  the card starts on **On a schedule and when the card is opened** (unless
+  the operation was last approved for automations only), so for private data
+  tell the user to pick **On a schedule only**.
 - **Live card.** The card invokes the operation itself while it is open and
   renders the answer. That takes an approval with **On a schedule and when the card is opened**. An operation approved for automations only refuses a call from a
   card, the AI assistant or the CLI with `interactive-use-not-approved`, and
