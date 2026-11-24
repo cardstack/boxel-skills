@@ -1,6 +1,6 @@
 # Worked automations
 
-Three complete automations, each a card and a script. Paths are relative to the workspace root.
+Four complete automations, each a card and a script. Paths are relative to the workspace root.
 
 ## 1. A one-time run: end the sale an hour from now
 
@@ -287,3 +287,158 @@ realm.progress.task(`Saved categories on ${category.size} tickets`);
 ```
 
 The card's trigger is `cron`, `0 2 * * *` in the user's zone, labelled `nightly`. Limits: `callApiCalls: 0`, `responseBytes: 0`, `resolveCalls: 1`, `aiCredits` enough for one request with 100 short tickets, `writes: 100`, `seconds: 300`. The script trims each ticket's body to 300 characters and takes at most 100 tickets a night, so one request stays under `realm.resolve`'s 128 KiB input limit, its answer fits in 4,096 tokens, and the saves stay within `writes`; tickets past 100 wait for the next night. For a busier queue, raise `resolveCalls` and send the unclear tickets in batches of 100, one request each. The script checks each path the AI returns against the tickets it sent, so the AI can't write a category onto any other card.
+
+## 4. Two steps, two services, safe to Preview
+
+The user: "Every hour, pull new paid orders from my shop into cards and buy a shipping label for each one." Two outside services take part: the shop, which the run reads (step 1), and the carrier, where buying a label charges money (step 2). The workspace holds a `Shop` card type with a `paidOrders` operation, a `Carrier` card type with a `buyLabel` operation, an instance of each (`Shop/main`, `Carrier/main`), and an `Order` card type with `orderId`, `customer`, `address`, `weightGrams`, `status`, `labelId` and `trackingNumber`.
+
+The carrier's operation takes everything the carrier needs as params, and sends an idempotency key the carrier reads, so a repeat of the same purchase answers the first label:
+
+```ts
+@operation static buyLabel = {
+  base: 'callApi',
+  label: 'Buy a shipping label for an order, with your carrier key',
+  params: {
+    idempotencyKey: StringField,
+    orderId: StringField,
+    address: StringField,
+    weightGrams: StringField,
+  },
+  url: 'https://api.carrier.example.com/v1/labels',
+  headers: {
+    authorization: 'Bearer {{userKey}}',
+    'idempotency-key': params('idempotencyKey'),
+  },
+  json: {
+    reference: params('orderId'),
+    to_address: params('address'),
+    weight_grams: params('weightGrams'),
+  },
+} satisfies OperationDeclaration;
+```
+
+`automations/scripts/ship-paid-orders.js`:
+
+```js
+/* global realm, console */
+// Copies each paid order from the shop into an Order card at a path made from
+// the order's id, then buys a shipping label for every order card with no
+// label and records the label on the card. A Preview makes every read and
+// writes every card, buys no label, and logs each label a real run would buy.
+
+realm.progress.plan(['Fetch paid orders', 'Update order cards', 'Buy shipping labels']);
+
+const { dryRun, lastSuccessAt, params } = realm.current.automation;
+const { shop = 'Shop/main', carrier = 'Carrier/main' } = params;
+
+realm.progress.milestone('Fetch paid orders');
+// A read changes nothing at the shop, so a Preview makes the read too.
+const { document } = await realm.operations.invoke(shop, 'paidOrders', {
+  since: lastSuccessAt ?? '1970-01-01T00:00:00Z',
+});
+if (document.status !== 200) throw new Error(`The shop answered ${document.status}`);
+const orders = document.body.orders;
+realm.progress.task(`Fetched ${orders.length} paid orders`);
+
+realm.progress.milestone('Update order cards');
+// The orders waiting for a label, by card path. The last step reads this map:
+// a search reads the index as the run found the index, which holds none of
+// the cards this run creates.
+const toShip = new Map();
+let written = 0;
+for (const order of orders) {
+  const path = `Order/${order.id}`;
+  let current;
+  try {
+    current = await realm.cards.get(path);
+  } catch {
+    current = undefined;
+  }
+  if (current?.attributes.labelId) continue;
+  const fields = {
+    orderId: order.id,
+    customer: order.customer_name,
+    address: order.shipping_address,
+    weightGrams: order.weight_grams,
+    status: 'paid',
+  };
+  if (!current) {
+    await realm.fs.writeText(
+      `${path}.json`,
+      JSON.stringify({
+        data: {
+          type: 'card',
+          attributes: fields,
+          meta: { adoptsFrom: { module: '../order', name: 'Order' } },
+        },
+      }),
+    );
+    written++;
+  } else if (Object.entries(fields).some(([k, v]) => current.attributes[k] !== v)) {
+    await realm.cards.update(path, fields);
+    written++;
+  }
+  toShip.set(path, fields);
+}
+// Orders a finished run saved without a label (the carrier refused, or the
+// run's save failed after the purchase) are in the index, so a search finds them.
+for (let number = 0, more = true; more; number++) {
+  const { cards, truncated } = await realm.cards.search({
+    filter: { on: { module: realm.current.url + 'order', name: 'Order' }, eq: { status: 'paid' } },
+    page: { size: 100, number },
+  });
+  for (const card of cards) {
+    const path = card.path.replace(/\.json$/, '');
+    if (!toShip.has(path)) toShip.set(path, card.attributes);
+  }
+  more = truncated;
+}
+realm.progress.task(`Wrote ${written} order cards; ${toShip.size} orders wait for a label`);
+
+realm.progress.milestone('Buy shipping labels');
+// Buying a label charges money at the carrier, so a Preview buys none. The
+// purchases come after every card write, so a write Boxel refuses stops the
+// run before the carrier charges anything.
+let bought = 0;
+for (const [path, order] of toShip) {
+  const payload = {
+    // The same order sends the same key on every run, so a purchase repeated
+    // after a failed save answers the first label.
+    idempotencyKey: `label-${order.orderId}`,
+    orderId: order.orderId,
+    // The address itself: the carrier can't read the card, which the
+    // workspace saves only after the run ends.
+    address: order.address,
+    weightGrams: String(order.weightGrams),
+  };
+  if (dryRun) {
+    console.info(`Preview: would buy a label for order ${order.orderId}: ${JSON.stringify(payload)}`);
+    continue;
+  }
+  const { document: label } = await realm.operations.invoke(carrier, 'buyLabel', payload);
+  if (label.status !== 200 && label.status !== 201) {
+    console.warn(`order ${order.orderId}: the carrier answered ${label.status}`);
+    continue;
+  }
+  await realm.cards.update(path, {
+    status: 'labelled',
+    labelId: label.body.id,
+    trackingNumber: label.body.tracking_number,
+  });
+  bought++;
+}
+realm.progress.task(
+  dryRun
+    ? `Would buy ${toShip.size} shipping labels (Preview)`
+    : `Bought ${bought} of ${toShip.size} shipping labels`,
+);
+```
+
+The card's trigger is `cron`, `0 * * * *` in the user's zone, labelled `hourly`; `operations` names `Shop`'s `paidOrders` and `Carrier`'s `buyLabel`; `params` names both cards. Limits: `callApiCalls: 60` (one read and up to 59 labels), `responseBytes: 2000000`, `resolveCalls: 0`, `aiCredits: 0`, `writes: 100`, `seconds: 300`, and a monthly cap the user confirms. Before the first run the user approves both operations in the secure window, **On a schedule only**.
+
+Four things make the script safe to Preview and to repeat:
+
+- **The Preview buys nothing and shows everything.** The script reads the shop and writes the order cards in a Preview as in any run, so the person sees which cards a real run writes, and the log lists each label a real run would buy with the payload the carrier would get.
+- **The carrier gets the data, not a link.** The order card exists only in the run until the run's save, so the carrier reads the address from the request body.
+- **The last step reads the run's own writes from a map.** A search finds the orders earlier runs saved, never the ones this run wrote, so the map wins wherever both name the same card.
+- **A failed save can't buy a label twice.** When the run's save fails after the purchases, each order's card is still `paid` on the next run, and the next run buys the label again with the same `label-<order id>` key; the carrier answers with the first label, and the run records that label on the card.
