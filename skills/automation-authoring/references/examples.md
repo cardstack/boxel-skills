@@ -18,11 +18,12 @@ realm.progress.milestone('End the sale');
 
 const { sale = 'Sale/flash-sale' } = realm.current.automation.params;
 const card = await realm.cards.get(sale);
+// One milestone, two outcomes, so one task says which.
 if (card.attributes.status === 'ended') {
-  console.info(`${sale} had already ended; nothing to change`);
+  realm.progress.task(`Left ${sale} as it was: the sale had already ended`);
 } else {
   await realm.cards.update(sale, { status: 'ended' });
-  console.info(`${sale} ended`);
+  realm.progress.task(`Ended the sale ${sale}`);
 }
 ```
 
@@ -121,12 +122,13 @@ for (let page = 1; page <= MAX_PAGES; page++) {
   if (status !== 200) throw new Error(`GitHub answered ${status} for page ${page}`);
   // GitHub lists pull requests as issues too; they carry a pull_request key.
   open.push(...body.filter((item) => !item.pull_request));
-  realm.progress.count(page, page);
   if (!/rel="next"/.test(headers.link ?? '')) {
     complete = true;
     break;
   }
 }
+
+realm.progress.task(`Fetched ${open.length} open issues`);
 
 realm.progress.milestone('Update issue cards');
 const openPaths = new Set();
@@ -165,12 +167,14 @@ for (const issue of open) {
     written++;
   }
 }
-console.info(`${open.length} open issues, ${written} cards written`);
+realm.progress.task(
+  written ? `Wrote ${written} issue cards that changed` : 'Found no issue card that changed',
+);
 
 realm.progress.milestone('Mark closed issues');
 let closed = 0;
 if (!complete) {
-  console.warn(`more than ${MAX_PAGES} pages of open issues; no issue marked closed`);
+  realm.progress.task(`Marked no issue closed: GitHub listed more than ${MAX_PAGES} pages of open issues`);
 }
 for (let number = 0, more = complete; more; number++) {
   const { cards, truncated } = await realm.cards.search({
@@ -186,7 +190,7 @@ for (let number = 0, more = complete; more; number++) {
   }
   more = truncated;
 }
-console.info(`${closed} issues marked closed`);
+if (complete) realm.progress.task(`Marked ${closed} issues closed`);
 ```
 
 The card's trigger is `cron`, `30 8 * * 1-5`, `America/Chicago`, labelled `weekday-mornings`; `operations` names `GitHubRepository`'s `openIssues`; `params` names the repository. Limits: `callApiCalls: 30` (ten pages, three tries each), `responseBytes: 20000000`, `resolveCalls: 0`, `aiCredits: 0`, `writes: 1100` (every issue card on the first run, plus closed ones), `seconds: 300`, and a monthly cap the user confirms. Before the first run the user approves `openIssues` in the secure window, **On a schedule only**.
@@ -223,6 +227,7 @@ for (let number = 0, more = true; more; number++) {
 }
 // Tickets past the batch wait for the next night.
 tickets.splice(BATCH);
+realm.progress.task(`Found ${tickets.length} new tickets`);
 
 realm.progress.milestone('Apply rules');
 const category = new Map();
@@ -237,7 +242,7 @@ for (const t of tickets) {
     unclear.push({ path: t.path, subject: t.attributes.subject, body: (t.attributes.body ?? '').slice(0, 300) });
   }
 }
-console.info(`${category.size} of ${tickets.length} tickets sorted by rule`);
+realm.progress.task(`Sorted ${category.size} tickets by rule, leaving ${unclear.length} for the AI`);
 
 realm.progress.milestone('Ask the AI');
 if (unclear.length) {
@@ -269,13 +274,16 @@ if (unclear.length) {
   for (const { path, category: c } of output.tickets) {
     if (unclear.some((u) => u.path === path)) category.set(path, c);
   }
+  realm.progress.task(`Sent ${unclear.length} tickets to the AI in one request`);
+} else {
+  realm.progress.task('Sent nothing to the AI: the rules sorted every ticket');
 }
 
 realm.progress.milestone('Save categories');
 for (const [path, c] of category) {
   await realm.cards.update(path, { category: c });
 }
-console.info(`${category.size} tickets sorted`);
+realm.progress.task(`Saved categories on ${category.size} tickets`);
 ```
 
 The card's trigger is `cron`, `0 2 * * *` in the user's zone, labelled `nightly`. Limits: `callApiCalls: 0`, `responseBytes: 0`, `resolveCalls: 1`, `aiCredits` enough for one request with 100 short tickets, `writes: 100`, `seconds: 300`. The script trims each ticket's body to 300 characters and takes at most 100 tickets a night, so one request stays under `realm.resolve`'s 128 KiB input limit, its answer fits in 4,096 tokens, and the saves stay within `writes`; tickets past 100 wait for the next night. For a busier queue, raise `resolveCalls` and send the unclear tickets in batches of 100, one request each. The script checks each path the AI returns against the tickets it sent, so the AI can't write a category onto any other card.
