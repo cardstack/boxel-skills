@@ -489,7 +489,7 @@ The catalog's own example shows a card and script side by side: `automation/Auto
 - Each milestone whose outcome varies reports one to five tasks with `realm.progress.task`, in plain words that name what the task acted on, never one per loop iteration.
 - Each card's path comes from the item's key; the script compares before writing and writes a status instead of deleting.
 - Every outside call goes through an operation the card's `operations` names, checks `status`, and pages within a cap.
-- Each outside call that changes something sits behind a `realm.current.automation.dryRun` check that logs what the call would send, comes after the workspace writes the call depends on, carries the data in the request rather than a workspace URL, and sends an idempotency key built from the item's own id.
+- Each outside call that changes something sits behind a `realm.current.automation.dryRun` check that logs what the call would send, comes after the workspace writes the call depends on, carries the data in the request rather than a workspace URL, and sends an idempotency key built from the item's own id where the service reads one (where the service reads none, the script records each change on the item's card and looks the item up first where the service allows).
 - A later step reads what the run wrote with `realm.cards.get` on a path built from the item's key, or from a `Map` in the script, never with `realm.cards.search`.
 - Rules settle what rules can; `realm.resolve` gets one batched request with a closed schema.
 - The person confirms the trigger, the estimate and the monthly cap in the chat before anything runs.
