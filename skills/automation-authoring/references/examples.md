@@ -290,7 +290,20 @@ The card's trigger is `cron`, `0 2 * * *` in the user's zone, labelled `nightly`
 
 ## 4. Two steps, two services, safe to Preview
 
-The user: "Every hour, pull new paid orders from my shop into cards and buy a shipping label for each one." Two outside services take part: the shop, which the run reads (step 1), and the carrier, where buying a label charges money (step 2). The workspace holds a `Shop` card type with a `paidOrders` operation, a `Carrier` card type with a `buyLabel` operation, an instance of each (`Shop/main`, `Carrier/main`), and an `Order` card type with `orderId`, `customer`, `address`, `weightGrams`, `status`, `labelId` and `trackingNumber`.
+The user, on November 24, 2026: "Every hour, pull new paid orders from my shop into cards and buy a shipping label for each one. Start with today's orders." Two outside services take part: the shop, which the run reads (step 1), and the carrier, where buying a label charges money (step 2). The workspace holds a `Shop` card type with a `paidOrders` operation, a `Carrier` card type with a `buyLabel` operation, an instance of each (`Shop/main`, `Carrier/main`), and an `Order` card type with `orderId`, `customer`, `address`, `weightGrams`, `status`, `labelId` and `trackingNumber`.
+
+The shop's operation answers up to 50 paid orders, oldest first, paid after a time the script passes:
+
+```ts
+@operation static paidOrders = {
+  base: 'callApi',
+  label: 'List paid orders, oldest first, with your shop key',
+  params: { paidAfter: StringField },
+  url: 'https://api.shop.example.com/v1/orders',
+  query: { status: 'paid', paid_after: params('paidAfter'), sort: 'paid_at', limit: '50' },
+  headers: { authorization: 'Bearer {{userKey}}' },
+} satisfies OperationDeclaration;
+```
 
 The carrier's operation takes everything the carrier needs as params, and sends an idempotency key the carrier reads, so a repeat of the same purchase answers the first label:
 
@@ -321,30 +334,48 @@ The carrier's operation takes everything the carrier needs as params, and sends 
 
 ```js
 /* global realm, console */
-// Copies each paid order from the shop into an Order card at a path made from
-// the order's id, then buys a shipping label for every order card with no
-// label and records the label on the card. A Preview makes every read and
-// writes every card, buys no label, and logs each label a real run would buy.
+// Copies up to 50 paid orders a run from the shop into Order cards, at paths
+// made from each order's id, then buys shipping labels for up to MAX_LABELS
+// order cards with no label and records each label on its card. A cursor file
+// holds the paid time of the last order copied. A Preview makes every read
+// and writes every card, buys no label, and logs each label a real run would
+// buy.
 
 realm.progress.plan(['Fetch paid orders', 'Update order cards', 'Buy shipping labels']);
 
-const { dryRun, lastSuccessAt, params } = realm.current.automation;
-const { shop = 'Shop/main', carrier = 'Carrier/main' } = params;
+const { dryRun, params } = realm.current.automation;
+const { shop = 'Shop/main', carrier = 'Carrier/main', startAt } = params;
+const CURSOR = 'automations/state/ship-paid-orders.json';
+// One shop read and MAX_LABELS purchases fit callApiCalls (60); 50 order
+// cards, MAX_LABELS earlier cards and the cursor fit writes (120).
+const MAX_LABELS = 50;
 
 realm.progress.milestone('Fetch paid orders');
+// The first run starts at the time the person confirmed (the startAt param),
+// never at the start of the shop's history.
+let paidAfter = startAt;
+if (await realm.fs.exists(CURSOR)) {
+  paidAfter = JSON.parse(await realm.fs.readText(CURSOR)).paidAfter;
+}
 // A read changes nothing at the shop, so a Preview makes the read too.
-const { document } = await realm.operations.invoke(shop, 'paidOrders', {
-  since: lastSuccessAt ?? '1970-01-01T00:00:00Z',
-});
+const { document } = await realm.operations.invoke(shop, 'paidOrders', { paidAfter });
 if (document.status !== 200) throw new Error(`The shop answered ${document.status}`);
 const orders = document.body.orders;
 realm.progress.task(`Fetched ${orders.length} paid orders`);
 
 realm.progress.milestone('Update order cards');
-// The orders waiting for a label, by card path. The last step reads this map:
-// a search reads the index as the run found the index, which holds none of
-// the cards this run creates.
-const toShip = new Map();
+// The orders waiting for a label, by card path. A search reads the index as
+// the run found the index, so the search finds the orders earlier runs saved
+// without a label, and this run's own cards come from the loop below.
+const waiting = new Map();
+for (let number = 0, more = true; more && waiting.size < MAX_LABELS; number++) {
+  const { cards, truncated } = await realm.cards.search({
+    filter: { on: { module: realm.current.url + 'order', name: 'Order' }, eq: { status: 'paid' } },
+    page: { size: 100, number },
+  });
+  for (const card of cards) waiting.set(card.path.replace(/\.json$/, ''), card.attributes);
+  more = truncated;
+}
 let written = 0;
 for (const order of orders) {
   const path = `Order/${order.id}`;
@@ -378,32 +409,25 @@ for (const order of orders) {
     await realm.cards.update(path, fields);
     written++;
   }
-  toShip.set(path, fields);
+  // The run's own version wins over what the search read.
+  waiting.set(path, fields);
 }
-// Orders a finished run saved without a label (the carrier refused, or the
-// run's save failed after the purchase) are in the index, so a search finds them.
-for (let number = 0, more = true; more; number++) {
-  const { cards, truncated } = await realm.cards.search({
-    filter: { on: { module: realm.current.url + 'order', name: 'Order' }, eq: { status: 'paid' } },
-    page: { size: 100, number },
-  });
-  for (const card of cards) {
-    const path = card.path.replace(/\.json$/, '');
-    if (!toShip.has(path)) toShip.set(path, card.attributes);
-  }
-  more = truncated;
+if (orders.length) {
+  await realm.fs.writeText(CURSOR, JSON.stringify({ paidAfter: orders.at(-1).paid_at }));
 }
-realm.progress.task(`Wrote ${written} order cards; ${toShip.size} orders wait for a label`);
+realm.progress.task(`Wrote ${written} order cards; ${waiting.size} orders wait for a label`);
 
 realm.progress.milestone('Buy shipping labels');
-// Buying a label charges money at the carrier, so a Preview buys none. The
-// purchases come after every card write, so a write Boxel refuses stops the
-// run before the carrier charges anything.
+// Buying a label charges money at the carrier, so a Preview buys none. Every
+// card write above comes first: Boxel checks each write as the script makes
+// it, so a refused write throws before the carrier charges anything. Orders
+// past MAX_LABELS stay paid for the next run.
+const batch = [...waiting].slice(0, MAX_LABELS);
 let bought = 0;
-for (const [path, order] of toShip) {
+for (const [path, order] of batch) {
   const payload = {
     // The same order sends the same key on every run, so a purchase repeated
-    // after a failed save answers the first label.
+    // after a run that saved nothing answers the first label.
     idempotencyKey: `label-${order.orderId}`,
     orderId: order.orderId,
     // The address itself: the carrier can't read the card, which the
@@ -429,16 +453,17 @@ for (const [path, order] of toShip) {
 }
 realm.progress.task(
   dryRun
-    ? `Would buy ${toShip.size} shipping labels (Preview)`
-    : `Bought ${bought} of ${toShip.size} shipping labels`,
+    ? `Would buy ${batch.length} shipping labels (Preview)`
+    : `Bought ${bought} of ${batch.length} shipping labels`,
 );
 ```
 
-The card's trigger is `cron`, `0 * * * *` in the user's zone, labelled `hourly`; `operations` names `Shop`'s `paidOrders` and `Carrier`'s `buyLabel`; `params` names both cards. Limits: `callApiCalls: 60` (one read and up to 59 labels), `responseBytes: 2000000`, `resolveCalls: 0`, `aiCredits: 0`, `writes: 100`, `seconds: 300`, and a monthly cap the user confirms. Before the first run the user approves both operations in the secure window, **On a schedule only**.
+The card's trigger is `cron`, `0 * * * *` in the user's zone, labelled `hourly`; `operations` names `Shop`'s `paidOrders` and `Carrier`'s `buyLabel`; `params` names both cards and `startAt`, `2026-11-24T00:00:00-05:00` for "today's orders" in New York, which the user confirms in the chat before the first run. Limits: `callApiCalls: 60`, `responseBytes: 2000000`, `resolveCalls: 0`, `aiCredits: 0`, `writes: 120`, `seconds: 300`, and a monthly cap the user confirms. Before the first run the user approves both operations in the secure window, **On a schedule only**.
 
-Four things make the script safe to Preview and to repeat:
+Five things make the script safe to Preview and to repeat:
 
 - **The Preview buys nothing and shows everything.** The script reads the shop and writes the order cards in a Preview as in any run, so the person sees which cards a real run writes, and the log lists each label a real run would buy with the payload the carrier would get.
 - **The carrier gets the data, not a link.** The order card exists only in the run until the run's save, so the carrier reads the address from the request body.
-- **The last step reads the run's own writes from a map.** A search finds the orders earlier runs saved, never the ones this run wrote, so the map wins wherever both name the same card.
-- **A failed save can't buy a label twice.** When the run's save fails after the purchases, each order's card is still `paid` on the next run, and the next run buys the label again with the same `label-<order id>` key; the carrier answers with the first label, and the run records that label on the card.
+- **The last step reads the run's own writes from a map.** A search finds the orders earlier runs saved, never the ones this run wrote, so the loop's own fields replace whatever the search read for the same card.
+- **A run takes a bounded batch.** The shop answers at most 50 orders and the run buys at most `MAX_LABELS` labels, within `callApiCalls` and `writes`, so a backlog drains over several runs instead of stopping every run at a limit. The first run starts at `startAt`, never at the start of the shop's history.
+- **A run that saves nothing can't buy a label twice.** When a run ends without saving after its purchases, the cursor and each order's card stay as they were, and the next run buys the same labels again with the same `label-<order id>` keys; the carrier answers with the first labels, and that run records them on the cards.
