@@ -1,6 +1,6 @@
 ---
 name: automation-authoring
-description: 'Use when the user wants work done later, once or again and again: "every Monday", "each morning", "an hour from now", "tonight at 9", "keep this in sync", "check this every day", "when the deadline passes", "schedule", "automate". Takes the assistant from the request to an Automation card and its Realm Runner script: the card''s triggers (cron, a one-time run, a webhook), the limits each run keeps to, params, the outside calls a run may make, the automation surface and `realm.current.automation`, calling a keyed API through a `callApi` operation the person approves for automations, keeping a run''s state in the workspace, rules before AI with `realm.resolve` only for the cases rules can''t settle, paging and retrying, logging with `console`, run milestones and the notable tasks inside each with `realm.progress`, outside calls that are safe to Preview (a `dryRun` check before each call that changes something, idempotency keys, data in the request rather than a link), and the Preview-first and confirm-in-chat rules before anything runs or spends.'
+description: 'Use when the user wants work done later, once or again and again: "every Monday", "each morning", "an hour from now", "tonight at 9", "keep this in sync", "check this every day", "when the deadline passes", "schedule", "automate". Takes the assistant from the request to an Automation card and its Realm Runner script: the card''s triggers (cron, a one-time run, a webhook), the limits each run keeps to, params, the outside calls a run may make, the automation surface and `realm.current.automation`, calling a keyed API through a `callApi` operation the person approves for automations, keeping a run''s state in the workspace, rules before AI with `realm.resolve` only for the cases rules can''t settle, batched AI with `realm.resolve.batch` (opted in with `batchedAI`) for requests nobody is waiting on, paging and retrying, logging with `console`, run milestones and the notable tasks inside each with `realm.progress`, outside calls that are safe to Preview (a `dryRun` check before each call that changes something, idempotency keys, data in the request rather than a link), and the Preview-first and confirm-in-chat rules before anything runs or spends.'
 boxel:
   kind: skill
   tools:
@@ -158,7 +158,7 @@ Tell the user the run's time in words and in the zone, with the weekday worked o
 
 ### `batchedAI`
 
-Leave `batchedAI` `false`.
+Leave `batchedAI` `false` unless the script sends AI requests nobody is waiting on, and the person agrees to have their answers in a later run (_Batched AI_, below). `true` lets the script call `realm.resolve.batch`; `batchDeadlineMinutes` (1 to 1440, 60 when absent) is how long a batch whose script sets no `by` may take. Turning `batchedAI` on after the automation is switched on pauses the automation until the person who pays for it resumes it.
 
 ## The script
 
@@ -172,6 +172,7 @@ The script runs on the **automation surface**: the Realm Runner methods a `run-r
 | `realm.cards.update`                                                                             | yes                                                                              |
 | `realm.operations.invoke`, `realm.operations.invokeBatchOperation`                               | yes; a `callApi` only for an operation the card's `operations` names             |
 | `realm.resolve`                                                                                  | yes, within `resolveCalls` and `aiCredits`                                       |
+| `realm.resolve.batch`                                                                            | only in a run, and only when the card turns on `batchedAI` (_Batched AI_)        |
 | `realm.progress.plan`, `realm.progress.milestone`, `realm.progress.task`                         | only in a run                                                                    |
 | `console.log`, `console.info`, `console.warn`, `console.error`                                   | only in a run                                                                    |
 | `realm.fs.delete`, `realm.fs.download`                                                           | no                                                                               |
@@ -192,15 +193,15 @@ How a run differs from a `run-realm-code` call:
 
 ### `realm.current.automation`
 
-| Field            | Holds                                                                                                                        |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `url`            | the Automation card's URL                                                                                                    |
-| `trigger`        | `{ label, kind }`; `kind` is `cron`, `once`, `webhook`, or `manual` for a Preview or a Run now, whose label is also `manual` |
-| `scheduledAt`    | when the trigger came due, or when a person started the run (ISO 8601)                                                       |
-| `lastSuccessAt`  | when the automation's last complete run started, or absent before the first; a Preview never counts                          |
-| `params`         | the card's params, name to value                                                                                             |
-| `webhookPayload` | the delivery's JSON body, for a webhook run                                                                                  |
-| `dryRun`         | `true` for a Preview; check the flag before each outside call that changes something (_Outside calls in a Preview_)         |
+| Field            | Holds                                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `url`            | the Automation card's URL                                                                                                                                                                  |
+| `trigger`        | `{ label, kind }`; `kind` is `cron`, `once`, `webhook`, `manual` for a Preview or a Run now, or `batch` for the run that picks up a batch's answers; the label of the last two is the kind |
+| `scheduledAt`    | when the trigger came due, or when a person started the run (ISO 8601)                                                                                                                     |
+| `lastSuccessAt`  | when the automation's last complete run started, or absent before the first; a Preview never counts                                                                                        |
+| `params`         | the card's params, name to value                                                                                                                                                           |
+| `webhookPayload` | the delivery's JSON body, for a webhook run                                                                                                                                                |
+| `dryRun`         | `true` for a Preview; check the flag before each outside call that changes something (_Outside calls in a Preview_)                                                                        |
 
 Branch on the trigger's label when triggers share a script, and give a manual run a sensible default:
 
@@ -256,9 +257,15 @@ Read `realm.current.automation.dryRun` once, and put each change behind the chec
 const { dryRun } = realm.current.automation;
 // … the reads and the workspace writes run in every kind of run …
 for (const order of toShip) {
-  const payload = { orderId: order.id, address: order.address, weightGrams: String(order.weightGrams) };
+  const payload = {
+    orderId: order.id,
+    address: order.address,
+    weightGrams: String(order.weightGrams),
+  };
   if (dryRun) {
-    console.info(`Preview: would buy a label for order ${order.id}: ${JSON.stringify(payload)}`);
+    console.info(
+      `Preview: would buy a label for order ${order.id}: ${JSON.stringify(payload)}`,
+    );
   } else {
     await realm.operations.invoke(carrier, "buyLabel", payload);
   }
@@ -355,6 +362,37 @@ if (unclear.length) {
 - **No `webSearch` in a run.** Boxel refuses a run's AI request that searches the web, since Boxel can't price the request before sending it.
 - **Set `resolveCalls` and `aiCredits` for the batch**: one or two requests a run, and enough credits for the input the run sends. A script with no `realm.resolve` sets both to `0`.
 
+## Batched AI
+
+`realm.resolve.batch` sends `realm.resolve` requests together as one batch, at about half the price, to be answered any time before a deadline the script sets, at most 24 hours away. The run doesn't wait: it submits the batch, finishes and saves as usual, and a later run of the automation, its **follow-up**, picks up the answers. Most batches are answered within minutes, some take hours.
+
+**Opt in only for requests nobody is waiting on**: a nightly categorization, a weekly summary, a backlog worked through over days. Keep `realm.resolve` for anything the run itself needs before it can go on, and for anything a person expects to see soon after the run. Batching saves money only when batches usually beat their deadline; a batch that misses it is paid for and its requests are sent again at the normal price. Set deadlines of **an hour or more**.
+
+```js
+realm.progress.plan(["Find untagged tickets", "Categorize tickets"]);
+realm.progress.milestone("Find untagged tickets");
+// … rules settle what rules can, leaving `unclear` …
+await realm.resolve.batch(
+  unclear.map((chunk) => ({
+    instruction: "Categorize each ticket as billing, bug, or question.",
+    input: { tickets: chunk },
+    outputSchema: CATEGORIES_SCHEMA,
+  })),
+  {
+    by: new Date(Date.now() + 2 * 60 * 60 * 1000),
+    milestone: "Categorize tickets",
+  },
+);
+```
+
+- **Each request is a `realm.resolve` request**, with the same limits, and its answer is keyed by its place in the list. One batch holds at most 500 requests.
+- **`by`** is the deadline, a `Date` or an ISO 8601 time, after now and at most 24 hours away. Without it, the deadline is the card's `batchDeadlineMinutes`. **`milestone`** names the run milestone the batch starts, `batched AI` when absent; put it in `realm.progress.plan` like any other milestone.
+- **A run submits one batch**, as its last step: the batch's milestone is where the run stops and the follow-up carries on. Put every request that can wait in that one call.
+- **It answers `{ batchId, requests, deadline, milestone }`** once the batch is submitted. The answers are not in the run that submits it.
+- **The follow-up** starts at the deadline, with `realm.current.automation.trigger.kind` `batch`. It runs the same script, acts as the person the submitting run acted as, and keeps to the same limits. Branch on the trigger's kind so it picks up where the submitting run left off; the workspace holds whatever that run saved.
+- **Limits.** Each request in the batch counts against `resolveCalls`, and the batch holds twice its worst case against `aiCredits`, so a missed deadline can't overspend. Set both for the batch's requests.
+- **A Preview refuses `realm.resolve.batch`**, and a run of an automation whose card doesn't turn on `batchedAI` refuses it too.
+
 ## Paging and retrying
 
 **Read a workspace a page at a time.** `realm.cards.search` answers `{ cards, total, truncated }`; ask for the next `page.number` until `truncated` is `false`. A search refuses a page whose cards together are too large, and the error names a page size that fits: ask again with that size. The catalog's `weekly-card-count` script shows both (worked examples, below).
@@ -412,7 +450,9 @@ The Automation card lists the plan's milestones before any run, and after a run 
 ```js
 realm.progress.milestone("Group by label");
 // …
-realm.progress.task(`Grouped ${issues.length} issues under ${labels.size} labels`);
+realm.progress.task(
+  `Grouped ${issues.length} issues under ${labels.size} labels`,
+);
 realm.progress.task(`Skipped ${archived.length} archived issues`);
 ```
 
@@ -446,7 +486,9 @@ for (let page = 1; page <= 10; page++) {
   // … GitHub lists pull requests as issues too; the loop counts them in pullRequests and keeps the rest in issues.
 }
 realm.progress.task(`Fetched ${issues.length} open issues`);
-realm.progress.task(`Skipped ${pullRequests} pull requests GitHub listed as issues`);
+realm.progress.task(
+  `Skipped ${pullRequests} pull requests GitHub listed as issues`,
+);
 realm.progress.milestone("Write digest");
 await realm.fs.writeText("reports/open-issues.md", digest);
 realm.progress.task("Wrote reports/open-issues.md");
@@ -480,4 +522,5 @@ The catalog's own example shows a card and script side by side: `automation/Auto
 - Each outside call that changes something sits behind a `realm.current.automation.dryRun` check that logs what the call would send, comes after the workspace writes the call depends on, carries the data in the request rather than a workspace URL, and sends an idempotency key built from the item's own id.
 - A later step reads what the run wrote with `realm.cards.get` on a path built from the item's key, or from a `Map` in the script, never with `realm.cards.search`.
 - Rules settle what rules can; `realm.resolve` gets one batched request with a closed schema.
+- `batchedAI` is on only for AI requests nobody is waiting on; the script sends them in one `realm.resolve.batch` call as its last step, with a deadline of an hour or more, and branches on `trigger.kind === "batch"` for the follow-up.
 - The person confirms the trigger, the estimate and the monthly cap in the chat before anything runs.
