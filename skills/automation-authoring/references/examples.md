@@ -292,15 +292,15 @@ The card's trigger is `cron`, `0 2 * * *` in the user's zone, labelled `nightly`
 
 The user, on November 24, 2026: "Every hour, pull new paid orders from my shop into cards and buy a shipping label for each one. Start with today's orders." Two outside services take part: the shop, which the run reads (step 1), and the carrier, where buying a label charges money (step 2). The workspace holds a `Shop` card type with a `paidOrders` operation, a `Carrier` card type with a `buyLabel` operation, an instance of each (`Shop/main`, `Carrier/main`), and an `Order` card type with `orderId`, `customer`, `address`, `weightGrams`, `status`, `labelId` and `trackingNumber`.
 
-The shop's operation answers up to 50 paid orders, oldest first, paid after a time the script passes:
+The shop's operation answers up to 50 paid orders, oldest first, paid at or after a time the script passes:
 
 ```ts
 @operation static paidOrders = {
   base: 'callApi',
-  label: 'List paid orders, oldest first, with your shop key',
-  params: { paidAfter: StringField },
+  label: 'List paid orders, oldest first, paid at or after a time, with your shop key',
+  params: { paidFrom: StringField },
   url: 'https://api.shop.example.com/v1/orders',
-  query: { status: 'paid', paid_after: params('paidAfter'), sort: 'paid_at', limit: '50' },
+  query: { status: 'paid', paid_from: params('paidFrom'), sort: 'paid_at', limit: '50' },
   headers: { authorization: 'Bearer {{userKey}}' },
 } satisfies OperationDeclaration;
 ```
@@ -352,13 +352,15 @@ const MAX_LABELS = 50;
 
 realm.progress.milestone('Fetch paid orders');
 // The first run starts at the time the person confirmed (the startAt param),
-// never at the start of the shop's history.
-let paidAfter = startAt;
+// never at the start of the shop's history. The read includes the cursor's
+// own time, since orders can share a paid time; an order read again maps to
+// the same card and is skipped once labelled.
+let paidFrom = startAt;
 if (await realm.fs.exists(CURSOR)) {
-  paidAfter = JSON.parse(await realm.fs.readText(CURSOR)).paidAfter;
+  paidFrom = JSON.parse(await realm.fs.readText(CURSOR)).paidFrom;
 }
 // A read changes nothing at the shop, so a Preview makes the read too.
-const { document } = await realm.operations.invoke(shop, 'paidOrders', { paidAfter });
+const { document } = await realm.operations.invoke(shop, 'paidOrders', { paidFrom });
 if (document.status !== 200) throw new Error(`The shop answered ${document.status}`);
 const orders = document.body.orders;
 realm.progress.task(`Fetched ${orders.length} paid orders`);
@@ -413,7 +415,7 @@ for (const order of orders) {
   waiting.set(path, fields);
 }
 if (orders.length) {
-  await realm.fs.writeText(CURSOR, JSON.stringify({ paidAfter: orders.at(-1).paid_at }));
+  await realm.fs.writeText(CURSOR, JSON.stringify({ paidFrom: orders.at(-1).paid_at }));
 }
 realm.progress.task(`Wrote ${written} order cards; ${waiting.size} orders wait for a label`);
 
