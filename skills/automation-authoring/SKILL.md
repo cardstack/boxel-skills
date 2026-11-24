@@ -251,12 +251,18 @@ A run remembers nothing: each run starts from the workspace as the last run left
 
 ## Reshaping data
 
-Filter, group, sum, sort or pick fields from JSON the run holds (a service's response, a JSON file, the cards a search found) with `realm.transform(input, program, { params })`, not a JavaScript loop. The program is BXL, jq with the Excel functions, and runs in a worker beside the script at full speed, while the script's own loops run slowly and spend the run's `seconds`. Before the first program, read the `realm.transform` section of [`source-code-editing`](../source-code-editing/SKILL.md): it has the spelling, what a program may not do, and the limits on each call.
+Filter, group, sum, sort or pick fields across a list of more than a few dozen items the run holds (a service's response, a JSON file, the cards a search found) with `realm.transform(input, program, { params })`, not a JavaScript loop; picking a field from a handful of items is a plain `map` in the script. Transform a whole array in one call, never one call per item. The program is BXL, jq with the Excel functions, and runs in a worker beside the script at full JavaScript speed, while the script's own loops run in an interpreter many times slower. Both spend the run's `seconds`: a program's time counts toward the run's time limit. Before the first program, read the `realm.transform` section of [`source-code-editing`](../source-code-editing/SKILL.md): it has the spelling, what a program may not do, and the limits on each call.
 
 ```js
-const { document } = await realm.operations.invoke(store, "recentOrders", {
-  since: realm.current.automation.lastSuccessAt ?? "1970-01-01T00:00:00Z",
-});
+realm.progress.plan(["Total paid orders"]);
+realm.progress.milestone("Total paid orders");
+const { document } = await realm.operations.invoke(
+  "Store/main",
+  "recentOrders",
+  {
+    since: realm.current.automation.lastSuccessAt ?? "1970-01-01T00:00:00Z",
+  },
+);
 if (document.status !== 200)
   throw new Error(`The store answered ${document.status}`);
 const byProduct = await realm.transform(
@@ -270,15 +276,14 @@ realm.progress.task(
 ```
 
 - **Pass the array itself** (`document.body.orders`), not the response around it. A program that fails on its input says the input's top-level shape, so fix the program from the error.
-- **Transform each page as it arrives** when a run pages through a service: one call per page, then combine the pages' results, or one call over all of them once the run has them. A run makes as many calls as its `seconds` allow; the 100-call limit of a `run-realm-code` call doesn't apply. Each call takes at most 1,000,000 bytes in and returns at most 1,000,000 bytes, a run's calls move at most 10,000,000 bytes in and out together, and each program runs for at most 10 seconds.
+- **Collect a paged service's items, then transform them once** the run has every page. When the pages together pass 1,000,000 bytes, transform each page as it arrives and combine the pages' results with one more transform, such as `add | group_by(.sku) | map({sku: .[0].sku, units: map(.units) | add})` over the array of per-page results. A run makes as many calls as its `seconds` allow; the 100-call limit of a `run-realm-code` call doesn't apply. Each call takes at most 1,000,000 bytes in and returns at most 1,000,000 bytes, a run's calls move at most 10,000,000 bytes in and out together, and each program runs for at most 10 seconds.
 - **A failed program throws in the script**, as any call does: one stopped at its 10 seconds included. Catch it only when the run can do without that result, and log why with `console.warn`; otherwise let the run fail, so it saves nothing and the next run tries again.
-- **Rules before AI holds here too**: a transform settles every case a rule can, at no charge, before the cases left over go to `realm.resolve`.
 
 The run's log gets one line for its transforms, as the run ends: how many calls the script made, how many failed, and how long the programs ran. Report what the transforms produced with `realm.progress.task`, as above, not each call.
 
 ## Rules before AI
 
-Settle every case a rule can settle in plain JavaScript, and send only the cases left over to `realm.resolve`. A rule costs nothing and gives the same answer every run; an AI request costs credits and counts against `resolveCalls` and `aiCredits`.
+Settle every case a rule can settle in the script, and send only the cases left over to `realm.resolve`. A per-item test, such as a label check or a pattern on a title, is plain JavaScript, as below; reshaping a long list before or after it is a `realm.transform` (_Reshaping data_, above). A rule costs nothing and gives the same answer every run; an AI request costs credits and counts against `resolveCalls` and `aiCredits`.
 
 ```js
 const unclear = [];
@@ -457,5 +462,5 @@ The catalog's own example shows a card and script side by side: `automation/Auto
 - Each milestone whose outcome varies reports one to five tasks with `realm.progress.task`, in plain words that name what the task acted on, never one per loop iteration.
 - Each card's path comes from the item's key; the script compares before writing and writes a status instead of deleting.
 - Every outside call goes through an operation the card's `operations` names, checks `status`, and pages within a cap.
-- Rules settle what rules can; JSON is reshaped with `realm.transform`, not a JavaScript loop; `realm.resolve` gets one batched request with a closed schema.
+- Rules settle what rules can; a list of more than a few dozen items is reshaped with one `realm.transform` call, not a JavaScript loop or a call per item; `realm.resolve` gets one batched request with a closed schema.
 - The person confirms the trigger, the estimate and the monthly cap in the chat before anything runs.
