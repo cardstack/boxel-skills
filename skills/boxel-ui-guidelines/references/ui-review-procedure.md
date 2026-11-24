@@ -61,7 +61,7 @@ Either the template follows the realm's theme, or it is pinned to a fixed theme.
 
 - Fixed widths and heights the layout is built around (rails, search boxes, column templates, max-widths) are hoisted onto the root as private rem variables (`--_x-rail-w`) when their value is off the ladder; one that lands on a `--boxel-*` step reads the token in place (step 4). Small dots and boxes are rem in place.
 - Long words and identifiers wrap with `overflow-wrap: break-word`, paired with `min-width: 0` on the flex or grid item that holds them. `overflow-wrap: anywhere` also counts every character as a break when sizing the box, so in a content-sized track it can collapse to one character wide; use it only when that shrinking is the point. `word-break: break-all` breaks every word, not just the ones that overflow, and `word-break: break-word` is a deprecated, nonstandard value; replace both.
-- Icons get `width` and `height` attributes on the component and no size in CSS. CSS on an icon is for color only, and usually inherits.
+- Icons get `width` and `height` attributes on the component, always. CSS may resize an icon on top of them, such as a percentage of a sized parent, but never in place of them. Color usually inherits.
 - No `vh`/`vw`; the isolated root is `height: 100%; overflow-y: auto`.
 
 ### 6. Child cards and host DOM
