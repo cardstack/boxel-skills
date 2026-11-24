@@ -257,7 +257,7 @@ Read `realm.current.automation.dryRun` once, and put each change behind the chec
 const { dryRun } = realm.current.automation;
 // … the reads and the workspace writes run in every kind of run …
 let bought = 0;
-for (const order of batch) {
+for (const [path, order] of batch) {
   const payload = {
     idempotencyKey: `label-${order.orderId}`,
     orderId: order.orderId,
@@ -298,7 +298,7 @@ Boxel saves a run's writes after the script ends, all or none, so a run can end 
 
 - **Put each change after the workspace writes the change depends on.** Stage the card first and call the service second: Boxel checks each write as the script makes the write (`forbidden-path`, a path clash, the `writes` limit) and throws there, so a refused write stops the script before the service acts. Make the changes the script's last step where the script allows.
 - **Send an idempotency key with each change**, so the service answers a repeat with its first result instead of acting twice. Build the key from the upstream item's own id (`label-${order.id}`), or, for work tied to one scheduled run, from the trigger's label and `realm.current.automation.scheduledAt`. Never build the key from a random value or the current time: the next run has to send the same key for the same item. Declare the key as a param of the operation and send it where the service reads it (an `Idempotency-Key` header, or a reference field in the body).
-- **Bound the changes a run makes.** Take at most a batch of items a run (`MAX_LABELS`), sized so the batch's calls and writes fit the run's limits with room to spare, and leave the rest pending for the next run. A run that reaches a limit partway through its changes saves nothing, so the next run meets the same backlog, makes the same calls, and reaches the same limit.
+- **Bound the changes a run makes.** Take at most a batch of items a run (`MAX_LABELS`), sized so the batch's calls and writes fit the run's limits with room to spare, and leave the rest pending for the next run. A cursor on a time reads from its boundary inclusively, since two items can share the boundary's time; the card paths come from each item's key, so the item a run reads again costs nothing. A run that reaches a limit partway through its changes saves nothing, so the next run meets the same backlog, makes the same calls, and reaches the same limit.
 - **Record each change on the item's card** (`labelId`, `postedAt`), so the next run skips what already happened. When the save failed, the next run finds the item pending, sends the change again with the same key, and the service answers with the first result.
 
 A service that takes no idempotency key can act twice after a failed save. For such a service, look the item up at the service before each change where the service allows a lookup, and say in the reply to the person that a failed run can repeat the change.
