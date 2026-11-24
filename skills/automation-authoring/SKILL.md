@@ -255,18 +255,29 @@ Read `realm.current.automation.dryRun` once, and put each change behind the chec
 ```js
 const { dryRun } = realm.current.automation;
 // … the reads and the workspace writes run in every kind of run …
-for (const order of toShip) {
-  const payload = { orderId: order.id, address: order.address, weightGrams: String(order.weightGrams) };
+let bought = 0;
+for (const order of batch) {
+  const payload = {
+    idempotencyKey: `label-${order.orderId}`,
+    orderId: order.orderId,
+    address: order.address,
+    weightGrams: String(order.weightGrams),
+  };
   if (dryRun) {
-    console.info(`Preview: would buy a label for order ${order.id}: ${JSON.stringify(payload)}`);
-  } else {
-    await realm.operations.invoke(carrier, "buyLabel", payload);
+    console.info(`Preview: would buy a label for order ${order.orderId}: ${JSON.stringify(payload)}`);
+    continue;
   }
+  const { document } = await realm.operations.invoke(carrier, "buyLabel", payload);
+  if (document.status !== 200 && document.status !== 201) {
+    console.warn(`order ${order.orderId}: the carrier answered ${document.status}`);
+    continue;
+  }
+  bought++;
 }
 realm.progress.task(
   dryRun
-    ? `Would buy ${toShip.length} shipping labels (Preview)`
-    : `Bought ${toShip.length} shipping labels`,
+    ? `Would buy ${batch.length} shipping labels (Preview)`
+    : `Bought ${bought} of ${batch.length} shipping labels`,
 );
 ```
 
@@ -282,10 +293,11 @@ An outside service sees only what the workspace has saved, and a run's writes wa
 
 ### Make each change last, and safe to repeat
 
-Boxel saves a run's writes after the script ends, all or none, and the save can fail after the script made its outside calls: the run reaches its `writes` limit, the person the run acts as lost direct write to the workspace, or a file sits where the run writes one. The service then acted on writes the workspace never got, and the next run starts from the workspace without them.
+Boxel saves a run's writes after the script ends, all or none, so a run can end without saving anything after the script made its outside calls. A later step throws, the run reaches one of its limits (`callApiCalls`, `writes`, `seconds`), or the save itself fails at the end, for example because the person the run acts as lost direct write to the workspace. The service then acted on writes the workspace never got, and the next run starts from the workspace without them.
 
-- **Put each change after the workspace writes the change depends on.** Stage the card first and call the service second, so a write Boxel refuses (`forbidden-path`, the `writes` limit) stops the script before the service acts. Make the changes the script's last step where the script allows.
+- **Put each change after the workspace writes the change depends on.** Stage the card first and call the service second: Boxel checks each write as the script makes the write (`forbidden-path`, a path clash, the `writes` limit) and throws there, so a refused write stops the script before the service acts. Make the changes the script's last step where the script allows.
 - **Send an idempotency key with each change**, so the service answers a repeat with its first result instead of acting twice. Build the key from the upstream item's own id (`label-${order.id}`), or, for work tied to one scheduled run, from the trigger's label and `realm.current.automation.scheduledAt`. Never build the key from a random value or the current time: the next run has to send the same key for the same item. Declare the key as a param of the operation and send it where the service reads it (an `Idempotency-Key` header, or a reference field in the body).
+- **Bound the changes a run makes.** Take at most a batch of items a run (`MAX_LABELS`), sized so the batch's calls and writes fit the run's limits with room to spare, and leave the rest pending for the next run. A run that reaches a limit partway through its changes saves nothing, so the next run meets the same backlog, makes the same calls, and reaches the same limit.
 - **Record each change on the item's card** (`labelId`, `postedAt`), so the next run skips what already happened. When the save failed, the next run finds the item pending, sends the change again with the same key, and the service answers with the first result.
 
 A service that takes no idempotency key can act twice after a failed save. For such a service, look the item up at the service before each change where the service allows a lookup, and say in the reply to the person that a failed run can repeat the change.
@@ -297,7 +309,7 @@ A run remembers nothing: each run starts from the workspace as the last run left
 - **Derive each card's path from the item's own key.** One card per issue at `Issue/boxel-1234`, from the repository and the issue number, never `Issue/1`, `Issue/2` in the order a run found them. A later run then finds the same card for the same item, and a second run of the same slot writes the same files.
 - **Compare before writing.** Read the card first (`realm.cards.get` in a `try`, since the card may not exist yet), and write only when a field the run owns changed. An unchanged card costs nothing, and the `writes` limit stays clear for real changes.
 - **Write a status instead of deleting.** When an item disappears upstream, set `status: 'closed'` (or `stale`, `archived`) on its card. A run can't delete, and the person keeps the history. Mark an item gone only after the run read the service's whole list: a run that stopped paging early has not seen the rest, and would mark every item it missed.
-- **Start from the last complete run.** `realm.current.automation.lastSuccessAt` says when the last complete run started, so ask the service only for what changed since then (`since=` on GitHub's issue list). A failed run doesn't move `lastSuccessAt`, so the next run covers the gap.
+- **Start from the last complete run.** `realm.current.automation.lastSuccessAt` says when the last complete run started, so ask the service only for what changed since then (`since=` on GitHub's issue list). A failed run doesn't move `lastSuccessAt`, so the next run covers the gap. Before the first complete run `lastSuccessAt` is absent. When a run acts on each item it finds (buys, sends, charges), start from a date the person confirms in the chat and the card holds as a param, never from the start of the service's history.
 - **Keep the run's own bookkeeping in a card or file**, such as a cursor or the last item seen, when the service pages by token rather than by time.
 
 ## Rules before AI
