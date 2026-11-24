@@ -54,7 +54,7 @@ declaration is invisible to those types and the payload goes unchecked.
 | A named action that writes the card, invocable from a template, another card, or an agent | **An operation**        |
 | Several cards changed all-or-nothing                     | **An operation** inside `atomic()`             |
 | A request to an outside API that needs no key of the user's or the realm's | **A `callApi` operation** (§2) |
-| A request to an outside API with the user's or the realm's key | **A `callApi` operation with a slot**, sent by a pipeline the platform runs (nothing in a card or realm schedules one), or from the card when its key's owner approves interactive use ([`api-integrations`](../api-integrations/SKILL.md)) |
+| A request to an outside API with the user's or the realm's key | **A `callApi` operation with a slot**, sent by an automation's run ([`automation-authoring`](../automation-authoring/SKILL.md)), or from the card when its key's owner approves interactive use ([`api-integrations`](../api-integrations/SKILL.md)) |
 | Work that needs an LLM, host services, or logic around a fetch | A command — operations run no author JavaScript |
 
 The dividing line is that an operation is *data the realm executes*. That buys
@@ -291,15 +291,17 @@ owner approves the operation, in this realm, in Boxel's secure window (every
 operation on the card at once; see [`api-keys`](../api-keys/SKILL.md)), naming
 which of their keys fills it. Until then the operation is refused
 `binding-not-approved` and nothing is sent. The approval also says where the
-operation runs: **On a schedule only** (the default), or **On a schedule and when the card is opened**, which lets a card, the AI assistant or the CLI invoke it
-too, within the key's limits. Approved for pipelines only, an invocation from
-a card, the assistant or the CLI is refused `interactive-use-not-approved`. A
-pipeline is run by the realm server, and nothing a card author writes — no
-card, field, operation or `realm.json` setting — schedules one. A card that
+operation runs: **On a schedule only**, or **On a schedule and when the card is opened** (where the window opened in the browser starts), which lets a card, the AI assistant or the CLI invoke it
+too, within the key's limits. Approved for automations only, an invocation
+from a card, the assistant or the CLI is refused
+`interactive-use-not-approved`. An automation is an Automation card whose
+script the realm server runs on the card's schedule, as the person who
+switched it on ([`automation-authoring`](../automation-authoring/SKILL.md));
+the card that declares the operation declares no schedule. A card that
 calls the operation itself is a live card, and any card the user opens, from
 any realm, can invoke an operation approved for interactive use and read the
 response, since card code is not sandboxed per realm origin. So private data
-takes the pipeline shape: the card renders fields a pipeline would write.
+takes the automation shape: the card renders fields an automation writes.
 [`api-integrations`](../api-integrations/SKILL.md) §2 shows both shapes. An
 operation with no slot works without any approval. The slot rules lowering
 enforces are in §4.
@@ -1456,7 +1458,7 @@ try {
 | `binding-not-approved`     | A `callApi` carrying a credential slot that no approval fills for this caller in this realm (never approved, or its key or grant was removed) — nothing was sent. The key's owner approves it in the secure window ([`api-keys`](../api-keys/SKILL.md)) |
 | `share-suspended`          | A slot filled from a workspace's share that is suspended (its owner lost write access, a writer suspended it, or its key was deleted) — nothing was sent; a direct writer resumes it or swaps a key in |
 | `binding-needs-reapproval` | The operation sends something other than what was approved for a slot — nothing is sent until its key's owner reviews the change in the secure window |
-| `interactive-use-not-approved` | A slotted `callApi` invoked from a card, the assistant or the CLI whose approval is for scheduled pipelines only — nothing was sent. The key's owner can allow it in the secure window's `approve` mode, under **On a schedule and when the card is opened** |
+| `interactive-use-not-approved` | A slotted `callApi` invoked from a card, the assistant or the CLI whose approval is for automations only — nothing was sent. The key's owner can allow it in the secure window's `approve` mode, under **On a schedule and when the card is opened** |
 | `credential-rejected`      | The key a `callApi` slot sends can't be used. Either the service rejected it (it answered 401), after which calls with that key to that service aren't sent except a periodic retry; or a key that mints its tokens couldn't get one, and nothing was sent: an OAuth connection or a Google service account (see the Google recipe above), and `err.meta.reason` says why (`rejected`: the key's owner reconnects or replaces it; `needs-admin`: the OAuth client needs its administrator; `unavailable`: try later). Stop polling; see [`api-keys`](../api-keys/SKILL.md) |
 | `not-during-render`        | A `callApi` invoked while a card renders — nothing was sent   |
 | `guard-refused`            | The realm server refused the `callApi`'s destination: not https, a private address, a request outside its declared destination, or a token endpoint such as Google's, which only the platform calls, so nothing was sent; or a redirect hop that was refused or one too many (the request had already reached the vendor) |
