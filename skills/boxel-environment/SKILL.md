@@ -35,8 +35,11 @@ If you find yourself about to say you lack a tool, or asking the user to switch 
 ├─ B) DATA  (card content, field values)              → Step 4
 ├─ C) SEARCH / FIND                                   → Step 5
 ├─ D) NAVIGATE                                        → Step 6
-└─ E) QUESTION about Boxel itself (Claude Code, publishing, credits) → answer from references/questions-about-boxel.md; only credits take a call (`room.credits()`)
+├─ E) QUESTION about Boxel itself (Claude Code, publishing, credits) → answer from references/questions-about-boxel.md; only credits take a call (`room.credits()`)
+└─ F) LATER (work done at a later time, once or again and again: "an hour from now", "every Monday", "keep these in sync") → an automation: read [`../automation-authoring/SKILL.md`](../automation-authoring/SKILL.md)
 ```
+
+Work the user wants done later belongs in an automation, never in a `run-realm-code` script now: a script runs once, while the chat waits, and nothing runs it again. An automation's script runs on the realm server at each trigger, with no chat open.
 
 ### Step 3 — Code task
 
