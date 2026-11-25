@@ -429,9 +429,10 @@ approval, and the notice offers **Review and approve…**, which opens the
 `approve` page for the automation and covers every operation the user's
 approval is missing for in one confirmation. When no share in the workspace
 holds a key for an `{{apiKey}}` slot, the automation waits for a realm
-administrator to share one, and the notice offers **Share a key…**. Once a key
-is shared, the notice asks the key's owner to approve, and the automation waits
-for that approval. Boxel tells the user through API Keys in the profile menu
+administrator to share one, and the notice offers **Share a key…**. Sharing a
+key is half of it: the user then approves the automation's use of the shared
+key, which the same notice asks for once the key is shared, and the
+automation waits for that approval. Boxel tells the user through API Keys in the profile menu
 and the dot on the avatar, which count the user's unread notices, and the key
 page that API Keys opens lists each automation, the workspace, each operation
 and where the operation sends. Opening the key page takes the notices out of
