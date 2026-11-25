@@ -79,7 +79,7 @@ if (card.attributes.status === 'ended') {
 }
 ```
 
-The reply tells the user the automation will run at "Wednesday, November 18, 2026 at 3:10 PM Eastern" once a direct writer of the workspace switches the automation on, and that switching on means confirming the time, the estimate and the monthly cap.
+The reply tells the user the automation will run at "Wednesday, November 18, 2026 at 3:10 PM Eastern" once the automation is switched on, and asks whether to Preview the automation and then switch the automation on, which means confirming the time, the estimate and the monthly cap (_Before anything runs_).
 
 ## 2. A weekday digest that keeps one card per issue
 
