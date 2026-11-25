@@ -164,21 +164,21 @@ Leave `batchedAI` `false` unless the script sends AI requests nobody is waiting 
 
 The script runs on the **automation surface**: the Realm Runner methods a `run-realm-code` script uses, minus everything that needs a person or a chat room, plus a console and run milestones. A run has no room and no one to ask.
 
-| Methods                                                                                          | In a run                                                                         |
-| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| `realm.cards.search`, `realm.cards.get`, `realm.fs.readText`, `realm.fs.list`, `realm.fs.exists` | yes, in the automation's own workspace                                           |
-| `realm.entries.search`                                                                           | yes, in the automation's own workspace only                                      |
-| `realm.fs.writeText`, `realm.fs.writeBytes`, `realm.fs.replace`, `realm.fs.copy`                 | yes; `realm.fs.writeText` writes the file whole, whether or not the file exists  |
-| `realm.cards.update`                                                                             | yes                                                                              |
-| `realm.operations.invoke`, `realm.operations.invokeBatchOperation`                               | yes; a `callApi` only for an operation the card's `operations` names             |
-| `realm.resolve`                                                                                  | yes, within `resolveCalls` and `aiCredits`                                       |
-| `realm.resolve.batch`                                                                            | not in a Preview, and only when the card turns on `batchedAI` (_Batched AI_)     |
-| `realm.progress.plan`, `realm.progress.milestone`, `realm.progress.task`                         | only in a run                                                                    |
-| `console.log`, `console.info`, `console.warn`, `console.error`                                   | only in a run                                                                    |
-| `realm.fs.delete`, `realm.fs.download`                                                           | no                                                                               |
-| `realm.web.search`, `realm.web.read`, `realm.images.generate`, `realm.capture`                   | no                                                                               |
-| `realm.ask`, `realm.plan`, `realm.ui.*`, `room.*`, `realm.workspaces.*`, `realm.index.*`         | no                                                                               |
-| `realm.transform`                                                                                | no: reshape data with plain JavaScript (`filter`, `map`, `reduce`) in the script |
+| Methods                                                                                          | In a run                                                                        |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `realm.cards.search`, `realm.cards.get`, `realm.fs.readText`, `realm.fs.list`, `realm.fs.exists` | yes, in the automation's own workspace                                          |
+| `realm.entries.search`                                                                           | yes, in the automation's own workspace only                                     |
+| `realm.fs.writeText`, `realm.fs.writeBytes`, `realm.fs.replace`, `realm.fs.copy`                 | yes; `realm.fs.writeText` writes the file whole, whether or not the file exists |
+| `realm.cards.update`                                                                             | yes                                                                             |
+| `realm.operations.invoke`, `realm.operations.invokeBatchOperation`                               | yes; a `callApi` only for an operation the card's `operations` names            |
+| `realm.resolve`                                                                                  | yes, within `resolveCalls` and `aiCredits`                                      |
+| `realm.resolve.batch`                                                                            | not in a Preview, and only when the card turns on `batchedAI` (_Batched AI_)    |
+| `realm.transform`                                                                                | yes, with no limit on how many calls a run makes (_Reshaping data_, below)      |
+| `realm.progress.plan`, `realm.progress.milestone`, `realm.progress.task`                         | only in a run                                                                   |
+| `console.log`, `console.info`, `console.warn`, `console.error`                                   | only in a run                                                                   |
+| `realm.fs.delete`, `realm.fs.download`                                                           | no                                                                              |
+| `realm.web.search`, `realm.web.read`, `realm.images.generate`, `realm.capture`                   | no                                                                              |
+| `realm.ask`, `realm.plan`, `realm.ui.*`, `room.*`, `realm.workspaces.*`, `realm.index.*`         | no                                                                              |
 
 A method off the list isn't defined in a run at all, so a call to one throws a `TypeError`. A script that the assistant also runs by hand through `run-realm-code` to test works on both surfaces only when it guards the run-only calls (`globalThis.console?.log(...)`); write the automation's script for the automation surface, and test it with a Preview.
 
@@ -187,7 +187,7 @@ How a run differs from a `run-realm-code` call:
 - **Every save waits for the end.** Boxel holds a run's writes aside while the script runs and saves them together when the script finishes, all or none. A run that throws, reaches a limit or runs out of time saves nothing. Inside the run, a read of a file the run wrote returns the run's version, but `realm.cards.search` reads the index as it stood when the run started: it misses a card the run created and matches a card on the values it held before the run changed them. Keep what the run wrote in the script's own variables rather than searching for it again.
 - **A run can't write code or settings.** Boxel refuses a run's write to a module (`.gts`, `.ts`, `.gjs`, `.js`), `realm.json`, a `RealmPolicy` card or an Automation card (`forbidden-path`). An automation never rewrites its own script or card.
 - **A run deletes nothing.** Mark a card done, archived or stale with a status field instead (_The workspace is the state_, below).
-- **The card's limits replace the interactive ones.** No 20-file, 200-update or 55-second limit; `writes`, `seconds` and the other caps bound the run instead.
+- **The card's limits replace the interactive ones.** No 20-file, 200-update, 100-transform or 55-second limit; `writes`, `seconds` and the other caps bound the run instead.
 - **A run holds at most 20,000,000 characters** of the files it reads and writes. Read a large workspace a page at a time and keep only what the run needs.
 - **Nothing pauses a run for a person.** A step that needs a decision belongs in the conversation before the automation is written, or in a card the run writes for the person to act on later.
 
@@ -313,9 +313,41 @@ A run remembers nothing: each run starts from the workspace as the last run left
 - **Start from the last complete run.** `realm.current.automation.lastSuccessAt` says when the last complete run started, so ask the service only for what changed since then (`since=` on GitHub's issue list). A failed run doesn't move `lastSuccessAt`, so the next run covers the gap. Before the first complete run `lastSuccessAt` is absent. When a run acts on each item it finds (buys, sends, charges), start from a date the person confirms in the chat and the card holds as a param, never from the start of the service's history.
 - **Keep the run's own bookkeeping in a card or file**, such as a cursor or the last item seen, when the service pages by token rather than by time.
 
+## Reshaping data
+
+Filter, group, sum, sort or pick fields across a list of more than a few dozen items the run holds (a service's response, a JSON file, the cards a search found) with `realm.transform(input, program, { params })`, not a JavaScript loop; picking a field from a handful of items is a plain `map` in the script. Transform a whole array in one call, never one call per item. The program is BXL, jq with the Excel functions, and runs in a worker beside the script at full JavaScript speed, while the script's own loops run in an interpreter many times slower. Both spend the run's `seconds`: a program's time counts toward the run's time limit. Before the first program, read the `realm.transform` section of [`source-code-editing`](../source-code-editing/SKILL.md): it has the spelling, what a program may not do, and the limits on each call.
+
+```js
+realm.progress.plan(["Total paid orders"]);
+realm.progress.milestone("Total paid orders");
+const { document } = await realm.operations.invoke(
+  "Store/main",
+  "recentOrders",
+  {
+    since: realm.current.automation.lastSuccessAt ?? "1970-01-01T00:00:00Z",
+  },
+);
+if (document.status !== 200)
+  throw new Error(`The store answered ${document.status}`);
+const byProduct = await realm.transform(
+  document.body.orders,
+  'map(select(.status == params("status"))) | [.[].lines[]] | group_by(.sku) | map({sku: .[0].sku, units: map(.qty) | add}) | sort_by(-.units)',
+  { params: { status: "paid" } },
+);
+realm.progress.task(
+  `Totaled ${byProduct.length} products from ${document.body.orders.length} orders`,
+);
+```
+
+- **Pass the array itself** (`document.body.orders`), not the response around it. A program that fails on its input says the input's top-level shape, so fix the program from the error.
+- **Collect a paged service's items, then transform them once** the run has every page. When the pages together pass 1,000,000 bytes, transform each page as it arrives and combine the pages' results with one more transform, such as `add | group_by(.sku) | map({sku: .[0].sku, units: map(.units) | add}) | sort_by(-.units)` over the array of per-page results. A run makes as many calls as its `seconds` allow; the 100-call limit of a `run-realm-code` call doesn't apply. At most 8 calls may wait at once, and a call past that throws, so `await` each call rather than starting many with `Promise.all`: the programs run one at a time anyway. Each call takes at most 1,000,000 bytes in and returns at most 1,000,000 bytes, a run's calls move at most 10,000,000 bytes in and out together, and each program runs for at most 10 seconds.
+- **A failed program throws in the script**, as any call does: one stopped at its 10 seconds included. Catch it only when the run can do without that result, and log why with `console.warn`; otherwise let the run fail, so it saves nothing and the next run tries again.
+
+The run's log gets one line for its transforms, as the run ends: how many calls the script made, how many failed, and how long the programs ran. Report what the transforms produced with `realm.progress.task`, as above, not each call.
+
 ## Rules before AI
 
-Settle every case a rule can settle in plain JavaScript, and send only the cases left over to `realm.resolve`. A rule costs nothing and gives the same answer every run; an AI request costs credits and counts against `resolveCalls` and `aiCredits`.
+Settle every case a rule can settle in the script, and send only the cases left over to `realm.resolve`. A per-item test, such as a label check or a pattern on a title, is plain JavaScript, as below; reshaping a long list before or after it is a `realm.transform` (_Reshaping data_, above). A rule costs nothing and gives the same answer every run; an AI request costs credits and counts against `resolveCalls` and `aiCredits`.
 
 ```js
 const unclear = [];
@@ -469,7 +501,9 @@ The Automation card lists the plan's milestones before any run, and after a run 
 ```js
 realm.progress.milestone("Group by label");
 // …
-realm.progress.task(`Grouped ${issues.length} issues under ${labels.size} labels`);
+realm.progress.task(
+  `Grouped ${issues.length} issues under ${labels.size} labels`,
+);
 realm.progress.task(`Skipped ${archived.length} archived issues`);
 ```
 
@@ -503,7 +537,9 @@ for (let page = 1; page <= 10; page++) {
   // … GitHub lists pull requests as issues too; the loop counts them in pullRequests and keeps the rest in issues.
 }
 realm.progress.task(`Fetched ${issues.length} open issues`);
-realm.progress.task(`Skipped ${pullRequests} pull requests GitHub listed as issues`);
+realm.progress.task(
+  `Skipped ${pullRequests} pull requests GitHub listed as issues`,
+);
 realm.progress.milestone("Write digest");
 await realm.fs.writeText("reports/open-issues.md", digest);
 realm.progress.task("Wrote reports/open-issues.md");
@@ -536,6 +572,6 @@ The catalog's own example shows a card and script side by side: `automation/Auto
 - Every outside call goes through an operation the card's `operations` names, checks `status`, and pages within a cap.
 - Each outside call that changes something sits behind a `realm.current.automation.dryRun` check that logs what the call would send, comes after the workspace writes the call depends on, carries the data in the request rather than a workspace URL, and sends an idempotency key built from the item's own id where the service reads one (where the service reads none, the script records each change on the item's card and looks the item up first where the service allows).
 - A later step reads what the run wrote with `realm.cards.get` on a path built from the item's key, or from a `Map` in the script, never with `realm.cards.search`.
-- Rules settle what rules can; `realm.resolve` gets one combined request with a closed schema.
+- Rules settle what rules can; a list of more than a few dozen items is reshaped with one `realm.transform` call, not a JavaScript loop or a call per item; `realm.resolve` gets one combined request with a closed schema.
 - `batchedAI` is on only for AI requests nobody is waiting on; the script branches on `trigger.kind === "batch"` first, sends the requests in one `realm.resolve.batch` call as its last step with a deadline of an hour or more, skips the call when `dryRun` is set, keeps the deadline shorter than the time between scheduled runs, and moves its workspace cursor in the follow-up, once the answers are saved, rather than relying on `lastSuccessAt`.
 - The person confirms the trigger, the estimate and the monthly cap in the chat before anything runs.
