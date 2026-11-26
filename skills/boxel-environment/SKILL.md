@@ -35,8 +35,11 @@ If you find yourself about to say you lack a tool, or asking the user to switch 
 ├─ B) DATA  (card content, field values)              → Step 4
 ├─ C) SEARCH / FIND                                   → Step 5
 ├─ D) NAVIGATE                                        → Step 6
-└─ E) QUESTION about Boxel itself (Claude Code, publishing, credits) → answer from references/questions-about-boxel.md; only credits take a call (`room.credits()`)
+├─ E) QUESTION about Boxel itself (Claude Code, publishing, credits) → answer from references/questions-about-boxel.md; only credits take a call (`room.credits()`)
+└─ F) LATER (work Boxel does at a later time, once or again and again: "an hour from now", "every Monday", "keep these cards in step with my GitHub repo"; or Preview, run or switch on an automation the workspace holds) → an automation: read [`../automation-authoring/SKILL.md`](../automation-authoring/SKILL.md)
 ```
+
+Work the user wants done later belongs in an automation: a script that does the work now runs once, while the chat waits, and nothing runs that script again. An automation's script runs on the realm server at each trigger, with no chat open. A card that only holds dates or a schedule is a DATA or CODE task, and one field that follows another is a computed field, not an automation.
 
 ### Step 3 — Code task
 
