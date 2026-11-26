@@ -423,6 +423,25 @@ card an automation fills, and
 [`automation-authoring`](../automation-authoring/SKILL.md) for writing the
 automation that schedules the calls.
 
+An automation that someone else switched on can wait on the user. When the
+automation sends a key the user owns, the automation waits for the user's
+approval, and the notice offers **Review and approve…**, which opens the
+`approve` page for the automation and covers every operation the user's
+approval is missing for in one confirmation. When no share in the workspace
+holds a key for an `{{apiKey}}` slot, the automation waits for a realm
+administrator to share one, and the notice offers **Share a key…**. Sharing a
+key is half of it: the user then approves the automation's use of the shared
+key, which the same notice asks for once the key is shared, and the
+automation waits for that approval. Boxel tells the user through API Keys in the profile menu
+and the dot on the avatar, which count the user's unread notices, and the key
+page that API Keys opens lists each automation, the workspace, each operation
+and where the operation sends. Opening the key page takes the notices out of
+the count; the page keeps listing a notice until the approval lands, a key is
+shared, the operation leaves the automation's card, or the automation stops
+waiting. So when the user asks what the count on API Keys means, or why an
+automation in a workspace isn't running, send them to API Keys in the profile
+menu.
+
 From a terminal, `boxel keys` adds and shares keys, and connects accounts
 through OAuth, too (same section, and [OAuth connections](#oauth-connections)).
 
