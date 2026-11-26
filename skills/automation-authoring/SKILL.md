@@ -487,17 +487,21 @@ if (trigger.kind === "batch") {
   let failed = 0;
   for (const [i, result] of batch.results.entries()) {
     if ("error" in result) {
-      failed += 1; // its tickets stay untagged, so the next run sends them again
+      failed += 1; // its tickets stay untagged
       continue;
     }
+    // The script's own function: writes each ticket's category to its card
+    // and answers how many it wrote.
     saved += await saveCategories(pending.chunks[i], result.output);
   }
-  realm.progress.task(
-    `Categorized ${saved} tickets${batch.late ? " at the normal price" : ""}` +
-      (failed ? `; ${failed} requests failed` : ""),
-  );
+  realm.progress.task(`Saved categories for ${saved} tickets`);
   realm.progress.milestone("Save the cursor");
-  await realm.fs.writeText("state/cursor.json", JSON.stringify({ since: pending.readUpTo }));
+  if (failed === 0) {
+    await realm.fs.writeText("state/cursor.json", JSON.stringify({ since: pending.readUpTo }));
+  } else {
+    // The cursor stays, so the next run reads the untagged tickets again.
+    realm.progress.task(`Left the cursor for ${failed} requests that got no answer`);
+  }
   return;
 }
 realm.progress.plan(["Find untagged tickets", "Categorize tickets", "Save the cursor"]);
@@ -525,11 +529,11 @@ await realm.resolve.batch(requests, {
 - **A run submits one batch**, as its last step: the batch's milestone is where the run stops and the follow-up carries on. Put every request that can wait in that one call.
 - **It answers `{ batchId, requests, deadline, milestone }`** once the batch is submitted. The answers are not in the run that submits it.
 - **The follow-up** starts at the deadline, with `realm.current.automation.trigger.kind` `batch`. It runs the same script, acts as the person the submitting run acted as, and keeps to the same limits. It starts inside the batch's milestone, with the rest of the submitting run's plan, so the script reports tasks in it at once and marks its next milestone without declaring the plan again. Pausing the automation, or its waiting for a key approval, holds the follow-up. Resume starts it at once when the batch is finished or its deadline has passed, and otherwise at the deadline, acting as and charged to whoever resumed. Removing the automation drops it; the batch is paid for either way. Branch on the trigger's kind first thing, so the follow-up picks up the answers and never submits a batch of its own; the workspace holds whatever the submitting run saved.
-- **The answers are in `realm.current.automation.batch`**: `{ id, deadline, milestone, late, results }`, one result per request in the order the requests were sent, each `{ output, model }` or `{ error }`. The submitting run saves what each request covers (the items in each chunk) to a workspace file, and the follow-up reads that file to know where each answer goes. A request with an `error` has no answer: leave its items as they were, so the next run sends them again, and save the rest.
-- **Late answers.** A batch not answered by its deadline, or one that failed or expired, or whose answers are gone (30 days after the submit), has its requests sent again at the normal price before the script starts, and `batch.late` is `true`. The script reads those answers as it reads a batch's, from `results`. They count against the follow-up's `resolveCalls` and its time limit, so set `resolveCalls` to at least the number of requests in one batch and `seconds` to leave room for sending them, and use `late` only to say so in a task or a log line.
+- **The answers are in `realm.current.automation.batch`**: `{ id, deadline, milestone, late, results }`, one result per request in the order the requests were sent, each `{ output, model }` or `{ error }`. The submitting run saves what each request covers (the items in each chunk) to a workspace file, and the follow-up reads that file to know where each answer goes. A request with an `error` has no answer: leave its items as they were and save the rest, and leave the cursor where it was, so the next run reads those items again.
+- **Late answers.** A batch that wasn't answered by its deadline, or that failed, expired or was canceled, or whose answers Boxel can't read or that are gone (30 days after the submit), has its requests sent again at the normal price before the script starts, and `batch.late` is `true`. The script reads those answers as it reads a batch's, from `results`, and needn't report them: Boxel reports in the batch's milestone whether the batch completed or its requests were sent at the normal price. The requests sent again count against the follow-up's `resolveCalls` before the script's own `realm.resolve` calls, and against its time limit. Set `resolveCalls` to the number of requests in one batch plus whatever the follow-up sends itself, and `seconds` to leave room for sending them: a follow-up whose requests pass the cap ends at the cap and saves nothing.
 - **The follow-up moves the cursor.** A complete follow-up is a complete run, so it moves `lastSuccessAt`; a script that works on "what changed since the last run" keeps its own cursor in a workspace file instead (_The workspace is the state_). The submitting run saves the time it read up to alongside the batch's items, and the follow-up moves the cursor to that time only once it has saved the answers. A follow-up that fails, or a batch that gets no follow-up, then leaves the cursor where it was, and the next run reads those items again.
 - **Limits.** Each request in the batch counts against `resolveCalls`, in the submitting run and again in a follow-up that sends it at the normal price, and the batch holds twice its worst case against `aiCredits`, so a missed deadline can't overspend. Set both for the batch's requests.
-- **A Preview submits no batch, and shows the whole flow.** In a Preview, `realm.resolve.batch` sends the requests at once, at the normal price, charged to the person who clicked, and answers with `batchId` `null`. Once the script finishes, the Preview runs it again as the batch's follow-up: `trigger.kind` is `batch`, the follow-up sees what the first pass saved, and `realm.current.automation.batch` holds `{ id, deadline, milestone, late, results }`, each result `{ output, model }` or `{ error }` in its request's place. The Preview shows what both passes would save, and both passes share the run's one time limit. The follow-up pass reads `batch` as a real follow-up does, with `late` always `false`. So don't branch on `dryRun` around `realm.resolve.batch`, and keep a Preview's batch small: its requests cost the normal price. A Preview or a run of an automation whose card doesn't turn on `batchedAI` refuses `realm.resolve.batch`.
+- **A Preview submits no batch, and shows the whole flow.** In a Preview, `realm.resolve.batch` sends the requests at once, at the normal price, charged to the person who clicked, and answers with `batchId` `null`. Once the script finishes, the Preview runs it again as the batch's follow-up: `trigger.kind` is `batch`, the follow-up sees what the first pass saved, and `realm.current.automation.batch` holds `{ id, deadline, milestone, late, results }`, each result `{ output, model }` or `{ error }` in its request's place. The Preview shows what both passes would save, and both passes share the run's one time limit. The follow-up pass reads `batch` as a real follow-up does, with `id` `null` and `late` always `false`. So don't branch on `dryRun` around `realm.resolve.batch`, and keep a Preview's batch small: its requests cost the normal price. A Preview or a run of an automation whose card doesn't turn on `batchedAI` refuses `realm.resolve.batch`.
 
 ## Paging and retrying
 
@@ -659,7 +663,7 @@ The catalog's own example shows a card and script side by side: `automation/Auto
 - The card adopts from `@cardstack/catalog/automation/automation`, links a `.js` script in the same workspace, and sets every run limit and `monthlyCredits`.
 - Each trigger has a unique label and every field of its kind; times are wall-clock times in an IANA zone, ahead of now.
 - A webhook trigger names one of the workspace's incoming webhooks, the script checks `webhookPayload` before reading it, and a cron trigger on the same card catches up on missed deliveries.
-- The script calls only methods on the automation surface, starts with one literal `realm.progress.plan([...])`, and writes no module, `realm.json` or Automation card.
+- The script calls only methods on the automation surface, starts with one literal `realm.progress.plan([...])` (after a batch's follow-up branch, which carries on the submitting run's plan and declares none), and writes no module, `realm.json` or Automation card.
 - Each milestone whose outcome varies reports one to five tasks with `realm.progress.task`, in plain words that name what the task acted on, never one per loop iteration.
 - Each card's path comes from the item's key; the script compares before writing and writes a status instead of deleting.
 - Every outside call goes through an operation the card's `operations` names, checks `status`, and pages within a cap.
