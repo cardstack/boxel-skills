@@ -255,8 +255,10 @@ The dialect Boxel reads and writes. See [bfm.boxel.site](https://bfm.boxel.site)
 
 - **`realm.json`** — Card instance of `@cardstack/base/realm-config` `RealmConfig` at the realm root. Holds `backgroundURL`, `iconURL`, `hostRoutingRules`, etc.
 - **`RealmConfig`** — Base CardDef for the realm-level config card.
-- **`RoutingRuleField`** — FieldDef inside `RealmConfig.hostRoutingRules`. Each rule = `{ path: StringField, instance: linksTo(CardDef) }`.
-- **`hostRoutingRules`** — `containsMany(RoutingRuleField)` on `RealmConfig`. Maps clean paths (`/`, `/about`, `/blog`) to cards in the same realm.
+- **`RoutingRuleField`** — FieldDef inside `RealmConfig.hostRoutingRules`. A fixed rule = `path` + `instance: linksTo(CardDef)`. Other keys make a redirect (`redirectTo`, `statusCode`) or a dynamic route (`card`, or `type` + `match` + optional `where`; `routes` for child routes, `parent`, `name`).
+- **`hostRoutingRules`** — `containsMany(RoutingRuleField)` on `RealmConfig`. Maps clean paths (`/`, `/about`, `/blog`) to cards in the same realm, and paths with `:name` segments (`/posts/:slug`) to one card each of many.
+- **dynamic route** — A `hostRoutingRules` entry whose `path` has `:name` segments, each one whole path segment. It finds its card by a card id template (`card`) or a field match (`type`, `match`, `where`), can nest (`routes`), or redirects with the values copied (`redirectTo`). At most 20 per realm. → `link-host-mode-dynamic-routes`
+- **`hrefTo`** — Template helper from `@cardstack/base/href-to` for a link to a card: `<a href={{hrefTo post}}>`. Gives the canonical address the realm's routes serve the card at, or the card's own URL when no route fits. → `link-host-mode-dynamic-routes`
 - **same-realm guard** — Defensive read-time filter that drops routing rules pointing at cards in *other* realms. Prevents private-realm card surfacing via a public realm's URL.
 - **published realm** — Realm reachable by anonymous visitors over HTTPS at a public domain. A copy, republished to update; the user publishes from Host mode. → `boxel-environment/references/questions-about-boxel.md`
 - **print and published-output hardening** — Unclip host wrappers in print media, use semantic SVG fill attributes, validate Chromium and Firefox print output, and reindex before checking published HTML. → `boxel-ui-guidelines/references/print-and-published-output.md`
@@ -280,7 +282,7 @@ The dialect Boxel reads and writes. See [bfm.boxel.site](https://bfm.boxel.site)
 - **acting user** — The user an anonymous write is made as: the grant's `actingUser`, a BXL expression such as `realmConfig("submitter")`, `"@writer:example.com"`, `policy("writer")` or `instance().owner` (never on a grant that admits a visitor's `create`, where the visitor sends that card: `acting-user-from-submitted-card`), producing a Matrix user id holding write on the realm. Used only for a write by a caller who isn't signed in; checked at every write, failing as `expression-failed`, `not-a-matrix-id` or `no-write`. An anonymous write grant without one records `anonymous-write-without-acting-user` and admits no such write. → `realm-policy-authoring` §12
 - **grant blocklist / rate limit** — An anonymous grant's `blocklist` (IP addresses and CIDR ranges, as a comma-separated string or a list) and `rateLimitRequests` / `rateLimitWindowSeconds` (whole numbers, each falling back to the platform's 300 per 60 s), all BXL expressions reading `realmConfig()`, `policy()` or a constant, never `instance()` or `actor()` (`grant-expression-reads-target`). Each grant counts per caller address on its own. A blocklist that can't be read closes the grant to every such caller. Over every admitting grant's limit answers 429 `rate-limited` with `Retry-After`. → `realm-policy-authoring` §12
 
-→ `link-host-mode-paths`, `boxel-environment`, `boxel-cli`, `realm-policy-authoring`
+→ `link-host-mode-paths`, `link-host-mode-dynamic-routes`, `boxel-environment`, `boxel-cli`, `realm-policy-authoring`
 
 ## 13. Realm-bundled libraries (workspace-specific)
 
@@ -532,6 +534,7 @@ Ready patterns live at `boxel-patterns/patterns/<slug>/{README.md, example.gts}`
 - **`link-view-transition`** — `document.startViewTransition` + `view-transition-name`.
 - **`link-flip-card`** — CSS-only front/back flip primitive.
 - **`link-host-mode-paths`** — `realm.json` `hostRoutingRules` to route `/`, `/about`, `/blog` to cards.
+- **`link-host-mode-dynamic-routes`** — `hostRoutingRules` with `:name` segments: one route for many cards (`/posts/:slug`), and `hrefTo` links to them.
 - **`link-command-menu-item`** — Expose a Command as a card menu item via `[getMenuItems]`.
 
 ### Collaborate
