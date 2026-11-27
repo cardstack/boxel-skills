@@ -278,3 +278,95 @@ Safe on any path:
 For a card that formats dates, numbers or currency, grep for `Intl.`,
 `toLocale` and `localeCompare` before finishing. Every hit is at module scope,
 inside a module-level cache, or a safe call from the list above.
+
+## 14. Async work a component starts runs in an ember-concurrency task — never a loose promise
+
+A component can be torn down while its async work is still pending: the user
+closes the card, the stack changes, the prerender finishes. A loose promise
+doesn't know that. The code after its `await`, or in its `.then()`, still runs:
+it writes tracked state on a destroyed component, creates resources against a
+destroyed parent (development builds throw "Attempted to associate a
+destroyable child with an object that is already destroying"; production builds
+leak them), and a `setInterval` keeps fetching for a card nobody is looking at.
+Lint passes, and the card renders fine until it is torn down mid-flight.
+
+An ember-concurrency task is the guard. Ember-concurrency cancels every task
+on an object when that object is destroyed, so nothing after the task's next
+`await` runs. The same holds for a plain helper class a component creates, once
+the class is tied to the component with `associateDestroyableChild`.
+
+In a component, or in a class a component creates, never:
+
+- start a promise outside a task: `void this.load()`, calling an `async` method
+  without awaiting it inside a task, `promise.then(…)`, `Promise.resolve().then(…)`,
+  `queueMicrotask(…)`;
+- use `setTimeout`, `setInterval` or `requestAnimationFrame` for a delay, a
+  deferral or polling;
+- check `isDestroying(…)` / `isDestroyed(…)`, or keep an "is mounted" /
+  "destroyed" flag, before writing state. That check is the symptom: the work
+  it guards belongs in a task.
+
+```ts
+import { tracked } from '@glimmer/tracking';
+import { associateDestroyableChild } from '@ember/destroyable';
+import { rawTimeout, restartableTask, task, timeout } from 'ember-concurrency';
+
+// wrong — keeps running after the card closes, and needs a hand-written guard
+constructor(owner: any, args: any) {
+  super(owner, args);
+  void this.load();
+  setInterval(() => this.load(), 60_000);
+}
+async load() {
+  let response = await fetch(URL);
+  if (isDestroying(this) || isDestroyed(this)) return;
+  this.reading = await response.json();
+}
+
+// right — load on render, then refresh every minute; cancelled on teardown
+@tracked reading: Reading | undefined;
+constructor(owner: any, args: any) {
+  super(owner, args);
+  this.refresh.perform();
+}
+refresh = restartableTask(async () => {
+  for (;;) {
+    let response = await fetch(URL, { signal: AbortSignal.timeout(8000) });
+    if (response.ok) this.reading = await response.json();
+    await rawTimeout(60_000);
+  }
+});
+
+// right — a helper class a component creates: tie its life to the component,
+// and its tasks are cancelled with it
+class Pages {
+  constructor(parent: object) {
+    associateDestroyableChild(parent, this);
+  }
+  grow = task(async (wanted: number) => {
+    await timeout(0); // after the render that asked
+    /* create the missing pages */
+  });
+}
+```
+
+Start a task from the constructor, an action or a modifier. When a getter finds
+work that must start (a page the count now calls for, a place just added to a
+list), it may call `.perform()`, as long as the task's first step is an `await`
+and that render reads none of the task's own state (`isRunning`, `last`). A
+task never writes tracked state before its first `await`, because a render may
+have read it.
+
+Wait with `await timeout(ms)` in a task that ends. In a loop that never ends,
+wait with `await rawTimeout(ms)`: a card test's `settled()` waits for every
+pending `timeout`, so an endless `timeout` loop hangs the test. Both are
+cancelled with the task.
+
+Write the result to tracked state after an `await`, or return it and read
+`task.last.value`; both are fine. Never `await` a task's `.perform()` from
+outside a task (see "Critical pitfall: never `await` a task from outside the
+task" in `boxel/references/external-libraries.md`).
+
+For a card that fetches, polls or defers work, grep the `.gts` for `void `,
+`.then(`, `Promise.resolve`, `queueMicrotask`, `setTimeout`, `setInterval` and
+`isDestroy` before finishing. Every hit is outside component code, or is gone.

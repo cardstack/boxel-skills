@@ -145,8 +145,8 @@ class ComplexSetup extends Component {
 | -------------------------------------------------------------- | -------------------------------------------------------- |
 | `constructor() { this.store = owner.lookup('service:store') }` | `@service store;`                                        |
 | `constructor() { this.data = null; }`                          | `@tracked data = null;`                                  |
-| `constructor() { this.loadData(); }`                           | Use `@cached get` with getPromiseState                   |
-| `constructor() { this.interval = setInterval(...) }`           | Use modifier with registerDestructor                     |
+| `constructor() { this.loadData(); }`                           | `constructor() { this.loadTask.perform(); }` with a task |
+| `constructor() { this.interval = setInterval(...) }`           | A polling loop inside a task, performed from constructor |
 | `constructor() { this.subscription = ... }`                    | Use modifier or constructor with registerDestructor ONLY |
 
 **Performance Impact:**

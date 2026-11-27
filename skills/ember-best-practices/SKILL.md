@@ -13,6 +13,10 @@ boxel:
 
 Comprehensive performance optimization and accessibility guide for Ember.js applications. Contains 60 rules across 10 categories, prioritized by impact to guide automated refactoring and code generation.
 
+## In Boxel card code
+
+`getPromiseState` (`@warp-drive/reactiveweb`, `reactiveweb`) can't be imported by a card. Where a rule below loads data with it, load in an ember-concurrency task performed from the constructor instead, and poll with a loop inside a task rather than `setInterval`. Async work a component starts is never a loose promise: see `advanced-data-loading-with-ember-concurrency` and `boxel-workspace-cardinal-rules` #14.
+
 ## When to Apply
 
 Reference these guidelines when:
@@ -128,8 +132,8 @@ Reference these guidelines when:
 - `advanced-modifiers` - Use modifiers for DOM side effects
 - `advanced-helpers` - Extract reusable logic into helpers
 - `advanced-tracked-built-ins` - Use reactive collections from @ember/reactive/collections
-- `advanced-concurrency` - Use ember-concurrency for task management
-- `advanced-data-loading-with-ember-concurrency` - Data loading patterns with ember-concurrency
+- `advanced-concurrency` - Use ember-concurrency for every async operation a component starts
+- `advanced-data-loading-with-ember-concurrency` - Load data in a task, never a loose promise or an `isDestroying` guard
 
 ## How to Use
 
