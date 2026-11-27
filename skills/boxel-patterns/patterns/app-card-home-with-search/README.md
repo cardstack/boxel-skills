@@ -395,6 +395,8 @@ CSS:
 }
 ```
 
+**In a realm with dynamic routes**, give the overlay the routed address: `import { hrefTo } from '@cardstack/base/href-to';` and `href={{hrefTo entry.id}}`. The link then opens `/posts/hello` and not the card's URL, and it keeps the card's URL when no route fits. See [`link-host-mode-dynamic-routes`](../link-host-mode-dynamic-routes/README.md).
+
 ### Why overlay, not wrap
 
 The first instinct is to wrap the card: `<a><entry.component /></a>`. That breaks fitted cards because the anchor needs `display: block; height: 100%; width: 100%;` and the height-100% chain has to propagate through the component's outer chrome (`boxel-card-container`). The chain breaks silently and the rendered card collapses to zero height. Use the overlay pattern.

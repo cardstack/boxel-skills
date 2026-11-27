@@ -81,7 +81,8 @@ Ready patterns below can be read and adapted. Each has `patterns/<slug>/README.m
 - `link-onclick-outside` — Canonical `onClickOutside` modifier (50ms-delayed mousedown listener) for popovers and inline editors.
 - `link-view-transition` — `document.startViewTransition` + `view-transition-name` for free morph animations between DOM states. Add/remove items, format flips, list reorders, slide-deck auto-animate. Feature-detect for older browsers.
 - `link-flip-card` — CSS-only front/back flip primitive: `perspective` + `transform: rotateY(180deg)` + `backface-visibility: hidden`, driven by a single `@tracked isFlipped`. Flashcards, product reveals, two-sided info cards.
-- `link-host-mode-paths` — Route clean external URLs (`/`, `/about`, `/pricing`) to specific cards via `hostRoutingRules` on the `RealmConfig` card at `/realm.json`. Public realms only; static paths only; same-realm references.
+- `link-host-mode-paths` — Route clean external URLs (`/`, `/about`, `/pricing`) to specific cards via `hostRoutingRules` on the `RealmConfig` card at `/realm.json`. Public realms only; one fixed path per card; same-realm references.
+- `link-host-mode-dynamic-routes` — One route for many cards (`/posts/:slug`, `/c/:category/:product`) in `hostRoutingRules`: `:name` segments, card id template, field match with `where`, nested routes, redirects that copy values. What makes a route valid and the order routes are tried in. Links to routed cards with the `hrefTo` helper (`<a href={{hrefTo post}}>`), which gives the card's canonical routed address, or the card's own URL when no route fits.
 
 ### Collaborate
 
