@@ -10,6 +10,15 @@ validated: source-proven
 
 **The insight:** A route's `path` can hold `:name` segments, and the route says how the values find a card. Everything for a dynamic route goes in `attributes`. Only a fixed route's `instance` goes in `relationships`. A template never writes a route's path: it says which card the link points to (`{{hrefTo post}}`), and the realm's routes give the address.
 
+## A site in one pass
+
+When the user asks for a site with more than one page, do all of these in the first build:
+
+- Give `/` a fixed route to the home card, and give that route a `name`.
+- Give each page type one dynamic route.
+- Make each card that goes to a page a link: `<a href={{hrefTo card}}>`. On a published site, a click on a card does nothing unless the card is in an `<a>`.
+- Give each page a link back to the home page (see "Links: `hrefTo`").
+
 ## The `:name` segment
 
 - A `:name` takes exactly one whole, non-empty path segment. `/posts/:slug` matches `/posts/hello`, not `/posts` and not `/posts/news/hello`.
@@ -94,15 +103,16 @@ A link says what it points to in one of three ways:
 - **What the link gets.** The canonical routed address of the card, on the realm's URL: `/posts/hello` for a published post in the example below. A card that no route fits (a draft, when the only route has `where: published`) gets its own card URL, so the same template works in a realm with other routes or with none.
 - **Nested routes.** Give one card for each dynamic level, outermost first (`{{hrefTo category product}}`), or only the innermost card when it holds the link to its parent (`{{hrefTo product}}`).
 - **Prefer the card form.** A card type that other realms can use must not name a route. Use `route=` only in a site's own cards, such as its home page or its frame.
+- **A link to the home page.** Do not write `href='/'`. A site can be published at a sub-path (`https://host/shop/`), and `/` is then a different page. If the template has the home card, use `{{hrefTo homeCard}}`. If it does not, give the `/` route a `name` and use that name: `{{hrefTo route='home'}}`. The name can be any text. It must be the same in `realm.json` and in the template.
 - **Other realms.** A link into another realm keeps that card's own URL.
 - **Loading.** While a card that the routes read is still loading, the link has the card's own URL, and it changes when the card arrives. An empty argument gives no `href`. A link never fails the render because of what it points to.
-- **Where it applies.** A link gets its routed address on the published site and in the HTML that is stored for the realm. In the app (Interact, Code and Host mode), a link keeps the card's own URL.
+- **Where it applies.** A link gets its routed address on the published site, in the HTML that is stored for the realm, and in Interact mode and Code mode. In Host mode, a link keeps the card's own URL.
 
 ## What is not there yet
 
 Do not promise these:
 
-- **No routed links in the app.** In Interact, Code and Host mode, a `hrefTo` link has the card's own URL. To see routed addresses, open the published site.
+- **No routed links in Host mode.** In Host mode, a `hrefTo` link has the card's own URL. To see routed addresses, use Interact mode, Code mode or the published site.
 - **No routes editor.** Write dynamic routes in `realm.json` directly.
 - **The published site is a copy.** A change to `realm.json`, a slug or a card is not on the site until the user publishes again from Host mode.
 - **A route change does not refresh stored links.** After the routes change, links in pages that are already stored can keep their old addresses until those cards are indexed again.
@@ -118,7 +128,7 @@ Card types `Post` (`slug`, `status`), `Category` (`slug`), `Product` (`slug`, `c
     "type": "card",
     "attributes": {
       "hostRoutingRules": [
-        { "path": "/" },
+        { "name": "home", "path": "/" },
         {
           "path": "/posts/:slug",
           "type": { "module": "./site", "name": "Post" },
@@ -179,6 +189,7 @@ The list of posts on the home card links each post with `hrefTo`:
 | `{{hrefTo post}}` for `Post/a` | `/posts/hello`: `/posts/:slug` is the first route that fits |
 | `{{hrefTo post}}` for the draft `Post/b` | `/p/b`: `where` excludes it from `/posts/:slug`, and `/p/:id` fits next |
 | `{{hrefTo product}}` | `/c/shoes/trail-runner`: the category comes from `product.category` |
+| `{{hrefTo route='home'}}` | `/`: the route with the name `home`. `Post` uses it for its Home link |
 
 `/p/:id` also serves the draft. To keep drafts off the site, remove that route, or make it an alias (`"statusCode": 301`) and accept that a draft is then served at `/p/b`. With only `/posts/:slug`, a link to a draft has the draft's card URL.
 

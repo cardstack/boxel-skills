@@ -13,6 +13,9 @@
 // - `posts` on Blog: the home card lists the posts and links each one
 //   with `hrefTo`, which gives the post's routed address (`/posts/hello`)
 //   on the published site and the card's own URL where no route fits.
+// - The Home link on Post: it names the `/` route (`"name": "home"` in
+//   realm.json), because Post has no link to the Blog card and the site
+//   can be published at a sub-path.
 
 import {
   CardDef,
@@ -40,6 +43,8 @@ export class Post extends CardDef {
   static isolated = class Isolated extends Component<typeof this> {
     <template>
       <article class='page'>
+        {{! The home route's name, never a path such as "/". }}
+        <a href={{hrefTo route='home'}}>Home</a>
         <h1>{{@model.headline}}</h1>
         <@fields.body />
       </article>
